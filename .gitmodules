@@ -1,18 +1,24 @@
 [submodule "media/visuals"]
 	path = media/visuals
-	url = https://github.com/hungktkthd/saochepweb-visuals.git
+	url = https://github.com/hungktkthd/saochepweb.git
+	branch = media-visuals
 [submodule "media/etymology"]
 	path = media/etymology
-	url = https://github.com/hungktkthd/saochepweb-etymology.git
+	url = https://github.com/hungktkthd/saochepweb.git
+	branch = media-etymology
 [submodule "media/audios"]
 	path = media/audios
-	url = https://github.com/hungktkthd/saochepweb-audios.git
+	url = https://github.com/hungktkthd/saochepweb.git
+	branch = media-audios
 [submodule "media/hsk-audio"]
 	path = media/hsk-audio
-	url = https://github.com/hungktkthd/saochepweb-hsk-audio.git
+	url = https://github.com/hungktkthd/saochepweb.git
+	branch = media-hsk-audio
 [submodule "media/sentences-1"]
 	path = media/sentences-1
-	url = https://github.com/hungktkthd/saochepweb-sentences-1.git
+	url = https://github.com/hungktkthd/saochepweb.git
+	branch = media-sentences-1
 [submodule "media/sentences-2"]
 	path = media/sentences-2
-	url = https://github.com/hungktkthd/saochepweb-sentences-2.git
+	url = https://github.com/hungktkthd/saochepweb.git
+	branch = media-sentences-2
