@@ -37,6 +37,58 @@
     {
       "source": "/han-viet/:slug*",
       "destination": "/han-viet.html"
+    },
+    {
+      "source": "/ngu-phap/:slug*",
+      "destination": "/ngu-phap.html"
+    },
+    {
+      "source": "/luyen-chep-chinh-ta/:slug*",
+      "destination": "/luyen-chep-chinh-ta.html"
+    },
+    {
+      "source": "/thu-vien-hsk/:level/:slug+",
+      "destination": "/thu-vien-hsk/:level.html"
+    },
+    {
+      "source": "/thu-vien-new-hsk/:level/:slug+",
+      "destination": "/thu-vien-new-hsk/:level.html"
+    },
+    {
+      "source": "/thu-vien-yct/:level/:slug+",
+      "destination": "/thu-vien-yct/:level.html"
+    },
+    {
+      "source": "/thu-vien-boya/:level/:slug+",
+      "destination": "/thu-vien-boya/:level.html"
+    },
+    {
+      "source": "/thu-vien-hanyu-jiaocheng/:level/:slug+",
+      "destination": "/thu-vien-hanyu-jiaocheng/:level.html"
+    },
+    {
+      "source": "/kiem-tra-hsk/:slug*",
+      "destination": "/kiem-tra-hsk.html"
+    },
+    {
+      "source": "/kiem-tra-yct/:slug*",
+      "destination": "/kiem-tra-hsk.html"
+    },
+    {
+      "source": "/de-kiem-tra/:slug*",
+      "destination": "/de-kiem-tra.html"
+    },
+    {
+      "source": "/so-tay/:slug*",
+      "destination": "/so-tay.html"
+    },
+    {
+      "source": "/hoc/:slug*",
+      "destination": "/hoc.html"
+    },
+    {
+      "source": "/tro-choi/:slug*",
+      "destination": "/tro-choi.html"
     }
   ],
   "headers": [
