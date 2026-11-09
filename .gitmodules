@@ -1,0 +1,18 @@
+[submodule "media/visuals"]
+	path = media/visuals
+	url = https://github.com/hungktkthd/saochepweb-visuals.git
+[submodule "media/etymology"]
+	path = media/etymology
+	url = https://github.com/hungktkthd/saochepweb-etymology.git
+[submodule "media/audios"]
+	path = media/audios
+	url = https://github.com/hungktkthd/saochepweb-audios.git
+[submodule "media/hsk-audio"]
+	path = media/hsk-audio
+	url = https://github.com/hungktkthd/saochepweb-hsk-audio.git
+[submodule "media/sentences-1"]
+	path = media/sentences-1
+	url = https://github.com/hungktkthd/saochepweb-sentences-1.git
+[submodule "media/sentences-2"]
+	path = media/sentences-2
+	url = https://github.com/hungktkthd/saochepweb-sentences-2.git
