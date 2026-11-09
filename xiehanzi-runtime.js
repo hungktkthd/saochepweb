@@ -440,16 +440,31 @@
 
     // HSK & YCT Tests
     if (p === '/v1/generated-tests/options') return fetchLocalJson('/data/tests/generated-tests-options.json');
-    if (p === '/v1/generated-tests/freshness') return fetchLocalJson('/data/tests/generated-tests-freshness.json');
+    if (p === '/v1/generated-tests/freshness') return { updatedAt: new Date().toISOString() };
+    if (p === '/v1/hsk-tests/papers' || p === '/v1/hsk-tests/papers/') {
+      var famP = (u.searchParams.get('family') || '').toUpperCase();
+      if (famP === 'YCT') return fetchLocalJson('/data/tests/papers-yct.json');
+      return fetchLocalJson('/data/tests/papers-hsk.json');
+    }
     if (p === '/v1/hsk-tests/levels' || p === '/v1/hsk-tests/levels/') {
       var fam = (u.searchParams.get('family') || '').toUpperCase();
       if (fam === 'YCT') return fetchLocalJson('/data/tests/levels-yct.json');
       return fetchLocalJson('/data/tests/levels-hsk.json');
     }
-    var testPaperMatch = p.match(/^\/v1\/hsk-tests\/(?:papers\/|levels\/([0-9]+)\/tests\/)?([^\/]+)$/);
-    if (testPaperMatch && testPaperMatch[2] !== 'levels' && testPaperMatch[2] !== 'papers') {
-      var tid = testPaperMatch[2];
-      var lvlGuess = testPaperMatch[1];
+    var testLevelListMatch = p.match(/^\/v1\/hsk-tests\/levels\/([0-9]+)$/);
+    if (testLevelListMatch) {
+      var targetLvl = parseInt(testLevelListMatch[1], 10);
+      var allPapers = await fetchLocalJson('/data/tests/papers-hsk.json');
+      if (allPapers && Array.isArray(allPapers.levels)) {
+        var foundLvl = allPapers.levels.find(function (x) { return Number(x.level) === targetLvl; });
+        return foundLvl ? (foundLvl.items || foundLvl) : [];
+      }
+      return allPapers;
+    }
+    var testPaperDirectMatch = p.match(/^\/v1\/hsk-tests\/(?:papers\/|levels\/([0-9]+)\/(?:tests\/)?)([^\/]+)$/);
+    if (testPaperDirectMatch && testPaperDirectMatch[2] !== 'levels' && testPaperDirectMatch[2] !== 'papers' && testPaperDirectMatch[2] !== 'grade') {
+      var tid = decodeURIComponent(testPaperDirectMatch[2]);
+      var lvlGuess = testPaperDirectMatch[1];
       if (!lvlGuess) {
         var mLvl = tid.match(/(?:hsk30-|xh30-)([1-6])/);
         lvlGuess = mLvl ? mLvl[1] : (u.searchParams.get('level') || '1');
@@ -458,21 +473,29 @@
     }
 
     // Curriculums (HSK, New HSK, YCT, Boya, Hanyu Jiaocheng)
-    var currLessonMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)\/lessons/);
-    if (currLessonMatch) {
-      return fetchLocalJson('/data/curriculums/' + currLessonMatch[1] + '/lessons/' + currLessonMatch[2] + '-lessons.json');
+    var currLessonDetailMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)\/lessons\/([^\/]+)/);
+    if (currLessonDetailMatch) {
+      return fetchLocalJson('/data/curriculums/' + currLessonDetailMatch[1] + '/lessons/' + currLessonDetailMatch[2] + '--' + currLessonDetailMatch[3] + '.json');
     }
-    var currTopicMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)\/topics/);
+    var currTopicDetailMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)\/topics\/([^\/]+)/);
+    if (currTopicDetailMatch) {
+      return fetchLocalJson('/data/curriculums/' + currTopicDetailMatch[1] + '/topics/' + currTopicDetailMatch[2] + '--' + currTopicDetailMatch[3] + '.json');
+    }
+    var currLessonMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)\/lessons$/);
+    if (currLessonMatch) {
+      return fetchLocalJson('/data/curriculums/' + currLessonMatch[1] + '/levels/' + currLessonMatch[2] + '-lessons.json');
+    }
+    var currTopicMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)\/topics$/);
     if (currTopicMatch) {
-      return fetchLocalJson('/data/curriculums/' + currTopicMatch[1] + '/topics/' + currTopicMatch[2] + '-topics.json');
+      return fetchLocalJson('/data/curriculums/' + currTopicMatch[1] + '/levels/' + currTopicMatch[2] + '-topics.json');
     }
     var currLevelMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)\/levels\/([^\/]+)$/);
     if (currLevelMatch) {
-      return fetchLocalJson('/data/curriculums/' + currLevelMatch[1] + '/levels/' + currLevelMatch[2] + '.json');
+      return fetchLocalJson('/data/curriculums/' + currLevelMatch[1] + '/levels/' + currLevelMatch[2] + '-lessons.json');
     }
     var currRootMatch = p.match(/^\/v1\/hanzi-curriculums\/([^\/]+)$/);
     if (currRootMatch) {
-      return fetchLocalJson('/data/curriculums/' + currRootMatch[1] + '/curriculum.json');
+      return fetchLocalJson('/data/curriculums/' + currRootMatch[1] + '/overview.json');
     }
 
     // Character & Word lookup
