@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   viewBox="0 0 300 300"
+   height="300"
+   width="300"
+   id="svg10"
+   version="1.1">
+  <metadata
+     id="metadata16">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs14" />
+  <path
+     id="path20"
+     d="m 143.55262,275.86845 c -3.61265,-23.45218 -5.92232,-47.71501 -13.84891,-64.67223 -2.83843,-6.0722 -11.2803,-16.8599 -20.83226,-27.03833 -7.1203,-7.58729 -9.172554,-9.49045 -7.29188,-17.46182 L 134.98571,25.102071 c 0.78957,-3.34662 1.36261,-10.387745 2.13043,-10.093105 5.61405,0.72642 8.94158,5.779943 9.04316,11.201217 0.24307,12.973083 -5.67368,36.622217 -12.49354,69.29363 15.40842,26.223587 36.15947,49.240897 54.52695,67.247857 8.53609,8.28121 10.14799,10.20194 10.85015,16.15476 1.17274,9.94221 -25.62569,-11.90972 -36.50769,-23.31081 -12.33472,-12.92311 -22.39646,-25.53079 -34.72154,-40.82622 l -5.25627,18.55691 c -8.11379,28.64519 -10.39227,32.79296 -8.72462,37.17921 0.39243,1.03219 2.43622,3.73743 4.54175,6.01165 28.49426,31.88063 32.92845,55.18187 32.08358,94.05459 -0.13147,6.04942 -2.07905,14.06664 -3.61136,14.41359 -1.73719,0.39334 -3.00239,-7.24934 -3.29409,-9.1169 z"
+     style="fill:#000000;stroke-width:0.69069082" />
+  <text
+     id="text28"
+     y="120.15314"
+     x="46.058342"
+     style="font-style:normal;font-weight:normal;font-size:40px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none"
+     xml:space="preserve"><tspan
+       y="156.64635"
+       x="46.058342"
+       id="tspan26" /></text>
+</svg>

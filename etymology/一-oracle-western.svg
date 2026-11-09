@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="300"
+   height="300"
+   viewBox="0 0 79.374998 79.375002"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="绘图-1.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     units="px"
+     width="300px"
+     inkscape:zoom="0.6175399"
+     inkscape:cx="-45.3412"
+     inkscape:cy="295.52746"
+     inkscape:window-width="1280"
+     inkscape:window-height="778"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2"
+     showguides="false" />
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 39.687501 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="79.374998 : 39.687501 : 1"
+       inkscape:persp3d-origin="39.687499 : 26.458334 : 1"
+       id="perspective29286" />
+    <pattern
+       id="EMFhbasepattern"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-3"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-9"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-98"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-6"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-69"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="图层 2">
+    <path
+       style="fill:#000000;stroke-width:0.822378"
+       d="m 1.6938786,44.465803 c 0.179594,-3.360451 -0.181861,-4.70469 0.33153,-5.275545 4.519017,-0.670576 9.5141254,-1.588414 14.0586094,-2.955197 4.414989,-1.333554 8.727517,-2.830481 12.779323,-3.86788 3.82721,-0.98794 7.630606,-1.878129 11.137608,-2.049071 5.413944,-0.195798 11.218542,-0.488267 16.878477,-0.688828 6.039642,-0.214017 11.91456,-0.323381 16.974305,-0.09895 2.092685,0.248424 3.18683,1.060446 3.726548,2.15429 0.85875,1.740421 0.313902,4.194305 0.154394,6.226619 -0.05385,1.027659 -0.514301,1.784709 -1.529609,2.315734 -1.59882,0.836213 -4.573547,1.11194 -9.503182,1.001256 -9.315607,0.381948 -18.906725,1.209234 -27.348314,1.351267 -4.056994,0.08209 -5.08259,0.284558 -8.562187,0.87807 -2.823099,0.882733 -9.386356,2.132323 -12.369226,3.040859 -4.115219,1.253431 -8.269813,2.384951 -12.1528994,2.990434 -2.928642,0.398758 -4.196276,0.685706 -4.682189,0.291218 -0.581162,-0.471814 -0.04411,-1.918389 0.106812,-5.314269 z"
+       id="path1971"
+       sodipodi:nodetypes="cccccscscscccscscc" />
+  </g>
+  <metadata
+     id="metadata822">
+    <rdf:RDF />
+  </metadata>
+</svg>

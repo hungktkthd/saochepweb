@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="300"
+   height="300"
+   viewBox="0 0 79.374998 79.375002"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="绘图-1 - 副本.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     units="px"
+     width="300px"
+     inkscape:zoom="0.8733333"
+     inkscape:cx="58.396949"
+     inkscape:cy="22.328245"
+     inkscape:window-width="1280"
+     inkscape:window-height="778"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1"
+     showguides="false"
+     inkscape:lockguides="false" />
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 39.687501 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="79.374998 : 39.687501 : 1"
+       inkscape:persp3d-origin="39.687499 : 26.458334 : 1"
+       id="perspective29286" />
+    <pattern
+       id="EMFhbasepattern"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-3"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-9"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-98"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-6"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-69"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-36"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-60"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-5"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-981"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-980"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-2"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-7"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-0"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-01"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-61"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-93"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-8"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="fill:#000000;stroke-width:0.818276"
+       d="m 33.815221,77.306693 c 0.01894,-0.611354 2.054676,-2.584448 4.523863,-4.384655 4.997461,-3.643489 14.262047,-13.961659 14.262047,-15.883946 0,-0.743263 -1.553878,0.288781 -3.886811,2.581509 -6.362992,6.253347 -15.840366,9.802449 -28.880065,10.815054 -5.892017,0.457546 -6.344493,0.365711 -9.9434902,-2.018165 -4.180114,-2.768793 -6.055791,-4.689492 -5.308926,-5.436357 0.270704,-0.270702 3.478857,-0.0072 7.1292322,0.585649 11.1979,1.818504 20.985386,-0.691731 32.115044,-8.236671 4.370348,-2.962716 5.340437,-4.00203 4.964527,-5.318791 -0.256962,-0.900104 -3.020508,-6.29616 -6.141211,-11.991236 l -5.674006,-10.354682 -6.653322,2.04325 C 21.053951,32.553927 19.836681,33.06692 16.732214,35.43481 15.17548,36.766515 14.274592,37.303654 13.396093,37.384293 12.180395,37.495884 11.00757,36.73328 8.1989288,35.992374 3.6803918,34.800406 1.7064657,33.786795 2.3151907,32.99719 2.60209,32.625039 3.4626861,32.302648 4.9009618,32.034795 6.6082415,31.716845 12.607905,29.508381 18.23355,27.127091 c 5.625646,-2.381287 11.609287,-4.771257 13.296981,-5.311044 3.513326,-1.123693 3.620077,-1.718241 1.475735,-8.218995 -1.546992,-4.6898296 -1.490907,-5.7279305 0.309463,-5.7279305 1.249294,0 7.829542,6.9023245 7.829542,8.2127675 0,1.462341 1.5597,0.03695 2.999598,-2.741294 1.958151,-3.7782072 2.790592,-8.0927321 1.793261,-9.2944424 -1.081636,-1.303291 -0.205325,-2.7232358 1.68063,-2.7232358 2.081005,0 6.748409,3.3627907 7.485355,5.3930789 0.485692,1.338086 -0.334593,2.9426397 -3.764899,7.3644813 l -4.385892,5.653642 5.892437,0.508001 c 6.638041,0.572281 15.193637,3.328467 16.734591,5.391047 2.69902,3.612666 -0.09744,4.99631 -5.377487,2.660694 -2.323579,-1.027829 -5.539669,-1.678046 -8.309886,-1.680063 -2.485595,-0.0018 -5.992157,-0.07758 -7.792366,-0.168387 -4.13089,-0.208359 -4.482205,1.270745 -1.807172,7.608527 2.132214,5.051716 8.60255,15.547238 9.584645,15.547238 1.934797,0 2.241237,-9.992023 0.485368,-15.826328 -0.631031,-2.096759 -0.870391,-3.812288 -0.53191,-3.812288 1.128564,0 7.476819,4.957304 7.959699,6.215668 0.261764,0.682145 -0.337899,5.606354 -1.332586,10.942683 -1.340428,7.191176 -1.585043,10.11999 -0.945093,11.31575 0.993853,1.857028 7.084294,7.056487 12.158166,10.379523 5.917962,3.875856 3.810757,7.237434 -2.495462,3.980955 -1.440319,-0.743768 -4.941115,-3.321336 -7.779549,-5.727929 -2.838434,-2.406594 -5.452837,-4.375624 -5.809786,-4.375624 -0.356947,0 -2.608774,2.253209 -5.004062,5.007129 -3.29767,3.791412 -5.63511,5.581444 -9.627143,7.372547 -6.923327,3.106289 -9.184661,3.65883 -9.140507,2.233425 z M 20.786354,56.949354 c -2.871449,-1.358416 -6.671689,-3.618959 -8.44498,-5.02343 -1.828206,-1.265443 -2.6312705,-1.920178 -2.5886527,-2.469398 0.049653,-0.639883 1.2472407,-1.13654 3.3089537,-2.288924 2.169453,-1.212606 5.894566,-3.541061 8.278026,-5.174348 4.91765,-3.369865 8.253697,-4.222627 14.260979,-3.645404 6.535197,0.627949 7.719293,3.29633 4.639567,10.455347 -1.958052,4.551614 -8.964839,10.617728 -12.262973,10.616646 -1.083557,-3.55e-4 -4.319471,-1.112075 -7.19092,-2.470489 z M 34.282347,46.532355 c 0.282243,-1.504477 0.280387,-2.968193 -0.0042,-3.252703 -0.363628,-0.363629 -2.262898,0.02562 -4.45688,0.738919 -2.637281,0.857419 -5.700399,2.183057 -7.03401,3.232075 -1.144348,0.900144 -1.762448,1.691113 -1.836017,2.416199 -0.122384,1.206186 1.26209,2.230056 4.237577,3.270896 2.491405,0.84881 3.263519,1.45181 3.914166,1.294791 0.559049,-0.134914 1.028425,-0.830917 2.421666,-2.414185 1.23445,-1.402818 2.47538,-3.781515 2.75762,-5.285992 z"
+       id="path47976"
+       sodipodi:nodetypes="ssssssscssscscscsssssssssssscsssscsssssssssssssssscscsssssccssscsccc" />
+  </g>
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="图层 2" />
+  <metadata
+     id="metadata822">
+    <rdf:RDF />
+  </metadata>
+</svg>

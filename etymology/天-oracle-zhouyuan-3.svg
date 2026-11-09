@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="300"
+   height="300"
+   viewBox="0 0 79.374998 79.375002"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.1 (c68e22c387, 2021-05-23)"
+   sodipodi:docname="绘图-1.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:document-units="px"
+     showgrid="false"
+     units="px"
+     width="300px"
+     inkscape:zoom="1.2350798"
+     inkscape:cx="31.576907"
+     inkscape:cy="176.10198"
+     inkscape:window-width="1280"
+     inkscape:window-height="778"
+     inkscape:window-x="-6"
+     inkscape:window-y="-6"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2"
+     showguides="false" />
+  <defs
+     id="defs2">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 39.687501 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="79.374998 : 39.687501 : 1"
+       inkscape:persp3d-origin="39.687499 : 26.458334 : 1"
+       id="perspective29286" />
+    <pattern
+       id="EMFhbasepattern"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-3"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-9"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-98"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-6"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-69"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-36"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-60"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+    <pattern
+       id="EMFhbasepattern-5"
+       patternUnits="userSpaceOnUse"
+       width="6"
+       height="6"
+       x="0"
+       y="0" />
+  </defs>
+  <g
+     inkscape:label="图层 1"
+     inkscape:groupmode="layer"
+     id="layer1" />
+  <g
+     inkscape:groupmode="layer"
+     id="layer2"
+     inkscape:label="图层 2">
+    <path
+       style="fill:#1d1d1d;stroke:none;stroke-width:0.687984"
+       d="m 36.99479,25.81653 c -1.710725,2.507424 -2.541736,5.900384 -4.540141,8.130361 -3.953901,4.411994 -8.999142,8.045434 -12.380123,13.014496 -2.262462,3.325234 -2.289774,5.354768 -0.965829,6.177752 2.254949,0.719153 4.058498,0.264385 5.621311,-0.753321 2.288488,-1.676097 4.252161,-4.012187 6.257531,-6.289158 2.198876,-2.49668 4.447885,-4.922282 7.230207,-6.328793 1.057076,-0.48006 1.206681,0.761321 0.05245,5.579849 -0.912629,3.766034 -2.449475,8.396396 -3.98389,12.931855 -2.622841,7.752664 -5.238569,15.228035 -4.717383,17.635292 0.238995,0.94909 0.820068,1.47712 1.558285,1.77045 1.45329,0.53287 2.936769,0.56856 3.53862,-0.45699 1.854353,-3.159815 3.577032,-8.417333 4.596161,-11.340749 1.282237,-4.834989 2.499414,-9.655431 3.786785,-9.730984 1.009493,-0.05924 2.06215,3.521791 3.223186,7.46117 1.087323,3.739331 1.706126,7.613183 3.29625,11.117414 0.915478,1.951459 2.083284,3.345899 3.627025,3.189889 1.248117,-0.18746 2.078742,-2.08818 1.040457,-6.193249 L 46.037464,39.31844 c -0.313728,-1.348736 -0.201692,-2.039795 0.191315,-2.336096 0.722818,-0.54495 2.396074,0.245383 4.11913,0.735287 1.421626,0.406744 3.079314,0.962977 4.677223,1.386004 2.936241,0.827828 5.442471,0.616581 6.009329,-0.473586 0.395612,-0.76083 -0.153392,-1.949755 -2.160047,-3.512335 -1.521572,-1.159837 -3.542448,-1.909802 -5.260747,-2.467113 -3.436219,-1.105464 -7.111668,-1.934753 -8.519469,-5.516978 -2.867664,-7.296924 18.709835,-16.855646 9.122359,-24.6497463 -3.049068,-2.47880004 -9.365314,-0.331108 -12.739182,0.418208 -8.421546,1.870242 -24.075408,3.185313 -16.425496,15.1479433 0.965606,1.509963 2.424586,2.911797 3.893545,3.962375 2.352232,1.682133 5.326779,2.829309 8.049371,3.804251 m 7.494602,-12.153818 c -1.845782,1.711536 -4.092025,2.953556 -6.796858,3.403703 -1.153861,0.192043 -2.887774,0.02614 -4.284818,-0.56865 -1.458452,-0.621037 -2.549768,-1.709716 -2.230705,-3.347123 0.201934,-1.036188 1.792614,-1.838839 3.942268,-2.454954 2.656287,-0.7613263 6.166062,-1.2378283 8.963652,-1.5181943 2.438868,-0.522194 3.49101,-0.385114 3.720318,0.115765 0.399637,0.8729153 -1.699975,2.8507933 -3.313857,4.3694643 z"
+       id="path39420"
+       sodipodi:nodetypes="cccccsccsccscscccccsccsccsccscccsscscsc" />
+  </g>
+  <metadata
+     id="metadata822">
+    <rdf:RDF />
+  </metadata>
+</svg>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="240" height="300" xmlns="http://www.w3.org/2000/svg" version="1.1">
+<g fill="none" stroke="#000" stroke-width="12" stroke-linecap="butt" stroke-linejoin="bevel" transform="translate(40,30)">
+<polyline points="0,240 0,0 55,70"/>
+<polyline points="160,240 160,0 105,70"/>
+<line x1="0" y1="70" x2="160" y2="70"/>
+<line x1="0" y1="110" x2="160" y2="110"/>
+<line x1="0" y1="180" x2="55" y2="110"/>
+<line x1="160" y1="180" x2="105" y2="110"/>
+</g>
+</svg>
