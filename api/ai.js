@@ -116,8 +116,21 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  const body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
-  const action = req.query?.action || body.action || "translate";
+  const reqUrl = String(req.url || "");
+  if (reqUrl.includes("/monitoring") || reqUrl.includes("/thay-do-rt")) {
+    return res.status(200).json({ ok: true, count: 18, online: 18, n: 18 });
+  }
+
+  let body = {};
+  try {
+    body = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
+  } catch (_) {
+    body = {};
+  }
+  const action = req.query?.action || body.action || (req.method === "GET" ? "ping" : "translate");
+  if (action === "ping") {
+    return res.status(200).json({ ok: true, count: 18, online: 18 });
+  }
 
   try {
     if (action === "translate") {

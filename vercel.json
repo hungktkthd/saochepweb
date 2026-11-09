@@ -20,6 +20,9 @@
   ],
   "rewrites": [
     { "source": "/_next/static/media/:font*.woff2", "destination": "/_next/static/media/00f4982f357db61e-s.p.woff2" },
+    { "source": "/monitoring", "destination": "/api/ai" },
+    { "source": "/thay-do-rt/:path*", "destination": "/api/ai" },
+    { "source": "/assets/public/favicon.svg", "destination": "/favicon.ico" },
     { "source": "/han-tu/:slug*", "destination": "/han-tu" },
     { "source": "/tu-vung/:slug*", "destination": "/tu-vung" },
     { "source": "/han-viet/:slug*", "destination": "/han-viet" },

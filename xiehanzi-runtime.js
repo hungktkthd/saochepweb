@@ -16,7 +16,7 @@
 
   const SUPABASE_URL = 'https://xcthntcgenzfybefaphh.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM';
-  const RAW_GITHUB_BASE = 'https://raw.githubusercontent.com/hungktkthd/saochepweb/main';
+  const RAW_GITHUB_REPO = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
 
   const originalFetch = window.fetch.bind(window);
   const jsonCache = new Map();
@@ -30,13 +30,52 @@
     return p;
   }
 
+  // Stub Google Identity Services để tránh lỗi 403 origin trên /dang-nhap & /dang-ky
+  try {
+    window.google = window.google || {
+      accounts: {
+        id: {
+          initialize: function () {},
+          renderButton: function (el) {
+            if (el) {
+              el.innerHTML =
+                '<button type="button" style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d6d3d1;background:#ffffff;color:#1c1917;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><span>G</span><span>Tiếp tục với Google</span></button>';
+            }
+          },
+          prompt: function () {},
+          cancel: function () {},
+          disableAutoSelect: function () {}
+        },
+        oauth2: {
+          initTokenClient: function () { return { requestAccessToken: function () {} }; },
+          initCodeClient: function () { return { requestCode: function () {} }; }
+        }
+      }
+    };
+    if (navigator && navigator.sendBeacon) {
+      const origBeacon = navigator.sendBeacon.bind(navigator);
+      navigator.sendBeacon = function (url, data) {
+        const s = String(url || '');
+        if (s.includes('/monitoring') || s.includes('xiehanzi.com') || s.includes('/v1/') || s.includes('/v2/')) {
+          return true;
+        }
+        return origBeacon(url, data);
+      };
+    }
+  } catch (_e) {}
+
   // ==========================================================================
   // 1. BỘ ĐỊNH TUYẾN MEDIA (CHUYỂN static.xiehanzi.com & /_next/image)
   // ==========================================================================
   function rewriteMediaUrl(url) {
     if (!url || typeof url !== 'string') return url;
 
-    // 1a. Giải nén /_next/image?url=...
+    // 1a. Chặn Google GSI script/iframe gây lỗi 403 origin
+    if (url.includes('accounts.google.com/gsi')) {
+      return url.includes('/button') || url.includes('/iframe') ? 'about:blank' : 'data:text/javascript,//';
+    }
+
+    // 1b. Giải nén /_next/image?url=...
     if (url.includes('/_next/image')) {
       try {
         const u = new URL(url, window.location.origin);
@@ -45,38 +84,75 @@
       } catch (_e) {}
     }
 
-    // 1b. Thay thế font/static _next/static của xiehanzi về local
+    // 1c. Thay thế font/static _next/static của xiehanzi về local
     if (url.startsWith('https://static.xiehanzi.com/web/prod/_next/static/')) {
       return '/_next/static/' + url.slice('https://static.xiehanzi.com/web/prod/_next/static/'.length);
     }
 
-    // 1c. Chuyển media (gif, audio, hình minh họa) sang nhánh main của hungktkthd/saochepweb
+    // 1d. Chuyển media (gif, etymology, audio, hình minh họa) sang đúng nhánh orphan trên GitHub
     if (url.startsWith('https://static.xiehanzi.com/')) {
-      const rel = url.slice('https://static.xiehanzi.com/'.length);
-      return `${RAW_GITHUB_BASE}/media/${rel}`;
+      let rel = url.slice('https://static.xiehanzi.com/'.length).split('?')[0];
+      try {
+        rel = decodeURIComponent(rel);
+      } catch (_e) {}
+      const encRel = rel.split('/').map(s => encodeURIComponent(s)).join('/');
+
+      if (
+        rel.startsWith('gif/') ||
+        rel.startsWith('hsk-tests/') ||
+        rel.startsWith('word-illustration/') ||
+        rel.startsWith('level_images/')
+      ) {
+        return `${RAW_GITHUB_REPO}/media-visuals/${encRel}`;
+      }
+      if (rel.startsWith('etymology/')) {
+        return `${RAW_GITHUB_REPO}/media-etymology/${encRel}`;
+      }
+      if (rel.startsWith('audios/') || rel.startsWith('word_audios/')) {
+        return `${RAW_GITHUB_REPO}/media-audios/${encRel}`;
+      }
+      if (rel.startsWith('hsk-audio/')) {
+        return `${RAW_GITHUB_REPO}/media-hsk-audio/${encRel}`;
+      }
+      if (rel.startsWith('sentence-audio/')) {
+        const fname = rel.slice('sentence-audio/'.length);
+        const firstHex = fname.charAt(0).toLowerCase();
+        const branchNum = firstHex >= '0' && firstHex <= '7' ? '1' : '2';
+        return `${RAW_GITHUB_REPO}/media-sentences-${branchNum}/${encRel}`;
+      }
+      return `${RAW_GITHUB_REPO}/media-visuals/${encRel}`;
     }
     return url;
   }
 
   function rewriteSrcset(srcset) {
     if (!srcset || typeof srcset !== 'string') return srcset;
-    if (!srcset.includes('/_next/image') && !srcset.includes('xiehanzi.com')) return srcset;
-    return srcset
+    const parts = srcset
       .split(',')
       .map(part => {
         const trimmed = part.trim();
-        if (!trimmed) return '';
+        if (!trimmed) return null;
         const spaceIdx = trimmed.indexOf(' ');
-        if (spaceIdx === -1) return rewriteMediaUrl(trimmed);
-        const u = trimmed.slice(0, spaceIdx);
-        const desc = trimmed.slice(spaceIdx + 1);
-        return `${rewriteMediaUrl(u)} ${desc}`;
+        if (spaceIdx === -1) {
+          const u = rewriteMediaUrl(trimmed);
+          return { u, desc: '' };
+        }
+        const u = rewriteMediaUrl(trimmed.slice(0, spaceIdx));
+        const desc = trimmed.slice(spaceIdx + 1).trim();
+        return { u, desc };
       })
-      .filter(Boolean)
-      .join(', ');
+      .filter(Boolean);
+
+    if (parts.length === 0) return '';
+    const uniqueUrls = new Set(parts.map(p => p.u));
+    // Nếu toàn bộ các biến thể kích thước trỏ về cùng 1 file tĩnh, chỉ giữ 1 bản duy nhất
+    if (uniqueUrls.size === 1) {
+      return `${parts[0].u} 1x`;
+    }
+    return parts.map(p => (p.desc ? `${p.u} ${p.desc}` : p.u)).join(', ');
   }
 
-  // Chặn ngay ở tầng DOM setter/setAttribute để Next.js <Image> không bao giờ gọi 404 /_next/image
+  // Chặn ngay ở tầng DOM setter/setAttribute để Next.js <Image> và Google GSI không gọi 404/403
   try {
     const origSetAttr = Element.prototype.setAttribute;
     Element.prototype.setAttribute = function (name, value) {
@@ -108,6 +184,17 @@
         get: imgSrcsetDesc.get,
         set: function (val) {
           imgSrcsetDesc.set.call(this, rewriteSrcset(String(val)));
+        },
+        configurable: true,
+        enumerable: true
+      });
+    }
+    const scriptSrcDesc = Object.getOwnPropertyDescriptor(HTMLScriptElement.prototype, 'src');
+    if (scriptSrcDesc && scriptSrcDesc.set) {
+      Object.defineProperty(HTMLScriptElement.prototype, 'src', {
+        get: scriptSrcDesc.get,
+        set: function (val) {
+          scriptSrcDesc.set.call(this, rewriteMediaUrl(String(val)));
         },
         configurable: true,
         enumerable: true
@@ -831,16 +918,17 @@
       return jsonResponse(data || []);
     }
     if (p.includes('/v1/hsk-tests/papers/') && method === 'GET') {
-      const paperId = p.split('/v1/hsk-tests/papers/')[1].split('/')[0];
-      const data = await loadLocalJson(`/data/tests/papers/${paperId}.json`);
+      const paperId = decodeURIComponent(p.split('/v1/hsk-tests/papers/')[1].split('/')[0]);
+      const data = await loadTestPaperById(paperId);
       return jsonResponse(data || {});
     }
     if (p.includes('/v1/hsk-tests/papers')) {
       const examType = (urlObj.searchParams.get('examType') || 'hsk').toLowerCase();
       const level = urlObj.searchParams.get('level');
-      let data = (await loadLocalJson(`/data/tests/papers-${examType}.json`)) || [];
-      if (level && Array.isArray(data)) {
-        data = data.filter(item => String(item.level || item.hskLevel) === String(level));
+      const data = (await loadLocalJson(`/data/tests/papers-${examType}.json`)) || { levels: [] };
+      if (level && data && Array.isArray(data.levels)) {
+        const matchedLvl = data.levels.find(l => String(l.level) === String(level));
+        return jsonResponse(matchedLvl ? matchedLvl.items || [] : []);
       }
       return jsonResponse(data);
     }
@@ -876,12 +964,19 @@
     }
 
     // ------------------------------------------------------------------------
-    // H. NGỮ PHÁP & GIÁO TRÌNH & LUYỆN NÓI (/v1/grammar/*, /v1/curriculums/*, /v1/speaking/*)
+    // H. NGỮ PHÁP & GIÁO TRÌNH & LUYỆN NÓI (/v1/grammar/*, /v1/hanzi-curriculums/*, /v1/speaking/*)
     // ------------------------------------------------------------------------
+    if (p.startsWith('/v1/grammar/levels/')) {
+      const lvl = decodeURIComponent(p.slice('/v1/grammar/levels/'.length).split('/')[0] || '1');
+      const curr = urlObj.searchParams.get('curriculum') || 'hsk';
+      const prefix = curr === 'new-hsk' ? 'new-hsk-level-' : 'hsk-level-';
+      const data = await loadLocalJson(`/data/grammar/${prefix}${lvl}.json`);
+      return jsonResponse(data || { curriculum: curr, level: lvl, total: 0, items: [] });
+    }
     if (p.includes('/v1/grammar/levels')) {
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
       const data = await loadLocalJson(`/data/grammar/levels-${curr}.json`);
-      return jsonResponse(data || []);
+      return jsonResponse(data || { levels: [] });
     }
     if (p.includes('/v1/grammar/points')) {
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
@@ -900,35 +995,125 @@
       const data = await loadLocalJson(`/data/speaking/${curr}/levels.json`);
       return jsonResponse(data || []);
     }
-    if (p.includes('/v1/curriculums/')) {
-      const parts = p.split('/v1/curriculums/')[1].split('/').filter(Boolean);
-      const curr = parts[0] || 'hsk';
-      if (parts.length === 1 || parts[1] === 'levels') {
-        const data = await loadLocalJson(`/data/curriculums/${curr}/levels.json`);
-        return jsonResponse(data || []);
+    const currMatch = p.match(/^\/v1\/(?:hanzi-)?curriculums\/([^/]+)(?:\/(.*))?$/);
+    if (currMatch) {
+      const curr = currMatch[1] || 'hsk';
+      const subParts = (currMatch[2] || '').split('/').filter(Boolean);
+      if (subParts.length === 0) {
+        const overview = await loadLocalJson(`/data/curriculums/${curr}/overview.json`);
+        return jsonResponse(overview || { name: curr.toUpperCase(), slug: curr, levels: [] });
       }
-      const level = parts[1];
-      if (parts[2] === 'lessons' && parts[3]) {
-        const data = await loadLocalJson(`/data/curriculums/${curr}/lessons/${parts[3]}.json`);
-        return jsonResponse(data || {});
+      if (subParts[0] === 'levels' && subParts.length === 2) {
+        const levelSlug = subParts[1];
+        const lvlData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`);
+        return jsonResponse(lvlData || { curriculum: { slug: curr }, level: { slug: levelSlug, topics: [] } });
       }
-      if (parts[2] === 'lessons') {
-        const data = await loadLocalJson(`/data/curriculums/${curr}/lessons-${level}.json`);
-        return jsonResponse(data || []);
+      if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts.length === 3) {
+        const levelSlug = subParts[1];
+        let lessonsData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}-lessons.json`);
+        if (!lessonsData) {
+          const lvlData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`);
+          const topics = (lvlData && lvlData.level && lvlData.level.topics) || [];
+          lessonsData = {
+            curriculum: (lvlData && lvlData.curriculum) || { slug: curr },
+            level: (lvlData && lvlData.level) || { slug: levelSlug },
+            lessons: topics.map((t, idx) => ({
+              lessonSlug: t.topicSlug,
+              lessonNumber: idx + 1,
+              titleVi: t.topic,
+              titleZh: t.topic,
+              wordCount: t.wordCount || 10,
+              stageCount: 1,
+              stageMinutes: 8,
+              estimatedMinutes: 8
+            }))
+          };
+        }
+        return jsonResponse(lessonsData);
       }
-      const data = await loadLocalJson(`/data/curriculums/${curr}/topics-${level}.json`);
-      return jsonResponse(data || []);
+      if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts[3]) {
+        const levelSlug = subParts[1];
+        const lessonSlug = subParts[3];
+        let detail = await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${lessonSlug}.json`);
+        if (!detail) {
+          detail = await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${lessonSlug}.json`);
+        }
+        return jsonResponse(detail || {});
+      }
+      if (subParts[0] === 'levels' && subParts[2] === 'topics' && subParts[3]) {
+        const levelSlug = subParts[1];
+        const topicSlug = subParts[3];
+        const detail = await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${topicSlug}.json`);
+        return jsonResponse(detail || {});
+      }
+      const overview = await loadLocalJson(`/data/curriculums/${curr}/overview.json`);
+      return jsonResponse(overview || {});
     }
 
     // ------------------------------------------------------------------------
-    // I. TRA CỨU CHỮ HÁN, TỪ VỰNG, HÁN VIỆT (/v1/characters/*, /v1/words/*, /v1/han-viet/*)
+    // I. TRA CỨU CHỮ HÁN, TỪ VỰNG, HÁN VIỆT (/v1/hanzi-character*, /v1/hanzi-words*, /v1/han-viet/*)
     // ------------------------------------------------------------------------
-    if (p.startsWith('/v1/characters/') || p.startsWith('/v1/hanzi/')) {
+    if (p.endsWith('/comments')) {
+      return jsonResponse({ comments: [], items: [], total: 0 });
+    }
+    if (p.endsWith('/mnemonics')) {
+      return jsonResponse({ mnemonics: [], items: [], total: 0 });
+    }
+    if (p.endsWith('/graph')) {
+      const slug = decodeURIComponent(p.split('/').slice(-2, -1)[0] || '');
+      const charData = await lookupCharacter(slug);
+      return jsonResponse({
+        character: (charData && charData.character) || extractHanziChar(slug),
+        nodes: [],
+        edges: [],
+        words: (charData && charData.commonWords) || [],
+        components: (charData && charData.components) || []
+      });
+    }
+    if (p.startsWith('/v1/hanzi-characters/')) {
+      const rawChars = decodeURIComponent(p.slice('/v1/hanzi-characters/'.length));
+      const charList = rawChars.split(',').map(s => s.trim()).filter(Boolean);
+      const index = (await loadLocalJson('/data/characters/index.json')) || [];
+      const results = [];
+      for (const ch of charList) {
+        const cData = await lookupCharacter(ch);
+        if (cData) {
+          results.push({
+            ...cData,
+            character: cData.character || cData.c || ch,
+            pinyin: cData.pinyin || cData.p || '',
+            pinyins: cData.pinyins || [cData.pinyin || cData.p || ''].filter(Boolean),
+            hanviet: cData.hanvietReading || cData.hv || '',
+            hanvietReading: cData.hanvietReading || cData.hv || '',
+            meaningVi: cData.meaningVi || cData.m || '',
+            gif: rewriteMediaUrl(cData.gif || '')
+          });
+        } else if (Array.isArray(index)) {
+          const entry = index.find(x => (x.c || x.character) === ch);
+          if (entry) {
+            results.push({
+              character: entry.c,
+              pinyin: entry.p,
+              pinyins: [entry.p].filter(Boolean),
+              hanviet: entry.hv,
+              hanvietReading: entry.hv,
+              meaningVi: entry.m,
+              radical: entry.r,
+              strokeCount: entry.s,
+              hskLevel: entry.hsk
+            });
+          }
+        }
+      }
+      return jsonResponse(results);
+    }
+    if (p.startsWith('/v1/hanzi-character/') || p.startsWith('/v1/characters/') || p.startsWith('/v1/hanzi/')) {
       const slug = p.split('/').pop();
       const charData = await lookupCharacter(slug);
+      if (charData && charData.gif) charData.gif = rewriteMediaUrl(charData.gif);
       return jsonResponse(charData || {});
     }
-    if (p.startsWith('/v1/words/') || p.startsWith('/v1/vocabulary/')) {
+    if (p.startsWith('/v1/hanzi-words/') || p.startsWith('/v1/words/') || p.startsWith('/v1/vocabulary/')) {
       const slug = p.split('/').pop();
       const wordData = await lookupWord(slug);
       return jsonResponse(wordData || {});
@@ -954,17 +1139,73 @@
     // ------------------------------------------------------------------------
     // J. CHẤM ĐIỂM ĐỀ THI, LUYỆN NGHE, LUYỆN GÕ, SỔ TAY
     // ------------------------------------------------------------------------
+    if (p === '/v1/typing-set') {
+      const hsk = Number(urlObj.searchParams.get('hsk')) || 1;
+      const limit = Math.max(1, Math.min(100, Number(urlObj.searchParams.get('limit')) || 20));
+      const index = (await loadLocalJson('/data/characters/index.json')) || [];
+      let pool = Array.isArray(index) ? index.filter(x => Number(x.hsk) === hsk && x.p) : [];
+      if (pool.length === 0 && Array.isArray(index)) pool = index.filter(x => x.p).slice(0, 100);
+      const set = pool.slice(0, limit).map(x => ({
+        character: x.c || x.character,
+        pinyin: x.p || x.pinyin || 'hǎo',
+        hanviet: x.hv || x.hanvietReading || '',
+        meaningVi: x.m || x.meaningVi || '',
+        hskLevel: x.hsk || hsk
+      }));
+      return jsonResponse({ hsk, set });
+    }
+    if (p === '/v1/typing-word-set') {
+      const hsk = Number(urlObj.searchParams.get('hsk')) || 1;
+      const limit = Math.max(1, Math.min(100, Number(urlObj.searchParams.get('limit')) || 20));
+      const vocabIdx = (await loadLocalJson('/data/vocabulary/index.json')) || [];
+      const pool = Array.isArray(vocabIdx) ? vocabIdx.filter(x => x.p && (x.w || '').length >= 2) : [];
+      const set = pool.slice(0, limit).map(x => ({
+        word: (x.w || '').replace(/\{|\}/g, ''),
+        hanzi: (x.w || '').replace(/\{|\}/g, ''),
+        pinyin: x.p || 'nǐ hǎo',
+        hanviet: x.hv || '',
+        meaningVi: x.m || '',
+        hskLevel: hsk
+      }));
+      return jsonResponse({ hsk, set });
+    }
+    if (p === '/v1/typing-sentence-set') {
+      const hsk = Number(urlObj.searchParams.get('hsk')) || 1;
+      const limit = Math.max(1, Math.min(50, Number(urlObj.searchParams.get('limit')) || 10));
+      const gData = await loadLocalJson(`/data/grammar/hsk-level-${Math.min(6, hsk)}.json`);
+      const items = (gData && gData.items) || [];
+      const sentences = [];
+      for (const item of items) {
+        const exList = item.example || item.examples || [];
+        for (const ex of exList) {
+          if (ex.chinese && ex.pinyin) {
+            sentences.push({
+              sentence: ex.chinese,
+              hanzi: ex.chinese,
+              pinyin: ex.pinyin,
+              meaningVi: ex.vietnamese || '',
+              hskLevel: hsk
+            });
+          }
+        }
+      }
+      return jsonResponse({ hsk, set: sentences.slice(0, limit) });
+    }
+
     if ((p.includes('/submit') || p.includes('/grade') || p.includes('/attempts')) && method === 'POST') {
       const body = await parseRequestBody(init);
       const paperId = body.paperId || body.testId || p.split('/').filter(Boolean).slice(-2, -1)[0];
-      const paper = paperId ? await loadLocalJson(`/data/tests/papers/${paperId}.json`) : null;
-      const questions = (paper && (paper.questions || paper.items)) || body.questions || [];
+      const paper = paperId ? await loadTestPaperById(paperId) : null;
+      const questions =
+        (paper && (paper.questions || paper.items || (Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : null))) ||
+        body.questions ||
+        [];
       const userAnswers = body.answers || body.userAnswers || {};
       let correctCount = 0;
       const results = questions.map((q, idx) => {
-        const qId = q.id || q._id || q.questionNumber || idx + 1;
+        const qId = q.id || q._id || q.number || q.questionNumber || idx + 1;
         const userAns = userAnswers[qId] !== undefined ? userAnswers[qId] : userAnswers[idx];
-        const rightAns = q.correctAnswer || q.answer || q.correctOption;
+        const rightAns = q.correctAnswer || q.answer || q.correctOption || 'A';
         const isCorrect = String(userAns || '').trim().toUpperCase() === String(rightAns || '').trim().toUpperCase();
         if (isCorrect) correctCount++;
         return {
@@ -996,31 +1237,25 @@
     if (p.includes('/v1/generated-tests/create') || p.includes('/v1/generated-tests/start') || (p.includes('/v1/generated-tests') && method === 'POST')) {
       const body = await parseRequestBody(init);
       const level = body.level || body.hskLevel || 1;
-      const papers = (await loadLocalJson('/data/tests/papers-hsk.json')) || [];
-      const matched = papers.find(x => String(x.level || x.hskLevel) === String(level)) || papers[0];
-      if (matched && (matched.id || matched._id)) {
-        const fullPaper = await loadLocalJson(`/data/tests/papers/${matched.id || matched._id}.json`);
-        if (fullPaper) return jsonResponse({ ...fullPaper, testId: matched.id || matched._id });
-      }
-      return jsonResponse({ testId: 'hsk1-sample', questions: [] });
+      const fullPaper = await loadTestPaperById(`hsk30-${level}`, level);
+      if (fullPaper) return jsonResponse({ ...fullPaper, testId: fullPaper.testId || `hsk30-${level}` });
+      return jsonResponse({ testId: 'hsk30-1', questions: [] });
     }
 
     if (p.includes('/v1/listening') || p.includes('/v1/typing')) {
       const body = await parseRequestBody(init);
       const level = urlObj.searchParams.get('level') || body.level || '1';
-      const lessons = (await loadLocalJson(`/data/curriculums/hsk/lessons-${level}.json`)) || [];
-      const firstLessonId = lessons[0] ? (lessons[0].id || lessons[0]._id || lessons[0].slug) : null;
-      const lessonData = firstLessonId ? await loadLocalJson(`/data/curriculums/hsk/lessons/${firstLessonId}.json`) : null;
-      const vocab = (lessonData && (lessonData.vocabulary || lessonData.words)) || [];
+      const lessonData = await loadLocalJson(`/data/curriculums/hsk/lessons/hsk-${level}--bai-1-xin-chao.json`);
+      const vocab = (lessonData && lessonData.lesson && lessonData.lesson.words) || [];
       return jsonResponse({
         ok: true,
         items: vocab,
         questions: vocab.map((w, i) => ({
-          id: w.id || i + 1,
+          id: w._id || w.id || i + 1,
           hanzi: w.hanzi || w.word || w.character,
           pinyin: w.pinyin,
-          meaningVi: w.meaningVi || w.meaning,
-          audioUrl: rewriteMediaUrl(w.audioUrl || w.audio)
+          meaningVi: w.wordMeaningVi || w.translationVi || w.meaningVi || w.meaning,
+          audioUrl: rewriteMediaUrl((w.audios && w.audios[0]) || w.audioUrl || w.audio || '')
         }))
       });
     }
@@ -1136,14 +1371,31 @@
   }
 
   // ==========================================================================
-  // 5. GHI ĐÈ window.fetch & XMLHttpRequest
+  // 5. GHI ĐÈ window.fetch & XMLHttpRequest (HỖ TRỢ CẢ FETCH LẪN AXIOS XHR)
   // ==========================================================================
+  function isInterceptedApiUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    return (
+      url.startsWith('https://api.xiehanzi.com/') ||
+      url.includes('/api/v1/') ||
+      url.includes('/api/v2/') ||
+      url.includes('/api/server-time') ||
+      url.startsWith('/v1/') ||
+      url.startsWith('/v2/') ||
+      url.includes('/monitoring') ||
+      url.includes('/thay-do-rt/')
+    );
+  }
+
   window.fetch = async function (input, init) {
     let url = typeof input === 'string' ? input : (input && input.url ? input.url : '');
 
-    // Chặn các request _rsc prefetch của Next.js và Sentry /monitoring để tránh 404 console
-    if (url.includes('_rsc=') || url.includes('/monitoring')) {
-      return new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } });
+    // Chặn các request _rsc prefetch của Next.js, Sentry /monitoring và /thay-do-rt/*
+    if (url.includes('_rsc=') || url.includes('/monitoring') || url.includes('/thay-do-rt/')) {
+      return new Response('{"ok":true,"count":18,"online":18,"n":18}', {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' }
+      });
     }
 
     if (url.startsWith('https://static.xiehanzi.com/') || url.includes('/_next/image')) {
@@ -1151,15 +1403,8 @@
       return originalFetch(rewritten, init);
     }
 
-    if (
-      url.startsWith('https://api.xiehanzi.com/') ||
-      url.includes('/api/v1/') ||
-      url.includes('/api/v2/') ||
-      url.includes('/api/server-time') ||
-      url.startsWith('/v1/') ||
-      url.startsWith('/v2/')
-    ) {
-      const fullUrl = url.startsWith('http') ? url : `https://api.xiehanzi.com${url}`;
+    if (isInterceptedApiUrl(url)) {
+      const fullUrl = url.startsWith('http') ? url : `https://api.xiehanzi.com${url.startsWith('/') ? url : '/' + url}`;
       return handleApiRequest(new URL(fullUrl), init);
     }
 
@@ -1167,13 +1412,77 @@
   };
 
   const origXhrOpen = XMLHttpRequest.prototype.open;
+  const origXhrSend = XMLHttpRequest.prototype.send;
+  const origXhrSetHeader = XMLHttpRequest.prototype.setRequestHeader;
+
   XMLHttpRequest.prototype.open = function (method, url, ...rest) {
+    this._xhzApi = null;
     if (typeof url === 'string') {
       if (url.startsWith('https://static.xiehanzi.com/') || url.includes('/_next/image')) {
         url = rewriteMediaUrl(url);
+      } else if (isInterceptedApiUrl(url) || url.includes('_rsc=')) {
+        const fullUrl = url.startsWith('http') ? url : `https://api.xiehanzi.com${url.startsWith('/') ? url : '/' + url}`;
+        this._xhzApi = {
+          method: (method || 'GET').toUpperCase(),
+          url: fullUrl,
+          headers: {}
+        };
+        return origXhrOpen.call(this, 'GET', 'data:application/json,%7B%7D', true);
       }
     }
     return origXhrOpen.call(this, method, url, ...rest);
+  };
+
+  XMLHttpRequest.prototype.setRequestHeader = function (name, value) {
+    if (this._xhzApi) {
+      this._xhzApi.headers[name] = value;
+      return;
+    }
+    return origXhrSetHeader.call(this, name, value);
+  };
+
+  XMLHttpRequest.prototype.send = function (body) {
+    if (this._xhzApi) {
+      const xhr = this;
+      const apiMeta = this._xhzApi;
+      Promise.resolve()
+        .then(async () => {
+          if (apiMeta.url.includes('/monitoring') || apiMeta.url.includes('/thay-do-rt/') || apiMeta.url.includes('_rsc=')) {
+            return '{"ok":true,"count":18,"online":18,"n":18}';
+          }
+          const resp = await handleApiRequest(new URL(apiMeta.url), {
+            method: apiMeta.method,
+            headers: apiMeta.headers,
+            body
+          });
+          return await resp.text();
+        })
+        .catch(() => '{"ok":true}')
+        .then(text => {
+          let parsed = text;
+          if (xhr.responseType === 'json') {
+            try { parsed = JSON.parse(text); } catch (_e) { parsed = {}; }
+          }
+          try {
+            Object.defineProperty(xhr, 'readyState', { value: 4, configurable: true });
+            Object.defineProperty(xhr, 'status', { value: 200, configurable: true });
+            Object.defineProperty(xhr, 'statusText', { value: 'OK', configurable: true });
+            Object.defineProperty(xhr, 'responseURL', { value: apiMeta.url, configurable: true });
+            if (!xhr.responseType || xhr.responseType === 'text') {
+              Object.defineProperty(xhr, 'responseText', { value: text, configurable: true });
+            }
+            Object.defineProperty(xhr, 'response', { value: parsed, configurable: true });
+            xhr.getAllResponseHeaders = () => 'content-type: application/json; charset=utf-8\r\n';
+            xhr.getResponseHeader = name =>
+              name && String(name).toLowerCase() === 'content-type' ? 'application/json; charset=utf-8' : null;
+          } catch (_e) {}
+          try { xhr.dispatchEvent(new Event('readystatechange')); } catch (_e) {}
+          try { xhr.dispatchEvent(new ProgressEvent('load')); } catch (_e) {}
+          try { xhr.dispatchEvent(new ProgressEvent('loadend')); } catch (_e) {}
+        });
+      return;
+    }
+    return origXhrSend.call(this, body);
   };
 
   // ==========================================================================
@@ -1705,6 +2014,34 @@
     `;
   }
 
+  async function loadTestPaperById(paperId, defaultLvl = '1') {
+    if (!paperId) return null;
+    if (paperId.startsWith('level-')) {
+      const direct = await loadLocalJson(`/data/tests/papers/${paperId}.json`);
+      if (direct) return direct;
+    }
+    const lvlMatch = paperId.match(/(?:hsk30-|xh30-|hsk20-|yct-)(\d+)/i);
+    const lvl = lvlMatch ? lvlMatch[1] : String(defaultLvl || '1');
+    const byLvl = await loadLocalJson(`/data/tests/papers/level-${lvl}-${paperId}.json`);
+    if (byLvl) return byLvl;
+
+    const papersData = await loadLocalJson('/data/tests/papers-hsk.json');
+    const allItems = Array.isArray(papersData)
+      ? papersData
+      : (papersData && Array.isArray(papersData.levels) ? papersData.levels.flatMap(l => l.items || []) : []);
+    const matched =
+      allItems.find(x => (x.testId || x.id) === paperId) ||
+      allItems.find(x => String(x.level) === String(lvl)) ||
+      allItems[0];
+    if (matched) {
+      const mLvl = matched.level || lvl;
+      const mId = matched.testId || matched.id;
+      const loaded = await loadLocalJson(`/data/tests/papers/level-${mLvl}-${mId}.json`);
+      if (loaded) return loaded;
+    }
+    return await loadLocalJson('/data/tests/papers/level-1-hsk30-1.json');
+  }
+
   // --------------------------------------------------------------------------
   // 6D. TRANG CHI TIẾT NGỮ PHÁP (/ngu-phap/:level/:pointId)
   // --------------------------------------------------------------------------
@@ -1731,7 +2068,7 @@
     const syntax = point.grammar_syntax || point.structure || point.pattern || point.formula || '';
     const explanation = point.grammar_explanation || point.explanation || point.description || point.meaning || '';
     const tips = point.grammar_tips || '';
-    const examples = point.examples || point.sentences || [];
+    const examples = point.examples || point.example || point.sentences || [];
     document.title = `${title} — Ngữ pháp HSK ${lvlNum} | XieHanzi`;
 
     mainEl.innerHTML = `
@@ -1796,30 +2133,55 @@
     if (!m) return;
     const curr = m[1];
     const levelSlug = m[2];
-    const rest = m[3] || '';
+    const rest = (m[3] || '').replace(/^\/+|\/+$/g, '');
     const lvlNum = (levelSlug.match(/\d+/) || ['1'])[0];
 
-    const lessons = (await loadLocalJson(`/data/curriculums/${curr}/lessons-${lvlNum}.json`)) ||
-                    (await loadLocalJson(`/data/curriculums/${curr}/lessons-${levelSlug}.json`)) ||
-                    (await loadLocalJson(`/data/curriculums/${curr}/topics-${lvlNum}.json`)) || [];
-    const lessonList = Array.isArray(lessons) ? lessons : (lessons.items || lessons.lessons || lessons.topics || []);
+    const levelMeta = (await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`)) || {};
+    const lessonsMeta = (curr === 'hsk' || curr === 'new-hsk' || curr === 'yct')
+      ? await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}-lessons.json`)
+      : null;
 
-    const lessonMatch = rest.match(/bai-hoc\/([^/]+)/);
+    const topicList = (levelMeta && levelMeta.level && Array.isArray(levelMeta.level.topics)) ? levelMeta.level.topics : [];
+    const lessonList = (lessonsMeta && Array.isArray(lessonsMeta.lessons) && lessonsMeta.lessons.length > 0)
+      ? lessonsMeta.lessons
+      : topicList.map((t, idx) => ({
+          lessonSlug: t.topicSlug,
+          lessonNumber: idx + 1,
+          titleVi: t.topic,
+          titleZh: t.topic,
+          wordCount: t.wordCount || 10,
+          isTopic: true
+        }));
+
     let activeLesson = null;
-    if (lessonMatch) {
-      const targetSlug = decodeURIComponent(lessonMatch[1]);
-      const foundMeta = lessonList.find(l => String(l.id || l._id || l.slug || l.lessonNumber) === targetSlug) || lessonList[0];
-      if (foundMeta) {
-        const lid = foundMeta.id || foundMeta._id || foundMeta.slug || targetSlug;
-        activeLesson = (await loadLocalJson(`/data/curriculums/${curr}/lessons/${lid}.json`)) || foundMeta;
+    if (rest) {
+      const lessonMatch = rest.match(/^bai-hoc\/([^/]+)/);
+      const targetSlug = decodeURIComponent(lessonMatch ? lessonMatch[1] : rest.split('/')[0]);
+      if (lessonMatch && (curr === 'hsk' || curr === 'new-hsk' || curr === 'yct')) {
+        const rawLesson = await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${targetSlug}.json`);
+        if (rawLesson) activeLesson = rawLesson.lesson || rawLesson;
+      }
+      if (!activeLesson) {
+        const rawTopic = await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${targetSlug}.json`);
+        if (rawTopic) activeLesson = rawTopic.topic || rawTopic;
+      }
+      if (!activeLesson && lessonList[0]) {
+        const firstSlug = lessonList[0].lessonSlug || lessonList[0].topicSlug;
+        if (firstSlug) {
+          const fallbackData = (curr === 'hsk' || curr === 'new-hsk' || curr === 'yct')
+            ? await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${firstSlug}.json`)
+            : await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${firstSlug}.json`);
+          if (fallbackData) activeLesson = fallbackData.lesson || fallbackData.topic || fallbackData;
+        }
       }
     }
 
     if (activeLesson) {
       const vocab = activeLesson.vocabulary || activeLesson.words || activeLesson.items || [];
       const dialogues = activeLesson.dialogues || activeLesson.conversations || activeLesson.sentences || [];
-      const title = activeLesson.title || activeLesson.name || activeLesson.titleVi || 'Bài học';
-      document.title = `${title} — Giáo trình ${curr.toUpperCase()} | XieHanzi`;
+      const title = activeLesson.titleVi || activeLesson.topic || activeLesson.title || activeLesson.name || 'Bài học';
+      const titleZh = activeLesson.titleZh || '';
+      document.title = `${title}${titleZh ? ' (' + titleZh + ')' : ''} — Giáo trình ${curr.toUpperCase()} | XieHanzi`;
 
       mainEl.innerHTML = `
         <div style="max-width:980px;margin:0 auto;padding:28px 16px;font-family:system-ui,-apple-system,sans-serif;">
@@ -1827,15 +2189,15 @@
             <a href="/thu-vien-${curr}/${levelSlug}" style="color:#ea580c;text-decoration:none;font-weight:600;">← Quay lại ${curr.toUpperCase()} Cấp ${lvlNum}</a>
           </div>
           <div style="background:#ffffff;border:1px solid #e7e5e4;border-radius:18px;padding:28px;">
-            <h1 style="font-size:26px;font-weight:800;margin:0 0 8px;">${escapeHtml(title)}</h1>
-            <p style="color:#57534e;margin:0 0 24px;">Từ vựng trọng tâm (${vocab.length} từ) & Hội thoại bài học</p>
+            <h1 style="font-size:26px;font-weight:800;margin:0 0 8px;">${escapeHtml(title)} ${titleZh ? `<span style="color:#ea580c;">(${escapeHtml(titleZh)})</span>` : ''}</h1>
+            <p style="color:#57534e;margin:0 0 24px;">Từ vựng trọng tâm (${vocab.length} từ) & Ví dụ bài học</p>
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-bottom:28px;">
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;margin-bottom:28px;">
               ${vocab.map(w => {
                 const hz = w.hanzi || w.word || w.character || '';
                 const py = w.pinyin || '';
-                const vi = w.meaningVi || w.meaning || w.vi || '';
-                const audio = w.audioUrl || w.audio || '';
+                const vi = w.wordMeaningVi || w.translationVi || w.meaningVi || w.meaning || w.vi || '';
+                const audio = (w.audios && w.audios[0]) || w.audioUrl || w.audio || '';
                 return `
                   <div style="padding:14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;justify-content:space-between;align-items:start;">
                     <div>
@@ -1879,17 +2241,21 @@
           <a href="/thu-vien-${curr}" style="color:#ea580c;text-decoration:none;font-weight:600;">← Quay lại Thư viện ${curr.toUpperCase()}</a>
         </div>
         <div style="background:#ffffff;border:1px solid #e7e5e4;border-radius:18px;padding:28px;">
-          <h1 style="font-size:26px;font-weight:800;margin:0 0 8px;">Danh sách Bài học & Chủ đề — ${curr.toUpperCase()} Cấp ${escapeHtml(lvlNum)}</h1>
-          <p style="color:#57534e;margin:0 0 20px;">Chọn bài học bên dưới để xem từ vựng, nghe phát âm và luyện tập:</p>
+          <h1 style="font-size:26px;font-weight:800;margin:0 0 8px;">Danh sách Bài học & Chủ đề — ${curr.toUpperCase()} Cấp ${escapeHtml(lvlNum)} (${lessonList.length} bài)</h1>
+          <p style="color:#57534e;margin:0 0 20px;">Chọn bài học hoặc chủ đề bên dưới để xem từ vựng, nghe phát âm và luyện tập:</p>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
             ${lessonList.map((item, idx) => {
-              const id = item.id || item._id || item.slug || idx + 1;
-              const title = item.title || item.name || item.titleVi || `Bài ${idx + 1}`;
+              const id = item.lessonSlug || item.topicSlug || item.id || item._id || item.slug || idx + 1;
+              const title = item.titleVi || item.topic || item.title || item.name || `Bài ${idx + 1}`;
+              const titleZh = item.titleZh && item.titleZh !== title ? item.titleZh : '';
               const count = item.wordCount || item.vocabCount || (item.words && item.words.length) || '';
+              const href = item.isTopic
+                ? `/thu-vien-${curr}/${levelSlug}/${encodeURIComponent(id)}`
+                : `/thu-vien-${curr}/${levelSlug}/bai-hoc/${encodeURIComponent(id)}`;
               return `
-                <a href="/thu-vien-${curr}/${levelSlug}/bai-hoc/${encodeURIComponent(id)}" style="display:block;padding:16px 18px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:inherit;">
-                  <div style="font-size:12px;font-weight:700;color:#ea580c;">BÀI ${idx + 1}</div>
-                  <div style="font-size:17px;font-weight:700;color:#1c1917;margin-top:4px;">${escapeHtml(title)}</div>
+                <a href="${href}" style="display:block;padding:16px 18px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:inherit;">
+                  <div style="font-size:12px;font-weight:700;color:#ea580c;">BÀI ${item.lessonNumber || idx + 1}</div>
+                  <div style="font-size:17px;font-weight:700;color:#1c1917;margin-top:4px;">${escapeHtml(title)} ${titleZh ? `<span style="color:#78716c;font-weight:600;">(${escapeHtml(titleZh)})</span>` : ''}</div>
                   ${count ? `<div style="font-size:13px;color:#57534e;margin-top:6px;">📚 ${count} từ vựng</div>` : ''}
                 </a>
               `;
@@ -1973,21 +2339,26 @@
     const mainEl = getDetachedMain();
     if (!mainEl) return;
     const parts = pathname.split('/').filter(Boolean);
-    const lastSeg = parts[parts.length - 1];
-    const lvlMatch = pathname.match(/hsk(\d+)/i);
+    const lastSeg = decodeURIComponent(parts[parts.length - 1] || 'hsk30-1');
+    const lvlMatch = pathname.match(/hsk(\d+)/i) || lastSeg.match(/(\d+)/);
     const lvl = lvlMatch ? lvlMatch[1] : '1';
 
-    let paper = await loadLocalJson(`/data/tests/papers/${lastSeg}.json`);
-    if (!paper) {
-      const papers = (await loadLocalJson('/data/tests/papers-hsk.json')) || [];
-      const found = papers.find(p => String(p.level || p.hskLevel) === String(lvl)) || papers[0];
-      if (found) {
-        paper = await loadLocalJson(`/data/tests/papers/${found.id || found._id}.json`);
-      }
-    }
+    const paper = await loadTestPaperById(lastSeg, lvl);
     if (!paper) return;
 
-    const questions = paper.questions || paper.items || [];
+    const imgMap = new Map();
+    if (Array.isArray(paper.images)) {
+      paper.images.forEach(item => {
+        if (item && item.path && item.src) {
+          imgMap.set(item.path, rewriteMediaUrl(item.src));
+        }
+      });
+    }
+
+    const questions =
+      paper.questions ||
+      paper.items ||
+      (Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : []);
     const title = paper.title || paper.name || `Đề thi HSK ${lvl}`;
     document.title = `${title} | Phòng thi HSK XieHanzi`;
 
@@ -2003,25 +2374,28 @@
           <h1 style="font-size:24px;font-weight:800;margin:0 0 20px;">🏆 ${escapeHtml(title)} (${questions.length} câu)</h1>
           <div style="display:flex;flex-direction:column;gap:16px;">
             ${questions.map((q, idx) => {
-              const prompt = q.question || q.prompt || q.stem || q.text || `Câu hỏi ${idx + 1}`;
+              const prompt = q.question || q.prompt || q.stem || q.text || `Nghe và chọn đáp án đúng cho câu ${q.number || idx + 1}`;
               const audio = rewriteMediaUrl(q.audioUrl || q.audio || '');
-              const image = rewriteMediaUrl(q.imageUrl || q.image || '');
+              const rawImg = q.imageUrl || q.image || (Array.isArray(q.images) && q.images[0]) || '';
+              const image = imgMap.get(rawImg) || (rawImg.startsWith('http') ? rewriteMediaUrl(rawImg) : '');
               const options = q.options || q.choices || [];
               const rightAns = String(q.correctAnswer || q.answer || q.correctOption || 'A').trim();
               return `
                 <div class="xhz-q-card" style="padding:18px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;">
-                  <div style="font-weight:700;font-size:16px;margin-bottom:10px;">Câu ${idx + 1}: ${escapeHtml(prompt)}</div>
-                  ${audio ? `<audio controls src="${escapeHtml(audio)}" style="height:36px;margin-bottom:10px;"></audio>` : ''}
-                  ${image ? `<img src="${escapeHtml(image)}" style="max-height:140px;border-radius:10px;margin-bottom:10px;display:block;" />` : ''}
+                  <div style="font-weight:700;font-size:16px;margin-bottom:10px;">Câu ${q.number || idx + 1}: ${escapeHtml(prompt)}</div>
+                  ${q.pinyin ? `<div style="font-size:14px;color:#ea580c;margin-bottom:8px;">${escapeHtml(q.pinyin)}</div>` : ''}
+                  ${audio ? `<audio controls preload="none" src="${escapeHtml(audio)}" style="height:36px;margin-bottom:10px;"></audio>` : ''}
+                  ${image ? `<img src="${escapeHtml(image)}" alt="Minh họa câu ${q.number || idx + 1}" style="max-height:140px;border-radius:10px;margin-bottom:10px;display:block;" />` : ''}
                   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;">
                     ${options.map((opt, oIdx) => {
-                      const key = opt.key || opt.label || opt.id || ['A', 'B', 'C', 'D'][oIdx] || String(oIdx + 1);
-                      const val = typeof opt === 'string' ? opt : (opt.text || opt.content || opt.value || '');
+                      const key = opt.key || opt.label || opt.id || ['A', 'B', 'C', 'D', 'E', 'F'][oIdx] || String(oIdx + 1);
+                      const val = typeof opt === 'string' ? opt : (opt.text || opt.content || opt.value || `Phương án ${key}`);
+                      const optPy = typeof opt === 'object' && opt && opt.pinyin ? ` (${opt.pinyin})` : '';
                       return `
                         <button type="button"
                           onclick="const card = this.closest('.xhz-q-card'); if(card.dataset.done) return; card.dataset.done='1'; const isRight = '${escapeHtml(key)}' === '${escapeHtml(rightAns)}'; this.style.background = isRight ? '#dcfce7' : '#fee2e2'; this.style.borderColor = isRight ? '#16a34a' : '#dc2626'; if(isRight){ const s = document.getElementById('xhz-exam-score'); s.textContent = Number(s.textContent)+1; } card.querySelector('.xhz-q-exp').style.display='block';"
                           style="text-align:left;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;background:#ffffff;cursor:pointer;font-size:14px;">
-                          <strong>${escapeHtml(key)}.</strong> ${escapeHtml(val)}
+                          <strong>${escapeHtml(key)}.</strong> ${escapeHtml(val + optPy)}
                         </button>
                       `;
                     }).join('')}
@@ -2179,8 +2553,17 @@
         img.setAttribute('src', rewriteMediaUrl(src));
       }
       const srcset = img.getAttribute('srcset') || '';
-      if (srcset && (srcset.includes('xiehanzi.com') || srcset.includes('/_next/image'))) {
-        img.setAttribute('srcset', rewriteSrcset(srcset));
+      if (srcset) {
+        const cleaned = rewriteSrcset(srcset);
+        if (cleaned !== srcset) {
+          img.setAttribute('srcset', cleaned);
+        }
+      }
+      if (img.complete && img.naturalWidth === 0 && src.startsWith('/images/') && !img.dataset.xhzRetried) {
+        img.dataset.xhzRetried = '1';
+        img.removeAttribute('srcset');
+        img.removeAttribute('sizes');
+        img.setAttribute('src', src + (src.includes('?') ? '&' : '?') + 'v=1');
       }
     });
   }
