@@ -1,40 +1,78 @@
-# 📋 TÀI LIỆU BÀN GIAO & ĐỊNH HƯỚNG DỰ ÁN (`PROJECT_HANDOVER.md`)
-
-> **Mục đích**: Tài liệu này ghi lại đầy đủ 100% những gì đã hoàn thành, cấu trúc kỹ thuật, những phần còn thiếu cần làm tiếp và lộ trình phát triển tiếp theo để bất kỳ phiên làm việc (đoạn chat) mới nào cũng có thể đọc và tiếp tục ngay lập tức.
+# 📋 TÀI LIỆU BÀN GIAO, TIẾN ĐỘ & CÂU LỆNH TIẾP TỤC TRÊN MÁY MỚI (`PROJECT_HANDOVER.md`)
 
 ---
 
-## 1. Kiến Trúc Tổng Thể & Thông Tin Hạ Tầng
+## 🚀 1. CÂU LỆNH COPY-PASTE ĐỂ TIẾP TỤC TRÊN MÁY TÍNH MỚI (KHÔNG CÓ DỮ LIỆU CŨ)
+
+Khi bạn chuyển sang **một máy tính mới hoàn toàn trắng dữ liệu**, bạn chỉ cần mở AI (Antigravity / Cursor / Claude / ChatGPT...) và **dán nguyên văn đoạn lệnh dưới đây**:
 
 ```text
-GitHub (hungktkthd/saochepweb)
+Tôi đang tiếp tục phát triển dự án web học tiếng Trung (bản sao 1:1 của https://xiehanzi.com/) trên một máy tính mới chưa có dữ liệu cục bộ.
+Toàn bộ 100% mã nguồn, giao diện và 96.860 tệp dữ liệu (3,27 GB) đã được lưu trên kho GitHub: https://github.com/hungktkthd/saochepweb và đang triển khai tại https://hoctiengtrungquoc.vercel.app.
+
+Hãy thực hiện các bước sau:
+1. Clone nhánh `main` của kho lưu trữ về máy:
+   git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
+2. Đọc kỹ file `PROJECT_HANDOVER.md` ở thư mục gốc của repo để nắm toàn bộ kiến trúc (GitHub -> Vercel `hoctiengtrungquoc.vercel.app` -> Supabase `xcthntcgenzfybefaphh` + AI APIs), những gì đã làm xong và những gì cần làm tiếp.
+3. Tiếp tục thực hiện lần lượt các hạng mục trong mục "4. NHỮNG GÌ CHƯA HOÀN THIỆN / CẦN LÀM TIẾP" của `PROJECT_HANDOVER.md` (bắt đầu từ Hạng mục 1: Xử lý Hydrate các Trang Chi Tiết Động, sau đó tới Hạng mục 2: Hoàn thiện API tương tác chấm điểm/luyện nghe/luyện gõ trong `xiehanzi-runtime.js`, và Hạng mục 3: Tích hợp AI APIs).
+4. Mỗi khi sửa xong, push lên nhánh `main` của `https://github.com/hungktkthd/saochepweb` và deploy lên `https://hoctiengtrungquoc.vercel.app`.
+```
+
+---
+
+## 🛠️ 2. LỆNH KHỞI TẠO NHANH TRÊN MÁY TÍNH MỚI (DÀNH CHO AI HOẶC TERMINAL)
+
+Nếu máy mới chưa có code, chỉ cần chạy các lệnh sau để tải bộ khung nhẹ (`main` ~250 MB, không cần tải 3 GB media về ổ cứng vì toàn bộ media đã được trỏ trực tiếp lên 6 nhánh `media-*` trên GitHub):
+
+```bash
+# 1. Tải nhánh main của dự án về máy mới (chỉ ~250MB, chứa đủ 100% code + JSON + giao diện)
+git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
+cd saochepweb
+
+# 2. Chạy thử ngay ở máy local (cổng 3000)
+npx serve . -l 3000
+
+# 3. Kết nối và triển khai lên Vercel (https://hoctiengtrungquoc.vercel.app)
+npx vercel login
+npx vercel link --project hoctiengtrungquoc --yes
+npx vercel deploy --prod --yes
+```
+
+---
+
+## 🏗️ 3. KIẾN TRÚC HẠ TẦNG & THÔNG TIN KẾT NỐI ĐẦY ĐỦ
+
+```text
+GitHub (https://github.com/hungktkthd/saochepweb)
        │
-       ▼  (Tự động triển khai CI/CD)
+       ▼  (Tự động triển khai / Vercel CLI)
 Vercel (https://hoctiengtrungquoc.vercel.app)
        │
-       ├──► Supabase (https://xcthntcgenzfybefaphh.supabase.co) — Tài khoản, dữ liệu, tiến độ học
+       ├──► Supabase (https://xcthntcgenzfybefaphh.supabase.co) — Tài khoản, dữ liệu, tiến độ học, kết quả thi
        └──► AI APIs (Gemini / Web Speech / Serverless API)      — Chấm nói, chấm viết, dịch, gia sư AI
 ```
 
-| Thành phần | Giá trị / Đường dẫn |
+| Thành phần | Thông số / Giá trị chi tiết |
 | :--- | :--- |
 | **Kho GitHub duy nhất** | [`https://github.com/hungktkthd/saochepweb`](https://github.com/hungktkthd/saochepweb) |
-| **Tên miền chính thức (Vercel)** | **[`https://hoctiengtrungquoc.vercel.app`](https://hoctiengtrungquoc.vercel.app)** (Project: `hungktkthd-7816/hoctiengtrungquoc`) |
+| **Tên miền chính thức (Vercel)** | **[`https://hoctiengtrungquoc.vercel.app`](https://hoctiengtrungquoc.vercel.app)** |
+| **Vercel Project** | Scope: `hungktkthd-7816` / Project Name: `hoctiengtrungquoc` (đã tắt SSO Protection, gán domain `hoctiengtrungquoc.vercel.app`) |
 | **Tên miền phụ (GitHub Pages)** | [`https://hungktkthd.github.io/saochepweb/`](https://hungktkthd.github.io/saochepweb/) |
-| **Thư mục làm việc trên máy (Local)** | `C:\Users\MCC\.gemini\antigravity\scratch\saochepweb` |
-| **Công cụ CLI cài sẵn trên máy** | - Git: `C:\Users\MCC\.gemini\antigravity\scratch\tools\mingit\cmd\git.exe`<br>- GitHub CLI: `C:\Users\MCC\.gemini\antigravity\scratch\tools\gh\bin\gh.exe` (đã đăng nhập `hungktkthd`)<br>- Node.js: `C:\Users\MCC\.gemini\antigravity\scratch\tools\node\node.exe` (`v22.14.0`)<br>- Vercel CLI: `C:\Users\MCC\.gemini\antigravity\scratch\tools\node\vercel.cmd` (`v65.12.1`, đã đăng nhập & link project `hoctiengtrungquoc`) |
-| **Supabase Project** | - Project ID: `xcthntcgenzfybefaphh`<br>- URL: `https://xcthntcgenzfybefaphh.supabase.co`<br>- Bảng đã tạo (có RLS): `public.study_profiles` (workspace `hoctiengtrungquoc`), `public.exam_results` |
+| **Supabase Project ID** | `xcthntcgenzfybefaphh` |
+| **Supabase URL** | `https://xcthntcgenzfybefaphh.supabase.co` |
+| **Supabase Publishable Anon Key** | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM` |
+| **Các bảng Supabase đã tạo (có RLS)** | `public.study_profiles` (lưu tiến độ, từ vựng đã lưu, streak cho workspace `hoctiengtrungquoc`), `public.exam_results` (lưu lịch sử làm đề thi HSK) |
 
 ---
 
-## 2. Tất Cả Những Gì ĐÃ LÀM ĐƯỢC (100% Dữ Liệu, Media & Giao Diện 1:1)
+## ✅ 4. TẤT CẢ NHỮNG GÌ ĐÃ HOÀN THÀNH (100% DỮ LIỆU, MEDIA & GIAO DIỆN 1:1)
 
-### 2.1. Sao chép & Gộp 100% Dữ liệu + Media (`96.860 tệp — 3,27 GB`) vào 1 Repo GitHub duy nhất
-Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được tải về đầy đủ 100% và lưu trong duy nhất kho `hungktkthd/saochepweb` trên 7 nhánh (để giữ nhánh `main` nhẹ `~250 MB` giúp Vercel triển khai trong vài giây):
+### 4.1. Sao chép & Gộp 100% Dữ liệu + Media (`96.860 tệp — 3,27 GB`) vào 1 Repo GitHub duy nhất
+Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được tải về 100% và lưu trong duy nhất kho `hungktkthd/saochepweb` chia làm **7 nhánh (branches)** để nhánh `main` luôn nhẹ (`~250 MB`) giúp clone trên máy mới và deploy lên Vercel chỉ mất vài giây:
 
 | Nhánh (Branch) | Số tệp | Dung lượng | Nội dung chi tiết |
 | :--- | ---: | ---: | :--- |
-| **`main`** | **2.400+ tệp** | **~250 MB** | Toàn bộ 94 tuyến trang HTML gốc, 231/231 gói JS/CSS/WOFF2 (`_next/static/`), 280/280 ảnh giao diện (`images/`, `thay-do/`, `level_images/`, `sounds/`, `hanzi-lookup/`), toàn bộ kho dữ liệu JSON (`data/`), `xiehanzi-runtime.js`, `vercel.json`. |
+| **`main`** | **2.400+ tệp** | **~250 MB** | Toàn bộ 94 tuyến trang HTML gốc, 231/231 gói Webpack JS và 181/181 tệp CSS/WOFF2/PNG (`_next/static/`), 280/280 ảnh giao diện (`images/`, `thay-do/`, `level_images/`, `sounds/`, `hanzi-lookup/`), toàn bộ kho dữ liệu JSON (`data/`), `xiehanzi-runtime.js`, `vercel.json`. |
 | **`media-visuals`** | **9.231 tệp** | **592,74 MB** | 7.751 ảnh động GIF bút thuận (`gif/`), 1.045 ảnh đề thi HSK (`hsk-tests/`), 414 ảnh minh họa từ vựng (`word-illustration/`), 21 ảnh cấp độ (`level_images/`). |
 | **`media-etymology`** | **13.434 tệp** | **52,06 MB** | Toàn bộ 13.434 hình ảnh tự nguyên chữ Hán cổ (Giáp cốt, Kim văn, Triện thư, Lệ thư) trong `etymology/`. |
 | **`media-audios`** | **30.781 tệp** | **281,73 MB** | 17.760 file MP3 phát âm chữ Hán (`audios/`) và 13.021 file MP3 phát âm từ vựng (`word_audios/`). |
@@ -42,7 +80,7 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
 | **`media-sentences-1`** | **20.035 tệp** | **514,80 MB** | Nửa đầu (mã hash `0`–`7`) file MP3 phát âm câu ví dụ (`sentence-audio/`). |
 | **`media-sentences-2`** | **19.612 tệp** | **504,32 MB** | Nửa sau (mã hash `8`–`f`) file MP3 phát âm câu ví dụ (`sentence-audio/`). |
 
-### 2.2. Kho Dữ Liệu JSON Trong Thư Mục `data/` Trên Nhánh `main`
+### 4.2. Kho Dữ Liệu JSON Trong Thư Mục `data/` Trên Nhánh `main`
 1. **`data/characters/`**: Đủ **9.931/9.931 chữ Hán** (`characters-01.json` .. `characters-20.json` + `index.json`).
 2. **`data/vocabulary/`**: Đủ **11.534/11.534 từ vựng** (`vocabulary-01.json` .. `vocabulary-12.json` + `index.json`).
 3. **`data/han-viet/`**: Đủ **6.704/6.704 mục âm Hán Việt** (`han-viet-01.json` .. `han-viet-07.json` + `index.json`).
@@ -53,8 +91,8 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
 8. **`data/dictation/`**: Đủ **91/91 video luyện nghe chép chính tả** (`videos-all.json` + 182 tệp `*-detail.json` và `*-segments.json`).
 9. **`data/misc/`**: Dữ liệu Trường Thầy Đồ (`thay-do-hi-vien-danh-muc.json`, `thay-do-bang-vang.json`), Trò chơi hàng ngày (`daily-ghep-chu.json`, `daily-tim-chu-trong-chu.json`), Bảng xếp hạng, cài đặt chung.
 
-### 2.3. Giao Diện Gốc 1:1 `xiehanzi.com` & Bộ Cầu Nối Runtime (`xiehanzi-runtime.js`)
-- Đã đưa toàn bộ **94 tuyến đường HTML gốc** ra thư mục gốc (kèm cả `<route>.html` và `<route>/index.html`) sử dụng đường dẫn gốc tuyệt đối (`/_next/...`, `/images/...`, `/thay-do/...`, `/level_images/...`, `/xiehanzi-runtime.js`).
+### 4.3. Giao Diện Gốc 1:1 `xiehanzi.com` & Bộ Cầu Nối Runtime (`xiehanzi-runtime.js`)
+- Đã đưa toàn bộ **94 tuyến đường HTML gốc** ra thư mục gốc (kèm cả `/<route>.html` và `/<route>/index.html`) sử dụng đường dẫn gốc tuyệt đối (`/_next/...`, `/images/...`, `/thay-do/...`, `/level_images/...`, `/xiehanzi-runtime.js`) để không bao giờ bị lỗi mất CSS khi URL có dấu `/` ở cuối (ví dụ `/kiem-tra-hsk/`).
 - Đã kiểm tra tự động: **231/231 gói Webpack động** và **181/181 tệp tĩnh** trong `_next/static/` đều tồn tại đầy đủ (`0` tệp thiếu, `0` tệp rỗng).
 - Đã gỡ lớp bọc `/_next/image/?url=...` trên toàn bộ 94 trang HTML và chuyển `unoptimized:!1` → `unoptimized:!0` trong 25 gói JS để React không làm hỏng ảnh khi hydrate.
 - Đã xây dựng [`xiehanzi-runtime.js`](xiehanzi-runtime.js) tự động chuyển hướng mọi URL media từ `static.xiehanzi.com` sang 6 nhánh `media-*` trên GitHub và bắt các lệnh gọi API `/v1/...` (`fetch` & `XMLHttpRequest`) để trả về từ `/data/` + **Supabase**.
@@ -62,14 +100,14 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
 
 ---
 
-## 3. Những Gì CHƯA HOÀN THIỆN / CẦN LÀM TIẾP (To-Do Cho Đoạn Chat Mới)
+## 🔧 5. NHỮNG GÌ CHƯA HOÀN THIỆN / CẦN LÀM TIẾP (LỘ TRÌNH CHO PHIÊN MỚI)
 
-Mặc dù 100% dữ liệu, hình ảnh, âm thanh và 94 trang giao diện chính đã lên sóng tại `https://hoctiengtrungquoc.vercel.app`, do `xiehanzi.com` là ứng dụng Next.js gọi nhiều API động về máy chủ `api.xiehanzi.com`, các phần tương tác sâu dưới đây cần được hoàn thiện tiếp trong [`xiehanzi-runtime.js`](xiehanzi-runtime.js) và/hoặc **Vercel Serverless Functions (`/api/...`)**:
+Mặc dù 100% dữ liệu, hình ảnh, âm thanh và 94 trang giao diện chính đã chạy hoàn chỉnh tại `https://hoctiengtrungquoc.vercel.app`, do `xiehanzi.com` là ứng dụng Next.js gọi nhiều API động về máy chủ `api.xiehanzi.com`, các phần tương tác sâu dưới đây cần được hoàn thiện tiếp trong [`xiehanzi-runtime.js`](xiehanzi-runtime.js) và/hoặc **Vercel Serverless Functions (`/api/...`)**:
 
 ### Hạng mục 1: Xử lý Hydrate các Trang Chi Tiết Động (Dynamic Slug Routes)
 - **Hiện trạng**:
   - Chúng ta có 94 trang HTML tĩnh cho tất cả các trang danh mục chính (`/`, `/tra-chu/`, `/kiem-tra-hsk/`, `/ngu-phap/`, `/luyen-chep-chinh-ta/`, `/thu-vien-hsk/hsk-1..6/`, `/thay-do/`, `/tro-choi/*`, v.v.).
-  - Tuy nhiên, với hàng chục nghìn đường dẫn chi tiết động như:
+  - Tuy nhiên, với các đường dẫn chi tiết động như:
     - `/han-tu/<chữ>` (9.931 trang chữ Hán)
     - `/tu-vung/<từ>` (11.534 trang từ vựng)
     - `/han-viet/<âm>` (6.704 trang Hán Việt)
@@ -78,7 +116,7 @@ Mặc dù 100% dữ liệu, hình ảnh, âm thanh và 94 trang giao diện chí
     - `/thu-vien-<giáo-trình>/<cấp>/bai-hoc/<slug-bài-học>` (1.145 trang bài học/chủ đề)
   - Hiện tại khi bấm vào `/han-tu/...` hoặc `/tu-vung/...`, `xiehanzi-runtime.js` mở cửa sổ Modal tra cứu nhanh; còn nếu truy cập thẳng URL `/han-tu/<chữ>` thì `vercel.json` rewrite về mẫu `han-tu.html` (nhưng dữ liệu RSC cứng bên trong `han-tu.html` đang là chữ mẫu `好`).
 - **Việc cần làm tiếp**:
-  - Viết một **Vercel Serverless Function** (ví dụ `api/render-page.js` hoặc cập nhật `xiehanzi-runtime.js`) để khi truy cập bất kỳ đường dẫn động nào (`/han-tu/:slug`, `/tu-vung/:slug`, `/han-viet/:slug`, `/ngu-phap/:level/:slug`, `/luyen-chep-chinh-ta/:slug`, `/thu-vien-*/:level/:lesson`), hệ thống tự động nạp dữ liệu JSON tương ứng từ `/data/` và thay thế vào payload RSC / DOM của trang để hiển thị trang chi tiết chuẩn 1:1.
+  - Viết một **Vercel Serverless Function** (ví dụ `api/render-page.js` hoặc cập nhật `xiehanzi-runtime.js`) để khi truy cập bất kỳ đường dẫn động nào (`/han-tu/:slug`, `/tu-vung/:slug`, `/han-viet/:slug`, `/ngu-phap/:level/:slug`, `/luyen-chep-chinh-ta/:slug`, `/thu-vien-*/:level/:lesson`), hệ thống tự động nạp dữ liệu JSON tương ứng từ `/data/` và hiển thị đúng nội dung chi tiết của mục đó.
 
 ### Hạng mục 2: Hoàn thiện các API Tương tác (`POST` / Tạo đề động) trong `xiehanzi-runtime.js`
 Cần bổ sung đầy đủ logic xử lý cho các API sau trong [`xiehanzi-runtime.js`](xiehanzi-runtime.js):
@@ -99,28 +137,3 @@ Cần bổ sung đầy đủ logic xử lý cho các API sau trong [`xiehanzi-ru
   - `POST /v1/translate` (trang `/dich-tieng-trung/`) → Gọi Gemini API / AI Gateway qua Vercel Serverless Function để dịch Trung - Việt kèm phân tích ngữ pháp & Hán Việt.
   - `POST /v1/speaking/assess` (trang `/luyen-noi/`) → Chấm điểm phát âm từng âm tiết/thanh điệu và trả về điểm số.
   - `POST /v1/practice/result-ai-readout` → Gia sư AI nhận xét kết quả bài làm.
-
-### Hạng mục 4: Dọn dẹp 6 kho GitHub phụ cũ (Tùy chọn)
-- 6 kho phụ tạo ở giai đoạn đầu (`saochepweb-visuals`, `saochepweb-etymology`, `saochepweb-audios`, `saochepweb-hsk-audio`, `saochepweb-sentences-1`, `saochepweb-sentences-2`) hiện không còn dùng tới vì toàn bộ 6 nhánh `media-*` đã nằm gọn bên trong `hungktkthd/saochepweb`. Có thể xóa đi cho gọn tài khoản GitHub.
-
----
-
-## 4. Hướng Dẫn Khởi Động Nhanh Cho Đoạn Chat Mới
-
-Khi mở đoạn chat mới, bạn chỉ cần nhắn câu sau cho AI:
-
-> *"Hãy đọc tệp `C:\Users\MCC\.gemini\antigravity\scratch\saochepweb\PROJECT_HANDOVER.md` trong dự án `hungktkthd/saochepweb` (`https://hoctiengtrungquoc.vercel.app`) và tiếp tục hoàn thiện lần lượt các Hạng mục 1, 2, 3 trong phần 'Những Gì Chưa Hoàn Thiện / Cần Làm Tiếp'."*
-
-### Các lệnh triển khai nhanh cho AI trong đoạn chat mới:
-```powershell
-# Đẩy code lên GitHub và cập nhật trực tiếp lên https://hoctiengtrungquoc.vercel.app
-$git = "C:\Users\MCC\.gemini\antigravity\scratch\tools\mingit\cmd\git.exe"
-$vercel = "C:\Users\MCC\.gemini\antigravity\scratch\tools\node\vercel.cmd"
-$env:PATH = "C:\Users\MCC\.gemini\antigravity\scratch\tools\node;C:\Users\MCC\.gemini\antigravity\scratch\tools\mingit\cmd;$env:PATH"
-Set-Location "C:\Users\MCC\.gemini\antigravity\scratch\saochepweb"
-
-& $git add -A
-& $git commit -m "Update features"
-& $git push origin main
-& $vercel deploy --prod --yes
-```
