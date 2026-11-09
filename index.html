@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XieHanzi.com — Kho Dữ Liệu Toàn Diện (Bản Sao Lưu Đầy Đủ)</title>
+  <link rel="icon" href="assets/public/favicon.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg: #faf7f2;
+      --card: #ffffff;
+      --text: #1f1a17;
+      --muted: #6e6259;
+      --accent: #b91c1c;
+      --accent-soft: #fef2f2;
+      --border: #e6dfd5;
+      --badge: #f3ede2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      background: linear-gradient(135deg, #7f1d1d 0%, #b91c1c 100%);
+      color: #fff;
+      padding: 1.75rem 1.25rem;
+      border-bottom: 3px solid #991b1b;
+    }
+    .container { max-width: 1240px; margin: 0 auto; }
+    header h1 { font-size: 1.75rem; font-weight: 800; letter-spacing: -0.02em; }
+    header p { opacity: 0.92; margin-top: 0.35rem; font-size: 0.96rem; }
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1.2rem;
+    }
+    .stat-card {
+      background: rgba(255, 255, 255, 0.13);
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      border-radius: 10px;
+      padding: 0.7rem 0.9rem;
+    }
+    .stat-card .num { font-size: 1.35rem; font-weight: 800; }
+    .stat-card .lbl { font-size: 0.8rem; opacity: 0.9; }
+    nav.tabs {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 20;
+    }
+    .tabs-inner {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.6rem 1.25rem;
+      max-width: 1240px;
+      margin: 0 auto;
+    }
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      padding: 0.5rem 0.95rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    main { padding: 1.5rem 1.25rem 3rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      align-items: center;
+    }
+    input[type="search"], select {
+      padding: 0.62rem 0.9rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.95rem;
+      background: #fff;
+      color: var(--text);
+    }
+    input[type="search"] { flex: 1; min-width: 240px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .card:hover { border-color: #d1c4b2; transform: translateY(-1px); }
+    .hanzi-big {
+      font-size: 2.3rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.15;
+      font-family: "KaiTi", "STKaiti", "Noto Serif SC", "SimSun", serif;
+    }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.4rem 0; }
+    .badge {
+      background: var(--badge);
+      color: var(--text);
+      padding: 0.15rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+    .badge.red { background: var(--accent-soft); color: var(--accent); }
+    .muted { color: var(--muted); font-size: 0.88rem; }
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.55);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      max-width: 780px;
+      width: 100%;
+      max-height: 88vh;
+      overflow-y: auto;
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .close-btn {
+      background: var(--badge);
+      border: none;
+      border-radius: 8px;
+      padding: 0.4rem 0.8rem;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    table.dir-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #fff;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+    table.dir-table th, table.dir-table td {
+      padding: 0.7rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 0.92rem;
+    }
+    table.dir-table th { background: var(--badge); font-weight: 700; }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    pre.json-box {
+      background: #1e1e1e;
+      color: #f8f8f2;
+      padding: 0.9rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <h1>XieHanzi.com — Kho Lưu Trữ Dữ Liệu Toàn Diện</h1>
+      <p>Toàn bộ cơ sở dữ liệu Hán tự, Từ vựng, Âm Hán Việt, 5 Giáo trình, Ngữ pháp, Đề thi HSK/YCT, Luyện chép chính tả & Tài nguyên tĩnh.</p>
+      <div class="stats-bar">
+        <div class="stat-card"><div class="num">9,931</div><div class="lbl">Chữ Hán (Chiết tự & Nét viết)</div></div>
+        <div class="stat-card"><div class="num">11,534</div><div class="lbl">Từ vựng tiếng Trung</div></div>
+        <div class="stat-card"><div class="num">6,704</div><div class="lbl">Mục tra cứu Hán Việt</div></div>
+        <div class="stat-card"><div class="num">5 bộ / 33 cấp</div><div class="lbl">Giáo trình (HSK, Boya, YCT...)</div></div>
+        <div class="stat-card"><div class="num">489 + 9,780</div><div class="lbl">Chủ điểm & Câu hỏi Ngữ pháp</div></div>
+        <div class="stat-card"><div class="num">66 đề & 91 video</div><div class="lbl">Đề thi HSK & Video Chính tả</div></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tabs-inner">
+      <button class="tab-btn active" data-tab="chars">Chữ Hán (9,931)</button>
+      <button class="tab-btn" data-tab="vocab">Từ Vựng (11,534)</button>
+      <button class="tab-btn" data-tab="hanviet">Hán Việt (6,704)</button>
+      <button class="tab-btn" data-tab="grammar">Ngữ Pháp (489)</button>
+      <button class="tab-btn" data-tab="curriculums">Giáo Trình (5 Bộ)</button>
+      <button class="tab-btn" data-tab="tests">Đề Thi HSK (66) & Chính Tả (91)</button>
+      <button class="tab-btn" data-tab="files">Cấu Trúc Kho Dữ Liệu</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- TAB 1: CHARACTERS -->
+    <section id="tab-chars" class="section-panel active">
+      <div class="toolbar">
+        <input type="search" id="char-search" placeholder="Tìm chữ Hán, Pinyin, âm Hán Việt hoặc nghĩa tiếng Việt (VD: 的, de, đích, yêu, học)..." />
+        <select id="char-chunk-select">
+          <option value="index">Tìm trên toàn bộ 9,931 chữ Hán (index.json)</option>
+        </select>
+      </div>
+      <div id="char-status" class="muted" style="margin-bottom:0.75rem;">Đang tải danh mục chữ Hán...</div>
+      <div id="char-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 2: VOCABULARY -->
+    <section id="tab-vocab" class="section-panel">
+      <div class="toolbar">
+        <input type="search" id="vocab-search" placeholder="Tìm từ vựng tiếng Trung, Pinyin, Hán Việt hoặc nghĩa (VD: 喜欢, xihuan, thích)..." />
+        <select id="vocab-chunk-select"></select>
+      </div>
+      <div id="vocab-status" class="muted" style="margin-bottom:0.75rem;">Chọn tệp hoặc nhập từ khóa để tra cứu 11,534 từ vựng...</div>
+      <div id="vocab-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 3: HAN VIET -->
+    <section id="tab-hanviet" class="section-panel">
+      <div class="toolbar">
+        <input type="search" id="hv-search" placeholder="Tìm âm Hán Việt (VD: an, minh, tâm, học, đại)..." />
+        <select id="hv-chunk-select"></select>
+      </div>
+      <div id="hv-status" class="muted" style="margin-bottom:0.75rem;">Đang tải dữ liệu Hán Việt...</div>
+      <div id="hv-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 4: GRAMMAR -->
+    <section id="tab-grammar" class="section-panel">
+      <div class="toolbar">
+        <select id="grammar-level-select">
+          <option value="hsk-level-1.json">HSK 1 (46 chủ điểm)</option>
+          <option value="hsk-level-2.json">HSK 2 (44 chủ điểm)</option>
+          <option value="hsk-level-3.json">HSK 3 (47 chủ điểm)</option>
+          <option value="hsk-level-4.json">HSK 4 (40 chủ điểm)</option>
+          <option value="hsk-level-5.json">HSK 5 (101 chủ điểm)</option>
+          <option value="hsk-level-6.json">HSK 6 (63 chủ điểm)</option>
+          <option value="new-hsk-level-1.json">New HSK 1 (40 chủ điểm)</option>
+          <option value="new-hsk-level-2.json">New HSK 2 (45 chủ điểm)</option>
+          <option value="new-hsk-level-3.json">New HSK 3 (63 chủ điểm)</option>
+        </select>
+        <input type="search" id="grammar-search" placeholder="Lọc chủ điểm ngữ pháp..." />
+      </div>
+      <div id="grammar-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 5: CURRICULUMS -->
+    <section id="tab-curriculums" class="section-panel">
+      <div class="toolbar">
+        <select id="curr-select">
+          <option value="hsk">Giáo trình HSK 2.0 (HSK 1 – HSK 6)</option>
+          <option value="new-hsk">Giáo trình HSK 3.0 Mới (New HSK 1 – 9)</option>
+          <option value="yct">Giáo trình YCT (YCT 1 – 6)</option>
+          <option value="boya">Giáo trình Boya (Sơ cấp – Trung cấp)</option>
+          <option value="hanyu-jiaocheng">Giáo trình Hán Ngữ (Quyển 1 – 6)</option>
+        </select>
+      </div>
+      <div id="curr-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 6: TESTS & DICTATION -->
+    <section id="tab-tests" class="section-panel">
+      <h3 style="margin-bottom:0.75rem;">66 Đề Thi Thử HSK 3.0 & CTI (`data/tests/papers/`)</h3>
+      <div id="tests-grid" class="grid" style="margin-bottom:2rem;"></div>
+      <h3 style="margin-bottom:0.75rem;">91 Bài Nghe Chép Chính Tả Video (`data/dictation/`)</h3>
+      <div id="dictation-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 7: REPOSITORY STRUCTURE -->
+    <section id="tab-files" class="section-panel">
+      <table class="dir-table">
+        <thead>
+          <tr>
+            <th>Thư mục / Tập tin</th>
+            <th>Số lượng</th>
+            <th>Nội dung chi tiết</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="data/characters/index.json"><code>data/characters/</code></a></td>
+            <td>21 files (9,931 chữ)</td>
+            <td><code>characters-01.json</code> .. <code>characters-20.json</code> + <code>index.json</code>: Toàn bộ 9,931 chữ Hán kèm chiết tự, bộ thủ, số nét, câu chuyện, GIF nét viết, audio, từ ghép, ví dụ.</td>
+          </tr>
+          <tr>
+            <td><a href="data/vocabulary/index.json"><code>data/vocabulary/</code></a></td>
+            <td>13 files (11,534 từ)</td>
+            <td><code>vocabulary-01.json</code> .. <code>vocabulary-12.json</code> + <code>index.json</code>: Toàn bộ 11,534 từ vựng kèm Pinyin, Hán Việt, nghĩa, từ loại, collocations, ví dụ, lưu ý sử dụng.</td>
+          </tr>
+          <tr>
+            <td><a href="data/han-viet/han-viet-01.json"><code>data/han-viet/</code></a></td>
+            <td>8 files (6,704 mục)</td>
+            <td><code>han-viet-01.json</code> .. <code>han-viet-07.json</code> + <code>index.json</code>: Toàn bộ 6,704 âm và từ Hán Việt tra cứu.</td>
+          </tr>
+          <tr>
+            <td><a href="data/curriculums/hsk/overview.json"><code>data/curriculums/</code></a></td>
+            <td>1,145 files</td>
+            <td>5 bộ giáo trình (<code>hsk</code>, <code>new-hsk</code>, <code>yct</code>, <code>boya</code>, <code>hanyu-jiaocheng</code>) gồm đầy đủ cấp độ, bài học (<code>lessons/</code>) và chủ đề (<code>topics/</code>).</td>
+          </tr>
+          <tr>
+            <td><a href="data/speaking/new-hsk/new-hsk-1/dialogues.json"><code>data/speaking/</code></a></td>
+            <td>36 files</td>
+            <td>Toàn bộ hội thoại luyện nói theo chủ đề.</td>
+          </tr>
+          <tr>
+            <td><a href="data/grammar/quiz-tracks.json"><code>data/grammar/</code></a></td>
+            <td>21 files</td>
+            <td>489 chủ điểm ngữ pháp HSK 1–6 & New HSK 1–3 cùng 9,780 câu hỏi trắc nghiệm ngữ pháp.</td>
+          </tr>
+          <tr>
+            <td><a href="data/tests/papers-hsk.json"><code>data/tests/</code></a></td>
+            <td>71 files</td>
+            <td>66 đề thi thử HSK 1–6 đầy đủ câu hỏi Nghe, Đọc, Viết, giải thích và link audio.</td>
+          </tr>
+          <tr>
+            <td><a href="data/dictation/videos-all.json"><code>data/dictation/</code></a></td>
+            <td>185 files</td>
+            <td>91 bài luyện nghe chép chính tả qua video kèm toàn bộ phân đoạn phụ đề (<code>segments</code>).</td>
+          </tr>
+          <tr>
+            <td><a href="data/misc/thay-do-hi-vien-danh-muc.json"><code>data/misc/</code></a></td>
+            <td>9 files</td>
+            <td>Danh mục 15 bối cảnh & 31 kịch bản nhập vai Trường Thầy Đồ (Hí Viện), thử thách trò chơi, cấu hình hệ thống.</td>
+          </tr>
+          <tr>
+            <td><a href="assets/public/hanzi-lookup/mmah.json"><code>assets/</code></a></td>
+            <td>599 files</td>
+            <td>Toàn bộ mã nguồn bundle Next.js (<code>assets/_next/</code>) và tài nguyên tĩnh (<code>assets/public/</code>: <code>mmah.json</code>, hình ảnh Trường Thầy Đồ, Live2D, nét viết, âm thanh, biểu tượng).</td>
+          </tr>
+          <tr>
+            <td><a href="pages/index.html"><code>pages/</code></a></td>
+            <td>71 files</td>
+            <td>Bản chụp HTML SSR gốc của các trang chính, công cụ, trò chơi và thư viện cấp độ trên <code>xiehanzi.com</code>.</td>
+          </tr>
+          <tr>
+            <td><a href="sitemaps/sitemap.xml"><code>sitemaps/</code></a></td>
+            <td>24 files</td>
+            <td>Toàn bộ <code>robots.txt</code>, <code>sitemap.xml</code>, <code>sitemap-pages.xml</code>, <code>sitemap-han-viet.xml</code> và <code>sitemap-han-tu-1..20.xml</code>.</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <div id="detail-modal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Chi tiết</h2>
+        <button class="close-btn" onclick="closeModal()">Đóng ✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    // Populate dropdowns
+    const charSelect = document.getElementById('char-chunk-select');
+    for (let i = 1; i <= 20; i++) {
+      const num = String(i).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = `characters-${num}.json`;
+      opt.textContent = `Tệp chi tiết characters-${num}.json (500 chữ)`;
+      charSelect.appendChild(opt);
+    }
+
+    const vocabSelect = document.getElementById('vocab-chunk-select');
+    const vIdxOpt = document.createElement('option');
+    vIdxOpt.value = 'index.json';
+    vIdxOpt.textContent = 'Toàn bộ 11,534 từ vựng (index.json)';
+    vocabSelect.appendChild(vIdxOpt);
+    for (let i = 1; i <= 12; i++) {
+      const num = String(i).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = `vocabulary-${num}.json`;
+      opt.textContent = `Tệp chi tiết vocabulary-${num}.json (~1,000 từ)`;
+      vocabSelect.appendChild(opt);
+    }
+
+    const hvSelect = document.getElementById('hv-chunk-select');
+    for (let i = 1; i <= 7; i++) {
+      const num = String(i).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = `han-viet-${num}.json`;
+      opt.textContent = `Tệp han-viet-${num}.json (~1,000 mục)`;
+      hvSelect.appendChild(opt);
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if (tab === 'vocab' && !window.vocabLoaded) loadVocab();
+        if (tab === 'hanviet' && !window.hvLoaded) loadHanViet();
+        if (tab === 'grammar' && !window.grammarLoaded) loadGrammar();
+        if (tab === 'curriculums' && !window.currLoaded) loadCurriculum();
+        if (tab === 'tests' && !window.testsLoaded) loadTestsAndDictation();
+      });
+    });
+
+    // Characters viewer
+    let charData = [];
+    async function loadCharacters() {
+      const status = document.getElementById('char-status');
+      const file = charSelect.value === 'index' ? 'index.json' : charSelect.value;
+      status.textContent = `Đang tải data/characters/${file}...`;
+      try {
+        const res = await fetch(`data/characters/${file}`);
+        charData = await res.json();
+        status.textContent = `Đã tải ${charData.length.toLocaleString()} chữ Hán từ data/characters/${file}. Nhấp vào thẻ chữ để xem chi tiết.`;
+        renderCharacters();
+      } catch (e) {
+        status.textContent = `Không thể tải data/characters/${file}: ${e.message}`;
+      }
+    }
+
+    function renderCharacters() {
+      const q = document.getElementById('char-search').value.trim().toLowerCase();
+      const grid = document.getElementById('char-grid');
+      const filtered = charData.filter(item => {
+        if (!q) return true;
+        const c = (item.c || item.character || '').toLowerCase();
+        const p = (item.p || item.pinyin || '').toLowerCase();
+        const hv = (item.hv || item.hanvietReading || '').toLowerCase();
+        const m = (item.m || item.meaningVi || '').toLowerCase();
+        return c.includes(q) || p.includes(q) || hv.includes(q) || m.includes(q);
+      }).slice(0, 120);
+
+      grid.innerHTML = filtered.map((item, idx) => {
+        const char = item.c || item.character || '';
+        const pinyin = item.p || item.pinyin || '';
+        const hv = item.hv || item.hanvietReading || '';
+        const meaning = item.m || item.meaningVi || '';
+        const hsk = item.hsk || item.hskLevel;
+        const strokes = item.s || item.strokeCount;
+        const radical = item.r || item.radical || '';
+        const chunk = item.chunk || 1;
+        return `
+          <div class="card" style="cursor:pointer" onclick='inspectCharacter(${JSON.stringify(char)}, ${chunk})'>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="hanzi-big">${char}</div>
+              <div style="text-align:right;">
+                <div style="font-weight:700;font-size:1.05rem;">${pinyin}</div>
+                <div class="badge red">${hv.toUpperCase()}</div>
+              </div>
+            </div>
+            <div class="badges">
+              ${hsk ? `<span class="badge">HSK ${hsk}</span>` : ''}
+              ${strokes ? `<span class="badge">${strokes} nét</span>` : ''}
+              ${radical ? `<span class="badge">Bộ: ${radical}</span>` : ''}
+            </div>
+            <div class="muted">${meaning}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const chunkCache = {};
+    async function inspectCharacter(char, chunkNum) {
+      const num = String(chunkNum || 1).padStart(2, '0');
+      const file = `data/characters/characters-${num}.json`;
+      if (!chunkCache[file]) {
+        const res = await fetch(file);
+        chunkCache[file] = await res.json();
+      }
+      const full = chunkCache[file].find(x => x.character === char) || {};
+      document.getElementById('modal-title').textContent = `Chữ Hán: ${char} (${full.pinyin || ''} — ${(full.hanvietReading || '').toUpperCase()})`;
+      document.getElementById('modal-body').innerHTML = `
+        <div style="display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
+          <div class="hanzi-big" style="font-size:4rem;">${char}</div>
+          ${full.gif ? `<img src="${full.gif}" alt="${char}" style="width:96px;height:96px;border:1px solid var(--border);border-radius:8px;" />` : ''}
+          <div>
+            <div><strong>Nghĩa tiếng Việt:</strong> ${full.meaningVi || ''}</div>
+            <div><strong>Nghĩa tiếng Anh:</strong> ${full.meaningEn || ''}</div>
+            <div><strong>Bộ thủ:</strong> ${full.radical || ''} | <strong>Số nét:</strong> ${full.strokeCount || ''} | <strong>HSK:</strong> ${full.hskLevel || 'N/A'}</div>
+            ${full.memoryHook ? `<div style="margin-top:0.35rem;"><strong>Mẹo nhớ:</strong> ${full.memoryHook}</div>` : ''}
+            ${full.componentNarrative ? `<div style="margin-top:0.35rem;"><strong>Chiết tự:</strong> ${full.componentNarrative}</div>` : ''}
+          </div>
+        </div>
+        <pre class="json-box">${escapeHtml(JSON.stringify(full, null, 2))}</pre>
+      `;
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    // Vocabulary viewer
+    let vocabData = [];
+    async function loadVocab() {
+      window.vocabLoaded = true;
+      const status = document.getElementById('vocab-status');
+      const file = vocabSelect.value;
+      status.textContent = `Đang tải data/vocabulary/${file}...`;
+      try {
+        const res = await fetch(`data/vocabulary/${file}`);
+        vocabData = await res.json();
+        status.textContent = `Đã tải ${vocabData.length.toLocaleString()} mục từ data/vocabulary/${file}.`;
+        renderVocab();
+      } catch (e) {
+        status.textContent = `Không thể tải data/vocabulary/${file}: ${e.message}`;
+      }
+    }
+
+    function renderVocab() {
+      const q = document.getElementById('vocab-search').value.trim().toLowerCase();
+      const grid = document.getElementById('vocab-grid');
+      const filtered = vocabData.filter(item => {
+        if (!q) return true;
+        const h = (item.hanzi || item.w || '').toLowerCase();
+        const p = (item.pinyin || item.p || '').toLowerCase();
+        const hv = (item.hanviet || item.hv || '').toLowerCase();
+        const m = (item.translationVi || item.m || '').toLowerCase();
+        return h.includes(q) || p.includes(q) || hv.includes(q) || m.includes(q);
+      }).slice(0, 100);
+
+      grid.innerHTML = filtered.map(item => {
+        const hanzi = item.hanzi || item.w || '';
+        const pinyin = item.pinyin || item.p || '';
+        const hv = item.hanviet || item.hv || '';
+        const meaning = item.translationVi || item.m || '';
+        return `
+          <div class="card" style="cursor:pointer" onclick='showJsonModal(${JSON.stringify(hanzi)}, ${JSON.stringify(item)})'>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="hanzi-big" style="font-size:1.75rem;">${hanzi}</div>
+              <div style="text-align:right;">
+                <div style="font-weight:700;">${pinyin}</div>
+                ${hv ? `<span class="badge red">${hv.toUpperCase()}</span>` : ''}
+              </div>
+            </div>
+            <div class="muted" style="margin-top:0.5rem;">${meaning}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Han-Viet viewer
+    let hvData = [];
+    async function loadHanViet() {
+      window.hvLoaded = true;
+      const status = document.getElementById('hv-status');
+      const file = hvSelect.value;
+      status.textContent = `Đang tải data/han-viet/${file}...`;
+      try {
+        const res = await fetch(`data/han-viet/${file}`);
+        hvData = await res.json();
+        status.textContent = `Đã tải ${hvData.length.toLocaleString()} mục từ data/han-viet/${file}.`;
+        renderHanViet();
+      } catch (e) {
+        status.textContent = `Không thể tải data/han-viet/${file}: ${e.message}`;
+      }
+    }
+
+    function renderHanViet() {
+      const q = document.getElementById('hv-search').value.trim().toLowerCase();
+      const grid = document.getElementById('hv-grid');
+      const filtered = hvData.filter(item => {
+        if (!q) return true;
+        return JSON.stringify(item).toLowerCase().includes(q);
+      }).slice(0, 90);
+
+      grid.innerHTML = filtered.map(item => {
+        const title = item.reading || item.hanviet || item.slug || item.query || 'Hán Việt';
+        const chars = (item.characters || []).map(c => c.character || c.hanzi || c).slice(0, 10).join(' ');
+        const words = (item.words || []).map(w => w.hanzi || w).slice(0, 6).join(', ');
+        return `
+          <div class="card" style="cursor:pointer" onclick='showJsonModal(${JSON.stringify(title)}, ${JSON.stringify(item)})'>
+            <div style="font-weight:800;font-size:1.2rem;color:var(--accent);text-transform:uppercase;">${title}</div>
+            ${chars ? `<div style="font-size:1.25rem;margin:0.35rem 0;">${chars}</div>` : ''}
+            ${words ? `<div class="muted">Từ ghép: ${words}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Grammar viewer
+    let grammarPoints = [];
+    async function loadGrammar() {
+      window.grammarLoaded = true;
+      const file = document.getElementById('grammar-level-select').value;
+      const res = await fetch(`data/grammar/${file}`);
+      const json = await res.json();
+      grammarPoints = json.points || json.items || json.data || [];
+      renderGrammar();
+    }
+
+    function renderGrammar() {
+      const q = document.getElementById('grammar-search').value.trim().toLowerCase();
+      const grid = document.getElementById('grammar-grid');
+      const filtered = grammarPoints.filter(p => !q || JSON.stringify(p).toLowerCase().includes(q));
+      grid.innerHTML = filtered.map(p => `
+        <div class="card" style="cursor:pointer" onclick='showJsonModal(${JSON.stringify(p.title || p.pattern || p.slug)}, ${JSON.stringify(p)})'>
+          <div style="font-weight:700;font-size:1.08rem;color:var(--accent);">${p.title || p.pattern || p.name}</div>
+          <div class="badges">
+            ${p.category ? `<span class="badge">${p.category}</span>` : ''}
+            ${p.code ? `<span class="badge red">${p.code}</span>` : ''}
+          </div>
+          <div class="muted">${p.summary || p.structure || p.meaning || ''}</div>
+        </div>
+      `).join('');
+    }
+
+    // Curriculum viewer
+    async function loadCurriculum() {
+      window.currLoaded = true;
+      const curr = document.getElementById('curr-select').value;
+      const res = await fetch(`data/curriculums/${curr}/overview.json`);
+      const json = await res.json();
+      const levels = json.levels || [];
+      document.getElementById('curr-grid').innerHTML = levels.map(l => `
+        <div class="card">
+          <div style="font-weight:800;font-size:1.2rem;color:var(--accent);">${l.name}</div>
+          <div class="badges">
+            <span class="badge red">${l.wordCount || 0} từ vựng</span>
+            ${l.lessonCount ? `<span class="badge">${l.lessonCount} bài học</span>` : ''}
+            ${l.category ? `<span class="badge">${l.category}</span>` : ''}
+          </div>
+          <p class="muted" style="margin:0.5rem 0;">${l.desc || ''}</p>
+          <div style="display:flex;gap:0.75rem;font-size:0.86rem;font-weight:600;margin-top:0.5rem;">
+            <a href="data/curriculums/${curr}/levels/${l.slug}.json" target="_blank">JSON Cấp độ →</a>
+            <a href="data/curriculums/${curr}/levels/${l.slug}-lessons.json" target="_blank">JSON Bài học →</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Tests & Dictation viewer
+    async function loadTestsAndDictation() {
+      window.testsLoaded = true;
+      const resT = await fetch('data/tests/papers-hsk.json');
+      const jsonT = await resT.json();
+      const papers = [];
+      (jsonT.levels || []).forEach(l => (l.items || []).forEach(p => papers.push(p)));
+      document.getElementById('tests-grid').innerHTML = papers.map(p => `
+        <div class="card">
+          <div style="font-weight:700;color:var(--accent);">${p.title}</div>
+          <div class="badges">
+            <span class="badge red">HSK ${p.level}</span>
+            <span class="badge">${p.questionCount} câu</span>
+            <span class="badge">${p.durationMinutes} phút</span>
+          </div>
+          <a href="data/tests/papers/level-${p.level}-${p.testId}.json" target="_blank" style="font-size:0.86rem;font-weight:600;">Xem đề thi đầy đủ (JSON) →</a>
+        </div>
+      `).join('');
+
+      const resD = await fetch('data/dictation/videos-all.json');
+      const vids = await resD.json();
+      document.getElementById('dictation-grid').innerHTML = vids.map(v => {
+        const id = v.id || v._id;
+        return `
+          <div class="card">
+            <div style="font-weight:700;color:var(--accent);">${v.title || v.titleVi || id}</div>
+            <div class="badges">
+              ${v.hskLevel ? `<span class="badge red">HSK ${v.hskLevel}</span>` : ''}
+              ${v.segmentCount ? `<span class="badge">${v.segmentCount} câu thoại</span>` : ''}
+            </div>
+            <div class="muted" style="margin-bottom:0.5rem;">${v.titleVi || v.description || ''}</div>
+            <a href="data/dictation/videos/${id}-segments.json" target="_blank" style="font-size:0.86rem;font-weight:600;">Xem phụ đề & đáp án (JSON) →</a>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function showJsonModal(title, obj) {
+      document.getElementById('modal-title').textContent = title;
+      document.getElementById('modal-body').innerHTML = `<pre class="json-box">${escapeHtml(JSON.stringify(obj, null, 2))}</pre>`;
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('detail-modal').classList.remove('open');
+    }
+
+    function escapeHtml(str) {
+      return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    document.getElementById('char-search').addEventListener('input', renderCharacters);
+    charSelect.addEventListener('change', loadCharacters);
+    document.getElementById('vocab-search').addEventListener('input', renderVocab);
+    vocabSelect.addEventListener('change', loadVocab);
+    document.getElementById('hv-search').addEventListener('input', renderHanViet);
+    hvSelect.addEventListener('change', loadHanViet);
+    document.getElementById('grammar-level-select').addEventListener('change', loadGrammar);
+    document.getElementById('grammar-search').addEventListener('input', renderGrammar);
+    document.getElementById('curr-select').addEventListener('change', loadCurriculum);
+
+    loadCharacters();
+  </script>
+</body>
+</html>

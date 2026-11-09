@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Error</title>
+</head>
+<body>
+<pre>Cannot GET /api/v1/dictation/videos/6ade7cf5a90e9d319b7d4abf</pre>
+</body>
+</html>
