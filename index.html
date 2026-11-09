@@ -367,6 +367,31 @@
             <td>24 files</td>
             <td>Toàn bộ <code>robots.txt</code>, <code>sitemap.xml</code>, <code>sitemap-pages.xml</code>, <code>sitemap-han-viet.xml</code> và <code>sitemap-han-tu-1..20.xml</code>.</td>
           </tr>
+          <tr>
+            <td><a href="https://github.com/hungktkthd/saochepweb-visuals" target="_blank"><code>saochepweb-visuals</code></a></td>
+            <td>9,231 files (592 MB)</td>
+            <td>Toàn bộ 7,751 ảnh động GIF nét chữ (<code>gif/</code>), 1,045 ảnh đề thi HSK (<code>hsk-tests/</code>), 414 ảnh minh họa từ vựng (<code>word-illustration/</code>) & 21 ảnh cấp độ (<code>level_images/</code>).</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/hungktkthd/saochepweb-etymology" target="_blank"><code>saochepweb-etymology</code></a></td>
+            <td>13,434 files (52 MB)</td>
+            <td>Toàn bộ 13,434 ảnh nguồn gốc chữ Hán cổ (Giáp cốt, Kim văn, Triện thư, Lệ thư) trong <code>etymology/</code>.</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/hungktkthd/saochepweb-audios" target="_blank"><code>saochepweb-audios</code></a></td>
+            <td>30,781 files (282 MB)</td>
+            <td>Toàn bộ 17,760 file MP3 phát âm chữ Hán (<code>audios/</code>) và 13,021 file MP3 phát âm từ vựng (<code>word_audios/</code>).</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/hungktkthd/saochepweb-hsk-audio" target="_blank"><code>saochepweb-hsk-audio</code></a></td>
+            <td>1,562 files (1,098 MB)</td>
+            <td>Toàn bộ 1,562 file MP3 bài nghe của 66 bộ đề thi thử HSK 1–6 (<code>hsk-audio/</code>).</td>
+          </tr>
+          <tr>
+            <td><a href="https://github.com/hungktkthd/saochepweb-sentences-1" target="_blank"><code>saochepweb-sentences-1 & 2</code></a></td>
+            <td>39,647 files (1,019 MB)</td>
+            <td>Toàn bộ 39,647 file MP3 phát âm câu ví dụ tiếng Trung (<code>sentence-audio/</code> chia vào 2 kho <code>-1</code> và <code>-2</code>).</td>
+          </tr>
         </tbody>
       </table>
     </section>
@@ -488,6 +513,29 @@
       }).join('');
     }
 
+    function resolveMediaUrl(url) {
+      if (!url || typeof url !== 'string' || !url.startsWith('https://static.xiehanzi.com/')) return url;
+      const rel = url.slice('https://static.xiehanzi.com/'.length);
+      if (rel.startsWith('gif/') || rel.startsWith('hsk-tests/') || rel.startsWith('word-illustration/') || rel.startsWith('level_images/')) {
+        return `https://hungktkthd.github.io/saochepweb-visuals/${rel}`;
+      }
+      if (rel.startsWith('etymology/')) {
+        return `https://hungktkthd.github.io/saochepweb-etymology/${rel}`;
+      }
+      if (rel.startsWith('audios/') || rel.startsWith('word_audios/')) {
+        return `https://hungktkthd.github.io/saochepweb-audios/${rel}`;
+      }
+      if (rel.startsWith('hsk-audio/')) {
+        return `https://hungktkthd.github.io/saochepweb-hsk-audio/${rel}`;
+      }
+      if (rel.startsWith('sentence-audio/')) {
+        const firstChar = rel.slice('sentence-audio/'.length)[0].toLowerCase();
+        const repoNum = (firstChar >= '0' && firstChar <= '7') ? '1' : '2';
+        return `https://hungktkthd.github.io/saochepweb-sentences-${repoNum}/${rel}`;
+      }
+      return url;
+    }
+
     const chunkCache = {};
     async function inspectCharacter(char, chunkNum) {
       const num = String(chunkNum || 1).padStart(2, '0');
@@ -497,17 +545,25 @@
         chunkCache[file] = await res.json();
       }
       const full = chunkCache[file].find(x => x.character === char) || {};
+      const gifUrl = resolveMediaUrl(full.gif);
+      const audioUrl = (full.audios && full.audios[0]) ? resolveMediaUrl(full.audios[0].url || full.audios[0]) : '';
+      const etymImgs = (full.etymologyImages || []).map(img => {
+        const u = resolveMediaUrl(img.url || img);
+        return `<img src="${u}" onerror="this.src='${img.url || img}'" style="height:56px;border:1px solid var(--border);border-radius:6px;padding:4px;background:#fff;" title="${img.stage || ''}" />`;
+      }).join(' ');
       document.getElementById('modal-title').textContent = `Chữ Hán: ${char} (${full.pinyin || ''} — ${(full.hanvietReading || '').toUpperCase()})`;
       document.getElementById('modal-body').innerHTML = `
         <div style="display:flex;gap:1.25rem;flex-wrap:wrap;align-items:center;margin-bottom:1rem;">
           <div class="hanzi-big" style="font-size:4rem;">${char}</div>
-          ${full.gif ? `<img src="${full.gif}" alt="${char}" style="width:96px;height:96px;border:1px solid var(--border);border-radius:8px;" />` : ''}
-          <div>
+          ${gifUrl ? `<img src="${gifUrl}" onerror="this.src='${full.gif}'" alt="${char}" style="width:96px;height:96px;border:1px solid var(--border);border-radius:8px;" />` : ''}
+          <div style="flex:1;min-width:240px;">
             <div><strong>Nghĩa tiếng Việt:</strong> ${full.meaningVi || ''}</div>
             <div><strong>Nghĩa tiếng Anh:</strong> ${full.meaningEn || ''}</div>
             <div><strong>Bộ thủ:</strong> ${full.radical || ''} | <strong>Số nét:</strong> ${full.strokeCount || ''} | <strong>HSK:</strong> ${full.hskLevel || 'N/A'}</div>
+            ${audioUrl ? `<div style="margin-top:0.45rem;"><audio controls src="${audioUrl}" style="height:34px;"></audio></div>` : ''}
             ${full.memoryHook ? `<div style="margin-top:0.35rem;"><strong>Mẹo nhớ:</strong> ${full.memoryHook}</div>` : ''}
             ${full.componentNarrative ? `<div style="margin-top:0.35rem;"><strong>Chiết tự:</strong> ${full.componentNarrative}</div>` : ''}
+            ${etymImgs ? `<div style="margin-top:0.5rem;display:flex;gap:0.4rem;flex-wrap:wrap;">${etymImgs}</div>` : ''}
           </div>
         </div>
         <pre class="json-box">${escapeHtml(JSON.stringify(full, null, 2))}</pre>

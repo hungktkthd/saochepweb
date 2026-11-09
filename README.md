@@ -4,6 +4,22 @@ Bản sao lưu toàn diện toàn bộ cơ sở dữ liệu, giáo trình, ngữ
 
 ---
 
+## 🌐 Hệ Thống 7 Kho Lưu Trữ GitHub & GitHub Pages (Độc Lập 100%)
+
+Toàn bộ dữ liệu văn bản, JSON, giao diện và **94.655 tệp Media (`3,04 GB`)** đã được chia vào 7 kho lưu trữ GitHub công khai dưới tài khoản **`hungktkthd`** (mỗi kho đều bật GitHub Pages / CDN):
+
+| STT | Kho lưu trữ GitHub | Địa chỉ GitHub Pages / CDN | Số lượng tệp | Dung lượng | Nội dung |
+| :-: | :--- | :--- | :--- | :--- | :--- |
+| **1** | [`hungktkthd/saochepweb`](https://github.com/hungktkthd/saochepweb) | [https://hungktkthd.github.io/saochepweb/](https://hungktkthd.github.io/saochepweb/) | **2,205 tệp** | **232 MB** | Ứng dụng Web tra cứu chính (`index.html`), toàn bộ JSON (`data/`), bundles (`assets/`), HTML (`pages/`) & Sitemaps (`sitemaps/`). |
+| **2** | [`hungktkthd/saochepweb-visuals`](https://github.com/hungktkthd/saochepweb-visuals) | [https://hungktkthd.github.io/saochepweb-visuals/](https://hungktkthd.github.io/saochepweb-visuals/) | **9,231 tệp** | **593 MB** | 7.751 ảnh động GIF nét chữ (`gif/`), 1.045 ảnh đề thi HSK (`hsk-tests/`), 414 ảnh từ vựng (`word-illustration/`) & 21 ảnh cấp độ (`level_images/`). |
+| **3** | [`hungktkthd/saochepweb-etymology`](https://github.com/hungktkthd/saochepweb-etymology) | [https://hungktkthd.github.io/saochepweb-etymology/](https://hungktkthd.github.io/saochepweb-etymology/) | **13,434 tệp** | **52 MB** | Toàn bộ 13.434 ảnh nguồn gốc chữ Hán cổ (Giáp cốt, Kim văn, Triện thư, Lệ thư) trong `etymology/`. |
+| **4** | [`hungktkthd/saochepweb-audios`](https://github.com/hungktkthd/saochepweb-audios) | [https://hungktkthd.github.io/saochepweb-audios/](https://hungktkthd.github.io/saochepweb-audios/) | **30,781 tệp** | **282 MB** | 17.760 file MP3 phát âm chữ Hán (`audios/`) và 13.021 file MP3 phát âm từ vựng (`word_audios/`). |
+| **5** | [`hungktkthd/saochepweb-hsk-audio`](https://github.com/hungktkthd/saochepweb-hsk-audio) | [https://hungktkthd.github.io/saochepweb-hsk-audio/](https://hungktkthd.github.io/saochepweb-hsk-audio/) | **1,562 tệp** | **1,098 MB** | Toàn bộ 1.562 file MP3 bài nghe của 66 bộ đề thi thử HSK 1–6 (`hsk-audio/`). |
+| **6** | [`hungktkthd/saochepweb-sentences-1`](https://github.com/hungktkthd/saochepweb-sentences-1) | [https://hungktkthd.github.io/saochepweb-sentences-1/](https://hungktkthd.github.io/saochepweb-sentences-1/) | **19,862 tệp** | **510 MB** | Nửa đầu (mã hash `0`–`7`) file MP3 phát âm câu ví dụ tiếng Trung (`sentence-audio/`). |
+| **7** | [`hungktkthd/saochepweb-sentences-2`](https://github.com/hungktkthd/saochepweb-sentences-2) | [https://hungktkthd.github.io/saochepweb-sentences-2/](https://hungktkthd.github.io/saochepweb-sentences-2/) | **19,785 tệp** | **509 MB** | Nửa sau (mã hash `8`–`f`) file MP3 phát âm câu ví dụ tiếng Trung (`sentence-audio/`). |
+
+---
+
 ## 📊 Thống Kê Toàn Bộ Dữ Liệu Đã Sao Chép
 
 | Phân mục | Số lượng | Đường dẫn lưu trữ | Mô tả chi tiết |
