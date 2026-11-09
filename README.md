@@ -1,6 +1,8 @@
-# Kho Dữ Liệu Toàn Diện XieHanzi.com (`saochepweb`)
+# Kho Dữ Liệu & Ứng Dụng Học Tiếng Trung (`hoctiengtrungquoc.vercel.app`)
 
-Bản sao lưu toàn diện toàn bộ cơ sở dữ liệu, giáo trình, ngữ pháp, đề thi, bài luyện nghe chép chính tả, tài nguyên tĩnh và giao diện tra cứu của website **[https://xiehanzi.com/](https://xiehanzi.com/)**.
+> 📌 **TÀI LIỆU BÀN GIAO CHO ĐOẠN CHAT MỚI**: Xem chi tiết toàn bộ những gì đã làm được, chưa làm được và lộ trình phát triển tiếp theo tại **[`PROJECT_HANDOVER.md`](PROJECT_HANDOVER.md)**.
+
+Bản sao lưu toàn diện toàn bộ cơ sở dữ liệu, giáo trình, ngữ pháp, đề thi, bài luyện nghe chép chính tả, tài nguyên tĩnh và giao diện 1:1 của website **[https://xiehanzi.com/](https://xiehanzi.com/)**, triển khai tại **[https://hoctiengtrungquoc.vercel.app](https://hoctiengtrungquoc.vercel.app)**.
 
 ---
 
