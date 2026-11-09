@@ -28,67 +28,67 @@
     },
     {
       "source": "/han-tu/:slug*",
-      "destination": "/han-tu.html"
+      "destination": "/han-tu"
     },
     {
       "source": "/tu-vung/:slug*",
-      "destination": "/tu-vung.html"
+      "destination": "/tu-vung"
     },
     {
       "source": "/han-viet/:slug*",
-      "destination": "/han-viet.html"
+      "destination": "/han-viet"
     },
     {
       "source": "/ngu-phap/:slug*",
-      "destination": "/ngu-phap.html"
+      "destination": "/ngu-phap"
     },
     {
       "source": "/luyen-chep-chinh-ta/:slug*",
-      "destination": "/luyen-chep-chinh-ta.html"
+      "destination": "/luyen-chep-chinh-ta"
     },
     {
-      "source": "/thu-vien-hsk/:level/:slug+",
-      "destination": "/thu-vien-hsk/:level.html"
+      "source": "/thu-vien-hsk/:level/:slug*",
+      "destination": "/thu-vien-hsk/:level"
     },
     {
-      "source": "/thu-vien-new-hsk/:level/:slug+",
-      "destination": "/thu-vien-new-hsk/:level.html"
+      "source": "/thu-vien-new-hsk/:level/:slug*",
+      "destination": "/thu-vien-new-hsk/:level"
     },
     {
-      "source": "/thu-vien-yct/:level/:slug+",
-      "destination": "/thu-vien-yct/:level.html"
+      "source": "/thu-vien-yct/:level/:slug*",
+      "destination": "/thu-vien-yct/:level"
     },
     {
-      "source": "/thu-vien-boya/:level/:slug+",
-      "destination": "/thu-vien-boya/:level.html"
+      "source": "/thu-vien-boya/:level/:slug*",
+      "destination": "/thu-vien-boya/:level"
     },
     {
-      "source": "/thu-vien-hanyu-jiaocheng/:level/:slug+",
-      "destination": "/thu-vien-hanyu-jiaocheng/:level.html"
+      "source": "/thu-vien-hanyu-jiaocheng/:level/:slug*",
+      "destination": "/thu-vien-hanyu-jiaocheng/:level"
     },
     {
       "source": "/kiem-tra-hsk/:slug*",
-      "destination": "/kiem-tra-hsk.html"
+      "destination": "/kiem-tra-hsk"
     },
     {
       "source": "/kiem-tra-yct/:slug*",
-      "destination": "/kiem-tra-hsk.html"
+      "destination": "/kiem-tra-hsk"
     },
     {
       "source": "/de-kiem-tra/:slug*",
-      "destination": "/de-kiem-tra.html"
+      "destination": "/de-kiem-tra"
     },
     {
       "source": "/so-tay/:slug*",
-      "destination": "/so-tay.html"
+      "destination": "/so-tay"
     },
     {
       "source": "/hoc/:slug*",
-      "destination": "/hoc.html"
+      "destination": "/hoc"
     },
     {
       "source": "/tro-choi/:slug*",
-      "destination": "/tro-choi.html"
+      "destination": "/tro-choi"
     }
   ],
   "headers": [
