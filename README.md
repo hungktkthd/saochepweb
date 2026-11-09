@@ -6,7 +6,7 @@ Bản sao lưu toàn diện toàn bộ cơ sở dữ liệu, giáo trình, ngữ
 
 ## 🌐 Toàn Bộ Dữ Liệu & Media Gộp Trong 1 Dự Án GitHub Duy Nhất (`hungktkthd/saochepweb`)
 
-Toàn bộ **96.860 tệp (`3,27 GB`)** đã được gộp gọn gàng vào **1 kho lưu trữ GitHub duy nhất**: **[`https://github.com/hungktkthd/saochepweb`](https://github.com/hungktkthd/saochepweb)** (sẵn sàng triển khai lên **Vercel `hoctatca.vercel.app` → Supabase + AI APIs**):
+Toàn bộ **96.860 tệp (`3,27 GB`)** đã được gộp gọn gàng vào **1 kho lưu trữ GitHub duy nhất**: **[`https://github.com/hungktkthd/saochepweb`](https://github.com/hungktkthd/saochepweb)** (triển khai tự động lên **Vercel `hoctiengtrungquoc.vercel.app` → Supabase + AI APIs**):
 
 | Nhánh (Branch) trong `hungktkthd/saochepweb` | Thư mục gắn trong `main` | Số lượng tệp | Dung lượng | Nội dung |
 | :--- | :--- | :--- | :--- | :--- |
