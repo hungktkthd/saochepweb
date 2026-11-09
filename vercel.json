@@ -1,6 +1,32 @@
 {
   "version": 2,
   "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/media/visuals/:path*",
+      "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-visuals/:path*"
+    },
+    {
+      "source": "/media/etymology/:path*",
+      "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-etymology/:path*"
+    },
+    {
+      "source": "/media/audios/:path*",
+      "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-audios/:path*"
+    },
+    {
+      "source": "/media/hsk-audio/:path*",
+      "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-hsk-audio/:path*"
+    },
+    {
+      "source": "/media/sentences-1/:path*",
+      "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-sentences-1/:path*"
+    },
+    {
+      "source": "/media/sentences-2/:path*",
+      "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-sentences-2/:path*"
+    }
+  ],
   "headers": [
     {
       "source": "/data/(.*)",

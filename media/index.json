@@ -1,0 +1,55 @@
+{
+  "repository": "https://github.com/hungktkthd/saochepweb",
+  "totalMediaFiles": 94655,
+  "totalSizeMB": 3043.27,
+  "branches": {
+    "visuals": {
+      "branch": "media-visuals",
+      "files": 9231,
+      "sizeMB": 592.74,
+      "browseUrl": "https://github.com/hungktkthd/saochepweb/tree/media-visuals",
+      "rawBaseUrl": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-visuals",
+      "vercelRewrite": "/media/visuals"
+    },
+    "etymology": {
+      "branch": "media-etymology",
+      "files": 13434,
+      "sizeMB": 52.06,
+      "browseUrl": "https://github.com/hungktkthd/saochepweb/tree/media-etymology",
+      "rawBaseUrl": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-etymology",
+      "vercelRewrite": "/media/etymology"
+    },
+    "audios": {
+      "branch": "media-audios",
+      "files": 30781,
+      "sizeMB": 281.73,
+      "browseUrl": "https://github.com/hungktkthd/saochepweb/tree/media-audios",
+      "rawBaseUrl": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-audios",
+      "vercelRewrite": "/media/audios"
+    },
+    "hskAudio": {
+      "branch": "media-hsk-audio",
+      "files": 1562,
+      "sizeMB": 1097.62,
+      "browseUrl": "https://github.com/hungktkthd/saochepweb/tree/media-hsk-audio",
+      "rawBaseUrl": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-hsk-audio",
+      "vercelRewrite": "/media/hsk-audio"
+    },
+    "sentences1": {
+      "branch": "media-sentences-1",
+      "files": 20035,
+      "sizeMB": 514.80,
+      "browseUrl": "https://github.com/hungktkthd/saochepweb/tree/media-sentences-1",
+      "rawBaseUrl": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-sentences-1",
+      "vercelRewrite": "/media/sentences-1"
+    },
+    "sentences2": {
+      "branch": "media-sentences-2",
+      "files": 19612,
+      "sizeMB": 504.32,
+      "browseUrl": "https://github.com/hungktkthd/saochepweb/tree/media-sentences-2",
+      "rawBaseUrl": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-sentences-2",
+      "vercelRewrite": "/media/sentences-2"
+    }
+  }
+}
