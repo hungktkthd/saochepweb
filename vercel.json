@@ -25,6 +25,18 @@
     {
       "source": "/media/sentences-2/:path*",
       "destination": "https://raw.githubusercontent.com/hungktkthd/saochepweb/media-sentences-2/:path*"
+    },
+    {
+      "source": "/han-tu/:slug*",
+      "destination": "/han-tu.html"
+    },
+    {
+      "source": "/tu-vung/:slug*",
+      "destination": "/tu-vung.html"
+    },
+    {
+      "source": "/han-viet/:slug*",
+      "destination": "/han-viet.html"
     }
   ],
   "headers": [

@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Học Tiếng Trung Quốc Toàn Diện — hoctiengtrungquoc.vercel.app</title>
+  <link rel="icon" href="assets/public/favicon.svg" type="image/svg+xml" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --bg: #faf6f0;
+      --card: #ffffff;
+      --text: #1c1917;
+      --muted: #6b5e53;
+      --accent: #b91c1c;
+      --accent-dark: #7f1d1d;
+      --accent-soft: #fef2f2;
+      --gold: #d97706;
+      --gold-soft: #fef3c7;
+      --green: #15803d;
+      --green-soft: #dcfce7;
+      --border: #e5dec9;
+      --badge: #f3ede2;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      background: linear-gradient(135deg, #651212 0%, #991b1b 55%, #b91c1c 100%);
+      color: #fff;
+      padding: 1.25rem 1.25rem;
+      border-bottom: 3px solid #f59e0b;
+    }
+    .container { max-width: 1280px; margin: 0 auto; }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .brand h1 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; display: flex; align-items: center; gap: 0.5rem; }
+    .brand p { opacity: 0.9; font-size: 0.9rem; margin-top: 0.2rem; }
+    .auth-box {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(0, 0, 0, 0.22);
+      padding: 0.45rem 0.85rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.86rem;
+    }
+    .btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--text);
+      padding: 0.48rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .btn.primary:hover { background: var(--accent-dark); }
+    .btn.gold { background: #f59e0b; color: #1c1917; border-color: #f59e0b; }
+    .btn.green { background: var(--green); color: #fff; border-color: var(--green); }
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+    .stat-card {
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 10px;
+      padding: 0.55rem 0.8rem;
+    }
+    .stat-card .num { font-size: 1.2rem; font-weight: 800; color: #fde68a; }
+    .stat-card .lbl { font-size: 0.78rem; opacity: 0.92; }
+    nav.tabs {
+      background: #fff;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+    }
+    .tabs-inner {
+      display: flex;
+      gap: 0.35rem;
+      overflow-x: auto;
+      padding: 0.55rem 1.25rem;
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      padding: 0.48rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab-btn.active, .tab-btn:hover {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    main { padding: 1.35rem 1.25rem 3.5rem; }
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-bottom: 1.15rem;
+      align-items: center;
+      background: #fff;
+      padding: 0.85rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+    }
+    input[type="search"], input[type="text"], input[type="email"], input[type="password"], select, textarea {
+      padding: 0.58rem 0.85rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.92rem;
+      background: #fff;
+      color: var(--text);
+    }
+    input[type="search"] { flex: 1; min-width: 220px; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 0.95rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+      transition: transform 0.12s, border-color 0.12s;
+    }
+    .card:hover { border-color: #cbd5e1; transform: translateY(-1px); }
+    .hanzi-big {
+      font-size: 2.35rem;
+      font-weight: 700;
+      color: var(--accent);
+      line-height: 1.15;
+      font-family: "KaiTi", "STKaiti", "Noto Serif SC", "SimSun", serif;
+    }
+    .badges { display: flex; flex-wrap: wrap; gap: 0.35rem; margin: 0.4rem 0; }
+    .badge {
+      background: var(--badge);
+      color: var(--text);
+      padding: 0.15rem 0.55rem;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 600;
+    }
+    .badge.red { background: var(--accent-soft); color: var(--accent); }
+    .badge.green { background: var(--green-soft); color: var(--green); }
+    .badge.gold { background: var(--gold-soft); color: var(--gold); }
+    .muted { color: var(--muted); font-size: 0.87rem; }
+    .section-panel { display: none; }
+    .section-panel.active { display: block; }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.58);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+    .modal {
+      background: #fff;
+      border-radius: 14px;
+      max-width: 880px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 1.4rem;
+      border: 1px solid var(--border);
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    /* Mizige Canvas for writing practice */
+    .mizige-wrap {
+      position: relative;
+      width: 220px;
+      height: 220px;
+      border: 2px solid var(--accent);
+      border-radius: 8px;
+      background: #fffdf9;
+      user-select: none;
+      touch-action: none;
+    }
+    .mizige-bg {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 165px;
+      font-family: "KaiTi", "STKaiti", "Noto Serif SC", serif;
+      color: rgba(185, 28, 28, 0.14);
+      pointer-events: none;
+      line-height: 1;
+    }
+    .mizige-wrap canvas {
+      position: relative;
+      z-index: 2;
+      cursor: crosshair;
+    }
+    /* Flashcard */
+    .flashcard-box {
+      max-width: 560px;
+      margin: 1rem auto;
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      padding: 2.2rem 1.5rem;
+      text-align: center;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.05);
+    }
+    /* Quiz & Exam */
+    .quiz-option {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 0.7rem 1rem;
+      margin: 0.45rem 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      cursor: pointer;
+      font-size: 0.94rem;
+      transition: all 0.12s;
+    }
+    .quiz-option:hover { border-color: var(--accent); background: #fff; }
+    .quiz-option.correct { background: var(--green-soft); border-color: var(--green); color: var(--green); font-weight: 700; }
+    .quiz-option.wrong { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    pre.json-box {
+      background: #1e1e1e;
+      color: #f8f8f2;
+      padding: 0.85rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-size: 0.8rem;
+      margin-top: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-top">
+        <div class="brand">
+          <h1>🏮 Học Tiếng Trung Quốc Toàn Diện</h1>
+          <p>Từ điển Chiết tự 9.931 Chữ Hán • 11.534 Từ vựng • 5 Giáo trình • 489 Ngữ pháp • 66 Đề HSK • 91 Video Chính tả • Đồng bộ Supabase & AI</p>
+        </div>
+        <div class="auth-box" id="auth-status-box">
+          <span id="user-label">Chưa đăng nhập (Lưu cục bộ)</span>
+          <button class="btn gold" id="auth-btn" onclick="openAuthModal()">Đăng nhập / Đăng ký</button>
+        </div>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-card"><div class="num" id="stat-mastered">0 / 9,931</div><div class="lbl">Chữ Hán Đã Thuộc</div></div>
+        <div class="stat-card"><div class="num" id="stat-saved-words">0 / 11,534</div><div class="lbl">Từ Vựng Đã Lưu</div></div>
+        <div class="stat-card"><div class="num" id="stat-exams">0 bài</div><div class="lbl">Đề HSK & Quiz Đã Làm</div></div>
+        <div class="stat-card"><div class="num">5 Bộ / 33 Cấp</div><div class="lbl">Giáo Trình Chuẩn</div></div>
+        <div class="stat-card"><div class="num">94,655 Files</div><div class="lbl">GIF, Ảnh & Audio MP3</div></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <div class="tabs-inner">
+      <button class="tab-btn active" data-tab="chars">✍️ Chữ Hán & Luyện Viết (9,931)</button>
+      <button class="tab-btn" data-tab="vocab">📚 Từ Vựng & Flashcard (11,534)</button>
+      <button class="tab-btn" data-tab="hanviet">📖 Tra Cứu Hán Việt (6,704)</button>
+      <button class="tab-btn" data-tab="curriculums">🎓 5 Giáo Trình & Hội Thoại</button>
+      <button class="tab-btn" data-tab="grammar">🧩 Ngữ Pháp & Thi Quiz (9,780 câu)</button>
+      <button class="tab-btn" data-tab="tests">🏆 Phòng Thi HSK (66 Đề)</button>
+      <button class="tab-btn" data-tab="dictation">🎧 Nghe Chép Chính Tả (91 Video)</button>
+      <button class="tab-btn" data-tab="ai">🤖 Gia Sư AI & Chấm Câu</button>
+    </div>
+  </nav>
+
+  <main class="container">
+    <!-- TAB 1: CHARACTERS & STROKE WRITING -->
+    <section id="tab-chars" class="section-panel active">
+      <div class="toolbar">
+        <input type="search" id="char-search" placeholder="Tìm chữ Hán, Pinyin, âm Hán Việt hoặc nghĩa (VD: 的, de, đích, yêu, học, tâm)..." />
+        <select id="char-hsk-filter">
+          <option value="">Tất cả cấp HSK</option>
+          <option value="1">HSK 1</option>
+          <option value="2">HSK 2</option>
+          <option value="3">HSK 3</option>
+          <option value="4">HSK 4</option>
+          <option value="5">HSK 5</option>
+          <option value="6">HSK 6</option>
+          <option value="mastered">✅ Chữ Hán tôi đã thuộc</option>
+        </select>
+        <select id="char-chunk-select">
+          <option value="index">Toàn bộ 9,931 chữ Hán (Tất cả)</option>
+        </select>
+      </div>
+      <div id="char-status" class="muted" style="margin-bottom:0.75rem;">Đang tải danh mục 9,931 chữ Hán...</div>
+      <div id="char-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 2: VOCABULARY & FLASHCARDS -->
+    <section id="tab-vocab" class="section-panel">
+      <div class="toolbar">
+        <input type="search" id="vocab-search" placeholder="Tìm từ vựng tiếng Trung, Pinyin, Hán Việt hoặc nghĩa (VD: 喜欢, xihuan, thích)..." />
+        <select id="vocab-chunk-select"></select>
+        <button class="btn primary" onclick="toggleFlashcardMode()">🗂️ Bật/Tắt Flashcard Ôn Tập</button>
+      </div>
+      <div id="flashcard-area" style="display:none;margin-bottom:1.5rem;">
+        <div class="flashcard-box" onclick="flipFlashcard()">
+          <div id="fc-front">
+            <div class="hanzi-big" style="font-size:4rem;" id="fc-hanzi">喜欢</div>
+            <div class="muted" style="margin-top:0.75rem;">(Nhấp vào thẻ để lật xem Pinyin, Hán Việt & Nghĩa)</div>
+          </div>
+          <div id="fc-back" style="display:none;margin-top:1rem;">
+            <div style="font-size:1.4rem;font-weight:700;color:var(--accent);" id="fc-pinyin">xǐhuan</div>
+            <div class="badge red" style="font-size:0.95rem;margin:0.4rem 0;" id="fc-hv">THÍCH HOAN</div>
+            <div style="font-size:1.1rem;margin-top:0.35rem;" id="fc-meaning">Thích, yêu thích</div>
+          </div>
+        </div>
+        <div style="display:flex;justify-content:center;gap:0.75rem;margin-top:0.75rem;">
+          <button class="btn" onclick="prevFlashcard()">⬅️ Từ trước</button>
+          <button class="btn green" onclick="saveCurrentFlashcardWord()">⭐ Lưu từ này</button>
+          <button class="btn primary" onclick="nextFlashcard()">Từ tiếp theo ➡️</button>
+        </div>
+      </div>
+      <div id="vocab-status" class="muted" style="margin-bottom:0.75rem;">Đang tải danh mục 11,534 từ vựng...</div>
+      <div id="vocab-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 3: HAN VIET -->
+    <section id="tab-hanviet" class="section-panel">
+      <div class="toolbar">
+        <input type="search" id="hv-search" placeholder="Tìm âm Hán Việt (VD: an, minh, tâm, học, đại, quốc)..." />
+        <select id="hv-chunk-select"></select>
+      </div>
+      <div id="hv-status" class="muted" style="margin-bottom:0.75rem;">Đang tải dữ liệu Hán Việt...</div>
+      <div id="hv-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 4: CURRICULUMS -->
+    <section id="tab-curriculums" class="section-panel">
+      <div class="toolbar">
+        <select id="curr-select">
+          <option value="hsk">Giáo trình HSK 2.0 (HSK 1 – HSK 6)</option>
+          <option value="new-hsk">Giáo trình HSK 3.0 Mới (New HSK 1 – 9)</option>
+          <option value="yct">Giáo trình YCT (YCT 1 – 6)</option>
+          <option value="boya">Giáo trình Boya (Sơ cấp – Cao cấp)</option>
+          <option value="hanyu-jiaocheng">Giáo trình Hán Ngữ (Quyển 1 – 6)</option>
+        </select>
+        <span class="muted">Chọn cấp độ để mở danh sách Bài học, Chủ đề từ vựng & Hội thoại luyện nói</span>
+      </div>
+      <div id="curr-grid" class="grid"></div>
+      <div id="curr-detail-area" style="margin-top:1.5rem;"></div>
+    </section>
+
+    <!-- TAB 5: GRAMMAR & INTERACTIVE QUIZ -->
+    <section id="tab-grammar" class="section-panel">
+      <div class="toolbar">
+        <select id="grammar-level-select">
+          <option value="hsk-level-1.json" data-quiz="quiz-hsk1.json">HSK 1 (46 chủ điểm • 920 câu quiz)</option>
+          <option value="hsk-level-2.json" data-quiz="quiz-hsk2.json">HSK 2 (44 chủ điểm • 880 câu quiz)</option>
+          <option value="hsk-level-3.json" data-quiz="quiz-hsk3.json">HSK 3 (47 chủ điểm • 940 câu quiz)</option>
+          <option value="hsk-level-4.json" data-quiz="quiz-hsk4.json">HSK 4 (40 chủ điểm • 800 câu quiz)</option>
+          <option value="hsk-level-5.json" data-quiz="quiz-hsk5.json">HSK 5 (101 chủ điểm • 2,020 câu quiz)</option>
+          <option value="hsk-level-6.json" data-quiz="quiz-hsk6.json">HSK 6 (63 chủ điểm • 1,260 câu quiz)</option>
+          <option value="new-hsk-level-1.json" data-quiz="quiz-new-hsk1.json">New HSK 1 (40 chủ điểm • 800 câu quiz)</option>
+          <option value="new-hsk-level-2.json" data-quiz="quiz-new-hsk2.json">New HSK 2 (45 chủ điểm • 900 câu quiz)</option>
+          <option value="new-hsk-level-3.json" data-quiz="quiz-new-hsk3.json">New HSK 3 (63 chủ điểm • 1,260 câu quiz)</option>
+        </select>
+        <input type="search" id="grammar-search" placeholder="Lọc chủ điểm ngữ pháp..." />
+        <button class="btn primary" onclick="startGrammarQuiz()">📝 Làm Bài Thi Trắc Nghiệm Ngữ Pháp (15 Câu)</button>
+      </div>
+      <div id="grammar-quiz-box" style="display:none;margin-bottom:1.5rem;" class="card"></div>
+      <div id="grammar-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 6: HSK MOCK EXAMS -->
+    <section id="tab-tests" class="section-panel">
+      <div class="toolbar">
+        <select id="test-level-filter" onchange="renderTestPapers()">
+          <option value="">Tất cả 66 Đề thi HSK 1 – HSK 6</option>
+          <option value="1">Đề thi HSK 1 (11 đề)</option>
+          <option value="2">Đề thi HSK 2 (11 đề)</option>
+          <option value="3">Đề thi HSK 3 (11 đề)</option>
+          <option value="4">Đề thi HSK 4 (11 đề)</option>
+          <option value="5">Đề thi HSK 5 (11 đề)</option>
+          <option value="6">Đề thi HSK 6 (11 đề)</option>
+        </select>
+        <span class="muted">Nhấp vào bất kỳ đề thi nào để mở Phòng Thi Thử (có Audio bài nghe, chấm điểm & giải thích tự động)</span>
+      </div>
+      <div id="active-exam-room" style="display:none;margin-bottom:1.75rem;" class="card"></div>
+      <div id="tests-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 7: DICTATION VIDEOS -->
+    <section id="tab-dictation" class="section-panel">
+      <div class="toolbar">
+        <input type="search" id="dict-search" placeholder="Tìm chủ đề video luyện nghe chép chính tả..." oninput="renderDictationVideos()" />
+        <select id="dict-hsk-filter" onchange="renderDictationVideos()">
+          <option value="">Tất cả cấp HSK (91 Video)</option>
+          <option value="1">HSK 1</option>
+          <option value="2">HSK 2</option>
+          <option value="3">HSK 3</option>
+          <option value="4">HSK 4</option>
+          <option value="5">HSK 5</option>
+          <option value="6">HSK 6</option>
+        </select>
+      </div>
+      <div id="dictation-player-box" style="display:none;margin-bottom:1.75rem;" class="card"></div>
+      <div id="dictation-grid" class="grid"></div>
+    </section>
+
+    <!-- TAB 8: AI TUTOR -->
+    <section id="tab-ai" class="section-panel">
+      <div class="card" style="max-width:860px;margin:0 auto;">
+        <h2 style="color:var(--accent);margin-bottom:0.4rem;">🤖 Gia Sư AI Tiếng Trung (Chấm Viết, Sửa Ngữ Pháp & Giải Thích Chiết Tự)</h2>
+        <p class="muted" style="margin-bottom:1rem;">Kết nối Gemini API / OpenAI API hoặc sử dụng bộ phân tích Hán tự & Ngữ pháp tích hợp sẵn trên 9.931 chữ Hán.</p>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <input type="password" id="ai-api-key" placeholder="Nhập Gemini API Key (AIza...) nếu muốn gọi Gemini 2.5 Flash trực tiếp" style="flex:1;min-width:260px;" />
+          <button class="btn" onclick="saveAiKey()">Lưu API Key</button>
+        </div>
+        <textarea id="ai-prompt" rows="4" style="width:100%;margin-bottom:0.75rem;" placeholder="Nhập câu tiếng Trung cần chấm ngữ pháp, hoặc chữ Hán / từ vựng cần phân tích (VD: 我很喜欢学习汉语)..."></textarea>
+        <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
+          <button class="btn primary" onclick="runAiTutor()">✨ Phân Tích & Chấm Điểm Ngay</button>
+          <button class="btn" onclick="document.getElementById('ai-prompt').value='请帮我批改这个句子：我昨天去商店买了很多水果。';runAiTutor();">Thử câu mẫu 1</button>
+          <button class="btn" onclick="document.getElementById('ai-prompt').value='Giải thích chiết tự và cách dùng các chữ trong câu: 学而时习之';runAiTutor();">Thử câu mẫu 2</button>
+        </div>
+        <div id="ai-output" style="margin-top:1.25rem;display:none;padding:1rem;background:var(--bg);border-radius:10px;border:1px solid var(--border);"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- DETAIL & STROKE PRACTICE MODAL -->
+  <div id="detail-modal" class="modal-backdrop">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modal-title">Chi tiết</h2>
+        <button class="btn" onclick="closeModal()">Đóng ✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- SUPABASE AUTH MODAL -->
+  <div id="auth-modal" class="modal-backdrop">
+    <div class="modal" style="max-width:440px;">
+      <div class="modal-header">
+        <h2>🔐 Tài Khoản Học Tập (Supabase)</h2>
+        <button class="btn" onclick="closeAuthModal()">✕</button>
+      </div>
+      <p class="muted" style="margin-bottom:1rem;">Đăng nhập hoặc Đăng ký để đồng bộ Chữ Hán đã thuộc, Từ vựng đã lưu và Lịch sử thi HSK lên đám mây Supabase.</p>
+      <div style="display:flex;flex-direction:column;gap:0.75rem;">
+        <input type="email" id="auth-email" placeholder="Email của bạn (VD: ban@gmail.com)" />
+        <input type="password" id="auth-password" placeholder="Mật khẩu (tối thiểu 6 ký tự)" />
+        <div id="auth-msg" class="muted" style="color:var(--accent);"></div>
+        <div style="display:flex;gap:0.6rem;">
+          <button class="btn primary" style="flex:1;justify-content:center;" onclick="handleSignIn()">Đăng Nhập</button>
+          <button class="btn gold" style="flex:1;justify-content:center;" onclick="handleSignUp()">Đăng Ký Mới</button>
+        </div>
+        <button class="btn" id="signout-btn" style="display:none;justify-content:center;" onclick="handleSignOut()">Đăng Xuất</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. SUPABASE CONFIGURATION & CLOUD SYNC
+    // =========================================================================
+    const SUPABASE_URL = 'https://xcthntcgenzfybefaphh.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM';
+    const sbClient = window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY) : null;
+
+    let currentUser = null;
+    let userState = JSON.parse(localStorage.getItem('httq_state') || '{"masteredChars":{},"savedWords":{},"examCount":0}');
+
+    function updateStatsUI() {
+      const mCount = Object.keys(userState.masteredChars || {}).length;
+      const wCount = Object.keys(userState.savedWords || {}).length;
+      document.getElementById('stat-mastered').textContent = `${mCount.toLocaleString()} / 9,931`;
+      document.getElementById('stat-saved-words').textContent = `${wCount.toLocaleString()} / 11,534`;
+      document.getElementById('stat-exams').textContent = `${userState.examCount || 0} bài`;
+      localStorage.setItem('httq_state', JSON.stringify(userState));
+    }
+    updateStatsUI();
+
+    async function initSupabaseAuth() {
+      if (!sbClient) return;
+      const { data: { session } } = await sbClient.auth.getSession();
+      setAuthSession(session);
+      sbClient.auth.onAuthStateChange((_event, session) => setAuthSession(session));
+    }
+
+    async function setAuthSession(session) {
+      currentUser = session ? session.user : null;
+      const lbl = document.getElementById('user-label');
+      const btn = document.getElementById('auth-btn');
+      const outBtn = document.getElementById('signout-btn');
+      if (currentUser) {
+        lbl.textContent = `✅ ${currentUser.email}`;
+        btn.textContent = 'Tài khoản';
+        if (outBtn) outBtn.style.display = 'inline-flex';
+        await pullCloudProfile();
+      } else {
+        lbl.textContent = 'Chưa đăng nhập (Lưu cục bộ)';
+        btn.textContent = 'Đăng nhập / Đăng ký';
+        if (outBtn) outBtn.style.display = 'none';
+      }
+    }
+
+    async function pullCloudProfile() {
+      if (!currentUser || !sbClient) return;
+      const { data } = await sbClient
+        .from('study_profiles')
+        .select('state')
+        .eq('user_id', currentUser.id)
+        .eq('workspace', 'hoctiengtrungquoc')
+        .maybeSingle();
+      if (data && data.state) {
+        userState.masteredChars = { ...(userState.masteredChars || {}), ...(data.state.masteredChars || {}) };
+        userState.savedWords = { ...(userState.savedWords || {}), ...(data.state.savedWords || {}) };
+        userState.examCount = Math.max(userState.examCount || 0, data.state.examCount || 0);
+        updateStatsUI();
+      } else {
+        await pushCloudProfile();
+      }
+    }
+
+    async function pushCloudProfile() {
+      updateStatsUI();
+      if (!currentUser || !sbClient) return;
+      await sbClient.from('study_profiles').upsert({
+        user_id: currentUser.id,
+        workspace: 'hoctiengtrungquoc',
+        state: userState,
+        updated_at: new Date().toISOString()
+      });
+    }
+
+    async function recordExamResult(examType, examId, score, total, details) {
+      userState.examCount = (userState.examCount || 0) + 1;
+      await pushCloudProfile();
+      if (currentUser && sbClient) {
+        await sbClient.from('exam_results').insert({
+          user_id: currentUser.id,
+          exam_type: examType,
+          exam_id: examId,
+          score,
+          total,
+          details: details || {}
+        });
+      }
+    }
+
+    function openAuthModal() { document.getElementById('auth-modal').classList.add('open'); }
+    function closeAuthModal() { document.getElementById('auth-modal').classList.remove('open'); }
+
+    async function handleSignIn() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const msg = document.getElementById('auth-msg');
+      msg.textContent = 'Đang đăng nhập...';
+      const { error } = await sbClient.auth.signInWithPassword({ email, password });
+      if (error) msg.textContent = `Lỗi: ${error.message}`;
+      else { msg.textContent = 'Đăng nhập thành công!'; setTimeout(closeAuthModal, 600); }
+    }
+
+    async function handleSignUp() {
+      const email = document.getElementById('auth-email').value.trim();
+      const password = document.getElementById('auth-password').value;
+      const msg = document.getElementById('auth-msg');
+      msg.textContent = 'Đang tạo tài khoản...';
+      const { error } = await sbClient.auth.signUp({ email, password });
+      if (error) msg.textContent = `Lỗi: ${error.message}`;
+      else msg.textContent = 'Đăng ký thành công! Bạn đã có thể đồng bộ dữ liệu học tập.';
+    }
+
+    async function handleSignOut() {
+      await sbClient.auth.signOut();
+      closeAuthModal();
+    }
+
+    initSupabaseAuth();
+
+    // =========================================================================
+    // 2. UNIFIED MEDIA URL ROUTER (SINGLE REPO hungktkthd/saochepweb)
+    // =========================================================================
+    function resolveMediaUrl(url) {
+      if (!url || typeof url !== 'string' || !url.startsWith('https://static.xiehanzi.com/')) return url;
+      const rel = url.slice('https://static.xiehanzi.com/'.length);
+      const rawBase = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
+      if (rel.startsWith('gif/') || rel.startsWith('hsk-tests/') || rel.startsWith('word-illustration/') || rel.startsWith('level_images/')) {
+        return `${rawBase}/media-visuals/${rel}`;
+      }
+      if (rel.startsWith('etymology/')) {
+        return `${rawBase}/media-etymology/${rel}`;
+      }
+      if (rel.startsWith('audios/') || rel.startsWith('word_audios/')) {
+        return `${rawBase}/media-audios/${rel}`;
+      }
+      if (rel.startsWith('hsk-audio/')) {
+        return `${rawBase}/media-hsk-audio/${rel}`;
+      }
+      if (rel.startsWith('sentence-audio/')) {
+        const firstChar = rel.slice('sentence-audio/'.length)[0].toLowerCase();
+        const branchNum = (firstChar >= '0' && firstChar <= '7') ? '1' : '2';
+        return `${rawBase}/media-sentences-${branchNum}/${rel}`;
+      }
+      return url;
+    }
+
+    // =========================================================================
+    // 3. NAVIGATION & DROPDOWNS
+    // =========================================================================
+    const charSelect = document.getElementById('char-chunk-select');
+    for (let i = 1; i <= 20; i++) {
+      const num = String(i).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = `characters-${num}.json`;
+      opt.textContent = `Bộ chữ Hán ${num}/20 (500 chữ chi tiết)`;
+      charSelect.appendChild(opt);
+    }
+
+    const vocabSelect = document.getElementById('vocab-chunk-select');
+    const vIdxOpt = document.createElement('option');
+    vIdxOpt.value = 'index.json';
+    vIdxOpt.textContent = 'Toàn bộ 11,534 từ vựng (Tất cả)';
+    vocabSelect.appendChild(vIdxOpt);
+    for (let i = 1; i <= 12; i++) {
+      const num = String(i).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = `vocabulary-${num}.json`;
+      opt.textContent = `Bộ từ vựng ${num}/12 (~1,000 từ chi tiết)`;
+      vocabSelect.appendChild(opt);
+    }
+
+    const hvSelect = document.getElementById('hv-chunk-select');
+    for (let i = 1; i <= 7; i++) {
+      const num = String(i).padStart(2, '0');
+      const opt = document.createElement('option');
+      opt.value = `han-viet-${num}.json`;
+      opt.textContent = `Bộ Hán Việt ${num}/7 (~1,000 mục)`;
+      hvSelect.appendChild(opt);
+    }
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.section-panel').forEach(p => p.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        document.getElementById(`tab-${tab}`).classList.add('active');
+        if (tab === 'vocab' && !window.vocabLoaded) loadVocab();
+        if (tab === 'hanviet' && !window.hvLoaded) loadHanViet();
+        if (tab === 'grammar' && !window.grammarLoaded) loadGrammar();
+        if (tab === 'curriculums' && !window.currLoaded) loadCurriculum();
+        if (tab === 'tests' && !window.testsLoaded) loadTests();
+        if (tab === 'dictation' && !window.dictLoaded) loadDictation();
+      });
+    });
+
+    // =========================================================================
+    // 4. CHARACTERS & STROKE WRITING CANVAS
+    // =========================================================================
+    let charData = [];
+    let charIndexMap = {};
+    async function loadCharacters() {
+      const status = document.getElementById('char-status');
+      const file = charSelect.value === 'index' ? 'index.json' : charSelect.value;
+      status.textContent = `Đang tải dữ liệu chữ Hán...`;
+      try {
+        const res = await fetch(`data/characters/${file}`);
+        charData = await res.json();
+        if (file === 'index.json') {
+          charData.forEach(item => { charIndexMap[item.c] = item; });
+        }
+        status.textContent = `Đã sẵn sàng ${charData.length.toLocaleString()} chữ Hán. Nhấp vào chữ bất kỳ để Luyện viết nét chữ, nghe phát âm & xem chiết tự.`;
+        renderCharacters();
+      } catch (e) {
+        status.textContent = `Lỗi tải dữ liệu: ${e.message}`;
+      }
+    }
+
+    function renderCharacters() {
+      const q = document.getElementById('char-search').value.trim().toLowerCase();
+      const hskFilter = document.getElementById('char-hsk-filter').value;
+      const grid = document.getElementById('char-grid');
+      const filtered = charData.filter(item => {
+        const c = item.c || item.character || '';
+        if (hskFilter === 'mastered' && !(userState.masteredChars && userState.masteredChars[c])) return false;
+        if (hskFilter && hskFilter !== 'mastered' && String(item.hsk || item.hskLevel || '') !== hskFilter) return false;
+        if (!q) return true;
+        const p = (item.p || item.pinyin || '').toLowerCase();
+        const hv = (item.hv || item.hanvietReading || '').toLowerCase();
+        const m = (item.m || item.meaningVi || '').toLowerCase();
+        return c.toLowerCase().includes(q) || p.includes(q) || hv.includes(q) || m.includes(q);
+      }).slice(0, 120);
+
+      grid.innerHTML = filtered.map(item => {
+        const char = item.c || item.character || '';
+        const pinyin = item.p || item.pinyin || '';
+        const hv = item.hv || item.hanvietReading || '';
+        const meaning = item.m || item.meaningVi || '';
+        const hsk = item.hsk || item.hskLevel;
+        const strokes = item.s || item.strokeCount;
+        const radical = item.r || item.radical || '';
+        const chunk = item.chunk || 1;
+        const isMastered = userState.masteredChars && userState.masteredChars[char];
+        return `
+          <div class="card" style="cursor:pointer" onclick='inspectCharacter(${JSON.stringify(char)}, ${chunk})'>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="hanzi-big">${char}</div>
+              <div style="text-align:right;">
+                <div style="font-weight:700;font-size:1.05rem;">${pinyin}</div>
+                <div class="badge red">${hv.toUpperCase()}</div>
+              </div>
+            </div>
+            <div class="badges">
+              ${isMastered ? `<span class="badge green">✓ Đã thuộc</span>` : ''}
+              ${hsk ? `<span class="badge">HSK ${hsk}</span>` : ''}
+              ${strokes ? `<span class="badge">${strokes} nét</span>` : ''}
+              ${radical ? `<span class="badge">Bộ: ${radical}</span>` : ''}
+            </div>
+            <div class="muted">${meaning}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const chunkCache = {};
+    async function inspectCharacter(char, chunkNum) {
+      const num = String(chunkNum || 1).padStart(2, '0');
+      const file = `data/characters/characters-${num}.json`;
+      if (!chunkCache[file]) {
+        const res = await fetch(file);
+        chunkCache[file] = await res.json();
+      }
+      const full = chunkCache[file].find(x => x.character === char) || {};
+      const gifUrl = resolveMediaUrl(full.gif);
+      const rawAudio = (full.audios && full.audios[0]) ? (full.audios[0].url || full.audios[0]) : '';
+      const audioUrl = resolveMediaUrl(rawAudio);
+      const isMastered = !!(userState.masteredChars && userState.masteredChars[char]);
+
+      const etymImgs = (full.etymologyImages || []).map(img => {
+        const rawU = img.url || img;
+        const u = resolveMediaUrl(rawU);
+        return `<img src="${u}" onerror="this.src='${rawU}'" style="height:54px;border:1px solid var(--border);border-radius:6px;padding:4px;background:#fff;" title="${img.stage || ''}" />`;
+      }).join(' ');
+
+      const commonWordsHtml = (full.commonWords || []).slice(0, 8).map(w => `
+        <span class="badge" style="font-size:0.85rem;"><strong>${w.hanzi || w.word || ''}</strong> (${w.pinyin || ''}): ${w.meaningVi || w.meaning || ''}</span>
+      `).join(' ');
+
+      const examplesHtml = (full.examples || []).slice(0, 4).map(ex => {
+        const exAudio = resolveMediaUrl(ex.audio || '');
+        return `
+          <div style="padding:0.5rem 0;border-bottom:1px dashed var(--border);">
+            <div style="font-weight:700;color:var(--accent);">${ex.hanzi || ex.zh || ''} ${exAudio ? `<button class="btn" style="padding:0.15rem 0.5rem;font-size:0.75rem;" onclick="new Audio('${exAudio}').play()">🔊 Nghe câu</button>` : ''}</div>
+            <div class="muted">${ex.pinyin || ''}</div>
+            <div>${ex.meaningVi || ex.vi || ''}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('modal-title').textContent = `Chữ Hán: ${char} (${full.pinyin || ''} — ${(full.hanvietReading || '').toUpperCase()})`;
+      document.getElementById('modal-body').innerHTML = `
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.25rem;margin-bottom:1.25rem;">
+          <div>
+            <div style="display:flex;gap:1rem;align-items:center;margin-bottom:0.85rem;">
+              <div class="hanzi-big" style="font-size:4.2rem;">${char}</div>
+              ${gifUrl ? `<img src="${gifUrl}" onerror="this.src='${full.gif}'" alt="${char}" style="width:96px;height:96px;border:1px solid var(--border);border-radius:8px;background:#fff;" />` : ''}
+              <div>
+                <button class="btn ${isMastered ? 'green' : 'primary'}" id="master-char-btn" onclick="toggleMasterChar('${char}')">
+                  ${isMastered ? '✓ Đã thuộc chữ này' : '+ Đánh dấu Đã thuộc'}
+                </button>
+                ${audioUrl ? `<div style="margin-top:0.5rem;"><audio controls src="${audioUrl}" style="height:34px;max-width:200px;"></audio></div>` : ''}
+              </div>
+            </div>
+            <div><strong>Nghĩa tiếng Việt:</strong> ${full.meaningVi || ''}</div>
+            <div><strong>Nghĩa tiếng Anh:</strong> ${full.meaningEn || ''}</div>
+            <div><strong>Bộ thủ:</strong> ${full.radical || ''} | <strong>Số nét:</strong> ${full.strokeCount || ''} | <strong>HSK:</strong> ${full.hskLevel || 'N/A'}</div>
+            ${full.memoryHook ? `<div style="margin-top:0.45rem;background:var(--gold-soft);padding:0.55rem;border-radius:8px;"><strong>💡 Mẹo nhớ nhanh:</strong> ${full.memoryHook}</div>` : ''}
+            ${full.componentNarrative ? `<div style="margin-top:0.45rem;background:var(--badge);padding:0.55rem;border-radius:8px;"><strong>🧩 Chiết tự:</strong> ${full.componentNarrative}</div>` : ''}
+            ${etymImgs ? `<div style="margin-top:0.6rem;"><div class="muted">Hình thái chữ cổ:</div><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.25rem;">${etymImgs}</div></div>` : ''}
+          </div>
+
+          <div style="display:flex;flex-direction:column;align-items:center;background:var(--bg);padding:1rem;border-radius:12px;border:1px solid var(--border);">
+            <div style="font-weight:700;margin-bottom:0.5rem;">✍️ Bảng Luyện Viết Chữ Hán (${char})</div>
+            <div class="mizige-wrap">
+              <div class="mizige-bg" id="mizige-guide">${char}</div>
+              <canvas id="stroke-canvas" width="220" height="220"></canvas>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:0.65rem;">
+              <button class="btn" onclick="clearStrokeCanvas()">🗑️ Xóa viết lại</button>
+              <button class="btn" onclick="toggleMizigeGuide()">👁️ Ẩn/Hiện chữ mẫu</button>
+            </div>
+          </div>
+        </div>
+
+        ${commonWordsHtml ? `<div style="margin-bottom:1rem;"><strong>Từ ghép phổ biến:</strong><div class="badges" style="margin-top:0.35rem;">${commonWordsHtml}</div></div>` : ''}
+        ${examplesHtml ? `<div style="margin-bottom:1rem;"><strong>Câu ví dụ thực tế:</strong>${examplesHtml}</div>` : ''}
+      `;
+      document.getElementById('detail-modal').classList.add('open');
+      initStrokeCanvas();
+    }
+
+    async function toggleMasterChar(char) {
+      if (!userState.masteredChars) userState.masteredChars = {};
+      if (userState.masteredChars[char]) delete userState.masteredChars[char];
+      else userState.masteredChars[char] = Date.now();
+      await pushCloudProfile();
+      const btn = document.getElementById('master-char-btn');
+      if (btn) {
+        const isM = !!userState.masteredChars[char];
+        btn.className = `btn ${isM ? 'green' : 'primary'}`;
+        btn.textContent = isM ? '✓ Đã thuộc chữ này' : '+ Đánh dấu Đã thuộc';
+      }
+      renderCharacters();
+    }
+
+    function initStrokeCanvas() {
+      const canvas = document.getElementById('stroke-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      drawMizigeLines(ctx);
+      let drawing = false;
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      ctx.strokeStyle = '#1c1917';
+
+      const getPos = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      };
+      const start = (e) => { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); };
+      const move = (e) => { if (!drawing) return; e.preventDefault(); const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); };
+      const stop = () => { drawing = false; };
+
+      canvas.onmousedown = start;
+      canvas.onmousemove = move;
+      window.addEventListener('mouseup', stop);
+      canvas.ontouchstart = start;
+      canvas.ontouchmove = move;
+      canvas.ontouchend = stop;
+    }
+
+    function drawMizigeLines(ctx) {
+      ctx.save();
+      ctx.strokeStyle = 'rgba(185, 28, 28, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.beginPath();
+      ctx.moveTo(110, 0); ctx.lineTo(110, 220);
+      ctx.moveTo(0, 110); ctx.lineTo(220, 110);
+      ctx.moveTo(0, 0); ctx.lineTo(220, 220);
+      ctx.moveTo(220, 0); ctx.lineTo(0, 220);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    function clearStrokeCanvas() {
+      const canvas = document.getElementById('stroke-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 220, 220);
+      drawMizigeLines(ctx);
+    }
+
+    function toggleMizigeGuide() {
+      const g = document.getElementById('mizige-guide');
+      if (g) g.style.opacity = g.style.opacity === '0' ? '1' : '0';
+    }
+
+    // =========================================================================
+    // 5. VOCABULARY & FLASHCARDS
+    // =========================================================================
+    let vocabData = [];
+    let fcIndex = 0;
+    async function loadVocab() {
+      window.vocabLoaded = true;
+      const status = document.getElementById('vocab-status');
+      const file = vocabSelect.value;
+      status.textContent = `Đang tải dữ liệu từ vựng...`;
+      try {
+        const res = await fetch(`data/vocabulary/${file}`);
+        vocabData = await res.json();
+        status.textContent = `Đã tải ${vocabData.length.toLocaleString()} từ vựng. Nhấp vào từ bất kỳ để nghe phát âm & xem câu ví dụ.`;
+        fcIndex = 0;
+        updateFlashcardUI();
+        renderVocab();
+      } catch (e) {
+        status.textContent = `Lỗi tải từ vựng: ${e.message}`;
+      }
+    }
+
+    function renderVocab() {
+      const q = document.getElementById('vocab-search').value.trim().toLowerCase();
+      const grid = document.getElementById('vocab-grid');
+      const filtered = vocabData.filter(item => {
+        if (!q) return true;
+        const w = item.word || item;
+        const h = (w.hanzi || w.w || '').toLowerCase();
+        const p = (w.pinyin || w.p || '').toLowerCase();
+        const hv = (w.hanviet || w.hv || '').toLowerCase();
+        const m = (w.translationVi || w.m || '').toLowerCase();
+        return h.includes(q) || p.includes(q) || hv.includes(q) || m.includes(q);
+      }).slice(0, 100);
+
+      grid.innerHTML = filtered.map((item, idx) => {
+        const w = item.word || item;
+        const hanzi = w.hanzi || w.w || '';
+        const pinyin = w.pinyin || w.p || '';
+        const hv = w.hanviet || w.hv || '';
+        const meaning = w.translationVi || w.m || '';
+        const chunk = w.chunk || 1;
+        const isSaved = userState.savedWords && userState.savedWords[hanzi];
+        return `
+          <div class="card" style="cursor:pointer" onclick='inspectVocab(${JSON.stringify(hanzi)}, ${chunk})'>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="hanzi-big" style="font-size:1.8rem;">${hanzi}</div>
+              <div style="text-align:right;">
+                <div style="font-weight:700;">${pinyin}</div>
+                ${hv ? `<span class="badge red">${hv.toUpperCase()}</span>` : ''}
+              </div>
+            </div>
+            ${isSaved ? `<div class="badges"><span class="badge gold">⭐ Đã lưu</span></div>` : ''}
+            <div class="muted" style="margin-top:0.45rem;">${meaning}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    const vocabChunkCache = {};
+    async function inspectVocab(hanzi, chunkNum) {
+      const num = String(chunkNum || 1).padStart(2, '0');
+      const file = `data/vocabulary/vocabulary-${num}.json`;
+      if (!vocabChunkCache[file]) {
+        const res = await fetch(file);
+        vocabChunkCache[file] = await res.json();
+      }
+      const found = vocabChunkCache[file].find(x => (x.word ? x.word.hanzi : x.hanzi) === hanzi) || {};
+      const w = found.word || found;
+      const rawAudio = (w.audios && w.audios[0]) ? (w.audios[0].url || w.audios[0]) : (w.audioUrl || '');
+      const audioUrl = resolveMediaUrl(rawAudio);
+
+      const examplesHtml = (w.examples || []).map(ex => {
+        const exAudio = resolveMediaUrl(ex.audioUrl || ex.audio || '');
+        return `
+          <div style="padding:0.55rem 0;border-bottom:1px dashed var(--border);">
+            <div style="font-weight:700;color:var(--accent);">${ex.hanzi || ex.zh || ''} ${exAudio ? `<button class="btn" style="padding:0.15rem 0.5rem;font-size:0.75rem;" onclick="new Audio('${exAudio}').play()">🔊 Nghe câu</button>` : ''}</div>
+            <div class="muted">${ex.pinyin || ''}</div>
+            <div>${ex.translationVi || ex.meaningVi || ex.vi || ''}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('modal-title').textContent = `Từ vựng: ${hanzi} (${w.pinyin || ''})`;
+      document.getElementById('modal-body').innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;margin-bottom:1rem;">
+          <div>
+            <div class="hanzi-big" style="font-size:3.2rem;">${hanzi}</div>
+            <div style="font-size:1.15rem;font-weight:700;">${w.pinyin || ''} — <span class="badge red">${(w.hanviet || '').toUpperCase()}</span></div>
+          </div>
+          <div>
+            ${audioUrl ? `<audio controls src="${audioUrl}" style="height:36px;"></audio>` : ''}
+          </div>
+        </div>
+        <div style="margin-bottom:0.75rem;"><strong>Nghĩa tiếng Việt:</strong> ${w.translationVi || ''}</div>
+        ${w.usageNote ? `<div style="margin-bottom:0.75rem;background:var(--badge);padding:0.65rem;border-radius:8px;"><strong>📌 Ghi chú cách dùng:</strong> ${w.usageNote}</div>` : ''}
+        ${examplesHtml ? `<div><strong>Câu ví dụ (${(w.examples || []).length}):</strong>${examplesHtml}</div>` : ''}
+      `;
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    function toggleFlashcardMode() {
+      const el = document.getElementById('flashcard-area');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
+      updateFlashcardUI();
+    }
+    function flipFlashcard() {
+      const back = document.getElementById('fc-back');
+      back.style.display = back.style.display === 'none' ? 'block' : 'none';
+    }
+    function updateFlashcardUI() {
+      if (!vocabData.length) return;
+      const item = vocabData[fcIndex % vocabData.length];
+      const w = item.word || item;
+      document.getElementById('fc-hanzi').textContent = w.hanzi || w.w || '';
+      document.getElementById('fc-pinyin').textContent = w.pinyin || w.p || '';
+      document.getElementById('fc-hv').textContent = (w.hanviet || w.hv || '').toUpperCase();
+      document.getElementById('fc-meaning').textContent = w.translationVi || w.m || '';
+      document.getElementById('fc-back').style.display = 'none';
+    }
+    function nextFlashcard() { fcIndex = (fcIndex + 1) % vocabData.length; updateFlashcardUI(); }
+    function prevFlashcard() { fcIndex = (fcIndex - 1 + vocabData.length) % vocabData.length; updateFlashcardUI(); }
+    async function saveCurrentFlashcardWord() {
+      if (!vocabData.length) return;
+      const w = vocabData[fcIndex % vocabData.length].word || vocabData[fcIndex % vocabData.length];
+      const h = w.hanzi || w.w;
+      if (!userState.savedWords) userState.savedWords = {};
+      userState.savedWords[h] = Date.now();
+      await pushCloudProfile();
+      renderVocab();
+    }
+
+    // =========================================================================
+    // 6. HAN VIET
+    // =========================================================================
+    let hvData = [];
+    async function loadHanViet() {
+      window.hvLoaded = true;
+      const status = document.getElementById('hv-status');
+      const file = hvSelect.value;
+      status.textContent = `Đang tải dữ liệu Hán Việt...`;
+      const res = await fetch(`data/han-viet/${file}`);
+      hvData = await res.json();
+      status.textContent = `Đã tải ${hvData.length.toLocaleString()} mục âm Hán Việt từ ${file}.`;
+      renderHanViet();
+    }
+
+    function renderHanViet() {
+      const q = document.getElementById('hv-search').value.trim().toLowerCase();
+      const grid = document.getElementById('hv-grid');
+      const filtered = hvData.filter(item => !q || JSON.stringify(item).toLowerCase().includes(q)).slice(0, 90);
+      grid.innerHTML = filtered.map((item, idx) => {
+        const title = item.reading || item.hanviet || item.slug || item.query || 'Hán Việt';
+        const chars = (item.characters || []).map(c => c.character || c.hanzi || c).slice(0, 12).join(' ');
+        const words = (item.words || []).map(w => w.hanzi || w).slice(0, 6).join(', ');
+        return `
+          <div class="card" style="cursor:pointer" onclick="inspectHanViet(${idx})">
+            <div style="font-weight:800;font-size:1.2rem;color:var(--accent);text-transform:uppercase;">${title}</div>
+            ${chars ? `<div style="font-size:1.35rem;margin:0.35rem 0;font-family:serif;">${chars}</div>` : ''}
+            ${words ? `<div class="muted">Từ ghép: ${words}</div>` : ''}
+          </div>
+        `;
+      }).join('');
+      window.currentHvFiltered = filtered;
+    }
+
+    function inspectHanViet(idx) {
+      const item = (window.currentHvFiltered || [])[idx] || {};
+      const title = item.reading || item.hanviet || item.slug || 'Hán Việt';
+      document.getElementById('modal-title').textContent = `Âm Hán Việt: ${title.toUpperCase()}`;
+      document.getElementById('modal-body').innerHTML = `<pre class="json-box">${escapeHtml(JSON.stringify(item, null, 2))}</pre>`;
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    // =========================================================================
+    // 7. CURRICULUMS & LESSONS
+    // =========================================================================
+    async function loadCurriculum() {
+      window.currLoaded = true;
+      const curr = document.getElementById('curr-select').value;
+      const res = await fetch(`data/curriculums/${curr}/overview.json`);
+      const json = await res.json();
+      const levels = json.levels || [];
+      document.getElementById('curr-detail-area').innerHTML = '';
+      document.getElementById('curr-grid').innerHTML = levels.map(l => {
+        const imgUrl = resolveMediaUrl(l.image);
+        return `
+          <div class="card">
+            <div style="display:flex;gap:0.85rem;align-items:center;">
+              ${imgUrl ? `<img src="${imgUrl}" onerror="this.src='${l.image}'" style="width:58px;height:58px;object-fit:contain;border-radius:8px;" />` : ''}
+              <div>
+                <div style="font-weight:800;font-size:1.2rem;color:var(--accent);">${l.name}</div>
+                <div class="badges">
+                  <span class="badge red">${l.wordCount || 0} từ vựng</span>
+                  ${l.lessonCount ? `<span class="badge">${l.lessonCount} bài học</span>` : ''}
+                </div>
+              </div>
+            </div>
+            <p class="muted" style="margin:0.55rem 0;">${l.desc || ''}</p>
+            <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+              <button class="btn primary" onclick="openCurriculumLevel('${curr}', '${l.slug}', 'lessons')">📖 Học Theo Bài</button>
+              <button class="btn" onclick="openCurriculumLevel('${curr}', '${l.slug}', 'topics')">🗂️ Học Theo Chủ Đề</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openCurriculumLevel(curr, levelSlug, mode) {
+      const area = document.getElementById('curr-detail-area');
+      area.innerHTML = `<div class="card">Đang tải dữ liệu ${levelSlug}...</div>`;
+      if (mode === 'lessons') {
+        const res = await fetch(`data/curriculums/${curr}/levels/${levelSlug}-lessons.json`);
+        const json = await res.json();
+        const lessons = json.lessons || [];
+        area.innerHTML = `
+          <div class="card">
+            <h3 style="color:var(--accent);margin-bottom:0.75rem;">Danh sách Bài học — ${levelSlug.toUpperCase()} (${lessons.length} bài)</h3>
+            <div class="grid">
+              ${lessons.map(les => `
+                <div class="card" style="cursor:pointer" onclick="openLessonDetail('${curr}', '${levelSlug}', '${les.lessonSlug}')">
+                  <div class="badge red">Bài ${les.lessonNumber || ''}</div>
+                  <div style="font-weight:700;font-size:1.1rem;margin-top:0.25rem;">${les.titleZh || ''} — ${les.titleVi || ''}</div>
+                  <div class="muted">${les.wordCount || 0} từ vựng • ~${les.estimatedMinutes || 10} phút</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        const res = await fetch(`data/curriculums/${curr}/levels/${levelSlug}.json`);
+        const json = await res.json();
+        const topics = (json.level && json.level.topics) ? json.level.topics : [];
+        area.innerHTML = `
+          <div class="card">
+            <h3 style="color:var(--accent);margin-bottom:0.75rem;">Danh sách Chủ đề — ${levelSlug.toUpperCase()} (${topics.length} chủ đề)</h3>
+            <div class="grid">
+              ${topics.map(t => `
+                <div class="card" style="cursor:pointer" onclick="openTopicDetail('${curr}', '${levelSlug}', '${t.topicSlug}')">
+                  <div style="font-weight:700;font-size:1.08rem;color:var(--accent);">${t.topic}</div>
+                  <div class="muted">${t.wordCount || 0} từ vựng</div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+      area.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    async function openLessonDetail(curr, levelSlug, lessonSlug) {
+      const res = await fetch(`data/curriculums/${curr}/lessons/${levelSlug}--${lessonSlug}.json`);
+      const json = await res.json();
+      const words = json.words || (json.lesson && json.lesson.words) || [];
+      document.getElementById('modal-title').textContent = `Bài học: ${json.lesson ? (json.lesson.titleZh + ' — ' + json.lesson.titleVi) : lessonSlug}`;
+      document.getElementById('modal-body').innerHTML = renderCurriculumWordsList(words);
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    async function openTopicDetail(curr, levelSlug, topicSlug) {
+      const res = await fetch(`data/curriculums/${curr}/topics/${levelSlug}--${topicSlug}.json`);
+      const json = await res.json();
+      const words = json.words || (json.topic && json.topic.words) || [];
+      document.getElementById('modal-title').textContent = `Chủ đề: ${topicSlug}`;
+      document.getElementById('modal-body').innerHTML = renderCurriculumWordsList(words);
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    function renderCurriculumWordsList(words) {
+      if (!words.length) return `<div class="muted">Không có từ vựng trong mục này.</div>`;
+      return `<div class="grid">` + words.map(w => {
+        const audio = resolveMediaUrl((w.audios && w.audios[0]) ? (w.audios[0].url || w.audios[0]) : '');
+        return `
+          <div class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div class="hanzi-big" style="font-size:1.75rem;">${w.hanzi || ''}</div>
+              ${audio ? `<button class="btn" onclick="new Audio('${audio}').play()">🔊</button>` : ''}
+            </div>
+            <div style="font-weight:700;">${w.pinyin || ''} <span class="badge red">${(w.hanviet || '').toUpperCase()}</span></div>
+            <div class="muted" style="margin-top:0.3rem;">${w.translationVi || w.meaningVi || ''}</div>
+          </div>
+        `;
+      }).join('') + `</div>`;
+    }
+
+    // =========================================================================
+    // 8. GRAMMAR & INTERACTIVE QUIZ
+    // =========================================================================
+    let grammarPoints = [];
+    async function loadGrammar() {
+      window.grammarLoaded = true;
+      const file = document.getElementById('grammar-level-select').value;
+      const res = await fetch(`data/grammar/${file}`);
+      const json = await res.json();
+      grammarPoints = json.points || json.items || json.data || [];
+      renderGrammar();
+    }
+
+    function renderGrammar() {
+      const q = document.getElementById('grammar-search').value.trim().toLowerCase();
+      const grid = document.getElementById('grammar-grid');
+      const filtered = grammarPoints.filter(p => !q || JSON.stringify(p).toLowerCase().includes(q));
+      window.currentGrammarFiltered = filtered;
+      grid.innerHTML = filtered.map((p, idx) => `
+        <div class="card" style="cursor:pointer" onclick="inspectGrammarPoint(${idx})">
+          <div style="font-weight:700;font-size:1.08rem;color:var(--accent);">${p.title || p.pattern || p.name}</div>
+          <div class="badges">
+            ${p.category ? `<span class="badge">${p.category}</span>` : ''}
+            ${p.code ? `<span class="badge red">${p.code}</span>` : ''}
+          </div>
+          <div class="muted">${p.summary || p.structure || p.meaning || ''}</div>
+        </div>
+      `).join('');
+    }
+
+    function inspectGrammarPoint(idx) {
+      const p = (window.currentGrammarFiltered || [])[idx] || {};
+      const examplesHtml = (p.examples || []).map(ex => `
+        <div style="padding:0.45rem 0;border-bottom:1px dashed var(--border);">
+          <div style="font-weight:700;color:var(--accent);">${ex.zh || ex.hanzi || ''}</div>
+          <div class="muted">${ex.pinyin || ''}</div>
+          <div>${ex.vi || ex.meaningVi || ''}</div>
+        </div>
+      `).join('');
+      document.getElementById('modal-title').textContent = p.title || p.pattern || 'Ngữ pháp';
+      document.getElementById('modal-body').innerHTML = `
+        <div style="margin-bottom:0.75rem;"><strong>Cấu trúc:</strong> <span class="badge red" style="font-size:0.95rem;">${p.structure || p.pattern || ''}</span></div>
+        <div style="margin-bottom:0.75rem;"><strong>Giải thích:</strong> ${p.explanation || p.summary || ''}</div>
+        ${examplesHtml ? `<div><strong>Ví dụ minh họa:</strong>${examplesHtml}</div>` : ''}
+      `;
+      document.getElementById('detail-modal').classList.add('open');
+    }
+
+    let activeQuizQuestions = [];
+    let activeQuizScore = 0;
+    let activeQuizAnswered = 0;
+
+    async function startGrammarQuiz() {
+      const sel = document.getElementById('grammar-level-select');
+      const quizFile = sel.options[sel.selectedIndex].dataset.quiz;
+      const box = document.getElementById('grammar-quiz-box');
+      box.style.display = 'block';
+      box.innerHTML = `<div>Đang tải bộ câu hỏi trắc nghiệm từ ${quizFile}...</div>`;
+      const res = await fetch(`data/grammar/${quizFile}`);
+      const json = await res.json();
+      const allQ = json.questions || json.items || [];
+      activeQuizQuestions = allQ.sort(() => Math.random() - 0.5).slice(0, 15);
+      activeQuizScore = 0;
+      activeQuizAnswered = 0;
+      renderGrammarQuizBox();
+    }
+
+    function renderGrammarQuizBox() {
+      const box = document.getElementById('grammar-quiz-box');
+      box.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h3 style="color:var(--accent);">📝 Bài Kiểm Tra Ngữ Pháp (${activeQuizQuestions.length} Câu) — Điểm: <span id="gq-score">0</span>/${activeQuizQuestions.length}</h3>
+          <button class="btn" onclick="document.getElementById('grammar-quiz-box').style.display='none'">Đóng bài thi ✕</button>
+        </div>
+        ${activeQuizQuestions.map((q, qIdx) => {
+          const opts = q.options || q.choices || [];
+          return `
+            <div style="padding:0.85rem 0;border-top:1px solid var(--border);" id="gq-item-${qIdx}">
+              <div style="font-weight:700;margin-bottom:0.35rem;">Câu ${qIdx + 1}: ${q.prompt || q.question || q.sentence || ''}</div>
+              ${q.sourceVi ? `<div class="muted" style="margin-bottom:0.35rem;">Gợi ý nghĩa: ${q.sourceVi}</div>` : ''}
+              <div>
+                ${opts.map((opt, oIdx) => `
+                  <button class="quiz-option" onclick="answerGrammarQuiz(${qIdx}, ${oIdx})">${opt}</button>
+                `).join('')}
+              </div>
+              <div id="gq-exp-${qIdx}" style="display:none;margin-top:0.4rem;padding:0.5rem;background:var(--badge);border-radius:6px;font-size:0.88rem;"></div>
+            </div>
+          `;
+        }).join('')}
+      `;
+    }
+
+    async function answerGrammarQuiz(qIdx, oIdx) {
+      const q = activeQuizQuestions[qIdx];
+      const container = document.getElementById(`gq-item-${qIdx}`);
+      if (!container || container.dataset.done) return;
+      container.dataset.done = '1';
+      const btns = container.querySelectorAll('.quiz-option');
+      const correctIdx = typeof q.answerIndex === 'number' ? q.answerIndex : (q.options || []).indexOf(q.answer);
+      btns.forEach((b, idx) => {
+        if (idx === correctIdx) b.classList.add('correct');
+        else if (idx === oIdx) b.classList.add('wrong');
+      });
+      if (oIdx === correctIdx) activeQuizScore++;
+      activeQuizAnswered++;
+      document.getElementById('gq-score').textContent = activeQuizScore;
+      const exp = document.getElementById(`gq-exp-${qIdx}`);
+      exp.style.display = 'block';
+      exp.innerHTML = `<strong>Đáp án đúng:</strong> ${q.answer || (q.options && q.options[correctIdx]) || ''} ${q.explanation ? `— ${q.explanation}` : ''}`;
+
+      if (activeQuizAnswered === activeQuizQuestions.length) {
+        await recordExamResult('grammar_quiz', document.getElementById('grammar-level-select').value, activeQuizScore, activeQuizQuestions.length);
+      }
+    }
+
+    // =========================================================================
+    // 9. HSK MOCK EXAMS (66 PAPERS)
+    // =========================================================================
+    let allTestPapers = [];
+    async function loadTests() {
+      window.testsLoaded = true;
+      const res = await fetch('data/tests/papers-hsk.json');
+      const json = await res.json();
+      allTestPapers = [];
+      (json.levels || []).forEach(l => (l.items || []).forEach(p => allTestPapers.push(p)));
+      renderTestPapers();
+    }
+
+    function renderTestPapers() {
+      const lvl = document.getElementById('test-level-filter').value;
+      const filtered = allTestPapers.filter(p => !lvl || String(p.level) === lvl);
+      document.getElementById('tests-grid').innerHTML = filtered.map(p => `
+        <div class="card">
+          <div style="font-weight:700;color:var(--accent);font-size:1.05rem;">${p.title}</div>
+          <div class="badges">
+            <span class="badge red">HSK ${p.level}</span>
+            <span class="badge">${p.questionCount} câu hỏi</span>
+            <span class="badge">⏱️ ${p.durationMinutes} phút</span>
+          </div>
+          <div class="muted" style="margin-bottom:0.65rem;">Nghe: ${p.listeningQuestionCount} câu • Đọc: ${p.readingQuestionCount} câu ${p.writingQuestionCount ? `• Viết: ${p.writingQuestionCount} câu` : ''}</div>
+          <button class="btn primary" onclick="openExamRoom(${p.level}, '${p.testId}')">🎧 Vào Phòng Thi Ngay</button>
+        </div>
+      `).join('');
+    }
+
+    let currentExamPaper = null;
+    async function openExamRoom(level, testId) {
+      const room = document.getElementById('active-exam-room');
+      room.style.display = 'block';
+      room.innerHTML = `<div>Đang tải đề thi ${testId}...</div>`;
+      room.scrollIntoView({ behavior: 'smooth' });
+      const res = await fetch(`data/tests/papers/level-${level}-${testId}.json`);
+      const json = await res.json();
+      currentExamPaper = json.paper || json;
+      const questions = currentExamPaper.questions || [];
+      const fullAudio = resolveMediaUrl(currentExamPaper.audioUrl || '');
+
+      room.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.75rem;margin-bottom:1rem;border-bottom:1px solid var(--border);padding-bottom:0.75rem;">
+          <div>
+            <h2 style="color:var(--accent);">${currentExamPaper.title || testId}</h2>
+            <div class="muted">Tổng số: ${questions.length} câu hỏi • Điểm đạt được: <strong id="exam-live-score">0</strong> / ${questions.length}</div>
+          </div>
+          <div style="display:flex;gap:0.65rem;align-items:center;">
+            ${fullAudio ? `<audio controls src="${fullAudio}" style="height:36px;"></audio>` : ''}
+            <button class="btn" onclick="document.getElementById('active-exam-room').style.display='none'">Đóng Phòng Thi ✕</button>
+          </div>
+        </div>
+        <div>
+          ${questions.slice(0, 60).map((q, qIdx) => {
+            const qAudio = resolveMediaUrl(q.audioUrl || '');
+            const qImg = resolveMediaUrl(q.imageUrl || '');
+            const opts = q.options || [];
+            return `
+              <div style="padding:0.9rem 0;border-bottom:1px solid var(--border);" id="ex-q-${qIdx}">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
+                  <span class="badge red">Câu ${q.number || (qIdx + 1)} (${q.section || ''})</span>
+                  ${qAudio ? `<audio controls src="${qAudio}" style="height:30px;"></audio>` : ''}
+                </div>
+                ${qImg ? `<img src="${qImg}" onerror="this.src='${q.imageUrl}'" style="max-height:140px;border-radius:8px;border:1px solid var(--border);margin:0.4rem 0;" />` : ''}
+                <div style="font-weight:700;font-size:1.05rem;margin:0.35rem 0;">${q.promptZh || q.prompt || q.transcriptZh || ''}</div>
+                <div>
+                  ${opts.map((opt, oIdx) => {
+                    const optLabel = opt.key || opt.label || String.fromCharCode(65 + oIdx);
+                    const optText = opt.textZh || opt.text || opt.hanzi || '';
+                    const optImg = resolveMediaUrl(opt.imageUrl || '');
+                    return `
+                      <button class="quiz-option" onclick="answerExamQuestion(${qIdx}, '${optLabel}')">
+                        <strong>${optLabel}.</strong> ${optText}
+                        ${optImg ? `<br/><img src="${optImg}" style="height:70px;margin-top:4px;border-radius:4px;" />` : ''}
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+                <div id="ex-exp-${qIdx}" style="display:none;margin-top:0.45rem;padding:0.55rem;background:var(--badge);border-radius:6px;font-size:0.88rem;"></div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+      window.examScore = 0;
+    }
+
+    async function answerExamQuestion(qIdx, chosenKey) {
+      const q = (currentExamPaper.questions || [])[qIdx];
+      const box = document.getElementById(`ex-q-${qIdx}`);
+      if (!q || !box || box.dataset.done) return;
+      box.dataset.done = '1';
+      const correctKey = String(q.answer || q.correctOption || '');
+      const btns = box.querySelectorAll('.quiz-option');
+      btns.forEach(b => {
+        if (b.textContent.trim().startsWith(correctKey + '.')) b.classList.add('correct');
+        else if (b.textContent.trim().startsWith(chosenKey + '.')) b.classList.add('wrong');
+      });
+      if (chosenKey === correctKey) {
+        window.examScore = (window.examScore || 0) + 1;
+        document.getElementById('exam-live-score').textContent = window.examScore;
+      }
+      const exp = document.getElementById(`ex-exp-${qIdx}`);
+      exp.style.display = 'block';
+      exp.innerHTML = `<strong>Đáp án đúng: ${correctKey}</strong> ${q.transcriptZh ? `<br/>Lời thoại: ${q.transcriptZh} (${q.transcriptPinyin || ''})` : ''} ${q.explanationVi || q.explanation ? `<br/>Giải thích: ${q.explanationVi || q.explanation}` : ''}`;
+    }
+
+    // =========================================================================
+    // 10. DICTATION VIDEOS (91 VIDEOS)
+    // =========================================================================
+    let allDictVideos = [];
+    async function loadDictation() {
+      window.dictLoaded = true;
+      const res = await fetch('data/dictation/videos-all.json');
+      allDictVideos = await res.json();
+      renderDictationVideos();
+    }
+
+    function renderDictationVideos() {
+      const q = document.getElementById('dict-search').value.trim().toLowerCase();
+      const hsk = document.getElementById('dict-hsk-filter').value;
+      const filtered = allDictVideos.filter(v => {
+        if (hsk && String(v.hskLevel || '') !== hsk) return false;
+        if (!q) return true;
+        return JSON.stringify(v).toLowerCase().includes(q);
+      });
+      document.getElementById('dictation-grid').innerHTML = filtered.map(v => {
+        const id = v.id || v._id;
+        return `
+          <div class="card">
+            <div style="font-weight:700;color:var(--accent);font-size:1.05rem;">${v.title || v.titleVi || id}</div>
+            <div class="badges">
+              ${v.hskLevel ? `<span class="badge red">HSK ${v.hskLevel}</span>` : ''}
+              ${v.segmentCount ? `<span class="badge">${v.segmentCount} câu thoại</span>` : ''}
+            </div>
+            <div class="muted" style="margin-bottom:0.65rem;">${v.titleVi || v.description || ''}</div>
+            <button class="btn primary" onclick="openDictationVideo('${id}', '${v.youtubeId || ''}', ${JSON.stringify(v.title || '')})">▶️ Mở Video & Luyện Chép Chính Tả</button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function openDictationVideo(id, youtubeId, title) {
+      const box = document.getElementById('dictation-player-box');
+      box.style.display = 'block';
+      box.innerHTML = `<div>Đang tải phụ đề chép chính tả...</div>`;
+      box.scrollIntoView({ behavior: 'smooth' });
+      const res = await fetch(`data/dictation/videos/${id}-segments.json`);
+      const json = await res.json();
+      const segs = json.items || json.segments || (Array.isArray(json) ? json : []);
+
+      box.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+          <h3 style="color:var(--accent);">🎧 Luyện Nghe Chép Chính Tả: ${title} (${segs.length} câu)</h3>
+          <button class="btn" onclick="document.getElementById('dictation-player-box').style.display='none'">Đóng Video ✕</button>
+        </div>
+        ${youtubeId ? `
+          <div style="position:relative;padding-bottom:42%;height:0;overflow:hidden;border-radius:12px;margin-bottom:1rem;background:#000;">
+            <iframe src="https://www.youtube.com/embed/${youtubeId}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen></iframe>
+          </div>
+        ` : ''}
+        <div style="max-height:440px;overflow-y:auto;padding-right:0.5rem;">
+          ${segs.map((s, idx) => {
+            const zh = s.hanzi || s.textZh || s.content || s.transcript || '';
+            const py = s.pinyin || '';
+            const vi = s.translationVi || s.meaningVi || s.vi || '';
+            return `
+              <div style="padding:0.65rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:0.35rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
+                  <span class="badge">#${idx + 1}</span>
+                  <input type="text" placeholder="Gõ lại câu tiếng Trung bạn nghe được..." style="flex:1;" oninput="checkDictationInput(this, ${JSON.stringify(zh)})" />
+                  <button class="btn" onclick="this.parentElement.nextElementSibling.style.display='block'">👁️ Xem đáp án</button>
+                </div>
+                <div style="display:none;padding:0.4rem 0.6rem;background:var(--badge);border-radius:6px;">
+                  <div style="font-weight:700;color:var(--accent);font-size:1.05rem;">${zh}</div>
+                  <div class="muted">${py}</div>
+                  <div>${vi}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function checkDictationInput(input, targetZh) {
+      const cleanInput = input.value.replace(/[^\u4e00-\u9fff]/g, '');
+      const cleanTarget = targetZh.replace(/[^\u4e00-\u9fff]/g, '');
+      if (cleanInput && cleanInput === cleanTarget) {
+        input.style.borderColor = '#15803d';
+        input.style.background = '#dcfce7';
+      } else {
+        input.style.borderColor = 'var(--border)';
+        input.style.background = '#fff';
+      }
+    }
+
+    // =========================================================================
+    // 11. AI TUTOR & SENTENCE ANALYZER
+    // =========================================================================
+    const savedKey = localStorage.getItem('httq_gemini_key') || '';
+    if (savedKey) document.getElementById('ai-api-key').value = savedKey;
+
+    function saveAiKey() {
+      const k = document.getElementById('ai-api-key').value.trim();
+      localStorage.setItem('httq_gemini_key', k);
+      alert('Đã lưu Gemini API Key vào trình duyệt!');
+    }
+
+    async function runAiTutor() {
+      const prompt = document.getElementById('ai-prompt').value.trim();
+      const out = document.getElementById('ai-output');
+      if (!prompt) return;
+      out.style.display = 'block';
+      out.innerHTML = '🤖 Đang phân tích...';
+
+      // Extract all Chinese characters from prompt for instant local dictionary breakdown
+      const hanziChars = [...new Set((prompt.match(/[\u4e00-\u9fff]/g) || []))];
+      const localBreakdown = hanziChars.map(c => {
+        const info = charIndexMap[c];
+        if (!info) return `<span class="badge">${c}</span>`;
+        return `<div style="padding:0.35rem 0;border-bottom:1px dashed var(--border);"><strong>${c}</strong> (${info.p} — ${(info.hv || '').toUpperCase()}): ${info.m || ''} [Bộ: ${info.r || ''}, ${info.s || ''} nét, HSK ${info.hsk || 'N/A'}]</div>`;
+      }).join('');
+
+      const apiKey = document.getElementById('ai-api-key').value.trim();
+      if (apiKey) {
+        try {
+          const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(apiKey)}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: `Bạn là Gia sư tiếng Trung chuyên nghiệp. Hãy phân tích ngữ pháp, từ vựng, âm Hán Việt, sửa lỗi (nếu có) và giải thích chi tiết bằng tiếng Việt cho nội dung sau:\n\n${prompt}` }] }]
+            })
+          });
+          const data = await res.json();
+          const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text || JSON.stringify(data);
+          out.innerHTML = `
+            <div style="white-space:pre-wrap;margin-bottom:1rem;">${escapeHtml(reply)}</div>
+            ${localBreakdown ? `<div style="margin-top:1rem;padding-top:0.75rem;border-top:1px solid var(--border);"><strong>📚 Phân tích từng chữ Hán từ Cơ sở dữ liệu (9,931 chữ):</strong>${localBreakdown}</div>` : ''}
+          `;
+          return;
+        } catch (err) {
+          // Fallback to local breakdown
+        }
+      }
+
+      out.innerHTML = `
+        <div style="margin-bottom:0.75rem;"><strong>📚 Phân tích Chiết tự & Từ điển tự động (${hanziChars.length} chữ Hán trong câu):</strong></div>
+        ${localBreakdown || '<div class="muted">Không tìm thấy chữ Hán trong câu. Nhập thêm Gemini API Key ở trên nếu bạn muốn trò chuyện tự do bằng tiếng Việt.</div>'}
+      `;
+    }
+
+    function closeModal() { document.getElementById('detail-modal').classList.remove('open'); }
+    function escapeHtml(str) { return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    document.getElementById('char-search').addEventListener('input', renderCharacters);
+    document.getElementById('char-hsk-filter').addEventListener('change', renderCharacters);
+    charSelect.addEventListener('change', loadCharacters);
+    document.getElementById('vocab-search').addEventListener('input', renderVocab);
+    vocabSelect.addEventListener('change', loadVocab);
+    document.getElementById('hv-search').addEventListener('input', renderHanViet);
+    hvSelect.addEventListener('change', loadHanViet);
+    document.getElementById('grammar-level-select').addEventListener('change', loadGrammar);
+    document.getElementById('grammar-search').addEventListener('input', renderGrammar);
+    document.getElementById('curr-select').addEventListener('change', loadCurriculum);
+
+    loadCharacters();
+  </script>
+</body>
+</html>
