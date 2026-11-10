@@ -95,6 +95,12 @@
       return '/_next/static/' + url.slice('https://static.xiehanzi.com/web/prod/_next/static/'.length);
     }
 
+    if (url.startsWith('assets/')) {
+      const m = window.location.pathname.match(/\/(?:test|lam-bai)\/([^/?#]+)/);
+      const tid = m ? decodeURIComponent(m[1]) : 'hsk30-1';
+      return `${RAW_GITHUB_REPO}/media-visuals/hsk-tests/${encodeURIComponent(tid)}/${url}`;
+    }
+
     if (url.startsWith('https://static.xiehanzi.com/')) {
       let rel = url.slice('https://static.xiehanzi.com/'.length).split('?')[0];
       try {
@@ -102,11 +108,13 @@
       } catch (_e) {}
       const encRel = rel.split('/').map(s => encodeURIComponent(s)).join('/');
 
+      if (rel.startsWith('level_images/')) {
+        return '/' + encRel;
+      }
       if (
         rel.startsWith('gif/') ||
         rel.startsWith('hsk-tests/') ||
-        rel.startsWith('word-illustration/') ||
-        rel.startsWith('level_images/')
+        rel.startsWith('word-illustration/')
       ) {
         return `${RAW_GITHUB_REPO}/media-visuals/${encRel}`;
       }
@@ -592,6 +600,71 @@
     return null;
   }
 
+  function normalizeTestPaper(rawPaper, fallbackId = 'hsk30-1') {
+    if (!rawPaper || typeof rawPaper !== 'object') return rawPaper;
+    const paper = JSON.parse(JSON.stringify(rawPaper));
+    const testId = paper.testId || paper.id || fallbackId;
+    const imgMap = {};
+    if (Array.isArray(paper.images)) {
+      paper.images = paper.images.map(it => {
+        if (it && it.path && it.src) {
+          const rewritten = rewriteMediaUrl(it.src);
+          imgMap[it.path] = rewritten;
+          return { ...it, src: rewritten };
+        }
+        return it;
+      });
+    }
+    const resolvePaperImg = u => {
+      if (!u || typeof u !== 'string') return '';
+      if (imgMap[u]) return imgMap[u];
+      if (u.startsWith('assets/')) {
+        return rewriteMediaUrl(`https://static.xiehanzi.com/hsk-tests/${testId}/${u}`);
+      }
+      return rewriteMediaUrl(u);
+    };
+    if (paper.audioUrl) paper.audioUrl = rewriteMediaUrl(paper.audioUrl);
+    const normQuestion = (q, sec) => {
+      if (!q || typeof q !== 'object') return q;
+      if (sec) {
+        q.sectionId = q.sectionId || sec.id;
+        q.sectionTitle = q.sectionTitle || sec.title;
+      }
+      const audioSrc = q.audio || q.audioUrl || '';
+      if (audioSrc) {
+        q.audio = rewriteMediaUrl(audioSrc);
+        q.audioUrl = q.audio;
+      }
+      if (q.image) q.image = resolvePaperImg(q.image);
+      if (q.imageUrl) q.imageUrl = resolvePaperImg(q.imageUrl);
+      if (Array.isArray(q.images)) {
+        q.images = q.images.map(resolvePaperImg);
+      }
+      return q;
+    };
+    if (Array.isArray(paper.sections)) {
+      paper.sections.forEach(s => {
+        if (s && Array.isArray(s.questions)) {
+          s.questions = s.questions.map(q => normQuestion(q, s));
+        }
+      });
+    }
+    if (Array.isArray(paper.questions) && paper.questions.length > 0) {
+      paper.questions = paper.questions.map(q => normQuestion(q, null));
+    } else if (Array.isArray(paper.sections)) {
+      paper.questions = paper.sections.flatMap(s => (s && s.questions) || []);
+    }
+    if (Array.isArray(paper.examples)) {
+      paper.examples = paper.examples.map(ex => {
+        if (!ex || typeof ex !== 'object') return ex;
+        if (ex.audio) ex.audio = rewriteMediaUrl(ex.audio);
+        if (Array.isArray(ex.images)) ex.images = ex.images.map(resolvePaperImg);
+        return ex;
+      });
+    }
+    return paper;
+  }
+
   async function loadTestPaperById(paperId, fallbackLevel = 1) {
     if (!paperId || paperId === 'undefined') paperId = `hsk30-${fallbackLevel || 1}`;
     const cleanId = decodeURIComponent(paperId).replace(/\.json$/i, '');
@@ -609,10 +682,60 @@
     for (const c of candidates) {
       const data = await loadLocalJson(c);
       if (data && (Array.isArray(data.questions) || Array.isArray(data.sections))) {
-        return data;
+        return normalizeTestPaper(data, cleanId);
       }
     }
     return null;
+  }
+
+  function buildCompanionCharactersResponse() {
+    const baseSprites = id => ({
+      poses: {
+        idle: '/images/capy/lesson/idle.webp',
+        talking: '/images/capy/lesson/talking.webp',
+        happy: '/images/capy/lesson/happy.webp',
+        encouraging: '/images/capy/lesson/encouraging.webp',
+        thinking: '/images/capy/lesson/thinking.webp',
+        celebrate: '/images/capy/lesson/celebrate.webp',
+        sleepy: '/images/capy/lesson/sleepy.webp',
+        surprised: '/images/capy/lesson/surprised.webp'
+      },
+      eyesClosed: '/images/capy/lesson/eyes-closed.webp',
+      mouths: {
+        closed: '/images/capy/lesson/mouth-closed.webp',
+        small: '/images/capy/lesson/mouth-small.webp',
+        wide: '/images/capy/lesson/mouth-wide.webp',
+        o: '/images/capy/lesson/mouth-o.webp'
+      },
+      bubble: {
+        idle: id === 'capy' ? '/images/capy/lesson/idle.webp' : `/images/companion/${id}/splash/hero.webp`,
+        eyesClosed: '/images/capy/lesson/eyes-closed.webp'
+      },
+      breath: { periodMs: 3400, scale: 0.012, liftPx: 2.2 }
+    });
+    const list = [
+      { id: 'capy', name: 'Capy', nameZh: '卡皮', role: 'Bạn đồng hành điềm tĩnh', tagline: 'Kiên nhẫn, nhẹ nhàng đồng hành cùng bạn mỗi ngày.', fitFor: 'muốn học đều đặn, không áp lực.', greetingText: 'Chào bạn, mình là Capy! Mình cùng học từng bước vững chắc nhé!' },
+      { id: 'tieu-man', name: 'Tiểu Mãn', nameZh: '小满', role: 'Bạn cùng bàn nhiệt tình', tagline: 'Năng lượng tích cực, luôn cổ vũ bạn vượt qua từng chặng HSK.', fitFor: 'cần người nhắc nhở và truyền cảm hứng mỗi ngày.', greetingText: 'Chào bạn! Mình là Tiểu Mãn, cùng chinh phục tiếng Trung nhé!' },
+      { id: 'ha-vu', name: 'Hạ Vũ', nameZh: '夏雨', role: 'Đàn chị ôn thi HSK', tagline: 'Giúp bạn nắm chắc từ vựng, ngữ pháp và mẹo làm bài thi.', fitFor: 'đang ôn thi chứng chỉ HSK hoặc chuẩn bị du học.', greetingText: 'Chào bạn, mình là Hạ Vũ! Có câu nào khó cứ hỏi mình nhé.' },
+      { id: 'luc-than', name: 'Lục Thần', nameZh: '陆辰', role: 'Cố vấn giao tiếp & công việc', tagline: 'Thực tế, rõ ràng, tập trung vào phản xạ nghe nói tự nhiên.', fitFor: 'học tiếng Trung để giao tiếp và làm việc.', greetingText: 'Chào bạn, mình là Lục Thần. Bắt đầu luyện phản xạ ngay hôm nay nhé!' },
+      { id: 'duong-duong', name: 'Dương Dương', nameZh: '洋洋', role: 'Bạn học vui vẻ', tagline: 'Biến mỗi bài học thành trò chơi thú vị, dễ nhớ lâu.', fitFor: 'mới bắt đầu làm quen với chữ Hán và Pinyin.', greetingText: 'Chào bạn! Mình là Dương Dương, học tiếng Trung vui lắm đó!' },
+      { id: 'mai', name: 'Mai', nameZh: '阿梅', role: 'Người dẫn đường tỉ mỉ', tagline: 'Giải thích chiết tự chữ Hán và lỗi sai cực kỳ dễ hiểu.', fitFor: 'muốn nhớ sâu chữ Hán và không bị nhầm lẫn.', greetingText: 'Chào bạn, mình là Mai! Mình sẽ giúp bạn nhớ chữ Hán thật dễ dàng.' }
+    ].map(c => ({
+      ...c,
+      available: true,
+      greetings: [c.greetingText],
+      lessonStartLine: 'Mình bắt đầu Bài 1 luôn nhé!',
+      splash: { hero: `/images/companion/${c.id}/splash/hero.webp`, scenes: [] },
+      sprites: baseSprites(c.id)
+    }));
+    const selectedId = localStorage.getItem('httq_companion_id') || 'capy';
+    return {
+      items: list,
+      recommendedIds: ['capy', 'tieu-man', 'ha-vu'],
+      lockedItems: [],
+      selectedId,
+      defaultId: 'capy'
+    };
   }
 
   async function handleApiRequest(urlOrObj, init) {
@@ -625,6 +748,9 @@
     // ------------------------------------------------------------------------
     if (p === '/server-time' || p === '/server-time/') {
       return jsonResponse({ now: Date.now() });
+    }
+    if (p.includes('/v2/analytics/events')) {
+      return jsonResponse({ ok: true });
     }
     if (p.includes('/v1/settings/public')) {
       const data = await loadLocalJson('/data/misc/settings-public.json');
@@ -675,6 +801,49 @@
         }
       });
     }
+    if (p === '/v2/companion/characters') {
+      return jsonResponse(buildCompanionCharactersResponse());
+    }
+    if (p === '/v2/companion/character') {
+      const body = await parseRequestBody(init);
+      const selectedId = body.characterId || 'capy';
+      localStorage.setItem('httq_companion_id', selectedId);
+      return jsonResponse({ ok: true, selectedId });
+    }
+    if (p === '/v2/companion/inbox') {
+      return jsonResponse({ items: [], unreadCount: 0, celebrate: [] });
+    }
+    if (p === '/v2/companion/inbox/read') {
+      return jsonResponse({ ok: true, unreadCount: 0 });
+    }
+    if (p === '/v2/companion/chat') {
+      if (method === 'POST') {
+        const body = await parseRequestBody(init);
+        const msg = (body.message || '').trim();
+        return jsonResponse({
+          ok: true,
+          reply: {
+            text: msg
+              ? `Mình nhận được tin nhắn "${msg}" của bạn rồi! Cùng cố gắng hoàn thành bài học hôm nay nhé! 💪`
+              : 'Chào bạn! Mình luôn sẵn sàng đồng hành cùng bạn chinh phục tiếng Trung mỗi ngày nhé!'
+          }
+        });
+      }
+      return jsonResponse({ messages: [], items: [], characterId: localStorage.getItem('httq_companion_id') || 'capy' });
+    }
+    if (p === '/v2/me/exam-readiness') {
+      return jsonResponse({
+        method: 'Tính dựa trên kết quả làm đề gần nhất của từng kỹ năng.',
+        disclaimer: 'Không phải điểm thi chính thức',
+        levels: []
+      });
+    }
+    if (p === '/v2/me/exam-sittings' || p.startsWith('/v2/me/exam-sittings/')) {
+      return jsonResponse({ ok: true, items: [], imported: 0 });
+    }
+    if (p === '/v2/exam-sittings' || p.startsWith('/v2/exam-sittings/')) {
+      return jsonResponse({ ok: true, id: `sit-${Date.now()}`, sittingId: `sit-${Date.now()}`, status: 'active', answers: [] });
+    }
     if (p === '/v2/me/learning-profile') {
       if (method === 'PATCH' || method === 'POST') {
         const body = await parseRequestBody(init);
@@ -682,10 +851,10 @@
       }
       const saved = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}');
       return jsonResponse({
-        goal: saved.goal || 'communication',
+        goal: saved.goal || 'giao-tiep',
         dailyMinutes: saved.dailyMinutes || 15,
         currentLevel: saved.currentLevel || 1,
-        companionId: saved.companionId || 'tieu-man',
+        companionId: saved.companionId || localStorage.getItem('httq_companion_id') || 'capy',
         onboardingCompleted: true,
         ...saved
       });
@@ -720,9 +889,10 @@
       return jsonResponse({ streakDays: 5, minutesStudied: 68, wordsLearned: 34, lessonsCompleted: 4 });
     }
     if (p === '/v2/me/consents') {
-      return jsonResponse({ consents: {} });
+      return jsonResponse({ ok: true, consents: {} });
     }
     if (p === '/v2/learning-tracks' || p === '/v2/paths') {
+      const isBatDauPage = (window.location.pathname || '').includes('bat-dau');
       const tracks = [
         {
           track: 'hsk30',
@@ -736,14 +906,16 @@
             { level: 'L2', titleVi: 'HSK 2', stageCount: 8 },
             { level: 'L3', titleVi: 'HSK 3', stageCount: 10 }
           ],
-          enrollment: {
-            track: 'hsk30',
-            currentLevel: 'L1',
-            startStageKey: 'hsk30.L1.C1.S1',
-            stagesDone: 2,
-            stagesTotal: 7,
-            active: true
-          }
+          enrollment: isBatDauPage
+            ? null
+            : {
+                track: 'hsk30',
+                currentLevel: 'L1',
+                startStageKey: 'hsk30.L1.C1.S1',
+                stagesDone: 2,
+                stagesTotal: 7,
+                active: true
+              }
         },
         {
           track: 'hsk20',
@@ -894,6 +1066,7 @@
       if (sub === 'enroll' || sub === 'select') {
         return jsonResponse({
           ok: true,
+          currentLessonId: `${track}.L1.C1.S1`,
           enrollment: {
             track,
             currentLevel: 'L1',
@@ -907,7 +1080,14 @@
       return jsonResponse({
         runId: `run-${Date.now()}`,
         kind: 'lesson',
-        track
+        track,
+        currentLessonId: `${track}.L1.C1.S1`,
+        stages: [
+          {
+            id: `${track}.L1.C1`,
+            lessons: [{ id: `${track}.L1.C1.S1`, status: 'available' }]
+          }
+        ]
       });
     }
     if (p === '/v2/today') {
@@ -1501,7 +1681,20 @@
       return jsonResponse({ ...(paper || {}), deId: safeId, id: safeId, testId: safeId });
     }
     if (p.includes('/v1/hsk-tests/levels')) {
-      const examType = (urlObj.searchParams.get('examType') || 'hsk').toLowerCase();
+      const subParts = (p.split('/v1/hsk-tests/levels')[1] || '').split('/').filter(Boolean);
+      const examType = (urlObj.searchParams.get('examType') || urlObj.searchParams.get('family') || 'hsk').toLowerCase();
+      if (subParts.length >= 2) {
+        const lvl = subParts[0];
+        const tid = decodeURIComponent(subParts[1]);
+        const paper = await loadTestPaperById(tid, lvl);
+        return jsonResponse(paper || {});
+      }
+      if (subParts.length === 1) {
+        const lvl = subParts[0];
+        const data = (await loadLocalJson(`/data/tests/papers-${examType}.json`)) || { levels: [] };
+        const matchedLvl = Array.isArray(data.levels) ? data.levels.find(l => String(l.level) === String(lvl)) : null;
+        return jsonResponse(matchedLvl ? matchedLvl.items || [] : []);
+      }
       const data = await loadLocalJson(`/data/tests/levels-${examType}.json`);
       return jsonResponse(data || []);
     }
@@ -1554,6 +1747,23 @@
     // ------------------------------------------------------------------------
     // H. NGỮ PHÁP, GIÁO TRÌNH, LUYỆN NGHE & LUYỆN NÓI (/v1/grammar/*, /v1/listening/*, /v1/speaking/*)
     // ------------------------------------------------------------------------
+    if (p.startsWith('/v1/grammar-progress')) {
+      const saved = JSON.parse(localStorage.getItem('httq_learned_grammar') || '[]');
+      const set = new Set(Array.isArray(saved) ? saved : []);
+      if (method === 'POST') {
+        const gid = decodeURIComponent(p.slice('/v1/grammar-progress/'.length));
+        if (gid) set.add(gid);
+        localStorage.setItem('httq_learned_grammar', JSON.stringify([...set]));
+      } else if (method === 'DELETE') {
+        const gid = decodeURIComponent(p.slice('/v1/grammar-progress/'.length));
+        if (gid) set.delete(gid);
+        localStorage.setItem('httq_learned_grammar', JSON.stringify([...set]));
+      }
+      return jsonResponse({ learnedGrammarIds: [...set] });
+    }
+    if (p.startsWith('/v1/practice-progress')) {
+      return jsonResponse({ ok: true, items: {}, updated: 0 });
+    }
     if (p.startsWith('/v1/grammar/levels/')) {
       const lvl = decodeURIComponent(p.slice('/v1/grammar/levels/'.length).split('/')[0] || '1');
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
@@ -1694,14 +1904,29 @@
     if (currMatch) {
       const curr = currMatch[1] || 'hsk';
       const subParts = (currMatch[2] || '').split('/').filter(Boolean);
+      const normOverview = ov => {
+        if (!ov || typeof ov !== 'object') return ov;
+        const copy = JSON.parse(JSON.stringify(ov));
+        if (Array.isArray(copy.levels)) {
+          copy.levels.forEach(l => {
+            if (l && l.image) l.image = rewriteMediaUrl(l.image);
+          });
+        }
+        return copy;
+      };
       if (subParts.length === 0) {
         const overview = await loadLocalJson(`/data/curriculums/${curr}/overview.json`);
-        return jsonResponse(overview || { name: curr.toUpperCase(), slug: curr, levels: [] });
+        return jsonResponse(normOverview(overview) || { name: curr.toUpperCase(), slug: curr, levels: [] });
       }
       if (subParts[0] === 'levels' && subParts.length === 2) {
         const levelSlug = subParts[1];
         const lvlData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`);
-        return jsonResponse(lvlData || { curriculum: { slug: curr }, level: { slug: levelSlug, topics: [] } });
+        if (lvlData) {
+          const copy = JSON.parse(JSON.stringify(lvlData));
+          if (copy.level && copy.level.image) copy.level.image = rewriteMediaUrl(copy.level.image);
+          return jsonResponse(copy);
+        }
+        return jsonResponse({ curriculum: { slug: curr }, level: { slug: levelSlug, topics: [] } });
       }
       if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts.length === 3) {
         const levelSlug = subParts[1];
@@ -1742,7 +1967,7 @@
         return jsonResponse(detail || {});
       }
       const overview = await loadLocalJson(`/data/curriculums/${curr}/overview.json`);
-      return jsonResponse(overview || {});
+      return jsonResponse(normOverview(overview) || {});
     }
 
     // ------------------------------------------------------------------------
@@ -2062,6 +2287,14 @@
     );
   }
 
+  const STATIC_CURR_ROOTS = [
+    'thu-vien-new-hsk',
+    'thu-vien-hsk',
+    'thu-vien-yct',
+    'thu-vien-boya',
+    'thu-vien-hanyu-jiaocheng'
+  ];
+
   function isDynamicSpaRoute(pathname) {
     const p = (pathname || '/').replace(/\/+$/, '') || '/';
     const parts = p.split('/').filter(Boolean);
@@ -2070,7 +2303,10 @@
     if (parts[0] === 'han-viet') return true;
     if (parts[0] === 'ngu-phap' && parts.length >= 3) return true;
     if (parts[0] === 'kiem-tra-ngu-phap' && parts[1] === 'lam-bai') return true;
-    if (parts[0] && parts[0].startsWith('thu-vien-') && parts.length >= 2) return true;
+    if (parts[0] && parts[0].startsWith('thu-vien-')) {
+      if (STATIC_CURR_ROOTS.includes(parts[0])) return parts.length >= 3;
+      return parts.length >= 2;
+    }
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) return true;
     if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap') && parts.length >= 3) return true;
@@ -2736,15 +2972,18 @@
     const rootSlug = parts[0];
     const subParts = parts.slice(1);
     const currMap = {
-      'thu-vien-hsk': 'new-hsk',
+      'thu-vien-new-hsk': 'new-hsk',
+      'thu-vien-hsk': 'hsk',
       'thu-vien-yct': 'yct',
+      'thu-vien-boya': 'boya',
       'thu-vien-boyahsk': 'boya',
-      'thu-vien-msutong': 'msutong',
-      'thu-vien-giao-trinh-han-ngu': 'hanyu',
-      'thu-vien-tu-vung': 'hsk',
+      'thu-vien-hanyu-jiaocheng': 'hanyu-jiaocheng',
+      'thu-vien-giao-trinh-han-ngu': 'hanyu-jiaocheng',
+      'thu-vien-msutong': 'boya',
+      'thu-vien-tu-vung': 'new-hsk',
       'thu-vien-chu-han': 'hsk'
     };
-    const curr = currMap[rootSlug] || 'hsk';
+    const curr = currMap[rootSlug] || 'new-hsk';
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải nội dung giáo trình...</div>`;
 
@@ -2754,8 +2993,10 @@
       if (!lvlData && curr === 'new-hsk') {
         lvlData = await loadLocalJson(`/data/curriculums/hsk/levels/${levelSlug}.json`);
       }
-      const levelObj = (lvlData && lvlData.level) || { name: levelSlug.toUpperCase(), topics: [] };
+      const levelObj = (lvlData && lvlData.level) || { name: levelSlug.toUpperCase(), topics: [], lessons: [] };
       const topics = Array.isArray(levelObj.topics) ? levelObj.topics : [];
+      const lessons = Array.isArray(levelObj.lessons) ? levelObj.lessons : [];
+      const items = lessons.length > 0 ? lessons : topics;
 
       document.title = `${levelObj.name || levelSlug} - Giáo trình ${curr.toUpperCase()} | XieHanzi`;
       root.innerHTML = `
@@ -2764,15 +3005,23 @@
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
           <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📘 ${levelObj.name || levelSlug.toUpperCase()}</h1>
-          <p style="color:#57534e;margin-bottom:20px;">Tổng số từ vựng: <strong>${levelObj.wordCount || ''}</strong> • Số chủ đề/bài học: <strong>${topics.length}</strong></p>
+          <p style="color:#57534e;margin-bottom:20px;">Tổng số từ vựng: <strong>${levelObj.wordCount || ''}</strong> • Số chủ đề/bài học: <strong>${items.length}</strong></p>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
-            ${topics.map((t, i) => `
-              <a href="/${rootSlug}/${levelSlug}/chu-de/${encodeURIComponent(t.topicSlug)}" style="display:block;padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
-                <div style="font-size:13px;color:#ea580c;font-weight:700;">Chủ đề ${i + 1}</div>
-                <div style="font-size:18px;font-weight:700;margin-top:4px;color:#1c1917;">${t.topic}</div>
-                <div style="font-size:14px;color:#57534e;margin-top:6px;">${t.wordCount || 0} từ vựng →</div>
-              </a>
-            `).join('')}
+            ${items.map((t, i) => {
+              const slug = t.lessonSlug || t.topicSlug || '';
+              const isLesson = Boolean(t.lessonSlug);
+              const href = isLesson
+                ? `/${rootSlug}/${levelSlug}/bai-hoc/${encodeURIComponent(slug)}`
+                : `/${rootSlug}/${levelSlug}/${encodeURIComponent(slug)}`;
+              const label = t.titleVi || t.topic || t.titleZh || slug;
+              return `
+                <a href="${href}" style="display:block;padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
+                  <div style="font-size:13px;color:#ea580c;font-weight:700;">${isLesson ? `Bài ${t.lessonNumber || i + 1}` : `Chủ đề ${i + 1}`}</div>
+                  <div style="font-size:18px;font-weight:700;margin-top:4px;color:#1c1917;">${label}</div>
+                  <div style="font-size:14px;color:#57534e;margin-top:6px;">${t.wordCount || 0} từ vựng →</div>
+                </a>
+              `;
+            }).join('')}
           </div>
         </div>
       `;
@@ -2780,37 +3029,224 @@
     }
 
     const levelSlug = subParts[0];
-    const itemSlug = subParts[subParts.length - 1];
+    const lastSeg = subParts[subParts.length - 1];
+    const isPractice = lastSeg === 'luyen-tap' || lastSeg === 'practice' || lastSeg === 'flashcard';
+    const effectiveParts = isPractice ? subParts.slice(0, -1) : subParts;
+    const itemSlug = decodeURIComponent(effectiveParts[effectiveParts.length - 1] || '');
+    const cleanItemSlug = itemSlug.startsWith(levelSlug + '-') ? itemSlug.slice(levelSlug.length + 1) : itemSlug;
+
     let detail =
-      (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${itemSlug}.json`)) ||
       (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${itemSlug}.json`)) ||
+      (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${itemSlug}.json`)) ||
+      (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${levelSlug}-${cleanItemSlug}.json`)) ||
+      (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${cleanItemSlug}.json`)) ||
+      (await loadLocalJson(`/data/curriculums/new-hsk/topics/${levelSlug}--${itemSlug}.json`)) ||
+      (await loadLocalJson(`/data/curriculums/new-hsk/lessons/${levelSlug}--${itemSlug}.json`)) ||
       (await loadLocalJson(`/data/curriculums/hsk/topics/${levelSlug}--${itemSlug}.json`));
 
-    const words = (detail && detail.topic && detail.topic.words) || (detail && detail.lesson && detail.lesson.words) || (detail && detail.words) || [];
-    const title = (detail && detail.topic && detail.topic.name) || (detail && detail.lesson && detail.lesson.name) || decodeURIComponent(itemSlug);
+    const words =
+      (detail && detail.lesson && detail.lesson.words) ||
+      (detail && detail.topic && detail.topic.words) ||
+      (detail && detail.words) ||
+      [];
+    const lessonObj = (detail && detail.lesson) || null;
+    const topicObj = (detail && detail.topic) || null;
+    const title =
+      (lessonObj && (lessonObj.titleVi || lessonObj.titleZh || lessonObj.name)) ||
+      (topicObj && (topicObj.topic || topicObj.name || topicObj.titleVi)) ||
+      itemSlug;
+    const subtitleZh = lessonObj && lessonObj.titleZh ? lessonObj.titleZh : '';
+    const subtitlePy = lessonObj && lessonObj.titlePinyin ? lessonObj.titlePinyin : '';
+    const baseDetailUrl = '/' + [rootSlug, ...effectiveParts].join('/');
+    const practiceUrl = baseDetailUrl + '/luyen-tap';
+
+    if (isPractice && words.length > 0) {
+      document.title = `Luyện tập: ${title} - ${levelSlug.toUpperCase()} | XieHanzi`;
+      root.innerHTML = `
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <a href="${baseDetailUrl}" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
+          <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${levelSlug.toUpperCase()}</a>
+        </div>
+        <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
+            <div>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🎯 Luyện tập từ vựng: ${title}</h1>
+              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chế độ Flashcard lật thẻ & Trắc nghiệm nhanh (${words.length} từ vựng)</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
+              <button id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
+            </div>
+          </div>
+          <div id="xhz-practice-stage"></div>
+        </div>
+      `;
+
+      const stage = document.getElementById('xhz-practice-stage');
+      const btnFc = document.getElementById('xhz-mode-flashcard');
+      const btnQz = document.getElementById('xhz-mode-quiz');
+      let idx = 0;
+      let flipped = false;
+
+      const renderFlashcard = () => {
+        const w = words[idx] || words[0];
+        const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
+        const py = w.wordPinyin || w.pinyin || '';
+        const hv = w.hanviet || '';
+        const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+        const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
+        const audioUrl = w.audioUrl ? rewriteMediaUrl(w.audioUrl) : '';
+
+        stage.innerHTML = `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 0;">
+            <div style="font-size:14px;font-weight:700;color:#78716c;">Thẻ ${idx + 1} / ${words.length}</div>
+            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #fed7aa;background:#fff7ed;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(234,88,12,0.08);transition:all 0.2s;">
+              <div style="font-size:64px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</div>
+              <div style="font-size:22px;font-weight:700;color:#ea580c;margin-top:8px;">${py}</div>
+              ${flipped ? `
+                <div style="margin-top:16px;padding-top:16px;border-top:1px dashed #fdba74;width:100%;">
+                  ${hv ? `<div style="font-size:13px;font-weight:700;color:#9a3412;text-transform:uppercase;">Hán Việt: ${hv}</div>` : ''}
+                  <div style="font-size:22px;font-weight:800;color:#1c1917;margin-top:6px;">${vi}</div>
+                  ${ex ? `<div style="margin-top:10px;font-size:15px;color:#44403c;background:#fff;padding:10px;border-radius:10px;"><div><strong>${(ex.chinese || '').replace(/\{|\}/g, '')}</strong></div><div style="color:#ea580c;font-size:13px;">${ex.pinyin || ''}</div><div>${ex.vietnamese || ''}</div></div>` : ''}
+                </div>
+              ` : `<div style="margin-top:18px;font-size:13px;color:#9a3412;font-weight:600;">👆 Nhấn vào thẻ để lật xem nghĩa tiếng Việt</div>`}
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+              <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
+              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#ffedd5;color:#9a3412;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#ea580c;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
+              <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
+            </div>
+          </div>
+        `;
+        document.getElementById('xhz-fc-card').onclick = () => { flipped = !flipped; renderFlashcard(); };
+        document.getElementById('xhz-fc-flip').onclick = () => { flipped = !flipped; renderFlashcard(); };
+        document.getElementById('xhz-fc-audio').onclick = () => playPronunciation(hz, audioUrl);
+        document.getElementById('xhz-fc-prev').onclick = () => { idx = (idx - 1 + words.length) % words.length; flipped = false; renderFlashcard(); };
+        document.getElementById('xhz-fc-next').onclick = () => { idx = (idx + 1) % words.length; flipped = false; renderFlashcard(); };
+      };
+
+      const renderQuiz = () => {
+        let score = 0;
+        const answered = new Set();
+        stage.innerHTML = `
+          <div id="xhz-curr-quiz-score" style="margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#fff7ed;color:#9a3412;font-weight:800;">Điểm số: 0 / ${words.length}</div>
+          <div id="xhz-curr-quiz-list" style="display:flex;flex-direction:column;gap:14px;"></div>
+        `;
+        const listEl = document.getElementById('xhz-curr-quiz-list');
+        const scoreEl = document.getElementById('xhz-curr-quiz-score');
+        words.forEach((w, qIdx) => {
+          const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
+          const py = w.wordPinyin || w.pinyin || '';
+          const rightVi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+          const distractors = words
+            .filter((_, i) => i !== qIdx)
+            .sort(() => Math.random() - 0.5)
+            .slice(0, 3)
+            .map(x => x.translationVi || x.wordMeaningVi || x.meaningVi || '');
+          const options = [rightVi, ...distractors].sort(() => Math.random() - 0.5);
+
+          const card = document.createElement('div');
+          card.style.cssText = 'padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;';
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <div>
+                <span style="font-size:13px;font-weight:700;color:#78716c;margin-right:8px;">Câu ${qIdx + 1}/${words.length}</span>
+                <span style="font-size:24px;font-weight:800;color:#1c1917;">${hz}</span>
+                <span style="font-size:15px;color:#ea580c;font-weight:600;margin-left:8px;">[${py}]</span>
+              </div>
+              <button class="xhz-q-speak" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
+            </div>
+            <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;"></div>
+          `;
+          card.querySelector('.xhz-q-speak').onclick = () => playPronunciation(hz, w.audioUrl ? rewriteMediaUrl(w.audioUrl) : '');
+          const optsWrap = card.querySelector('.xhz-q-opts');
+          options.forEach(optText => {
+            const btn = document.createElement('button');
+            btn.style.cssText = 'padding:10px 12px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:600;text-align:left;cursor:pointer;';
+            btn.textContent = optText;
+            btn.onclick = () => {
+              const isCorrect = optText === rightVi;
+              if (!answered.has(qIdx)) {
+                answered.add(qIdx);
+                if (isCorrect) score++;
+                scoreEl.textContent = `Điểm số: ${score} / ${words.length} (Đã làm ${answered.size} câu)`;
+              }
+              Array.from(optsWrap.children).forEach(b => {
+                b.style.background = b.textContent === rightVi ? '#dcfce7' : '#fff';
+                b.style.borderColor = b.textContent === rightVi ? '#16a34a' : '#d6d3d1';
+              });
+              if (!isCorrect) {
+                btn.style.background = '#fee2e2';
+                btn.style.borderColor = '#dc2626';
+              }
+            };
+            optsWrap.appendChild(btn);
+          });
+          listEl.appendChild(card);
+        });
+      };
+
+      btnFc.onclick = () => {
+        btnFc.style.background = '#ea580c';
+        btnFc.style.color = '#fff';
+        btnQz.style.background = '#f5f5f4';
+        btnQz.style.color = '#1c1917';
+        renderFlashcard();
+      };
+      btnQz.onclick = () => {
+        btnQz.style.background = '#ea580c';
+        btnQz.style.color = '#fff';
+        btnFc.style.background = '#f5f5f4';
+        btnFc.style.color = '#1c1917';
+        renderQuiz();
+      };
+      renderFlashcard();
+      return;
+    }
 
     document.title = `${title} - ${levelSlug.toUpperCase()} | XieHanzi`;
     root.innerHTML = `
-      <div style="margin-bottom:16px;">
-        <a href="/${rootSlug}/${levelSlug}" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại ${levelSlug.toUpperCase()}</a>
+      <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <a href="/${rootSlug}/${levelSlug}" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại ${levelSlug.toUpperCase()}</a>
+        ${words.length > 0 ? `<a href="${practiceUrl}" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(234,88,12,0.25);">🎯 Luyện tập / Flashcard (${words.length} từ) →</a>` : ''}
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 16px 0;">📖 ${title} (${words.length} mục)</h1>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;">
-          ${words.map(w => {
+        <div style="margin-bottom:18px;border-bottom:1px solid #f5f5f4;padding-bottom:14px;">
+          <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0;">📖 ${title} (${words.length} từ vựng)</h1>
+          ${subtitleZh ? `<div style="font-size:18px;font-weight:700;color:#ea580c;margin-top:4px;">${subtitleZh} ${subtitlePy ? `<span style="font-weight:500;color:#78716c;">(${subtitlePy})</span>` : ''}</div>` : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
+          ${words.map((w, idx) => {
             const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
             const py = w.wordPinyin || w.pinyin || '';
             const hv = w.hanviet || '';
             const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+            const pos = w.partOfSpeechVi || w.partOfSpeech || '';
+            const audioUrl = w.audioUrl ? rewriteMediaUrl(w.audioUrl) : '';
+            const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
             const link = hz.length === 1 ? `/han-tu/${encodeURIComponent(hz)}` : `/tu-vung/${encodeURIComponent(hz)}`;
-            return `<div style="padding:14px 16px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;color:#1c1917;">
+            return `<div style="padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;color:#1c1917;">
               <div>
-                <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <a href="${link}" style="font-size:24px;font-weight:800;color:#1c1917;text-decoration:none;">${hz}</a>
-                  <button onclick="window.__xhzPlayAudio('${hz}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 10px;cursor:pointer;font-size:13px;font-weight:700;">🔊 ${py}</button>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                  <div>
+                    <span style="font-size:12px;color:#78716c;font-weight:700;margin-right:6px;">#${idx + 1}</span>
+                    <a href="${link}" style="font-size:26px;font-weight:800;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;">${hz}</a>
+                  </div>
+                  <button onclick="window.__xhzPlayAudio('${hz.replace(/'/g, '')}', '${audioUrl.replace(/'/g, '')}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:700;">🔊 ${py}</button>
                 </div>
-                ${hv ? `<div style="font-size:12px;color:#78716c;text-transform:uppercase;margin-top:2px;">Hán Việt: ${hv}</div>` : ''}
-                <div style="font-size:15px;color:#292524;margin-top:6px;">${vi}</div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
+                  ${hv ? `<span style="font-size:12px;color:#9a3412;background:#fff7ed;padding:2px 8px;border-radius:6px;font-weight:700;text-transform:uppercase;">HV: ${hv}</span>` : ''}
+                  ${pos ? `<span style="font-size:12px;color:#57534e;background:#e7e5e4;padding:2px 8px;border-radius:6px;">${pos}</span>` : ''}
+                </div>
+                <div style="font-size:16px;font-weight:700;color:#292524;margin-top:8px;">${vi}</div>
+                ${ex ? `
+                  <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #e7e5e4;font-size:13px;color:#44403c;">
+                    <div style="font-weight:700;color:#1c1917;">VD: ${(ex.chinese || '').replace(/\{|\}/g, '')}</div>
+                    <div style="color:#ea580c;">${ex.pinyin || ''}</div>
+                    <div style="color:#57534e;">${ex.vietnamese || ''}</div>
+                  </div>
+                ` : ''}
               </div>
             </div>`;
           }).join('')}
@@ -2944,7 +3380,8 @@
         `;
         return;
       }
-      paper = await loadLocalJson('/data/tests/papers/hsk30-1.json');
+      const rawFallback = await loadLocalJson('/data/tests/papers/hsk30-1.json');
+      paper = normalizeTestPaper(rawFallback, 'hsk30-1');
     }
 
     const questions =
@@ -2952,7 +3389,7 @@
       (paper && Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : []);
 
     const title = (paper && (paper.title || paper.name || paper.testId)) || `Đề thi ${lastPart.toUpperCase()}`;
-    const fullAudio = paper && paper.audioUrl ? rewriteMediaUrl(paper.audioUrl) : '';
+    const fullAudio = paper && (paper.audioUrl || paper.audio) ? rewriteMediaUrl(paper.audioUrl || paper.audio) : '';
     document.title = `${title} | Phòng thi XieHanzi`;
 
     root.innerHTML = `
@@ -2980,14 +3417,21 @@
 
     questions.forEach((q, idx) => {
       const qNum = q.number || q.questionNumber || idx + 1;
+      const qType = q.type || q.kind || 'multiple_choice';
       const prompt = q.prompt || q.question || q.stem || q.text || q.transcript || `Câu hỏi số ${qNum}`;
       const pinyin = q.pinyin || q.transcriptPinyin || '';
-      const qAudio = q.audioUrl ? rewriteMediaUrl(q.audioUrl) : '';
-      const qImg = q.imageUrl || q.image ? rewriteMediaUrl(q.imageUrl || q.image) : '';
+      const qAudio = (q.audio || q.audioUrl) ? rewriteMediaUrl(q.audio || q.audioUrl) : '';
       const qImgs = Array.isArray(q.images) ? q.images.map(u => rewriteMediaUrl(u)) : [];
+      const singleQuestionImg =
+        q.imageUrl || q.image
+          ? rewriteMediaUrl(q.imageUrl || q.image)
+          : ((qType === 'component_match' || qType === 'writing_sentence') && qImgs.length === 1 ? qImgs[0] : '');
+
       let rawOpts = Array.isArray(q.options) ? q.options : (Array.isArray(q.choices) ? q.choices : []);
-      if (rawOpts.length === 0) {
-        if (q.kind === 'true_false') {
+      const isWrittenQuestion = qType === 'character_fill' || qType === 'writing_sentence' || qType === 'writing_essay';
+
+      if (rawOpts.length === 0 && !isWrittenQuestion) {
+        if (qType === 'true_false') {
           rawOpts = [
             { key: 'true', text: '✓ Đúng (对)' },
             { key: 'false', text: '✗ Sai (错)' }
@@ -3007,15 +3451,23 @@
       const card = document.createElement('div');
       card.style.cssText = 'padding:20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;';
 
-      // Shared image bank for image_match or multiple images
-      const sharedImagesHtml = (q.kind === 'image_match' && qImgs.length > 0)
-        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:14px;">
+      // Shared image bank for image_match or multiple images when options don't carry individual images
+      const showSharedImageGrid = qType === 'image_match' && qImgs.length > 0;
+      const sharedImagesHtml = showSharedImageGrid
+        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
             ${qImgs.map((u, i) => `
-              <div style="background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:8px;text-align:center;">
-                <div style="font-weight:800;color:#ea580c;font-size:14px;margin-bottom:4px;">Hình ${String.fromCharCode(65 + i)}</div>
-                <img src="${u}" alt="Hình ${String.fromCharCode(65 + i)}" style="max-height:110px;max-width:100%;border-radius:8px;object-fit:contain;margin:0 auto;" />
+              <div style="background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:10px;text-align:center;">
+                <div style="font-weight:800;color:#ea580c;font-size:14px;margin-bottom:6px;">Hình ${String.fromCharCode(65 + i)}</div>
+                <img src="${u}" alt="Hình ${String.fromCharCode(65 + i)}" style="max-height:130px;max-width:100%;border-radius:8px;object-fit:contain;margin:0 auto;display:block;" />
               </div>
             `).join('')}
+          </div>`
+        : '';
+
+      const passageHtml = q.passage
+        ? `<div style="margin-bottom:12px;padding:14px 16px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:16px;line-height:1.7;color:#1c1917;">
+            ${q.passage}
+            ${q.passagePinyin ? `<div style="font-size:13px;color:#ea580c;margin-top:6px;">${q.passagePinyin}</div>` : ''}
           </div>`
         : '';
 
@@ -3029,7 +3481,8 @@
         </div>
         ${pinyin ? `<div style="font-size:14px;color:#ea580c;font-weight:600;margin-bottom:8px;">${pinyin}</div>` : ''}
         ${qAudio ? `<div style="margin-bottom:12px;"><audio controls src="${qAudio}" style="height:38px;max-width:100%;"></audio></div>` : ''}
-        ${qImg ? `<div style="margin-bottom:12px;"><img src="${qImg}" alt="Câu ${qNum}" style="max-height:180px;border-radius:12px;border:1px solid #e7e5e4;background:#fff;padding:6px;" /></div>` : ''}
+        ${singleQuestionImg ? `<div style="margin-bottom:12px;"><img src="${singleQuestionImg}" alt="Câu ${qNum}" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid #e7e5e4;background:#fff;padding:6px;object-fit:contain;" /></div>` : ''}
+        ${passageHtml}
         ${sharedImagesHtml}
         <div class="xhz-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
         <div class="xhz-exp" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;font-size:14px;color:#78350f;"></div>
@@ -3038,46 +3491,77 @@
       const optsWrap = card.querySelector('.xhz-opts');
       const expEl = card.querySelector('.xhz-exp');
 
-      rawOpts.forEach((opt, oIdx) => {
-        const key = typeof opt === 'object' ? (opt.key || opt.label || opt.id || String.fromCharCode(65 + oIdx)) : String.fromCharCode(65 + oIdx);
-        const text = typeof opt === 'object' ? (opt.text || opt.hanzi || opt.content || opt.value || key) : String(opt);
-        const optImg = (typeof opt === 'object' && (opt.image || opt.imageUrl))
-          ? rewriteMediaUrl(opt.image || opt.imageUrl)
-          : (q.kind === 'image_choice' && qImgs[oIdx] ? qImgs[oIdx] : '');
-
-        const btn = document.createElement('button');
-        btn.style.cssText = 'padding:12px 14px;border-radius:12px;border:2px solid #d6d3d1;background:#ffffff;color:#1c1917;text-align:left;cursor:pointer;font-size:15px;font-weight:700;transition:all 0.15s;display:flex;flex-direction:column;gap:8px;';
-        btn.innerHTML = `
-          <div><span style="color:#ea580c;font-weight:800;margin-right:6px;">${key.toUpperCase()}.</span> <span style="color:#1c1917;">${text}</span></div>
-          ${optImg ? `<img src="${optImg}" alt="Phương án ${key}" style="max-height:130px;width:100%;object-fit:contain;border-radius:8px;background:#fafaf9;padding:4px;" />` : ''}
+      if (isWrittenQuestion) {
+        optsWrap.style.display = 'block';
+        optsWrap.innerHTML = `
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">
+            ${qType === 'writing_essay'
+              ? `<textarea class="xhz-write-input" rows="4" placeholder="Nhập bài viết tiếng Trung của bạn..." style="flex:1;min-width:260px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;"></textarea>`
+              : `<input type="text" class="xhz-write-input" placeholder="Nhập đáp án chữ Hán..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;" />`
+            }
+            <button class="xhz-write-check" style="padding:10px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">Kiểm tra đáp án</button>
+          </div>
         `;
-        btn.onclick = () => {
-          const isRight = String(key).toUpperCase() === rightAns.toUpperCase() || String(text).toUpperCase() === rightAns.toUpperCase();
+        const inputEl = optsWrap.querySelector('.xhz-write-input');
+        const checkBtn = optsWrap.querySelector('.xhz-write-check');
+        checkBtn.onclick = () => {
+          const userVal = (inputEl.value || '').trim();
+          const isRight = qType === 'writing_essay' ? userVal.length > 0 : userVal === rightAns;
           answeredMap[qNum] = isRight ? 1 : 0;
           const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
           if (scoreBadge) scoreBadge.textContent = `Điểm số: ${totalScore} / ${questions.length}`;
-
-          Array.from(optsWrap.children).forEach(b => {
-            b.style.background = '#ffffff';
-            b.style.borderColor = '#d6d3d1';
-            b.style.color = '#1c1917';
-          });
-          if (isRight) {
-            btn.style.background = '#dcfce7';
-            btn.style.borderColor = '#16a34a';
-            btn.style.color = '#14532d';
-          } else {
-            btn.style.background = '#fee2e2';
-            btn.style.borderColor = '#dc2626';
-            btn.style.color = '#7f1d1d';
-          }
           if (expEl) {
             expEl.style.display = 'block';
-            expEl.innerHTML = `<strong>Đáp án đúng: ${rightAns.toUpperCase()}</strong> ${q.explanationVi || q.explanation || (q.transcript ? `<br/>Lời thoại (Transcript): <strong>${q.transcript}</strong> (${q.transcriptPinyin || ''}) — ${q.translationVi || ''}` : '')}`;
+            expEl.innerHTML = `${rightAns && rightAns !== 'null' ? `<strong>Đáp án chuẩn: ${rightAns}</strong><br/>` : ''}${q.explanationVi || q.explanation || ''}`;
           }
         };
-        optsWrap.appendChild(btn);
-      });
+      } else {
+        rawOpts.forEach((opt, oIdx) => {
+          const key = typeof opt === 'object' ? (opt.key || opt.label || opt.id || String.fromCharCode(65 + oIdx)) : String.fromCharCode(65 + oIdx);
+          const text = typeof opt === 'object' ? (opt.text || opt.hanzi || opt.content || opt.value || key) : String(opt);
+          const optPinyin = typeof opt === 'object' ? (opt.pinyin || '') : '';
+          const optImg = (typeof opt === 'object' && (opt.image || opt.imageUrl))
+            ? rewriteMediaUrl(opt.image || opt.imageUrl)
+            : ((qType === 'image_choice' || qType === 'image_match') && qImgs[oIdx] ? qImgs[oIdx] : '');
+
+          const btn = document.createElement('button');
+          btn.style.cssText = 'padding:12px 14px;border-radius:12px;border:2px solid #d6d3d1;background:#ffffff;color:#1c1917;text-align:left;cursor:pointer;font-size:15px;font-weight:700;transition:all 0.15s;display:flex;flex-direction:column;gap:8px;';
+          btn.innerHTML = `
+            <div>
+              <span style="color:#ea580c;font-weight:800;margin-right:6px;">${key.toUpperCase()}.</span>
+              <span style="color:#1c1917;">${text !== key ? text : `Hình ${key.toUpperCase()}`}</span>
+              ${optPinyin ? `<div style="font-size:12px;color:#78716c;font-weight:500;margin-top:2px;">${optPinyin}</div>` : ''}
+            </div>
+            ${optImg ? `<img src="${optImg}" alt="Phương án ${key}" style="max-height:140px;width:100%;object-fit:contain;border-radius:8px;background:#fafaf9;padding:4px;" />` : ''}
+          `;
+          btn.onclick = () => {
+            const isRight = String(key).toUpperCase() === rightAns.toUpperCase() || String(text).toUpperCase() === rightAns.toUpperCase();
+            answeredMap[qNum] = isRight ? 1 : 0;
+            const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
+            if (scoreBadge) scoreBadge.textContent = `Điểm số: ${totalScore} / ${questions.length}`;
+
+            Array.from(optsWrap.children).forEach(b => {
+              b.style.background = '#ffffff';
+              b.style.borderColor = '#d6d3d1';
+              b.style.color = '#1c1917';
+            });
+            if (isRight) {
+              btn.style.background = '#dcfce7';
+              btn.style.borderColor = '#16a34a';
+              btn.style.color = '#14532d';
+            } else {
+              btn.style.background = '#fee2e2';
+              btn.style.borderColor = '#dc2626';
+              btn.style.color = '#7f1d1d';
+            }
+            if (expEl) {
+              expEl.style.display = 'block';
+              expEl.innerHTML = `<strong>Đáp án đúng: ${rightAns.toUpperCase()}</strong> ${q.explanationVi || q.explanation || (q.transcript ? `<br/>Lời thoại (Transcript): <strong>${q.transcript}</strong> (${q.transcriptPinyin || ''}) — ${q.translationVi || ''}` : '')}`;
+            }
+          };
+          optsWrap.appendChild(btn);
+        });
+      }
 
       listEl.appendChild(card);
     });
@@ -3164,10 +3648,13 @@
       await renderGrammarQuizRunPage(new URLSearchParams(window.location.search));
       return;
     }
-    if (parts[0] && parts[0].startsWith('thu-vien-') && parts.length >= 2) {
-      lastHandledFullUrl = fullKey;
-      await renderCurriculumSubPage(pathname);
-      return;
+    if (parts[0] && parts[0].startsWith('thu-vien-')) {
+      const minParts = STATIC_CURR_ROOTS.includes(parts[0]) ? 3 : 2;
+      if (parts.length >= minParts) {
+        lastHandledFullUrl = fullKey;
+        await renderCurriculumSubPage(pathname);
+        return;
+      }
     }
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) {
       lastHandledFullUrl = fullKey;
