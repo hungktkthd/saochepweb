@@ -1133,10 +1133,10 @@
         ]
       });
     }
-    if (p.startsWith('/v1/games/daily/')) {
-      const game = p.split('/v1/games/daily/')[1].split('/')[0] || 'ghep-chu';
-      const isStart = p.endsWith('/start') && method === 'POST';
-      if (isStart) {
+    const gameDailyMatch = p.match(/^\/v1\/games\/(?:daily\/([^/]+)|([^/]+)\/daily)(?:\/start)?$/);
+    if (gameDailyMatch) {
+      const game = gameDailyMatch[1] || gameDailyMatch[2] || 'ghep-chu';
+      if (method === 'POST') {
         const round = game === 'tim-chu-trong-chu'
           ? await createTimChuRound('normal', 'daily', 0)
           : await createGhepChuRound('normal', 'daily', 0);
@@ -1145,7 +1145,8 @@
           game,
           plays: 1,
           bestScore: 920,
-          round
+          round,
+          run: null
         });
       }
       return jsonResponse({
@@ -1157,9 +1158,10 @@
         totalPlayers: 48
       });
     }
-    if (p === '/v1/games/rank-runs' && method === 'POST') {
+    const gameRankRunCreateMatch = p.match(/^\/v1\/games\/(?:([^/]+)\/)?rank-runs$/);
+    if (gameRankRunCreateMatch && method === 'POST') {
       const body = await parseRequestBody(init);
-      const game = body.game || 'ghep-chu';
+      const game = gameRankRunCreateMatch[1] || body.game || 'ghep-chu';
       const diff = body.difficulty || 'easy';
       const round = game === 'tim-chu-trong-chu'
         ? await createTimChuRound(diff, 'rank', 0)
@@ -1169,7 +1171,7 @@
         game,
         difficulty: diff,
         status: 'active',
-        totalRounds: 1,
+        totalRounds: game === 'tim-chu-trong-chu' ? 5 : 1,
         roundsPlayed: 0,
         totalScore: 0,
         rounds: []
@@ -1194,9 +1196,10 @@
       if (stored) return jsonResponse(stored);
       return jsonResponse({ run: { runId, status: 'completed', totalRounds: 1, roundsPlayed: 1, totalScore: 900, rounds: [] }, round: null });
     }
-    if (p === '/v1/games/rounds' && method === 'POST') {
+    const gameRoundCreateMatch = p.match(/^\/v1\/games\/(?:([^/]+)\/)?rounds$/);
+    if (gameRoundCreateMatch && method === 'POST') {
       const body = await parseRequestBody(init);
-      const game = body.game || 'ghep-chu';
+      const game = gameRoundCreateMatch[1] || body.game || 'ghep-chu';
       const diff = body.difficulty || 'easy';
       const round = game === 'tim-chu-trong-chu'
         ? await createTimChuRound(diff, 'casual', 0)
@@ -2151,13 +2154,22 @@
       handleApiRequest(fullUrl, { method: this._xhzMethod || 'GET', body })
         .then(r => r.text())
         .then(txt => {
+          let parsed = txt;
+          if (this.responseType === 'json') {
+            try { parsed = JSON.parse(txt); } catch (_) {}
+          }
           Object.defineProperty(this, 'status', { value: 200, configurable: true });
+          Object.defineProperty(this, 'statusText', { value: 'OK', configurable: true });
           Object.defineProperty(this, 'readyState', { value: 4, configurable: true });
           Object.defineProperty(this, 'responseText', { value: txt, configurable: true });
-          Object.defineProperty(this, 'response', { value: txt, configurable: true });
+          Object.defineProperty(this, 'response', { value: parsed, configurable: true });
+          Object.defineProperty(this, 'responseURL', { value: fullUrl, configurable: true });
+          this.getAllResponseHeaders = () => 'content-type: application/json; charset=utf-8\r\n';
+          this.getResponseHeader = name =>
+            String(name || '').toLowerCase() === 'content-type' ? 'application/json; charset=utf-8' : null;
           this.dispatchEvent(new Event('readystatechange'));
           this.dispatchEvent(new Event('load'));
-          if (typeof this.onload === 'function') this.onload();
+          this.dispatchEvent(new Event('loadend'));
         });
       return;
     }
@@ -2632,10 +2644,12 @@
       `;
 
       if (q.type === 'mcq') {
+        const stemText = q.prompt || q.stem || '';
+        const stemPy = q.pinyin || q.stemPinyin || '';
         card.innerHTML = `
           ${headerHtml}
-          <div style="font-size:20px;font-weight:700;color:#1c1917;margin-bottom:6px;">${q.stem || ''}</div>
-          ${q.stemPinyin ? `<div style="font-size:14px;color:#ea580c;margin-bottom:4px;">${q.stemPinyin}</div>` : ''}
+          <div style="font-size:20px;font-weight:700;color:#1c1917;margin-bottom:6px;">${stemText}</div>
+          ${stemPy ? `<div style="font-size:14px;color:#ea580c;margin-bottom:4px;">${stemPy}</div>` : ''}
           ${q.vietnameseHint ? `<div style="font-size:14px;color:#57534e;margin-bottom:14px;">💡 Nghĩa: ${q.vietnameseHint}</div>` : ''}
           <div class="xhz-gq-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;"></div>
           <div class="xhz-gq-exp" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;"></div>
@@ -2643,34 +2657,41 @@
         const optsWrap = card.querySelector('.xhz-gq-opts');
         const expEl = card.querySelector('.xhz-gq-exp');
         const options = Array.isArray(q.options) ? q.options : [];
-        options.forEach((optText, optIdx) => {
+        const rightAnswerKey = q.answer !== undefined ? String(q.answer) : String.fromCharCode(65 + (q.correctIndex || 0));
+        options.forEach((optItem, optIdx) => {
+          const optKey = typeof optItem === 'object' ? String(optItem.id || optItem.key || String.fromCharCode(65 + optIdx)) : String.fromCharCode(65 + optIdx);
+          const optLabel = typeof optItem === 'object' ? (optItem.text || optItem.label || optItem.value || '') : String(optItem);
+          const isThisCorrect = optKey === rightAnswerKey || optIdx === q.correctIndex;
           const btn = document.createElement('button');
+          btn.dataset.correct = isThisCorrect ? '1' : '0';
           btn.style.cssText = 'padding:12px 14px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;text-align:left;cursor:pointer;font-size:16px;font-weight:600;';
-          btn.innerHTML = `<span style="color:#ea580c;font-weight:800;margin-right:6px;">${String.fromCharCode(65 + optIdx)}.</span> ${optText}`;
+          btn.innerHTML = `<span style="color:#ea580c;font-weight:800;margin-right:6px;">${String.fromCharCode(65 + optIdx)}.</span> ${optLabel}`;
           btn.onclick = () => {
             if (!answeredSet.has(idx)) {
               answeredSet.add(idx);
-              if (optIdx === q.correctIndex) correctCount++;
+              if (isThisCorrect) correctCount++;
               updateBadge();
             }
-            Array.from(optsWrap.children).forEach((b, bIdx) => {
+            Array.from(optsWrap.children).forEach(b => {
               b.style.background = '#fff';
               b.style.borderColor = '#d6d3d1';
               b.style.color = '#1c1917';
-              if (bIdx === q.correctIndex) {
+              if (b.dataset.correct === '1') {
                 b.style.background = '#dcfce7';
                 b.style.borderColor = '#16a34a';
                 b.style.color = '#14532d';
               }
             });
-            if (optIdx !== q.correctIndex) {
+            if (!isThisCorrect) {
               btn.style.background = '#fee2e2';
               btn.style.borderColor = '#dc2626';
               btn.style.color = '#7f1d1d';
             }
             if (expEl) {
+              const rightObj = options.find((o, i) => (typeof o === 'object' ? String(o.id || o.key) === rightAnswerKey : i === q.correctIndex));
+              const rightText = typeof rightObj === 'object' ? (rightObj.text || '') : (rightObj || '');
               expEl.style.display = 'block';
-              expEl.innerHTML = `<strong>Đáp án đúng: ${String.fromCharCode(65 + (q.correctIndex || 0))}. ${options[q.correctIndex || 0] || ''}</strong><br/>${q.explanation || ''}`;
+              expEl.innerHTML = `<strong>Đáp án đúng: ${rightText}</strong><br/>${q.explanation || ''}`;
             }
           };
           optsWrap.appendChild(btn);
