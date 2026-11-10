@@ -806,9 +806,19 @@
     }
     if (p === '/v2/companion/character') {
       const body = await parseRequestBody(init);
-      const selectedId = body.characterId || 'capy';
+      const selectedId = body.characterId || localStorage.getItem('httq_companion_id') || 'capy';
       localStorage.setItem('httq_companion_id', selectedId);
       return jsonResponse({ ok: true, selectedId });
+    }
+    if (p === '/v2/companion/call/status') {
+      return jsonResponse({
+        callEnabled: true,
+        voice: 'allowed',
+        secondsLeftToday: 900,
+        capSeconds: 1800,
+        trial: false,
+        upsell: null
+      });
     }
     if (p === '/v2/companion/inbox') {
       return jsonResponse({ items: [], unreadCount: 0, celebrate: [] });
@@ -893,12 +903,15 @@
     }
     if (p === '/v2/learning-tracks' || p === '/v2/paths') {
       const isBatDauPage = (window.location.pathname || '').includes('bat-dau');
+      const stdObj = { code: 'hsk30', sourceLineVi: 'Chuẩn HSK 3.0 (9 cấp) · Khung năng lực Hán ngữ Quốc tế', issuerVi: 'CTI / Hanban' };
       const tracks = [
         {
           track: 'hsk30',
-          slug: 'hsk30',
+          slug: 'hsk30-1',
+          level: 1,
+          titleVi: 'HSK 1',
           brandVi: 'Lộ trình HSK 3.0 Chuẩn',
-          standard: 'hsk30',
+          standard: stdObj,
           isDefault: true,
           placementAvailable: true,
           levels: [
@@ -909,19 +922,25 @@
           enrollment: isBatDauPage
             ? null
             : {
+                pathSlug: 'hsk30-1',
                 track: 'hsk30',
                 currentLevel: 'L1',
+                currentStageId: 'hsk30-1.S1',
+                currentLessonId: 'bai-1-hello-ai-xiaoyu',
                 startStageKey: 'hsk30.L1.C1.S1',
-                stagesDone: 2,
-                stagesTotal: 7,
-                active: true
+                stagesDone: 1,
+                stagesTotal: 3,
+                active: true,
+                enrolledAt: '2026-11-10T00:00:00.000Z'
               }
         },
         {
           track: 'hsk20',
           slug: 'hsk20',
+          level: 1,
+          titleVi: 'HSK 2.0 Cấp 1',
           brandVi: 'Giáo trình HSK 2.0 (Cấp 1–6)',
-          standard: 'hsk20',
+          standard: { code: 'hsk20', sourceLineVi: 'Giáo trình HSK 2.0 truyền thống (6 cấp)', issuerVi: 'Hanban' },
           isDefault: false,
           placementAvailable: true,
           levels: [
@@ -934,8 +953,10 @@
         {
           track: 'boya',
           slug: 'boya',
+          level: 1,
+          titleVi: 'Boya Sơ cấp 1',
           brandVi: 'Giáo trình Boya Sơ cấp',
-          standard: 'boya',
+          standard: { code: 'boya', sourceLineVi: 'Giáo trình Hán ngữ Boya (Đại học Bắc Kinh)', issuerVi: 'Peking University Press' },
           isDefault: false,
           placementAvailable: false,
           levels: [
@@ -949,7 +970,7 @@
     }
     if (p.startsWith('/v2/learning-tracks/') || p.startsWith('/v2/paths/')) {
       const parts = p.split('/').filter(Boolean);
-      const track = parts[2] || 'hsk30';
+      const track = parts[2] || 'hsk30-1';
       const sub = parts[3] || '';
       if (sub === 'levels') {
         const level = parts[4] || 'L1';
@@ -964,10 +985,10 @@
               titleVi: 'Chào hỏi & Làm quen cơ bản',
               titleZh: '你好！认识你很高兴',
               stages: [
-                { stageKey: `${track}.${level}.C1.S1`, order: 1, kind: 'stage', titleVi: 'Xin chào, bạn khỏe không?', titleZh: '你好，你好吗？', newWordCount: 12 },
-                { stageKey: `${track}.${level}.C1.S2`, order: 2, kind: 'stage', titleVi: 'Bạn tên là gì? Người nước nào?', titleZh: '你叫什么名字？', newWordCount: 14 },
-                { stageKey: `${track}.${level}.C1.S3`, order: 3, kind: 'stage', titleVi: 'Gia đình và nghề nghiệp', titleZh: '你家有几口人？', newWordCount: 15 },
-                { stageKey: `${track}.${level}.C1.S4`, order: 4, kind: 'review', titleVi: 'Ôn tập Chương 1', titleZh: '复习（一）', newWordCount: 0 }
+                { stageKey: `${track}.${level}.C1.S1`, order: 1, kind: 'stage', titleVi: 'AI Tiểu Ngữ, xin chào!', titleZh: 'AI小语，你好！', newWordCount: 12 },
+                { stageKey: `${track}.${level}.C1.S2`, order: 2, kind: 'stage', titleVi: 'Tôi tên là Lý Văn', titleZh: '我叫李文', newWordCount: 14 },
+                { stageKey: `${track}.${level}.C1.S3`, order: 3, kind: 'stage', titleVi: 'Tôi là người Trung Quốc', titleZh: '我是中国人', newWordCount: 15 },
+                { stageKey: `${track}.${level}.C1.S4`, order: 4, kind: 'review', titleVi: 'Gia đình tôi có hai người con', titleZh: '我有两个孩子', newWordCount: 12 }
               ]
             },
             {
@@ -976,9 +997,9 @@
               titleVi: 'Thời gian, Mua sắm & Đời sống',
               titleZh: '今天几月几号？',
               stages: [
-                { stageKey: `${track}.${level}.C2.S1`, order: 5, kind: 'stage', titleVi: 'Ngày tháng & Giờ giấc', titleZh: '现在几点？', newWordCount: 14 },
-                { stageKey: `${track}.${level}.C2.S2`, order: 6, kind: 'stage', titleVi: 'Mua sắm & Giá cả', titleZh: '这个多少钱？', newWordCount: 16 },
-                { stageKey: `${track}.${level}.C2.S3`, order: 7, kind: 'stage', titleVi: 'Đi lại & Phương tiện', titleZh: '怎么去学校？', newWordCount: 15 }
+                { stageKey: `${track}.${level}.C2.S1`, order: 5, kind: 'stage', titleVi: 'Hôm nay tôi được nghỉ', titleZh: '我今天休息', newWordCount: 14 },
+                { stageKey: `${track}.${level}.C2.S2`, order: 6, kind: 'stage', titleVi: 'Số điện thoại của bạn là gì?', titleZh: '你的手机号是多少？', newWordCount: 16 },
+                { stageKey: `${track}.${level}.C2.S3`, order: 7, kind: 'stage', titleVi: '6 rưỡi tối tôi tan làm', titleZh: '我晚上六点半下班', newWordCount: 15 }
               ]
             }
           ],
@@ -993,14 +1014,14 @@
             track,
             currentLevel: 'L1',
             startStageKey: `${track}.L1.C1.S1`,
-            stagesDone: 2,
+            stagesDone: 1,
             stagesTotal: 7,
             active: true
           },
           stages: [
-            { stageKey: `${track}.L1.C1.S1`, status: 'completed', activityKeysDone: ['learn', 'dialogue', 'exam'], examBestPct: 95 },
-            { stageKey: `${track}.L1.C1.S2`, status: 'completed', activityKeysDone: ['learn', 'dialogue', 'exam'], examBestPct: 90 },
-            { stageKey: `${track}.L1.C1.S3`, status: 'in_progress', activityKeysDone: ['learn'], examBestPct: null },
+            { stageKey: `${track}.L1.C1.S1`, status: 'in_progress', activityKeysDone: ['learn'], examBestPct: null },
+            { stageKey: `${track}.L1.C1.S2`, status: 'available', activityKeysDone: [], examBestPct: null },
+            { stageKey: `${track}.L1.C1.S3`, status: 'available', activityKeysDone: [], examBestPct: null },
             { stageKey: `${track}.L1.C1.S4`, status: 'available', activityKeysDone: [], examBestPct: null },
             { stageKey: `${track}.L1.C2.S1`, status: 'available', activityKeysDone: [], examBestPct: null },
             { stageKey: `${track}.L1.C2.S2`, status: 'locked', activityKeysDone: [], examBestPct: null },
@@ -1018,10 +1039,10 @@
             {
               stageKey: `${chapterKey}.S1`,
               meta: {
-                titleVi: 'Xin chào, bạn khỏe không?',
-                titleZh: '你好，你好吗？',
-                titlePinyin: 'Nǐ hǎo, nǐ hǎo ma?',
-                canDoVi: ['Chào hỏi và hỏi thăm sức khỏe bằng tiếng Trung', 'Phản hồi lịch sự khi gặp mặt lần đầu'],
+                titleVi: 'AI Tiểu Ngữ, xin chào!',
+                titleZh: 'AI小语，你好！',
+                titlePinyin: 'AI Xiǎoyǔ, nǐ hǎo!',
+                canDoVi: ['Chào hỏi và làm quen bằng tiếng Trung', 'Phản hồi lịch sự khi gặp mặt lần đầu'],
                 grammarNotes: []
               },
               activities: [
@@ -1033,10 +1054,10 @@
             {
               stageKey: `${chapterKey}.S2`,
               meta: {
-                titleVi: 'Bạn tên là gì? Người nước nào?',
-                titleZh: '你叫什么名字？',
-                titlePinyin: 'Nǐ jiào shénme míngzi?',
-                canDoVi: ['Giới thiệu họ tên và quốc tịch', 'Hỏi thông tin làm quen với bạn mới'],
+                titleVi: 'Tôi tên là Lý Văn',
+                titleZh: '我叫李文',
+                titlePinyin: 'Wǒ jiào Lǐ Wén',
+                canDoVi: ['Giới thiệu họ tên và làm quen bạn mới', 'Hỏi tên lịch sự trong giao tiếp'],
                 grammarNotes: []
               },
               activities: [
@@ -1048,10 +1069,10 @@
             {
               stageKey: `${chapterKey}.S3`,
               meta: {
-                titleVi: 'Gia đình và nghề nghiệp',
-                titleZh: '你家有几口人？',
-                titlePinyin: 'Nǐ jiā yǒu jǐ kǒu rén?',
-                canDoVi: ['Giới thiệu các thành viên trong gia đình', 'Nói về nghề nghiệp và nơi làm việc'],
+                titleVi: 'Tôi là người Trung Quốc',
+                titleZh: '我是中国人',
+                titlePinyin: 'Wǒ shì Zhōngguó rén',
+                canDoVi: ['Giới thiệu quốc tịch và quê hương', 'Hỏi người đối diện đến từ đâu'],
                 grammarNotes: []
               },
               activities: [
@@ -1064,33 +1085,101 @@
         });
       }
       if (sub === 'enroll' || sub === 'select') {
+        const body = await parseRequestBody(init);
+        const startStageId = body.startStageId || `${track}.S1`;
+        const stageLessonMap = {
+          [`${track}.S1`]: 'bai-1-hello-ai-xiaoyu',
+          [`${track}.S2`]: 'bai-5-i-m-off-today',
+          [`${track}.S3`]: 'bai-9-i-ll-be-studying-at-school-tomorrow-morning'
+        };
+        const targetLessonId = stageLessonMap[startStageId] || 'bai-1-hello-ai-xiaoyu';
+        localStorage.setItem('httq_current_lesson_id', targetLessonId);
         return jsonResponse({
           ok: true,
-          currentLessonId: `${track}.L1.C1.S1`,
+          currentLessonId: targetLessonId,
           enrollment: {
+            pathSlug: track,
             track,
             currentLevel: 'L1',
+            currentStageId: startStageId,
+            currentLessonId: targetLessonId,
             startStageKey: `${track}.L1.C1.S1`,
-            stagesDone: 2,
-            stagesTotal: 7,
-            active: true
+            stagesDone: 0,
+            stagesTotal: 3,
+            active: true,
+            enrolledAt: new Date().toISOString()
           }
         });
       }
+      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'bai-1-hello-ai-xiaoyu';
       return jsonResponse({
-        runId: `run-${Date.now()}`,
-        kind: 'lesson',
+        slug: track,
         track,
-        currentLessonId: `${track}.L1.C1.S1`,
+        level: 1,
+        titleVi: 'HSK 1',
+        enrollment: {
+          pathSlug: track,
+          track,
+          currentLevel: 'L1',
+          currentStageId: `${track}.S1`,
+          currentLessonId: savedLessonId,
+          startStageKey: `${track}.L1.C1.S1`,
+          stagesDone: 0,
+          stagesTotal: 3,
+          active: true,
+          enrolledAt: '2026-11-10T00:00:00.000Z'
+        },
         stages: [
           {
-            id: `${track}.L1.C1`,
-            lessons: [{ id: `${track}.L1.C1.S1`, status: 'available' }]
+            id: `${track}.S1`,
+            index: 0,
+            titleVi: 'Chào hỏi & Làm quen cơ bản',
+            status: 'in_progress',
+            wordCount: 53,
+            grammarCount: 4,
+            progress: { lessonsDone: 1, lessonsTotal: 4 },
+            lessons: [
+              { id: 'bai-1-hello-ai-xiaoyu', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào! (AI小语，你好！)', newWordCount: 12, estMinutes: 6 },
+              { id: 'bai-2-my-name-is-li-wen', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 2: Tôi tên là Lý Văn (我叫李文)', newWordCount: 14, estMinutes: 8 },
+              { id: 'bai-3-i-m-chinese', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 3: Tôi là người Trung Quốc (我是中国人)', newWordCount: 15, estMinutes: 8 },
+              { id: 'bai-4-i-have-two-children', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 4: Gia đình tôi có hai người con', newWordCount: 12, estMinutes: 10 }
+            ]
+          },
+          {
+            id: `${track}.S2`,
+            index: 1,
+            titleVi: 'Thời gian, Điện thoại & Công việc',
+            status: 'available',
+            wordCount: 58,
+            grammarCount: 5,
+            progress: { lessonsDone: 0, lessonsTotal: 4 },
+            lessons: [
+              { id: 'bai-5-i-m-off-today', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 5: Hôm nay tôi được nghỉ', newWordCount: 14, estMinutes: 8 },
+              { id: 'bai-6-what-s-your-cell-phone-number', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 6: Số điện thoại của bạn là gì?', newWordCount: 15, estMinutes: 8 },
+              { id: 'bai-7-i-ll-finish-work-at-6-30-in-the-evening', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 7: 6 rưỡi tối tôi tan làm', newWordCount: 15, estMinutes: 8 },
+              { id: 'bai-8-my-father-also-works-at-a-hospital', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 8: Bố tôi cũng làm việc ở bệnh viện', newWordCount: 14, estMinutes: 10 }
+            ]
+          },
+          {
+            id: `${track}.S3`,
+            index: 2,
+            titleVi: 'Trường học, Mua sắm & Thời tiết',
+            status: 'available',
+            wordCount: 62,
+            grammarCount: 5,
+            progress: { lessonsDone: 0, lessonsTotal: 4 },
+            lessons: [
+              { id: 'bai-9-i-ll-be-studying-at-school-tomorrow-morning', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 9: Sáng mai tôi học ở trường', newWordCount: 15, estMinutes: 8 },
+              { id: 'bai-10-the-apples-here-are-really-affordable', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 10: Táo ở đây thực sự rất rẻ', newWordCount: 16, estMinutes: 8 },
+              { id: 'bai-11-i-m-studying-at-university', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 11: Tôi đang học đại học', newWordCount: 15, estMinutes: 8 },
+              { id: 'bai-12-it-snowed-yesterday', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 12: Hôm qua trời có tuyết rơi', newWordCount: 16, estMinutes: 10 }
+            ]
           }
         ]
       });
     }
     if (p === '/v2/today') {
+      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'bai-1-hello-ai-xiaoyu';
       return jsonResponse({
         date: new Date().toISOString().slice(0, 10),
         streak: { count: 5, todayDone: true },
@@ -1099,11 +1188,11 @@
         minutesGoal: 15,
         dailyGoalMinutes: 15,
         completedMinutes: 10,
-        continue: { kind: 'lesson', lessonId: 'hsk30.L1.C1.S3' },
+        continue: { kind: 'lesson', lessonId: savedLessonId },
         items: [
+          { kind: 'lesson', lessonId: savedLessonId, titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào! (AI小语，你好！)', dueCount: 1, estMinutes: 6, locked: false },
           { kind: 'review', titleVi: 'Ôn từ đến hạn', dueCount: 12, estMinutes: 4, locked: false },
-          { kind: 'errors', titleVi: 'Sửa lỗi hay sai', dueCount: 3, estMinutes: 2, locked: false },
-          { kind: 'lesson', lessonId: 'hsk30.L1.C1.S3', titleVi: 'Chặng 3: Gia đình và nghề nghiệp', dueCount: 1, estMinutes: 8, locked: false }
+          { kind: 'errors', titleVi: 'Sửa lỗi hay sai', dueCount: 3, estMinutes: 2, locked: false }
         ]
       });
     }
@@ -1223,11 +1312,25 @@
       });
     }
     if (p === '/v2/review/runs' || p.startsWith('/v2/lesson-runs') || p.includes('/runs')) {
+      let targetRunId = 'bai-1-hello-ai-xiaoyu';
+      let runKind = 'lesson';
+      if (p === '/v2/review/runs') {
+        targetRunId = 'bai-1-hello-ai-xiaoyu';
+        runKind = 'review';
+      } else if (p.startsWith('/v2/lessons/') && p.endsWith('/runs')) {
+        targetRunId = decodeURIComponent(p.slice('/v2/lessons/'.length, -'/runs'.length)) || 'bai-1-hello-ai-xiaoyu';
+      } else if (p.startsWith('/v2/stages/') && p.endsWith('/test-out-runs')) {
+        const stg = decodeURIComponent(p.slice('/v2/stages/'.length, -'/test-out-runs'.length));
+        targetRunId = stg.endsWith('.S2') ? 'bai-5-i-m-off-today' : stg.endsWith('.S3') ? 'bai-9-i-ll-be-studying-at-school-tomorrow-morning' : 'bai-4-i-have-two-children';
+      } else if (p.startsWith('/v2/lesson-runs/')) {
+        targetRunId = decodeURIComponent(p.slice('/v2/lesson-runs/'.length).split('/')[0]) || 'bai-1-hello-ai-xiaoyu';
+      }
+      localStorage.setItem('httq_current_lesson_id', targetRunId);
       return jsonResponse({
-        runId: `review-${Date.now()}`,
-        kind: 'review',
+        runId: targetRunId,
+        kind: runKind,
         mode: 'due',
-        total: 10,
+        total: 12,
         answered: 0,
         steps: []
       });
@@ -2335,7 +2438,12 @@
   }
 
   window.fetch = async function (input, init) {
-    let url = typeof input === 'string' ? input : (input && input.url) || '';
+    let url = '';
+    if (typeof input === 'string') {
+      url = input;
+    } else if (input && typeof input === 'object') {
+      url = input.url || input.href || '';
+    }
 
     // 1. Rewrite static media URLs
     if (url.includes('static.xiehanzi.com') || url.includes('audio.xiehanzi.com')) {
@@ -2349,7 +2457,17 @@
       if (url.startsWith('/')) {
         fullUrl = window.location.origin + url;
       }
-      return handleApiRequest(fullUrl, init);
+      const mergedInit = init ? { ...init } : {};
+      if (!mergedInit.method && input && input.method) {
+        mergedInit.method = input.method;
+      }
+      const reqMethod = (mergedInit.method || 'GET').toUpperCase();
+      if (mergedInit.body === undefined && reqMethod !== 'GET' && reqMethod !== 'HEAD' && input && typeof input.clone === 'function') {
+        try {
+          mergedInit.body = await input.clone().text();
+        } catch (_) {}
+      }
+      return handleApiRequest(fullUrl, mergedInit);
     }
 
     // 3. Intercept Next.js App Router _rsc requests on static export
@@ -2361,6 +2479,9 @@
         const cleanU = new URL(url, window.location.origin);
         cleanU.searchParams.delete('_rsc');
         const targetHref = cleanU.pathname + cleanU.search + cleanU.hash;
+        if (isDynamicSpaRoute(window.location.pathname) && cleanU.pathname === '/hoc/bat-dau') {
+          return Promise.reject(new DOMException('Prevented redirect away from active lesson', 'AbortError'));
+        }
         if (isDynamicSpaRoute(cleanU.pathname)) {
           origPushState.call(history, null, '', targetHref);
           setTimeout(checkAndRenderDynamicPage, 10);
@@ -3571,45 +3692,429 @@
   // 6.9. Trang Chặng Học / Bài Học (/hoc/chang/:stageKey, /hoc/bai/:runId)
   // --------------------------------------------------------------------------
   async function renderStudyStageOrRunPage(pathname) {
+    // Dọn dẹp modal chọn bạn đồng hành và khóa cuộn trang từ /hoc/bat-dau (nếu có)
+    try {
+      document.querySelectorAll('[data-modal-layer], [data-companion-picker]').forEach(el => el.remove());
+      document.documentElement.removeAttribute('data-focus-session');
+      document.body.style.overflow = '';
+    } catch (_) {}
+
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
     const mode = parts[1];
-    const slug = decodeURIComponent(parts[2] || 'hsk-1');
+    const slug = decodeURIComponent(parts[2] || 'bai-1-hello-ai-xiaoyu');
 
-    const lvlMatch = slug.match(/\d+/);
-    const lvlNum = lvlMatch ? lvlMatch[0] : '1';
-    const lvlData = (await loadLocalJson(`/data/curriculums/new-hsk/levels/new-hsk-${lvlNum}.json`)) || (await loadLocalJson('/data/curriculums/hsk/levels/hsk-1.json'));
-    const topics = (lvlData && lvlData.level && lvlData.level.topics) || [];
-    const firstTopicSlug = (topics[0] && topics[0].topicSlug) || 'chao-hoi-giao-tiep';
+    let lvlNum = '1';
+    const explicitLvl =
+      slug.match(/new-hsk-(\d)/i) ||
+      slug.match(/hsk30-(\d)/i) ||
+      slug.match(/\.L(\d)\b/i) ||
+      slug.match(/^L(\d)$/i) ||
+      slug.match(/^hsk-?(\d)$/i);
+    if (explicitLvl && explicitLvl[1]) {
+      lvlNum = explicitLvl[1];
+    }
+
+    const stageToLessonMap = {
+      s1: 'bai-1-hello-ai-xiaoyu',
+      s2: 'bai-2-my-name-is-li-wen',
+      s3: 'bai-3-i-m-chinese',
+      s4: 'bai-4-i-have-two-children',
+      s5: 'bai-5-i-m-off-today',
+      s6: 'bai-6-what-s-your-cell-phone-number'
+    };
+
+    const hsk1Lessons = [
+      { slug: 'bai-1-hello-ai-xiaoyu', num: 1, titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào!', titleZh: 'AI小语，你好！' },
+      { slug: 'bai-2-my-name-is-li-wen', num: 2, titleVi: 'Bài 2: Tôi tên là Lý Văn', titleZh: '我叫李文' },
+      { slug: 'bai-3-i-m-chinese', num: 3, titleVi: 'Bài 3: Tôi là người Trung Quốc', titleZh: '我是中国人' },
+      { slug: 'bai-4-i-have-two-children', num: 4, titleVi: 'Bài 4: Gia đình tôi có hai người con', titleZh: '我有两个孩子' },
+      { slug: 'bai-5-i-m-off-today', num: 5, titleVi: 'Bài 5: Hôm nay tôi được nghỉ', titleZh: '我今天休息' },
+      { slug: 'bai-6-what-s-your-cell-phone-number', num: 6, titleVi: 'Bài 6: Số điện thoại của bạn là gì?', titleZh: '你的手机号是多少？' }
+    ];
+
+    let targetLessonSlug = 'bai-1-hello-ai-xiaoyu';
+    if (slug.startsWith('bai-')) {
+      targetLessonSlug = slug;
+    } else {
+      const stgMatch = slug.match(/\.(s\d)$/i);
+      if (stgMatch && stageToLessonMap[stgMatch[1].toLowerCase()]) {
+        targetLessonSlug = stageToLessonMap[stgMatch[1].toLowerCase()];
+      } else {
+        const saved = localStorage.getItem('httq_current_lesson_id');
+        if (saved && saved.startsWith('bai-')) targetLessonSlug = saved;
+      }
+    }
+
     const topicDetail =
+      (await loadLocalJson(`/data/curriculums/new-hsk/lessons/new-hsk-${lvlNum}--${targetLessonSlug}.json`)) ||
+      (await loadLocalJson(`/data/curriculums/new-hsk/lessons/new-hsk-1--${targetLessonSlug}.json`)) ||
       (await loadLocalJson(`/data/curriculums/new-hsk/lessons/new-hsk-${lvlNum}--bai-1-hello-ai-xiaoyu.json`)) ||
-      (await loadLocalJson(`/data/curriculums/hsk/topics/hsk-1--${firstTopicSlug}.json`));
-    const words = (topicDetail && topicDetail.lesson && topicDetail.lesson.words) || (topicDetail && topicDetail.topic && topicDetail.topic.words) || [];
+      (await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json'));
 
-    document.title = `Học theo lộ trình HSK ${lvlNum} | XieHanzi`;
+    const lessonObj = (topicDetail && topicDetail.lesson) || {};
+    const words =
+      (lessonObj && Array.isArray(lessonObj.words) && lessonObj.words) ||
+      (topicDetail && topicDetail.topic && topicDetail.topic.words) ||
+      [];
+
+    const lessonTitleVi = lessonObj.titleVi || 'AI Tiểu Ngữ, xin chào!';
+    const lessonTitleZh = lessonObj.titleZh || 'AI小语，你好！';
+    const lessonNumber = lessonObj.lessonNumber || 1;
+
+    const companionInfo = buildCompanionCharactersResponse();
+    const companionId = localStorage.getItem('httq_companion_id') || companionInfo.selectedId || 'capy';
+    const companion = companionInfo.items.find(c => c.id === companionId) || companionInfo.items[0];
+    const companionImg = companionId === 'capy' ? '/images/capy/lesson/happy.webp' : `/images/companion/${companionId}/splash/hero.webp`;
+
+    document.title = `Bài ${lessonNumber}: ${lessonTitleVi} | HSK ${lvlNum} | XieHanzi`;
+
     root.innerHTML = `
-      <div style="margin-bottom:16px;">
-        <a href="/hoc" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại Lộ trình Học</a>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+        <a href="/hoc" style="color:#ea580c;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
+          ← Về Lộ trình Học (/hoc)
+        </a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <a href="/hoc/on-tap" style="padding:6px 14px;border-radius:999px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-weight:700;font-size:13px;text-decoration:none;">🔄 Ôn tập SRS</a>
+          <a href="/hoc/bat-dau" style="padding:6px 14px;border-radius:999px;background:#f5f5f4;color:#44403c;border:1px solid #e7e5e4;font-weight:600;font-size:13px;text-decoration:none;">⚙️ Đổi mục tiêu / Bạn đồng hành</a>
+        </div>
       </div>
-      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-        <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">🚀 ${mode === 'chang' ? `Chặng học: ${slug.toUpperCase()}` : `Bài luyện tập: ${slug}`}</h1>
-        <p style="color:#57534e;margin-bottom:20px;">Hãy ôn tập từ vựng và bấm vào từng thẻ để nghe phát âm hoặc xem chi tiết nét viết chữ Hán.</p>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;">
-          ${words.slice(0, 30).map(w => {
+
+      <!-- Companion Greeting Banner -->
+      <div style="display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa;border-radius:20px;padding:16px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(234,88,12,0.06);">
+        <img src="${companionImg}" alt="${companion.name}" style="width:68px;height:68px;border-radius:16px;object-fit:cover;background:#fff;border:2px solid #fdba74;flex-shrink:0;" />
+        <div style="flex:1;min-width:0;">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-size:16px;font-weight:800;color:#9a3412;">${companion.name} (${companion.nameZh})</span>
+            <span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff;color:#ea580c;font-weight:700;border:1px solid #fdba74;">${companion.role}</span>
+          </div>
+          <p style="margin:6px 0 0 0;font-size:14px;color:#431407;line-height:1.5;">
+            “${companion.greetingText} Hôm nay chúng mình cùng chinh phục <strong>Bài ${lessonNumber}: ${lessonTitleVi} (${lessonTitleZh})</strong> với <strong>${words.length} từ vựng trọng tâm</strong> nhé!”
+          </p>
+        </div>
+      </div>
+
+      <!-- Lesson Switcher Bar -->
+      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:16px;">
+        ${hsk1Lessons.map(l => {
+          const active = l.slug === targetLessonSlug;
+          return `<a href="/hoc/bai/${l.slug}" style="white-space:nowrap;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${active ? '#ea580c' : '#e7e5e4'};background:${active ? '#ea580c' : '#fff'};color:${active ? '#fff' : '#44403c'};">
+            Bài ${l.num}: ${l.titleZh}
+          </a>`;
+        }).join('')}
+      </div>
+
+      <!-- Main Lesson Container -->
+      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:20px;border-bottom:1px solid #f5f5f4;padding-bottom:16px;">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#ea580c;text-transform:uppercase;letter-spacing:0.04em;">
+              Lộ trình Chuẩn HSK ${lvlNum} · ${mode === 'chang' ? 'Chặng học' : `Bài ${lessonNumber}`}
+            </div>
+            <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:4px 0;">
+              Bài ${lessonNumber}: ${lessonTitleVi} <span style="color:#ea580c;font-weight:700;">(${lessonTitleZh})</span>
+            </h1>
+            <p style="color:#57534e;margin:4px 0 0 0;font-size:14px;">
+              ${words.length} từ vựng & mẫu câu giao tiếp · Thời lượng ~${lessonObj.estimatedMinutes || 10} phút
+            </p>
+          </div>
+          <button id="xhz-lesson-play-all" style="padding:10px 18px;border-radius:12px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:700;cursor:pointer;font-size:14px;">
+            🔊 Nghe phát âm bài học
+          </button>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;">
+          <button class="xhz-lesson-tab" data-tab="vocab" style="padding:10px 18px;border-radius:12px;border:2px solid #ea580c;background:#ea580c;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">
+            1. 📖 Từ vựng & Mẫu câu (${words.length})
+          </button>
+          <button class="xhz-lesson-tab" data-tab="flashcard" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:700;cursor:pointer;font-size:14px;">
+            2. 🗂️ Flashcard Lật thẻ
+          </button>
+          <button class="xhz-lesson-tab" data-tab="quiz" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:700;cursor:pointer;font-size:14px;">
+            3. 🎯 Bài tập Kiểm tra phản xạ
+          </button>
+        </div>
+
+        <!-- TAB 1: VOCABULARY & EXAMPLES -->
+        <div id="xhz-tab-vocab" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
+          ${words.map((w, idx) => {
             const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
             const py = w.wordPinyin || w.pinyin || '';
+            const hv = w.hanviet || '';
             const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
-            return `<div style="padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;">
-              <div style="display:flex;justify-content:space-between;align-items:center;">
-                <a href="/tu-vung/${encodeURIComponent(hz)}" style="font-size:26px;font-weight:800;color:#1c1917;text-decoration:none;">${hz}</a>
-                <button onclick="window.__xhzPlayAudio('${hz}')" style="padding:4px 10px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 ${py}</button>
+            const rawAudio = (Array.isArray(w.audios) && w.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
+            const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
+            return `<div style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                  <div>
+                    <span style="font-size:12px;color:#78716c;font-weight:700;">#${idx + 1}</span>
+                    <a href="/tu-vung/${encodeURIComponent(hz)}" style="font-size:30px;font-weight:800;color:#1c1917;text-decoration:none;margin-left:6px;">${hz}</a>
+                  </div>
+                  <button class="xhz-word-audio-btn" data-hz="${hz}" data-audio="${rawAudio}" style="padding:6px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">
+                    🔊 ${py}
+                  </button>
+                </div>
+                ${hv ? `<div style="margin-top:4px;font-size:12px;font-weight:700;color:#ea580c;text-transform:uppercase;">Hán Việt: ${hv}</div>` : ''}
+                <div style="font-size:16px;font-weight:700;color:#1c1917;margin-top:6px;">${vi}</div>
+                ${ex ? `
+                  <div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid #e7e5e4;font-size:13px;">
+                    <div style="font-weight:700;color:#1c1917;font-size:15px;">${ex.hanzi || ex.chinese || ''}</div>
+                    <div style="color:#ea580c;margin-top:2px;">${ex.pinyin || ''}</div>
+                    <div style="color:#57534e;margin-top:2px;">${ex.vietnamese || ex.meaningVi || ''}</div>
+                  </div>
+                ` : ''}
               </div>
-              <div style="font-size:15px;color:#292524;margin-top:8px;">${vi}</div>
+              <div style="display:flex;gap:8px;margin-top:4px;">
+                <a href="/han-tu/${encodeURIComponent(Array.from(hz)[0] || hz)}" style="font-size:12px;color:#57534e;text-decoration:underline;font-weight:600;">✍️ Xem nét viết</a>
+                <a href="/tu-vung/${encodeURIComponent(hz)}" style="font-size:12px;color:#ea580c;text-decoration:underline;font-weight:600;margin-left:auto;">Chi tiết từ →</a>
+              </div>
             </div>`;
           }).join('')}
         </div>
+
+        <!-- TAB 2: INTERACTIVE FLASHCARD -->
+        <div id="xhz-tab-flashcard" style="display:none;">
+          <div style="max-width:520px;margin:0 auto;text-align:center;">
+            <div id="xhz-fc-counter" style="font-size:14px;font-weight:700;color:#78716c;margin-bottom:12px;">Thẻ 1 / ${words.length}</div>
+            <div id="xhz-fc-card" style="padding:36px 24px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;cursor:pointer;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:0 8px 24px rgba(234,88,12,0.08);">
+              <div id="xhz-fc-hanzi" style="font-size:64px;font-weight:800;color:#1c1917;"></div>
+              <div id="xhz-fc-pinyin" style="font-size:22px;font-weight:700;color:#ea580c;"></div>
+              <div id="xhz-fc-back" style="display:none;margin-top:10px;padding-top:12px;border-top:1px dashed #fdba74;width:100%;">
+                <div id="xhz-fc-meaning" style="font-size:22px;font-weight:800;color:#1c1917;"></div>
+                <div id="xhz-fc-example" style="font-size:14px;color:#57534e;margin-top:8px;"></div>
+              </div>
+              <div style="font-size:12px;color:#9a3412;margin-top:8px;">(Bấm vào thẻ để lật xem nghĩa & ví dụ)</div>
+            </div>
+            <div style="display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;">
+              <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
+              <button id="xhz-fc-speak" style="padding:10px 18px;border-radius:12px;border:none;background:#ea580c;color:#fff;font-weight:700;cursor:pointer;">🔊 Phát âm</button>
+              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:1px solid #fdba74;background:#ffedd5;color:#9a3412;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
+              <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp theo →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: INTERACTIVE QUIZ -->
+        <div id="xhz-tab-quiz" style="display:none;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
+            <div style="font-size:16px;font-weight:800;color:#1c1917;">Chọn nghĩa tiếng Việt đúng cho các từ vựng trong bài:</div>
+            <div id="xhz-lesson-quiz-score" style="padding:6px 14px;border-radius:999px;background:#dcfce7;color:#15803d;font-weight:800;font-size:14px;">Điểm: 0 / ${words.length}</div>
+          </div>
+          <div id="xhz-lesson-quiz-list" style="display:flex;flex-direction:column;gap:16px;"></div>
+        </div>
+
+        <!-- Footer CTA -->
+        <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+          <button id="xhz-go-quiz-btn" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;font-size:15px;cursor:pointer;">
+            🎯 Làm bài tập kiểm tra ngay →
+          </button>
+          <button id="xhz-complete-lesson-btn" style="padding:12px 26px;border-radius:14px;background:#16a34a;color:#fff;border:none;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,0.25);">
+            ✅ Hoàn thành bài học & Tiếp tục Lộ trình
+          </button>
+        </div>
       </div>
     `;
+
+    // Wire audio buttons
+    root.querySelectorAll('.xhz-word-audio-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        playPronunciation(btn.getAttribute('data-hz'), btn.getAttribute('data-audio'));
+      });
+    });
+
+    const playAllBtn = root.querySelector('#xhz-lesson-play-all');
+    if (playAllBtn && words.length > 0) {
+      playAllBtn.onclick = () => {
+        const firstW = words[0];
+        const hz = (firstW.hanzi || firstW.word || '你好').replace(/\{|\}/g, '');
+        const audio = (Array.isArray(firstW.audios) && firstW.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
+        playPronunciation(hz, audio);
+      };
+    }
+
+    // Wire Flashcard logic
+    let fcIndex = 0;
+    const fcCounter = root.querySelector('#xhz-fc-counter');
+    const fcCard = root.querySelector('#xhz-fc-card');
+    const fcHanzi = root.querySelector('#xhz-fc-hanzi');
+    const fcPinyin = root.querySelector('#xhz-fc-pinyin');
+    const fcBack = root.querySelector('#xhz-fc-back');
+    const fcMeaning = root.querySelector('#xhz-fc-meaning');
+    const fcExample = root.querySelector('#xhz-fc-example');
+
+    function renderFlashcard() {
+      if (!words.length) return;
+      const w = words[fcIndex % words.length];
+      const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
+      const py = w.wordPinyin || w.pinyin || '';
+      const hv = w.hanviet ? ` (Hán Việt: ${w.hanviet.toUpperCase()})` : '';
+      const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+      const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
+      if (fcCounter) fcCounter.textContent = `Thẻ ${fcIndex + 1} / ${words.length}`;
+      if (fcHanzi) fcHanzi.textContent = hz;
+      if (fcPinyin) fcPinyin.textContent = `${py}${hv}`;
+      if (fcMeaning) fcMeaning.textContent = vi;
+      if (fcExample) {
+        fcExample.innerHTML = ex
+          ? `Ví dụ: <strong>${ex.hanzi || ''}</strong> (${ex.pinyin || ''}) — ${ex.vietnamese || ''}`
+          : '';
+      }
+      if (fcBack) fcBack.style.display = 'none';
+    }
+    renderFlashcard();
+
+    if (fcCard) {
+      fcCard.onclick = () => {
+        if (fcBack) fcBack.style.display = fcBack.style.display === 'none' ? 'block' : 'none';
+      };
+    }
+    const fcFlipBtn = root.querySelector('#xhz-fc-flip');
+    if (fcFlipBtn) {
+      fcFlipBtn.onclick = () => {
+        if (fcBack) fcBack.style.display = fcBack.style.display === 'none' ? 'block' : 'none';
+      };
+    }
+    const fcPrevBtn = root.querySelector('#xhz-fc-prev');
+    if (fcPrevBtn) {
+      fcPrevBtn.onclick = () => {
+        fcIndex = (fcIndex - 1 + words.length) % Math.max(1, words.length);
+        renderFlashcard();
+      };
+    }
+    const fcNextBtn = root.querySelector('#xhz-fc-next');
+    if (fcNextBtn) {
+      fcNextBtn.onclick = () => {
+        fcIndex = (fcIndex + 1) % Math.max(1, words.length);
+        renderFlashcard();
+      };
+    }
+    const fcSpeakBtn = root.querySelector('#xhz-fc-speak');
+    if (fcSpeakBtn) {
+      fcSpeakBtn.onclick = () => {
+        if (!words.length) return;
+        const w = words[fcIndex % words.length];
+        const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
+        const audio = (Array.isArray(w.audios) && w.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
+        playPronunciation(hz, audio);
+      };
+    }
+
+    // Wire Quiz logic
+    const quizListEl = root.querySelector('#xhz-lesson-quiz-list');
+    const quizScoreEl = root.querySelector('#xhz-lesson-quiz-score');
+    const quizAnswered = {};
+    if (quizListEl && words.length > 0) {
+      words.forEach((w, qIdx) => {
+        const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
+        const py = w.wordPinyin || w.pinyin || '';
+        const rightVi = w.translationVi || w.wordMeaningVi || w.meaningVi || 'Xin chào';
+        const rawAudio = (Array.isArray(w.audios) && w.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
+
+        const pool = words
+          .filter((_, i) => i !== qIdx)
+          .map(x => x.translationVi || x.wordMeaningVi || x.meaningVi)
+          .filter(Boolean);
+        const distractors = [];
+        for (let i = 0; i < pool.length && distractors.length < 3; i++) {
+          const cand = pool[(qIdx + i * 2) % pool.length];
+          if (cand && cand !== rightVi && !distractors.includes(cand)) distractors.push(cand);
+        }
+        while (distractors.length < 3) {
+          const fallback = ['tạm biệt', 'giáo viên', 'học sinh', 'cảm ơn', 'mọi người'][distractors.length % 5];
+          if (fallback !== rightVi && !distractors.includes(fallback)) distractors.push(fallback);
+          else distractors.push(`Đáp án khác ${distractors.length + 1}`);
+        }
+        const options = [rightVi, ...distractors];
+        // Xáo trộn vị trí đáp án theo qIdx
+        const rot = qIdx % options.length;
+        const rotatedOpts = [...options.slice(rot), ...options.slice(0, rot)];
+
+        const qCard = document.createElement('div');
+        qCard.style.cssText = 'padding:16px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;';
+        qCard.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;">
+            <div style="font-size:17px;font-weight:800;color:#1c1917;">
+              <span style="color:#ea580c;margin-right:6px;">Câu ${qIdx + 1}.</span>
+              Từ “<span style="font-size:22px;color:#1c1917;">${hz}</span>” (${py}) có nghĩa là gì?
+            </div>
+            <button class="xhz-q-audio" style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 Nghe</button>
+          </div>
+          <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;"></div>
+        `;
+        qCard.querySelector('.xhz-q-audio').onclick = () => playPronunciation(hz, rawAudio);
+        const optsBox = qCard.querySelector('.xhz-q-opts');
+        rotatedOpts.forEach((optText, oIdx) => {
+          const label = String.fromCharCode(65 + oIdx);
+          const btn = document.createElement('button');
+          btn.style.cssText = 'padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;text-align:left;cursor:pointer;font-size:14px;';
+          btn.textContent = `${label}. ${optText}`;
+          btn.onclick = () => {
+            const isCorrect = optText === rightVi;
+            quizAnswered[qIdx] = isCorrect ? 1 : 0;
+            const total = Object.values(quizAnswered).reduce((a, b) => a + b, 0);
+            if (quizScoreEl) quizScoreEl.textContent = `Điểm: ${total} / ${words.length}`;
+            Array.from(optsBox.children).forEach(b => {
+              b.style.background = '#fff';
+              b.style.borderColor = '#d6d3d1';
+              b.style.color = '#1c1917';
+            });
+            if (isCorrect) {
+              btn.style.background = '#dcfce7';
+              btn.style.borderColor = '#16a34a';
+              btn.style.color = '#14532d';
+              playPronunciation(hz, rawAudio);
+            } else {
+              btn.style.background = '#fee2e2';
+              btn.style.borderColor = '#dc2626';
+              btn.style.color = '#7f1d1d';
+            }
+          };
+          optsBox.appendChild(btn);
+        });
+        quizListEl.appendChild(qCard);
+      });
+    }
+
+    // Wire Tabs switching
+    const tabBtns = root.querySelectorAll('.xhz-lesson-tab');
+    const tabPanels = {
+      vocab: root.querySelector('#xhz-tab-vocab'),
+      flashcard: root.querySelector('#xhz-tab-flashcard'),
+      quiz: root.querySelector('#xhz-tab-quiz')
+    };
+    function switchLessonTab(tabKey) {
+      tabBtns.forEach(b => {
+        const active = b.getAttribute('data-tab') === tabKey;
+        b.style.background = active ? '#ea580c' : '#fafaf9';
+        b.style.color = active ? '#fff' : '#1c1917';
+        b.style.borderColor = active ? '#ea580c' : '#e7e5e4';
+      });
+      if (tabPanels.vocab) tabPanels.vocab.style.display = tabKey === 'vocab' ? 'grid' : 'none';
+      if (tabPanels.flashcard) tabPanels.flashcard.style.display = tabKey === 'flashcard' ? 'block' : 'none';
+      if (tabPanels.quiz) tabPanels.quiz.style.display = tabKey === 'quiz' ? 'block' : 'none';
+    }
+    tabBtns.forEach(b => {
+      b.onclick = () => switchLessonTab(b.getAttribute('data-tab'));
+    });
+
+    const goQuizBtn = root.querySelector('#xhz-go-quiz-btn');
+    if (goQuizBtn) {
+      goQuizBtn.onclick = () => switchLessonTab('quiz');
+    }
+
+    const completeBtn = root.querySelector('#xhz-complete-lesson-btn');
+    if (completeBtn) {
+      completeBtn.onclick = () => {
+        const curIdx = hsk1Lessons.findIndex(l => l.slug === targetLessonSlug);
+        const nextLesson = hsk1Lessons[(curIdx + 1) % hsk1Lessons.length];
+        if (nextLesson) {
+          localStorage.setItem('httq_current_lesson_id', nextLesson.slug);
+        }
+        window.location.assign('/hoc');
+      };
+    }
   }
 
   // --------------------------------------------------------------------------
