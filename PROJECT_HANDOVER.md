@@ -100,20 +100,21 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
 
 ---
 
-## ✅ 5. TRẠNG THÁI HOÀN THIỆN CÁC HẠNG MỤC NÂNG CAO (v4.0)
+## ✅ 5. TRẠNG THÁI HOÀN THIỆN CÁC HẠNG MỤC NÂNG CAO & TOÀN BỘ TRANG CON (v7.0)
 
-Toàn bộ 3 hạng mục trong lộ trình tiếp theo đã được triển khai hoàn chỉnh trong [xiehanzi-runtime.js](xiehanzi-runtime.js), [ercel.json](vercel.json) và Vercel Serverless Function [pi/ai.js](api/ai.js):
+Toàn bộ 3 hạng mục trong lộ trình tiếp theo cùng tất cả các trang con, trò chơi, nút chuyển trang và giao diện Dark Mode đã được triển khai hoàn chỉnh trong [`xiehanzi-runtime.js`](xiehanzi-runtime.js), [`vercel.json`](vercel.json) và Vercel Serverless Function [`api/ai.js`](api/ai.js):
 
-### ✅ Hạng mục 1: Xử lý Hydrate & Render các Trang Chi Tiết Động (Dynamic Slug Routes) — ĐÃ HOÀN THÀNH
-- **Rewrite ercel.json**: Đã cấu hình đầy đủ rewrite cho mọi đường dẫn chi tiết động (/han-tu/:slug*, /tu-vung/:slug*, /han-viet/:slug*, /ngu-phap/:slug*, /luyen-chep-chinh-ta/:slug*, /thu-vien-*/:level/:slug+, /kiem-tra-hsk/:slug*, /de-kiem-tra/:slug*, /so-tay/:slug*).
-- **Hydrate RSC Flight Payload (/han-tu/:slug & /tu-vung/:slug)**: Tự động can thiệp self.__next_f.push ngay từ <head> để thay thế chữ mẫu 好 / 你好 bằng chữ Hán / từ vựng động trên URL, xóa cache cứng và kích hoạt React Query nạp dữ liệu trực tiếp từ 20 shard characters-XX.json & 12 shard ocabulary-XX.json (kèm đồ thị chiết tự /v1/hanzi-character/:lookup/graph).
-- **Render động trực tiếp vào <main id=noi-dung-chinh>**: Hỗ trợ hiển thị đầy đủ giao diện chi tiết cho /han-viet/:slug, /ngu-phap/:level/:pointId, /luyen-chep-chinh-ta/:slug, /thu-vien-:curr/:level/bai-hoc/:lessonSlug, /thu-vien-:curr/:level/:topicSlug và trình làm bài thi /kiem-tra-hsk/:level/test/:testId.
+### ✅ Hạng mục 1: Xử lý Hydrate & Render các Trang Chi Tiết Động & Điều Hướng Nút Bấm — ĐÃ HOÀN THÀNH
+- **Rewrite `vercel.json`**: Đã cấu hình đầy đủ rewrite cho mọi đường dẫn chi tiết động (`/han-tu/:slug*`, `/tu-vung/:slug*`, `/han-viet/:slug*`, `/ngu-phap/:slug*`, `/kiem-tra-ngu-phap/lam-bai`, `/luyen-chep-chinh-ta/:id*`, `/thu-vien-*/:path*`, `/kiem-tra-hsk/:path*`, `/de-kiem-tra/lam-bai/:id*`, `/hoc/chang/:id*`, `/hoc/bai/:id*`).
+- **Điều hướng Nút bấm & `_rsc=` Active Navigation**: Tự động nhận diện các lệnh chuyển trang chủ động (`router.push` của Next.js không có header prefetch) và sự kiện click thẻ `<a href="/...">` để điều hướng mượt mà sang cả các trang tĩnh lẫn các trang chi tiết động (như `/kiem-tra-ngu-phap/lam-bai`, `/de-kiem-tra/lam-bai/hsk30-1`, `/kiem-tra-hsk/hsk1/test/hsk30-1`) mà không bao giờ bị kẹt nút bấm hay xung đột React Hydration.
+- **Tương thích 100% Chế độ Tối (Dark Mode) & Sáng (Light Mode)**: Toàn bộ giao diện đề thi (`/kiem-tra-hsk/...`, `/de-kiem-tra/lam-bai/...`, `/kiem-tra-ngu-phap/lam-bai`) đều hiển thị rõ nét độ tương phản cao trên cả nền tối (`html.dark`) lẫn nền sáng, kèm đầy đủ hình ảnh câu hỏi (`q.images` cho `image_choice` và `image_match`).
+- **Đồng bộ 283/283 tệp HTML**: Toàn bộ 283 tệp `.html` (bao gồm tất cả các trang con trong `tro-choi/*`, `truong-thay-do/*`, `luyen-go-han-tu/*`, `luyen-viet/*`, `hoc/*`, `pages/*`) đều đã nhúng `/xiehanzi-runtime.js` và không còn bất kỳ trang 404 nào.
 
-### ✅ Hạng mục 2: Hoàn thiện các API Tương tác (POST / Tạo đề động) trong xiehanzi-runtime.js — ĐÃ HOÀN THÀNH
-1. **Chấm điểm đề thi HSK (POST /v1/hsk-tests/:testId/grade & POST /v1/generated-tests/:id/grade)**: Chấm điểm tự động theo từng phần, giải thích chi tiết từng câu, lưu lịch sử vào localStorage và đồng bộ tự động lên bảng public.exam_results trên **Supabase**.
-2. **Sinh bộ câu hỏi cho Luyện nghe (/luyen-nghe/) & Luyện gõ (/luyen-go/, /luyen-go-han-tu/)**: Hoàn thiện GET /v1/listening/(lessons|topics)/:curr/:lvl/:slug/set (cả 3 chế độ word, ill, sentence) và GET /v1/typing-set, GET /v1/typing-word-set, GET /v1/typing-sentence-set.
-3. **Lưu Sổ tay từ vựng (/so-tay/), Vở tập viết (/tao-vo-tap-viet/) & Tiến độ Ôn tập (/hoc/, /on-tap/)**: Hoàn thiện CRUD /v1/user-lists*, /v1/user-worksheets*, /v1/grammar-progress*, /v1/pinyin-annotations*, /v1/practice-progress/sync, /v2/review/* kết hợp đồng bộ tự động lên bảng public.study_profiles của **Supabase**.
-4. **Trường Thầy Đồ tương tác (/thay-do/, /truong-thay-do/)**: Hoàn thiện /v1/thay-do/xin-do*, /v1/thay-do/lop*, /v1/thay-do/khoa*, /v1/thay-do/bang-vang*, /v1/thay-do/dau-luyen*, /v1/thay-do/dong-y*.
+### ✅ Hạng mục 2: Hoàn thiện các API Tương tác (POST / Tạo đề động / Trò chơi) trong `xiehanzi-runtime.js` — ĐÃ HOÀN THÀNH
+1. **Trò chơi chữ Hán (`/tro-choi/ghep-chu`, `/tro-choi/tim-chu-trong-chu`, `/tro-choi/doan-han-tu`, `/tro-choi/ghep-cap-han-tu`, `/tro-choi/xep-thanh-ngu`, `/tro-choi/ban-phao-hoa`)**: Hoàn thiện đầy đủ hệ thống `POST /v1/games/rounds`, `POST /v1/games/rounds/:id/guess`, `POST /v1/games/rounds/:id/hint`, `POST /v1/games/rounds/:id/give-up`, `/v1/games/daily`, `/v1/games/history` với cấu trúc bàn chơi `layers`/`rows`/`bank` chuẩn cho Ghép chữ và dữ liệu nét chữ `baseChar`/`strokeCount` khớp 100% với `hanzi-writer-data` cho Tìm chữ trong chữ.
+2. **Luyện nghe (`/luyen-nghe`) & Luyện nói (`/luyen-noi`)**: Hoàn thiện `GET /v1/listening/(lessons|topics)/:curr/:lvl/:slug/set` trả về đầy đủ `{ words, sentences }` kèm `blankRange: [start, end]` và `targetWord` cho cả 3 chế độ (Nghe từ, Nghe điền từ, Nghe câu), cùng hệ thống hội thoại `GET /v1/speaking/dialogues/:curr/:lvl/:topic` kết nối trực tiếp vào 36 tệp JSON trong `/data/speaking/`.
+3. **Chấm điểm đề thi HSK & Tạo đề kiểm tra (`POST /v1/generated-tests`, `/v1/hsk-tests/*`)**: Trả về `deId` chuẩn (`hsk30-1`..`hsk30-6`), chấm điểm tự động theo từng câu, giải thích chi tiết và đồng bộ lịch sử lên **Supabase**.
+4. **Luyện gõ (`/luyen-go`, `/luyen-go-han-tu`), Sổ tay (`/so-tay`), Vở tập viết (`/tao-vo-tap-viet`) & Tiến độ Ôn tập (`/hoc`, `/hoc/on-tap`, `/hoc/so-loi`)**: Hoàn thiện đầy đủ các API `/v1/typing-set`, `/v1/typing-word-set`, `/v1/typing-sentence-set`, `/v2/review/summary`, `/v2/review/mistakes` (`{ items, total, page, limit, hasMore }`) và đồng bộ với **Supabase**.
 
 ### ✅ Hạng mục 3: Tích hợp AI APIs Thực Tế (Chấm phát âm, Dịch thuật, Gia sư AI) — ĐÃ HOÀN THÀNH
-- Đã xây dựng Vercel Serverless Function [pi/ai.js](api/ai.js) kết hợp bộ xử lý tại [xiehanzi-runtime.js](xiehanzi-runtime.js) cho POST /v1/translate, POST /v1/speaking/assess, POST /v1/practice/result-ai-readout & /reply.
+- Đã xây dựng Vercel Serverless Function [`api/ai.js`](api/ai.js) kết hợp bộ xử lý tại [`xiehanzi-runtime.js`](xiehanzi-runtime.js) cho `POST /v1/translate`, `POST /v1/speaking/assess`, `POST /v1/practice/result-ai-readout` & `/reply`.

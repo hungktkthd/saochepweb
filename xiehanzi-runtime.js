@@ -592,8 +592,32 @@
     return null;
   }
 
-  async function handleApiRequest(urlObj, init) {
-    const p = urlObj.pathname.replace(/^\/api/, '');
+  async function loadTestPaperById(paperId, fallbackLevel = 1) {
+    if (!paperId || paperId === 'undefined') paperId = `hsk30-${fallbackLevel || 1}`;
+    const cleanId = decodeURIComponent(paperId).replace(/\.json$/i, '');
+    const candidates = [
+      `/data/tests/papers/${cleanId}.json`,
+      `/data/tests/papers/level-1-${cleanId}.json`,
+      `/data/tests/papers/level-2-${cleanId}.json`,
+      `/data/tests/papers/level-3-${cleanId}.json`,
+      `/data/tests/papers/level-4-${cleanId}.json`,
+      `/data/tests/papers/level-5-${cleanId}.json`,
+      `/data/tests/papers/level-6-${cleanId}.json`,
+      `/data/tests/papers/hsk30-${fallbackLevel || 1}.json`,
+      `/data/tests/papers/hsk30-1.json`
+    ];
+    for (const c of candidates) {
+      const data = await loadLocalJson(c);
+      if (data && (Array.isArray(data.questions) || Array.isArray(data.sections))) {
+        return data;
+      }
+    }
+    return null;
+  }
+
+  async function handleApiRequest(urlOrObj, init) {
+    const urlObj = typeof urlOrObj === 'string' ? new URL(urlOrObj, window.location.origin) : urlOrObj;
+    const p = (urlObj.pathname || '').replace(/^\/api/, '');
     const method = (init && init.method ? init.method : 'GET').toUpperCase();
 
     // ------------------------------------------------------------------------
@@ -2020,6 +2044,21 @@
   // ============================================================================
   // 5. INTERCEPT FETCH, XHR & DOM MEDIA ELEMENTS
   // ============================================================================
+  const ORIG_FETCH = originalFetch;
+  const ORIG_XHR_OPEN = XMLHttpRequest.prototype.open;
+  const ORIG_XHR_SEND = XMLHttpRequest.prototype.send;
+  const supabaseFetchInitial = supabasePull;
+  function isApiUrl(url) {
+    if (!url || typeof url !== 'string') return false;
+    return (
+      url.includes('api.xiehanzi.com') ||
+      url.includes('/v1/') ||
+      url.includes('/v2/') ||
+      url.startsWith('/v1') ||
+      url.startsWith('/v2')
+    );
+  }
+
   function isDynamicSpaRoute(pathname) {
     const p = (pathname || '/').replace(/\/+$/, '') || '/';
     const parts = p.split('/').filter(Boolean);
@@ -2147,18 +2186,20 @@
   // ============================================================================
   function getMainContentContainer() {
     let customRoot = document.getElementById('xhz-dynamic-page-root');
-    const main = document.querySelector('main') || document.body;
-    if (!customRoot) {
-      Array.from(main.children).forEach(ch => {
-        if (ch.id !== 'xhz-dynamic-page-root') {
-          ch.style.display = 'none';
-        }
-      });
+    const main = document.querySelector('main');
+    if (main) {
+      main.style.display = 'none';
+    }
+    if (!customRoot || !customRoot.isConnected) {
       customRoot = document.createElement('div');
       customRoot.id = 'xhz-dynamic-page-root';
       customRoot.className = 'mx-auto max-w-5xl px-4 py-8';
       customRoot.style.color = '#1c1917';
-      main.prepend(customRoot);
+      if (main && main.parentNode) {
+        main.parentNode.insertBefore(customRoot, main);
+      } else {
+        document.body.appendChild(customRoot);
+      }
     }
     customRoot.style.color = '#1c1917';
     return customRoot;
@@ -2167,13 +2208,11 @@
   function restoreOriginalMainIfStatic() {
     const customRoot = document.getElementById('xhz-dynamic-page-root');
     if (customRoot) {
-      const main = customRoot.parentElement;
       customRoot.remove();
-      if (main) {
-        Array.from(main.children).forEach(ch => {
-          ch.style.display = '';
-        });
-      }
+    }
+    const main = document.querySelector('main');
+    if (main) {
+      main.style.display = '';
     }
   }
 
@@ -2530,7 +2569,7 @@
   // 6.5. Trang Làm Bài Kiểm Tra Ngữ Pháp (/kiem-tra-ngu-phap/lam-bai)
   // --------------------------------------------------------------------------
   async function renderGrammarQuizRunPage(searchParams) {
-    const root = getMainContentContainer();
+    let root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tạo đề kiểm tra ngữ pháp...</div>`;
 
     const tracksParam = (searchParams.get('tracks') || 'new-hsk1').split(',').filter(Boolean);
@@ -2553,6 +2592,7 @@
     }
     const questions = allQuestions.slice(0, count);
     document.title = `Làm bài Kiểm tra Ngữ pháp (${questions.length} câu) | XieHanzi`;
+    root = getMainContentContainer();
 
     root.innerHTML = `
       <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
@@ -2845,7 +2885,7 @@
   // 6.8. Trang Làm Đề Thi HSK / YCT (/kiem-tra-hsk/... và /de-kiem-tra/lam-bai/:id)
   // --------------------------------------------------------------------------
   async function renderHskTestPaperPage(pathname) {
-    const root = getMainContentContainer();
+    let root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải đề thi...</div>`;
     const parts = pathname.split('/').filter(Boolean);
     let lastPart = decodeURIComponent(parts[parts.length - 1] || '');
@@ -2857,6 +2897,7 @@
     }
 
     let paper = await loadTestPaperById(lastPart);
+    root = getMainContentContainer();
     if (!paper) {
       const levelNum = (lastPart.match(/\d+/) || ['1'])[0];
       const papersHsk = await loadLocalJson('/data/tests/papers-hsk.json');
@@ -3179,7 +3220,9 @@
   function boot() {
     rewriteDomMedia(document);
     supabaseFetchInitial();
-    checkAndRenderDynamicPage();
+    if (isDynamicSpaRoute(window.location.pathname)) {
+      setTimeout(checkAndRenderDynamicPage, 450);
+    }
 
     const obs = new MutationObserver(mutations => {
       for (const m of mutations) {
