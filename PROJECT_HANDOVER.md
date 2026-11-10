@@ -1,21 +1,26 @@
-# 📋 TÀI LIỆU BÀN GIAO, TIẾN ĐỘ & CÂU LỆNH TIẾP TỤC TRÊN MÁY MỚI (`PROJECT_HANDOVER.md`)
+# 📋 TÀI LIỆU BÀN GIAO, TIẾN ĐỘ & CÂU LỆNH TIẾP TỤC TRÊN TRÌNH DUYỆT / MÁY MỚI (`PROJECT_HANDOVER.md`)
+
+> **Cập nhật lần cuối**: Phiên bản **v8.0** (Đã đồng bộ đầy đủ lên nhánh `main` của GitHub và triển khai trực tiếp trên **`https://hoctiengtrungquoc.vercel.app`**).
 
 ---
 
-## 🚀 1. CÂU LỆNH COPY-PASTE ĐỂ TIẾP TỤC TRÊN MÁY TÍNH MỚI (KHÔNG CÓ DỮ LIỆU CŨ)
+## 🚀 1. CÂU LỆNH COPY-PASTE ĐỂ DÁN VÀO TRÌNH DUYỆT KHÁC / ĐOẠN CHAT MỚI / MÁY TÍNH MỚI
 
-Khi bạn chuyển sang **một máy tính mới hoàn toàn trắng dữ liệu**, bạn chỉ cần mở AI (Antigravity / Cursor / Claude / ChatGPT...) và **dán nguyên văn đoạn lệnh dưới đây**:
+Khi bạn mở một **trình duyệt khác, đoạn chat AI mới hoặc máy tính mới chưa có dữ liệu**, chỉ cần **copy nguyên văn đoạn prompt dưới đây** và dán vào khung chat:
 
 ```text
-Tôi đang tiếp tục phát triển dự án web học tiếng Trung (bản sao 1:1 của https://xiehanzi.com/) trên một máy tính mới chưa có dữ liệu cục bộ.
-Toàn bộ 100% mã nguồn, giao diện và 96.860 tệp dữ liệu (3,27 GB) đã được lưu trên kho GitHub: https://github.com/hungktkthd/saochepweb và đang triển khai tại https://hoctiengtrungquoc.vercel.app.
+Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (bản sao 1:1 của https://xiehanzi.com/) tại địa chỉ https://hoctiengtrungquoc.vercel.app.
+Toàn bộ 100% mã nguồn, giao diện và 96.860 tệp dữ liệu (3,27 GB) đã được lưu trên kho GitHub: https://github.com/hungktkthd/saochepweb (nhánh chính `main` và 6 nhánh `media-*`).
 
-Hãy thực hiện các bước sau:
-1. Clone nhánh `main` của kho lưu trữ về máy:
-   git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
-2. Đọc kỹ file `PROJECT_HANDOVER.md` ở thư mục gốc của repo để nắm toàn bộ kiến trúc (GitHub -> Vercel `hoctiengtrungquoc.vercel.app` -> Supabase `xcthntcgenzfybefaphh` + AI APIs), những gì đã làm xong và những gì cần làm tiếp.
-3. Tiếp tục thực hiện lần lượt các hạng mục trong mục "4. NHỮNG GÌ CHƯA HOÀN THIỆN / CẦN LÀM TIẾP" của `PROJECT_HANDOVER.md` (bắt đầu từ Hạng mục 1: Xử lý Hydrate các Trang Chi Tiết Động, sau đó tới Hạng mục 2: Hoàn thiện API tương tác chấm điểm/luyện nghe/luyện gõ trong `xiehanzi-runtime.js`, và Hạng mục 3: Tích hợp AI APIs).
-4. Mỗi khi sửa xong, push lên nhánh `main` của `https://github.com/hungktkthd/saochepweb` và deploy lên `https://hoctiengtrungquoc.vercel.app`.
+Hãy thực hiện các bước sau trước khi bắt đầu:
+1. Kiểm tra thư mục làm việc hiện tại:
+   - Nếu chưa có repo `saochepweb` trên máy, hãy clone nhánh `main` về:
+     git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
+   - Nếu đã có repo, hãy chạy `git pull origin main` để đồng bộ bản mới nhất.
+2. Đọc kỹ file `PROJECT_HANDOVER.md` và `xiehanzi-runtime.js` ở thư mục gốc của repo để nắm toàn bộ kiến trúc hệ thống:
+   - GitHub (`https://github.com/hungktkthd/saochepweb`) -> Vercel (`https://hoctiengtrungquoc.vercel.app`) -> Supabase (`xcthntcgenzfybefaphh`) + Vercel Serverless AI API (`/api/ai.js`).
+   - Toàn bộ cơ chế chặn API `/v1/*`, `/v2/*`, luồng SSE voice/chat, trình phát phân đoạn YouTube Dictation, hệ thống ôn tập SRS `/on-tap`, các trang chi tiết động và rewrite URL nằm trong `xiehanzi-runtime.js` (6.050+ dòng) và `vercel.json`.
+3. Xác nhận trạng thái đồng bộ hiện tại với tôi và sẵn sàng nhận yêu cầu kiểm tra / chỉnh sửa / nâng cấp tiếp theo. Mỗi khi sửa xong bất kỳ tính năng nào, luôn kiểm thử bằng trình duyệt thực tế, commit và push thẳng lên nhánh `main` của `https://github.com/hungktkthd/saochepweb` để tự động cập nhật lên `https://hoctiengtrungquoc.vercel.app`.
 ```
 
 ---
@@ -32,10 +37,10 @@ cd saochepweb
 # 2. Chạy thử ngay ở máy local (cổng 3000)
 npx serve . -l 3000
 
-# 3. Kết nối và triển khai lên Vercel (https://hoctiengtrungquoc.vercel.app)
-npx vercel login
-npx vercel link --project hoctiengtrungquoc --yes
-npx vercel deploy --prod --yes
+# 3. Đẩy thay đổi lên GitHub (Vercel tự động deploy lên https://hoctiengtrungquoc.vercel.app)
+git add -A
+git commit -m "update"
+git push origin main
 ```
 
 ---
@@ -45,11 +50,12 @@ npx vercel deploy --prod --yes
 ```text
 GitHub (https://github.com/hungktkthd/saochepweb)
        │
-       ▼  (Tự động triển khai / Vercel CLI)
+       ▼  (Tự động triển khai khi push lên nhánh `main`)
 Vercel (https://hoctiengtrungquoc.vercel.app)
        │
-       ├──► Supabase (https://xcthntcgenzfybefaphh.supabase.co) — Tài khoản, dữ liệu, tiến độ học, kết quả thi
-       └──► AI APIs (Gemini / Web Speech / Serverless API)      — Chấm nói, chấm viết, dịch, gia sư AI
+       ├──► xiehanzi-runtime.js (6.050+ dòng) — Bộ định tuyến SPA, API Interceptor (/v1/*, /v2/*), SSE Voice/Chat, Dictation Player, SRS Review
+       ├──► Supabase (https://xcthntcgenzfybefaphh.supabase.co) — Tài khoản, tiến độ học, kết quả thi, sổ tay
+       └──► AI APIs (/api/ai.js + Web Speech / TTS)             — Chấm nói, chấm viết, dịch, gia sư AI
 ```
 
 | Thành phần | Thông số / Giá trị chi tiết |
@@ -65,14 +71,14 @@ Vercel (https://hoctiengtrungquoc.vercel.app)
 
 ---
 
-## ✅ 4. TẤT CẢ NHỮNG GÌ ĐÃ HOÀN THÀNH (100% DỮ LIỆU, MEDIA & GIAO DIỆN 1:1)
+## ✅ 4. TẤT CẢ NHỮNG GÌ ĐÃ HOÀN THÀNH (CẬP NHẬT ĐẾN v8.0)
 
 ### 4.1. Sao chép & Gộp 100% Dữ liệu + Media (`96.860 tệp — 3,27 GB`) vào 1 Repo GitHub duy nhất
-Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được tải về 100% và lưu trong duy nhất kho `hungktkthd/saochepweb` chia làm **7 nhánh (branches)** để nhánh `main` luôn nhẹ (`~250 MB`) giúp clone trên máy mới và deploy lên Vercel chỉ mất vài giây:
+Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được tải về 100% và lưu trong duy nhất kho `hungktkthd/saochepweb` chia làm **7 nhánh (branches)**:
 
 | Nhánh (Branch) | Số tệp | Dung lượng | Nội dung chi tiết |
 | :--- | ---: | ---: | :--- |
-| **`main`** | **2.400+ tệp** | **~250 MB** | Toàn bộ 94 tuyến trang HTML gốc, 231/231 gói Webpack JS và 181/181 tệp CSS/WOFF2/PNG (`_next/static/`), 280/280 ảnh giao diện (`images/`, `thay-do/`, `level_images/`, `sounds/`, `hanzi-lookup/`), toàn bộ kho dữ liệu JSON (`data/`), `xiehanzi-runtime.js`, `vercel.json`. |
+| **`main`** | **2.400+ tệp** | **~250 MB** | Toàn bộ 283 tệp HTML gốc, 231/231 gói Webpack JS và 181/181 tệp CSS/WOFF2/PNG (`_next/static/`), 280+ ảnh giao diện (`images/`, `thay-do/`, `level_images/`, `sounds/`, `hanzi-lookup/`), toàn bộ kho dữ liệu JSON (`data/`), `xiehanzi-runtime.js`, `vercel.json`. |
 | **`media-visuals`** | **9.231 tệp** | **592,74 MB** | 7.751 ảnh động GIF bút thuận (`gif/`), 1.045 ảnh đề thi HSK (`hsk-tests/`), 414 ảnh minh họa từ vựng (`word-illustration/`), 21 ảnh cấp độ (`level_images/`). |
 | **`media-etymology`** | **13.434 tệp** | **52,06 MB** | Toàn bộ 13.434 hình ảnh tự nguyên chữ Hán cổ (Giáp cốt, Kim văn, Triện thư, Lệ thư) trong `etymology/`. |
 | **`media-audios`** | **30.781 tệp** | **281,73 MB** | 17.760 file MP3 phát âm chữ Hán (`audios/`) và 13.021 file MP3 phát âm từ vựng (`word_audios/`). |
@@ -80,41 +86,45 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
 | **`media-sentences-1`** | **20.035 tệp** | **514,80 MB** | Nửa đầu (mã hash `0`–`7`) file MP3 phát âm câu ví dụ (`sentence-audio/`). |
 | **`media-sentences-2`** | **19.612 tệp** | **504,32 MB** | Nửa sau (mã hash `8`–`f`) file MP3 phát âm câu ví dụ (`sentence-audio/`). |
 
-### 4.2. Kho Dữ Liệu JSON Trong Thư Mục `data/` Trên Nhánh `main`
-1. **`data/characters/`**: Đủ **9.931/9.931 chữ Hán** (`characters-01.json` .. `characters-20.json` + `index.json`).
-2. **`data/vocabulary/`**: Đủ **11.534/11.534 từ vựng** (`vocabulary-01.json` .. `vocabulary-12.json` + `index.json`).
-3. **`data/han-viet/`**: Đủ **6.704/6.704 mục âm Hán Việt** (`han-viet-01.json` .. `han-viet-07.json` + `index.json`).
-4. **`data/curriculums/`**: Đủ **5 bộ giáo trình / 33 cấp độ / 1.145 tệp JSON** (`hsk`, `new-hsk`, `yct`, `boya`, `hanyu-jiaocheng` — gồm `overview.json`, `levels/`, `lessons/`, `topics/`).
-5. **`data/speaking/`**: Đủ **36 tệp** hội thoại luyện nói theo cấp độ & chủ đề.
-6. **`data/grammar/`**: Đủ **489 chủ điểm ngữ pháp** (`hsk-level-1..6.json`, `new-hsk-level-1..3.json`) + **9.780 câu hỏi trắc nghiệm ngữ pháp** (`quiz-hsk1..6.json`, `quiz-new-hsk1..3.json`, `quiz-tracks.json`).
-7. **`data/tests/`**: Đủ **66/66 bộ đề thi thử HSK 1–6** (`data/tests/papers/level-{1..6}-{testId}.json` + `papers-hsk.json`, `levels-hsk.json`, `levels-yct.json`, `generated-tests-options.json`).
-8. **`data/dictation/`**: Đủ **91/91 video luyện nghe chép chính tả** (`videos-all.json` + 182 tệp `*-detail.json` và `*-segments.json`).
-9. **`data/misc/`**: Dữ liệu Trường Thầy Đồ (`thay-do-hi-vien-danh-muc.json`, `thay-do-bang-vang.json`), Trò chơi hàng ngày (`daily-ghep-chu.json`, `daily-tim-chu-trong-chu.json`), Bảng xếp hạng, cài đặt chung.
+### 4.2. Các Tính Năng Trọng Tâm Đã Rà Sửa & Hoàn Thiện Triệt Để (v8.0)
 
-### 4.3. Giao Diện Gốc 1:1 `xiehanzi.com` & Bộ Cầu Nối Runtime (`xiehanzi-runtime.js`)
-- Đã đưa toàn bộ **94 tuyến đường HTML gốc** ra thư mục gốc (kèm cả `/<route>.html` và `/<route>/index.html`) sử dụng đường dẫn gốc tuyệt đối (`/_next/...`, `/images/...`, `/thay-do/...`, `/level_images/...`, `/xiehanzi-runtime.js`) để không bao giờ bị lỗi mất CSS khi URL có dấu `/` ở cuối (ví dụ `/kiem-tra-hsk/`).
-- Đã kiểm tra tự động: **231/231 gói Webpack động** và **181/181 tệp tĩnh** trong `_next/static/` đều tồn tại đầy đủ (`0` tệp thiếu, `0` tệp rỗng).
-- Đã gỡ lớp bọc `/_next/image/?url=...` trên toàn bộ 94 trang HTML và chuyển `unoptimized:!1` → `unoptimized:!0` trong 25 gói JS để React không làm hỏng ảnh khi hydrate.
-- Đã xây dựng [`xiehanzi-runtime.js`](xiehanzi-runtime.js) tự động chuyển hướng mọi URL media từ `static.xiehanzi.com` sang 6 nhánh `media-*` trên GitHub và bắt các lệnh gọi API `/v1/...` (`fetch` & `XMLHttpRequest`) để trả về từ `/data/` + **Supabase**.
-- Giữ nguyên bảng tra cứu dữ liệu độc lập tại `/kho-du-lieu.html`.
+1. **Lộ trình Học (`/hoc`), Bắt đầu Học (`/hoc/bat-dau`) & Bạn Đồng Hành (Gọi điện Voice + Chat)**:
+   - Luồng `/hoc/bat-dau`: Chọn mục tiêu → Chọn thời lượng → Chọn trình độ → Chọn Bạn đồng hành (Capy, Tiểu Mao, Tiểu Hổ...) → Intro → **Vào Bài 1** (`/hoc/bai/bai-1-hello-ai-xiaoyu`) mượt mà, tự động dọn dẹp lớp phủ modal (`[data-modal-layer]`) và không bị redirect ngược lại.
+   - **Nói chuyện Voice (`POST /v2/companion/voice/turn` & `/v1/thay-do/pho/canh/:id/luot`)**:
+     - Đã bổ sung cơ chế **Microphone Fallback** tự tạo luồng âm thanh giả lập qua `AudioContext.createMediaStreamDestination()` khi máy không có mic hoặc trình duyệt chặn quyền mic.
+     - Trả về luồng **Server-Sent Events (`text/event-stream`)** chuẩn gồm các sự kiện `heard` → `grade` → `sentence` → `sentence_end` → `suggest` → `mission` → `quota` → `done` kèm đọc phát âm tiếng Trung trực tiếp — **triệt tiêu hoàn toàn lỗi *"Không có kết nối mạng. Kiểm tra mạng rồi thử lại."***.
+   - **Nhắn tin Chat với Bạn đồng hành (`GET/POST /v2/companion/chat`, `POST /v2/companion/chat/stream`)**: Lưu lịch sử hội thoại vào `localStorage` (`httq_companion_chat_turns`) và phản hồi thông minh theo ngữ cảnh bài học.
+
+2. **Luyện Nghe Chép Chính Tả (`/luyen-chep-chinh-ta` & `/luyen-chep-chinh-ta/:slug`) — Chuẩn 1:1 Bản Gốc**:
+   - Đọc đầy đủ danh sách phân đoạn từ `segData.items` trong `/data/dictation/videos/{id}-segments.json`.
+   - Tích hợp **YouTube IFrame Player API** thực sự:
+     - Tự động tua tới `seg.startMs / 1000` và tự dừng (hoặc lặp lại khi bật **Lặp câu**) tại `seg.endMs / 1000`.
+     - Đầy đủ nút chỉnh tốc độ **`0.5×`, `0.75×`, `1×`, `1.25×`, `1.5×`**, **Ẩn phụ đề** (che phụ đề cứng dưới đáy video), **Đọc mẫu**.
+   - **Cột phải — Danh sách câu (`Câu 1 .. Câu N`)**:
+     - Hiển thị toàn bộ các câu trong bài kèm thời gian, độ khó (`Dễ`, `Vừa`, `Khó`), bộ lọc (**Tất cả / Câu sai / Chưa làm**), nút **Tới câu chưa làm tiếp theo →**, và nút **👁 Hiện chữ / 🙈 Ẩn chữ**.
+     - **Bấm vào bất kỳ câu nào trong danh sách** để nhảy ngay tới đoạn đó và chép chính tả.
+   - Hỗ trợ đủ 4 chế độ: **Gõ hết** (kèm ô chữ Hán và nút 💡 Gợi ý từng chữ), **Điền chỗ trống** (đục lỗ từ khóa), **Chỉ nghe**, và **Gõ pinyin**.
+
+3. **Trung Tâm Ôn Tập (`/on-tap`, `/hoc/on-tap`) & Toàn Bộ Chức Năng Con**:
+   - **Chức năng 1 — Ôn bài đến hạn (`/hoc/bai/on-tap-den-han`)**: Phiên ôn tập ngắt quãng SRS gồm 3 tab tương tác:
+     1. **🗂️ Thẻ lật SRS**: Lật thẻ xem nghĩa + ví dụ, nghe phát âm và chấm 4 mức độ nhớ (**Quên 1 phút / Khó 10 phút / Tốt 1 ngày / Dễ 4 ngày**).
+     2. **🎯 Trắc nghiệm nhanh (12 câu)**: Chọn đáp án đúng và tính điểm trực tiếp.
+     3. **⌨️ Tự gõ chữ Hán / Pinyin**: Nhìn nghĩa tiếng Việt và gõ lại chữ Hán hoặc Pinyin.
+   - **Chức năng 2 — Ôn lỗi sai (`/hoc/bai/on-tap-loi-sai`)**: Luyện phân biệt và khắc phục 4 lỗi sai hay nhầm (`谢谢 vs 对不起`, `不客气 vs 没关系`, thanh điệu `老师 lǎoshī vs lǎoshì`, nét chữ `买 mǎi vs 卖 mài`).
+   - **Chức năng 3 — Luyện thẻ câu (`/hoc/bai/on-tap-the-cau`)**: Luyện phản xạ 6 mẫu câu & lượng từ HSK 1 (`一个人`, `两本书`, `三杯茶`, `四件衣服`, `五只猫`...).
+   - **Trang Sổ lỗi (`/hoc/so-loi`) & Từ đã học (`/hoc/tu-da-hoc`)**: Hiển thị đầy đủ danh sách từ, giải thích lỗi sai, phát âm và nút *"Đã nhớ, bỏ qua"*.
+   - **Cài đặt Ôn tập**: Lưu bền vững tùy chọn **Ẩn pinyin khi ôn** và **Dạng câu hỏi ôn** qua `PATCH /v2/me/learning-profile`.
+
+4. **Thư Viện Giáo Trình (`/thu-vien-new-hsk/*`, ...), Đề Thi Thử HSK (`/kiem-tra-hsk/*`), Ngữ Pháp, Từ Điển & Trò Chơi**:
+   - Hiển thị đầy đủ ảnh minh họa và audio cho mọi đề thi thử HSK 3.0 (`/kiem-tra-hsk/hsk1/test/hsk30-1` .. `hsk6`).
+   - Hiển thị đầy đủ tất cả các cấp độ, chủ đề và bài học trong `/thu-vien-new-hsk`, `/thu-vien-hsk`, `/thu-vien-yct`, `/thu-vien-boya`, `/thu-vien-hanyu-jiaocheng`.
+   - Hiển thị đầy đủ trang chi tiết Chữ Hán (`/han-tu/:char`), Từ vựng (`/tu-vung/:word`), Âm Hán Việt (`/han-viet/:slug`), Ngữ pháp (`/ngu-phap/:level/:pointId`), Tiến độ (`/hoc/tien-do`) và Thói quen (`/hoc/thoi-quen`).
 
 ---
 
-## ✅ 5. TRẠNG THÁI HOÀN THIỆN CÁC HẠNG MỤC NÂNG CAO & TOÀN BỘ TRANG CON (v7.0)
+## 🧭 5. HƯỚNG MỞ RỘNG / NÂNG CẤP TIẾP THEO (NẾU CẦN)
 
-Toàn bộ 3 hạng mục trong lộ trình tiếp theo cùng tất cả các trang con, trò chơi, nút chuyển trang và giao diện Dark Mode đã được triển khai hoàn chỉnh trong [`xiehanzi-runtime.js`](xiehanzi-runtime.js), [`vercel.json`](vercel.json) và Vercel Serverless Function [`api/ai.js`](api/ai.js):
-
-### ✅ Hạng mục 1: Xử lý Hydrate & Render các Trang Chi Tiết Động & Điều Hướng Nút Bấm — ĐÃ HOÀN THÀNH
-- **Rewrite `vercel.json`**: Đã cấu hình đầy đủ rewrite cho mọi đường dẫn chi tiết động (`/han-tu/:slug*`, `/tu-vung/:slug*`, `/han-viet/:slug*`, `/ngu-phap/:slug*`, `/kiem-tra-ngu-phap/lam-bai`, `/luyen-chep-chinh-ta/:id*`, `/thu-vien-*/:path*`, `/kiem-tra-hsk/:path*`, `/de-kiem-tra/lam-bai/:id*`, `/hoc/chang/:id*`, `/hoc/bai/:id*`).
-- **Điều hướng Nút bấm & `_rsc=` Active Navigation**: Tự động nhận diện các lệnh chuyển trang chủ động (`router.push` của Next.js không có header prefetch) và sự kiện click thẻ `<a href="/...">` để điều hướng mượt mà sang cả các trang tĩnh lẫn các trang chi tiết động (như `/kiem-tra-ngu-phap/lam-bai`, `/de-kiem-tra/lam-bai/hsk30-1`, `/kiem-tra-hsk/hsk1/test/hsk30-1`) mà không bao giờ bị kẹt nút bấm hay xung đột React Hydration.
-- **Tương thích 100% Chế độ Tối (Dark Mode) & Sáng (Light Mode)**: Toàn bộ giao diện đề thi (`/kiem-tra-hsk/...`, `/de-kiem-tra/lam-bai/...`, `/kiem-tra-ngu-phap/lam-bai`) đều hiển thị rõ nét độ tương phản cao trên cả nền tối (`html.dark`) lẫn nền sáng, kèm đầy đủ hình ảnh câu hỏi (`q.images` cho `image_choice` và `image_match`).
-- **Đồng bộ 283/283 tệp HTML**: Toàn bộ 283 tệp `.html` (bao gồm tất cả các trang con trong `tro-choi/*`, `truong-thay-do/*`, `luyen-go-han-tu/*`, `luyen-viet/*`, `hoc/*`, `pages/*`) đều đã nhúng `/xiehanzi-runtime.js` và không còn bất kỳ trang 404 nào.
-
-### ✅ Hạng mục 2: Hoàn thiện các API Tương tác (POST / Tạo đề động / Trò chơi) trong `xiehanzi-runtime.js` — ĐÃ HOÀN THÀNH
-1. **Trò chơi chữ Hán (`/tro-choi/ghep-chu`, `/tro-choi/tim-chu-trong-chu`, `/tro-choi/doan-han-tu`, `/tro-choi/ghep-cap-han-tu`, `/tro-choi/xep-thanh-ngu`, `/tro-choi/ban-phao-hoa`)**: Hoàn thiện đầy đủ hệ thống `POST /v1/games/rounds`, `POST /v1/games/rounds/:id/guess`, `POST /v1/games/rounds/:id/hint`, `POST /v1/games/rounds/:id/give-up`, `/v1/games/daily`, `/v1/games/history` với cấu trúc bàn chơi `layers`/`rows`/`bank` chuẩn cho Ghép chữ và dữ liệu nét chữ `baseChar`/`strokeCount` khớp 100% với `hanzi-writer-data` cho Tìm chữ trong chữ.
-2. **Luyện nghe (`/luyen-nghe`) & Luyện nói (`/luyen-noi`)**: Hoàn thiện `GET /v1/listening/(lessons|topics)/:curr/:lvl/:slug/set` trả về đầy đủ `{ words, sentences }` kèm `blankRange: [start, end]` và `targetWord` cho cả 3 chế độ (Nghe từ, Nghe điền từ, Nghe câu), cùng hệ thống hội thoại `GET /v1/speaking/dialogues/:curr/:lvl/:topic` kết nối trực tiếp vào 36 tệp JSON trong `/data/speaking/`.
-3. **Chấm điểm đề thi HSK & Tạo đề kiểm tra (`POST /v1/generated-tests`, `/v1/hsk-tests/*`)**: Trả về `deId` chuẩn (`hsk30-1`..`hsk30-6`), chấm điểm tự động theo từng câu, giải thích chi tiết và đồng bộ lịch sử lên **Supabase**.
-4. **Luyện gõ (`/luyen-go`, `/luyen-go-han-tu`), Sổ tay (`/so-tay`), Vở tập viết (`/tao-vo-tap-viet`) & Tiến độ Ôn tập (`/hoc`, `/hoc/on-tap`, `/hoc/so-loi`)**: Hoàn thiện đầy đủ các API `/v1/typing-set`, `/v1/typing-word-set`, `/v1/typing-sentence-set`, `/v2/review/summary`, `/v2/review/mistakes` (`{ items, total, page, limit, hasMore }`) và đồng bộ với **Supabase**.
-
-### ✅ Hạng mục 3: Tích hợp AI APIs Thực Tế (Chấm phát âm, Dịch thuật, Gia sư AI) — ĐÃ HOÀN THÀNH
-- Đã xây dựng Vercel Serverless Function [`api/ai.js`](api/ai.js) kết hợp bộ xử lý tại [`xiehanzi-runtime.js`](xiehanzi-runtime.js) cho `POST /v1/translate`, `POST /v1/speaking/assess`, `POST /v1/practice/result-ai-readout` & `/reply`.
+Khi tiếp tục ở phiên làm việc mới, bạn có thể yêu cầu AI thực hiện thêm các nâng cấp tùy chọn sau:
+1. **Mở rộng ngân hàng bài học chi tiết trong `/hoc/bai/:slug`** cho toàn bộ các bài từ HSK 2 đến HSK 6 (hiện tại đã có sẵn toàn bộ dữ liệu JSON trong `/data/curriculums/new-hsk/lessons/`).
+2. **Tích hợp nhận diện giọng nói thực tế (Web Speech API `webkitSpeechRecognition` `zh-CN`)** vào nút Giữ để nói trên `/hoc` để chấm điểm chính xác từng âm tiết người dùng đọc qua micro thật.
+3. **Đồng bộ tài khoản người dùng (Đăng ký / Đăng nhập qua Supabase Auth)** để lưu tiến độ học tập xuyên suốt giữa điện thoại và máy tính.

@@ -1,52 +1,44 @@
 # 🏮 Dự Án Học Tiếng Trung Toàn Diện (`hoctiengtrungquoc.vercel.app`)
 
 > 🌐 **Website chính thức đang hoạt động**: **[https://hoctiengtrungquoc.vercel.app](https://hoctiengtrungquoc.vercel.app)**  
-> 📄 **Tài liệu bàn giao chi tiết**: **[`PROJECT_HANDOVER.md`](PROJECT_HANDOVER.md)**
+> 📄 **Tài liệu bàn giao & Tiến độ chi tiết (v8.0)**: **[`PROJECT_HANDOVER.md`](PROJECT_HANDOVER.md)**
 
 ---
 
-## 🚀 CÂU LỆNH TIẾP TỤC DỰ ÁN KHI ĐỔI SANG MÁY TÍNH MỚI (CHƯA CÓ DỮ LIỆU GÌ)
+## 🚀 CÂU LỆNH (PROMPT) ĐỂ DÁN VÀO TRÌNH DUYỆT KHÁC / ĐOẠN CHAT MỚI / MÁY TÍNH MỚI
 
-Nếu bạn mở dự án này trên **một máy tính mới hoàn toàn trống**, chỉ cần mở công cụ AI (Antigravity, Cursor, Claude Code...) và **copy-paste nguyên văn đoạn dưới đây**:
+Khi bạn chuyển sang **trình duyệt khác, đoạn chat mới hoặc máy tính mới hoàn toàn trống**, chỉ cần mở công cụ AI (Antigravity, Cursor, Claude...) và **copy-paste nguyên văn đoạn lệnh dưới đây**:
 
 ```text
-Tôi đang tiếp tục phát triển dự án web học tiếng Trung (bản sao 1:1 của https://xiehanzi.com/) trên một máy tính mới chưa có dữ liệu cục bộ.
-Toàn bộ 100% mã nguồn, giao diện và 96.860 tệp dữ liệu (3,27 GB) đã được lưu trên kho GitHub: https://github.com/hungktkthd/saochepweb và đang triển khai tại https://hoctiengtrungquoc.vercel.app.
+Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (bản sao 1:1 của https://xiehanzi.com/) tại địa chỉ https://hoctiengtrungquoc.vercel.app.
+Toàn bộ 100% mã nguồn, giao diện và 96.860 tệp dữ liệu (3,27 GB) đã được lưu trên kho GitHub: https://github.com/hungktkthd/saochepweb (nhánh chính `main` và 6 nhánh `media-*`).
 
-Hãy thực hiện các bước sau:
-1. Clone nhánh `main` của kho lưu trữ về máy:
-   git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
-2. Đọc kỹ file `PROJECT_HANDOVER.md` ở thư mục gốc của repo để nắm toàn bộ kiến trúc (GitHub -> Vercel `hoctiengtrungquoc.vercel.app` -> Supabase `xcthntcgenzfybefaphh` + AI APIs), những gì đã làm xong và những gì cần làm tiếp.
-3. Tiếp tục thực hiện lần lượt các hạng mục trong mục "5. NHỮNG GÌ CHƯA HOÀN THIỆN / CẦN LÀM TIẾP" của `PROJECT_HANDOVER.md` (bắt đầu từ Hạng mục 1: Xử lý Hydrate các Trang Chi Tiết Động, sau đó tới Hạng mục 2: Hoàn thiện API tương tác chấm điểm/luyện nghe/luyện gõ trong `xiehanzi-runtime.js`, và Hạng mục 3: Tích hợp AI APIs).
-4. Mỗi khi sửa xong, push lên nhánh `main` của `https://github.com/hungktkthd/saochepweb` và deploy lên `https://hoctiengtrungquoc.vercel.app`.
+Hãy thực hiện các bước sau trước khi bắt đầu:
+1. Kiểm tra thư mục làm việc hiện tại:
+   - Nếu chưa có repo `saochepweb` trên máy, hãy clone nhánh `main` về:
+     git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
+   - Nếu đã có repo, hãy chạy `git pull origin main` để đồng bộ bản mới nhất.
+2. Đọc kỹ file `PROJECT_HANDOVER.md` và `xiehanzi-runtime.js` ở thư mục gốc của repo để nắm toàn bộ kiến trúc hệ thống:
+   - GitHub (`https://github.com/hungktkthd/saochepweb`) -> Vercel (`https://hoctiengtrungquoc.vercel.app`) -> Supabase (`xcthntcgenzfybefaphh`) + Vercel Serverless AI API (`/api/ai.js`).
+   - Toàn bộ cơ chế chặn API `/v1/*`, `/v2/*`, luồng SSE voice/chat, trình phát phân đoạn YouTube Dictation, hệ thống ôn tập SRS `/on-tap`, các trang chi tiết động và rewrite URL nằm trong `xiehanzi-runtime.js` (6.050+ dòng) và `vercel.json`.
+3. Xác nhận trạng thái đồng bộ hiện tại với tôi và sẵn sàng nhận yêu cầu kiểm tra / chỉnh sửa / nâng cấp tiếp theo. Mỗi khi sửa xong bất kỳ tính năng nào, luôn kiểm thử bằng trình duyệt thực tế, commit và push thẳng lên nhánh `main` của `https://github.com/hungktkthd/saochepweb` để tự động cập nhật lên `https://hoctiengtrungquoc.vercel.app`.
 ```
 
 ---
 
-## 📊 Tóm Tắt Tiến Độ Dự Án Hiện Tại
+## 📊 Tóm Tắt Tiến Độ Dự Án Hiện Tại (v8.0)
 
-### ✅ 1. Những gì ĐÃ LÀM XONG (100% Dữ Liệu, Media & Giao Diện Chính)
-- **Gộp 100% dữ liệu & đa phương tiện (`96.860 tệp — 3,27 GB`) vào duy nhất 1 kho GitHub (`hungktkthd/saochepweb`)** trên 7 nhánh:
-  - `main` (`~250 MB`): Toàn bộ 94 tuyến trang HTML gốc `xiehanzi.com`, 231/231 gói Webpack JS, 181/181 tệp tĩnh CSS/WOFF2/PNG (`_next/static/`), 280/280 ảnh UI (`images/`, `thay-do/`, `level_images/`, `sounds/`, `hanzi-lookup/`), toàn bộ kho dữ liệu JSON (`data/`), `xiehanzi-runtime.js`, `vercel.json`.
-  - `media-visuals` (`592,74 MB`): 7.751 GIF thứ tự nét viết, 1.045 ảnh đề thi HSK, 414 ảnh minh họa từ vựng, 21 ảnh cấp độ.
-  - `media-etymology` (`52,06 MB`): 13.434 ảnh nguồn gốc chữ Hán cổ.
-  - `media-audios` (`281,73 MB`): 30.781 file MP3 phát âm chữ Hán & từ vựng.
-  - `media-hsk-audio` (`1.097,62 MB`): 1.562 file MP3 nghe đề thi thử HSK 1–6.
-  - `media-sentences-1` & `media-sentences-2` (`1.019,12 MB`): 39.647 file MP3 phát âm câu ví dụ.
-- **Sửa triệt để lỗi mất CSS / mất ảnh trên mọi trang con (`/kiem-tra-hsk/`, `/tra-chu/`, `/thay-do/`, `/thu-vien/`, ...)**:
-  - Chuyển toàn bộ 94 trang HTML sang đường dẫn tuyệt đối gốc (`/_next/...`, `/images/...`, `/xiehanzi-runtime.js`).
-  - Gỡ bọc `/_next/image/?url=...` và vá `unoptimized:!0` trong 25 gói JS.
-- **Triển khai trực tiếp theo kiến trúc `GitHub → Vercel (hoctiengtrungquoc.vercel.app) → Supabase + AI APIs`**:
-  - Đã kết nối project Vercel `hoctiengtrungquoc` với tên miền `https://hoctiengtrungquoc.vercel.app` và cơ sở dữ liệu Supabase `https://xcthntcgenzfybefaphh.supabase.co`.
-
-### 🔧 2. Những gì CẦN LÀM TIẾP (Xem chi tiết tại [`PROJECT_HANDOVER.md`](PROJECT_HANDOVER.md))
-1. **Hạng mục 1 — Hydrate các Trang Chi Tiết Động (Dynamic Slug Routes)**: Nạp dữ liệu động cho các đường dẫn sâu `/han-tu/:slug`, `/tu-vung/:slug`, `/han-viet/:slug`, `/ngu-phap/:level/:slug`, `/luyen-chep-chinh-ta/:slug`, `/thu-vien-*/:level/:lesson`.
-2. **Hạng mục 2 — Hoàn thiện các API Tương tác (`POST` / Sinh đề động) trong `xiehanzi-runtime.js`**:
-   - Chấm điểm bài thi HSK (`POST /v1/hsk-tests/:testId/grade`) và lưu điểm vào Supabase.
-   - Sinh câu hỏi động cho Luyện nghe (`/luyen-nghe/`) và Luyện gõ (`/luyen-go/`).
-   - Đồng bộ Sổ tay từ vựng (`/so-tay/`), Vở tập viết (`/tao-vo-tap-viet/`) và Ôn tập (`/on-tap/`) với Supabase.
-   - Tương tác chấm nét viết Trường Thầy Đồ (`/thay-do/`).
-3. **Hạng mục 3 — Tích hợp AI APIs thật (Chấm nói, chấm viết, dịch thuật, gia sư AI)** qua Vercel Serverless Functions (`/api/...`).
+### ✅ 1. Đã hoàn thành 100% Dữ Liệu, Media, Giao Diện 1:1 & Các Tính Năng Tương Tác
+- **Gộp 100% dữ liệu & đa phương tiện (`96.860 tệp — 3,27 GB`) vào duy nhất 1 kho GitHub (`hungktkthd/saochepweb`)** trên 7 nhánh (`main`, `media-visuals`, `media-etymology`, `media-audios`, `media-hsk-audio`, `media-sentences-1`, `media-sentences-2`).
+- **Trang `/hoc` & `/hoc/bat-dau`**:
+  - Hoàn thiện luồng chọn mục tiêu & bạn đồng hành vào thẳng bài học (`/hoc/bai/bai-1-hello-ai-xiaoyu`).
+  - Sửa triệt để tính năng **Gọi điện / Nói chuyện Voice** (`POST /v2/companion/voice/turn` trả luồng SSE `text/event-stream` + cơ chế Microphone Fallback) và **Chat với Bạn đồng hành** (`/v2/companion/chat/stream`), không còn báo lỗi *"Không có kết nối mạng"*.
+- **Trang `/luyen-chep-chinh-ta` & `/luyen-chep-chinh-ta/:slug`**:
+  - Khôi phục giao diện chuẩn 1:1 bản gốc với trình phát **YouTube IFrame API** tự tua/dừng theo từng câu `[startMs, endMs]`, chỉnh tốc độ `0.5×..1.5×`, **Ẩn phụ đề**, 4 chế độ (**Gõ hết, Điền chỗ trống, Chỉ nghe, Gõ pinyin**) và cột **Danh sách câu** cho phép bấm chọn bất kỳ đoạn nào để chép.
+- **Trang `/on-tap` (`/hoc/on-tap`)**:
+  - Hoạt động đầy đủ cả **Ôn bài đến hạn** (`/hoc/bai/on-tap-den-han` — Thẻ lật SRS + Trắc nghiệm + Tự gõ), **Ôn lỗi sai** (`/hoc/bai/on-tap-loi-sai` — 4 cặp lỗi hay nhầm), **Luyện thẻ câu** (`/hoc/bai/on-tap-the-cau`), **Sổ lỗi** (`/hoc/so-loi`), **Từ đã học** (`/hoc/tu-da-hoc`) và cài đặt ôn tập.
+- **Thư viện Giáo trình, Đề thi thử HSK 3.0, Từ điển Chữ Hán / Từ vựng / Hán Việt / Ngữ pháp & Trò chơi**:
+  - Hiển thị đầy đủ hình ảnh đề thi, âm thanh phát âm, thứ tự nét viết và chấm điểm trực tiếp.
 
 ---
 
