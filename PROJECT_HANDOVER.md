@@ -1,6 +1,6 @@
 # 📋 TÀI LIỆU BÀN GIAO, TIẾN ĐỘ & CÂU LỆNH TIẾP TỤC TRÊN TRÌNH DUYỆT / MÁY MỚI (`PROJECT_HANDOVER.md`)
 
-> **Cập nhật lần cuối**: Phiên bản **v8.0** (Đã đồng bộ đầy đủ lên nhánh `main` của GitHub và triển khai trực tiếp trên **`https://hoctiengtrungquoc.vercel.app`**).
+> **Cập nhật lần cuối**: Phiên bản **v9.0** (Đã tích hợp Đăng nhập Google OAuth qua Supabase `skxgzzdunqloxxombtuc` vào giao diện gốc `/tai-khoan`, `/dang-nhap`, `/dang-ky`, sửa triệt để lỗi tải trang `/tai-khoan`, đồng bộ lên nhánh `main` của GitHub và triển khai trực tiếp trên **`https://hoctiengtrungquoc.vercel.app`**).
 
 ---
 
@@ -64,14 +64,15 @@ Vercel (https://hoctiengtrungquoc.vercel.app)
 | **Tên miền chính thức (Vercel)** | **[`https://hoctiengtrungquoc.vercel.app`](https://hoctiengtrungquoc.vercel.app)** |
 | **Vercel Project** | Scope: `hungktkthd-7816` / Project Name: `hoctiengtrungquoc` (đã tắt SSO Protection, gán domain `hoctiengtrungquoc.vercel.app`) |
 | **Tên miền phụ (GitHub Pages)** | [`https://hungktkthd.github.io/saochepweb/`](https://hungktkthd.github.io/saochepweb/) |
-| **Supabase Project ID** | `xcthntcgenzfybefaphh` |
-| **Supabase URL** | `https://xcthntcgenzfybefaphh.supabase.co` |
-| **Supabase Publishable Anon Key** | `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM` |
+| **Supabase Project ID** | `skxgzzdunqloxxombtuc` (kích hoạt Google OAuth `external.google: true`) |
+| **Supabase URL** | `https://skxgzzdunqloxxombtuc.supabase.co` |
+| **Supabase Publishable Key** | `sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18` |
+| **Google OAuth Redirect URL** | `https://hoctiengtrungquoc.vercel.app/tai-khoan` |
 | **Các bảng Supabase đã tạo (có RLS)** | `public.study_profiles` (lưu tiến độ, từ vựng đã lưu, streak cho workspace `hoctiengtrungquoc`), `public.exam_results` (lưu lịch sử làm đề thi HSK) |
 
 ---
 
-## ✅ 4. TẤT CẢ NHỮNG GÌ ĐÃ HOÀN THÀNH (CẬP NHẬT ĐẾN v8.0)
+## ✅ 4. TẤT CẢ NHỮNG GÌ ĐÃ HOÀN THÀNH (CẬP NHẬT ĐẾN v9.0)
 
 ### 4.1. Sao chép & Gộp 100% Dữ liệu + Media (`96.860 tệp — 3,27 GB`) vào 1 Repo GitHub duy nhất
 Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được tải về 100% và lưu trong duy nhất kho `hungktkthd/saochepweb` chia làm **7 nhánh (branches)**:
@@ -119,6 +120,11 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
    - Hiển thị đầy đủ ảnh minh họa và audio cho mọi đề thi thử HSK 3.0 (`/kiem-tra-hsk/hsk1/test/hsk30-1` .. `hsk6`).
    - Hiển thị đầy đủ tất cả các cấp độ, chủ đề và bài học trong `/thu-vien-new-hsk`, `/thu-vien-hsk`, `/thu-vien-yct`, `/thu-vien-boya`, `/thu-vien-hanyu-jiaocheng`.
    - Hiển thị đầy đủ trang chi tiết Chữ Hán (`/han-tu/:char`), Từ vựng (`/tu-vung/:word`), Âm Hán Việt (`/han-viet/:slug`), Ngữ pháp (`/ngu-phap/:level/:pointId`), Tiến độ (`/hoc/tien-do`) và Thói quen (`/hoc/thoi-quen`).
+
+5. **Tài Khoản Người Dùng (`/tai-khoan`, `/dang-nhap`, `/dang-ky`) & Đăng Nhập Google qua Supabase (`v9.0`)**:
+   - Tích hợp trực tiếp **Supabase Google OAuth** (`https://skxgzzdunqloxxombtuc.supabase.co`) vào giao diện gốc của `tai-khoan.html`, `dang-nhap.html`, `dang-ky.html` và thanh Header toàn trang mà **giữ nguyên 100% thiết kế gốc**.
+   - Khắc phục triệt để lỗi *"Trang tạm thời không tải được"* trên `/tai-khoan` do thiếu trường `activity` (12 tuần học) trong `/v2/me/progress` và cấu trúc `streak`/`week` trong `/v2/me/habit`.
+   - Tự động bắt `#access_token` khi Google chuyển hướng về `/tai-khoan`, giải mã JWT & đồng bộ hồ sơ Google (ảnh đại diện, họ tên, email) vào Header và trang Tài khoản, hỗ trợ đổi tên hiển thị, ảnh đại diện và Đăng xuất sạch sẽ.
 
 ---
 
