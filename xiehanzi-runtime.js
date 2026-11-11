@@ -336,6 +336,18 @@
       return `${RAW_GITHUB_REPO}/media-visuals/hsk-tests/${encodeURIComponent(tid)}/${url}`;
     }
 
+    if (url.startsWith('https://api.xiehanzi.com/media-signed/')) {
+      const relSigned = url.slice('https://api.xiehanzi.com/media-signed/'.length).split('?')[0];
+      if (
+        relSigned.startsWith('word_audios/') ||
+        relSigned.startsWith('audios/') ||
+        relSigned.startsWith('hsk-audio/') ||
+        relSigned.startsWith('sentence-audio/')
+      ) {
+        return rewriteMediaUrl('https://static.xiehanzi.com/' + relSigned);
+      }
+    }
+
     if (url.startsWith('https://static.xiehanzi.com/')) {
       let rel = url.slice('https://static.xiehanzi.com/'.length).split('?')[0];
       try {
@@ -1488,77 +1500,124 @@
     }
     if (p === '/v2/learning-tracks' || p === '/v2/paths') {
       const isBatDauPage = (window.location.pathname || '').includes('bat-dau');
-      const stdObj = { code: 'hsk30', sourceLineVi: 'Chuẩn HSK 3.0 (9 cấp) · Khung năng lực Hán ngữ Quốc tế', issuerVi: 'CTI / Hanban' };
+      const savedStageKey = localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+      let doneStages = [];
+      try {
+        doneStages = JSON.parse(localStorage.getItem('httq_done_stages') || '[]') || [];
+      } catch (_) {}
+      const rawTracks = await loadLocalJson('/data/learning-tracks/tracks.json');
+      if (rawTracks && Array.isArray(rawTracks.tracks)) {
+        const tracks = rawTracks.tracks.map(t => ({
+          ...t,
+          slug: t.track === 'hsk30' ? 'hsk30-1' : t.track,
+          level: 1,
+          titleVi: 'HSK 1',
+          isDefault: t.track === 'hsk30',
+          enrollment:
+            !isBatDauPage && t.track === 'hsk30'
+              ? {
+                  pathSlug: 'hsk30-1',
+                  track: 'hsk30',
+                  current: true,
+                  currentLevel: 'L1',
+                  currentStageId: savedStageKey,
+                  currentLessonId: savedLessonId,
+                  startStageKey: savedStageKey,
+                  stagesDone: doneStages.length,
+                  stagesTotal: 40,
+                  active: true,
+                  enrolledAt: '2026-11-10T00:00:00.000Z'
+                }
+              : null
+        }));
+        return jsonResponse({ tracks, paths: tracks });
+      }
+      const stdObj = { code: 'hsk30', sourceLineVi: 'Theo Đề cương thi HSK (HSK 3.0, ban hành 11/2025)', issuerVi: 'Trung tâm Hợp tác Giao lưu Ngôn ngữ Trung Quốc - Nước ngoài' };
       const tracks = [
         {
           track: 'hsk30',
           slug: 'hsk30-1',
           level: 1,
           titleVi: 'HSK 1',
-          brandVi: 'Lộ trình HSK 3.0 Chuẩn',
+          brandVi: 'HSK 3.0',
           standard: stdObj,
           isDefault: true,
           placementAvailable: true,
           levels: [
-            { level: 'L1', titleVi: 'HSK 1', stageCount: 7 },
-            { level: 'L2', titleVi: 'HSK 2', stageCount: 8 },
-            { level: 'L3', titleVi: 'HSK 3', stageCount: 10 }
+            { level: 'L1', titleVi: 'Cấp 1', chapterCount: 8, stageCount: 40 },
+            { level: 'L2', titleVi: 'Cấp 2', chapterCount: 6, stageCount: 29 },
+            { level: 'L3', titleVi: 'Cấp 3', chapterCount: 8, stageCount: 38 }
           ],
           enrollment: isBatDauPage
             ? null
             : {
                 pathSlug: 'hsk30-1',
                 track: 'hsk30',
+                current: true,
                 currentLevel: 'L1',
-                currentStageId: 'hsk30-1.S1',
-                currentLessonId: 'bai-1-hello-ai-xiaoyu',
-                startStageKey: 'hsk30.L1.C1.S1',
-                stagesDone: 1,
-                stagesTotal: 3,
+                currentStageId: savedStageKey,
+                currentLessonId: savedLessonId,
+                startStageKey: savedStageKey,
+                stagesDone: doneStages.length,
+                stagesTotal: 40,
                 active: true,
                 enrolledAt: '2026-11-10T00:00:00.000Z'
               }
-        },
-        {
-          track: 'hsk20',
-          slug: 'hsk20',
-          level: 1,
-          titleVi: 'HSK 2.0 Cấp 1',
-          brandVi: 'Giáo trình HSK 2.0 (Cấp 1–6)',
-          standard: { code: 'hsk20', sourceLineVi: 'Giáo trình HSK 2.0 truyền thống (6 cấp)', issuerVi: 'Hanban' },
-          isDefault: false,
-          placementAvailable: true,
-          levels: [
-            { level: 'L1', titleVi: 'HSK 1', stageCount: 6 },
-            { level: 'L2', titleVi: 'HSK 2', stageCount: 6 },
-            { level: 'L3', titleVi: 'HSK 3', stageCount: 8 }
-          ],
-          enrollment: null
-        },
-        {
-          track: 'boya',
-          slug: 'boya',
-          level: 1,
-          titleVi: 'Boya Sơ cấp 1',
-          brandVi: 'Giáo trình Boya Sơ cấp',
-          standard: { code: 'boya', sourceLineVi: 'Giáo trình Hán ngữ Boya (Đại học Bắc Kinh)', issuerVi: 'Peking University Press' },
-          isDefault: false,
-          placementAvailable: false,
-          levels: [
-            { level: 'L1', titleVi: 'Boya Sơ cấp 1', stageCount: 10 },
-            { level: 'L2', titleVi: 'Boya Sơ cấp 2', stageCount: 10 }
-          ],
-          enrollment: null
         }
       ];
       return jsonResponse({ tracks, paths: tracks });
     }
     if (p.startsWith('/v2/learning-tracks/') || p.startsWith('/v2/paths/')) {
       const parts = p.split('/').filter(Boolean);
-      const track = parts[2] || 'hsk30-1';
+      const track = parts[2] || 'hsk30';
       const sub = parts[3] || '';
+      if (sub === 'activities' && parts[5] === 'runs') {
+        const activityKey = decodeURIComponent(parts[4] || 'hsk30.L1.P1.learn.1');
+        localStorage.setItem('httq_current_lesson_id', activityKey);
+        const stgMatch = activityKey.match(/^(hsk30\.L\d+\.[A-Z]\d+)/i);
+        if (stgMatch && stgMatch[1]) {
+          localStorage.setItem('httq_current_stage_key', stgMatch[1]);
+        }
+        setTimeout(() => {
+          try {
+            if (!window.location.pathname.startsWith('/hoc/bai/')) {
+              origPushState.call(history, null, '', '/hoc/bai/' + encodeURIComponent(activityKey));
+              checkAndRenderDynamicPage();
+            }
+          } catch (_) {}
+        }, 60);
+        return jsonResponse({
+          runId: activityKey,
+          kind: 'learn',
+          track: 'hsk30',
+          activityKey,
+          total: 21,
+          answered: 0,
+          steps: []
+        });
+      }
+      if (sub === 'placement' && parts[4] === 'runs') {
+        const activityKey = 'hsk30.L1.P1.learn.1';
+        localStorage.setItem('httq_current_lesson_id', activityKey);
+        setTimeout(() => {
+          try {
+            origPushState.call(history, null, '', '/hoc/bai/' + encodeURIComponent(activityKey));
+            checkAndRenderDynamicPage();
+          } catch (_) {}
+        }, 60);
+        return jsonResponse({
+          runId: activityKey,
+          kind: 'learn',
+          track: 'hsk30',
+          activityKey,
+          total: 21,
+          answered: 0,
+          steps: []
+        });
+      }
       if (sub === 'stage-talks') {
-        const stageKey = decodeURIComponent(parts[4] || `${track}.L1.C1.S1`);
+        const stageKey = decodeURIComponent(parts[4] || 'hsk30.L1.P1');
         const action = parts[5] || '';
         const subAction = parts[6] || '';
         if (action === 'restart' && method === 'POST') {
@@ -1634,205 +1693,136 @@
       }
       if (sub === 'levels') {
         const level = parts[4] || 'L1';
-        return jsonResponse({
-          track,
-          level,
-          levelVersion: 'v1',
-          chapters: [
-            {
-              chapterKey: `${track}.${level}.C1`,
-              order: 1,
-              titleVi: 'Chào hỏi & Làm quen cơ bản',
-              titleZh: '你好！认识你很高兴',
-              stages: [
-                { stageKey: `${track}.${level}.C1.S1`, order: 1, kind: 'stage', titleVi: 'AI Tiểu Ngữ, xin chào!', titleZh: 'AI小语，你好！', newWordCount: 12 },
-                { stageKey: `${track}.${level}.C1.S2`, order: 2, kind: 'stage', titleVi: 'Tôi tên là Lý Văn', titleZh: '我叫李文', newWordCount: 14 },
-                { stageKey: `${track}.${level}.C1.S3`, order: 3, kind: 'stage', titleVi: 'Tôi là người Trung Quốc', titleZh: '我是中国人', newWordCount: 15 },
-                { stageKey: `${track}.${level}.C1.S4`, order: 4, kind: 'review', titleVi: 'Gia đình tôi có hai người con', titleZh: '我有两个孩子', newWordCount: 12 }
-              ]
-            },
-            {
-              chapterKey: `${track}.${level}.C2`,
-              order: 2,
-              titleVi: 'Thời gian, Mua sắm & Đời sống',
-              titleZh: '今天几月几号？',
-              stages: [
-                { stageKey: `${track}.${level}.C2.S1`, order: 5, kind: 'stage', titleVi: 'Hôm nay tôi được nghỉ', titleZh: '我今天休息', newWordCount: 14 },
-                { stageKey: `${track}.${level}.C2.S2`, order: 6, kind: 'stage', titleVi: 'Số điện thoại của bạn là gì?', titleZh: '你的手机号是多少？', newWordCount: 16 },
-                { stageKey: `${track}.${level}.C2.S3`, order: 7, kind: 'stage', titleVi: '6 rưỡi tối tôi tan làm', titleZh: '我晚上六点半下班', newWordCount: 15 }
-              ]
-            }
-          ],
-          levelTest: { available: true, minPct: 80, questionCount: 20 }
-        });
+        const levelData = await loadLocalJson(`/data/learning-tracks/hsk30-${level}.json`) || await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+        if (levelData) {
+          return jsonResponse({ ...levelData, track, level });
+        }
       }
       if (sub === 'progress') {
+        const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+        const savedStageKey = localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+        let doneStages = [];
+        let doneActivities = {};
+        try {
+          doneStages = JSON.parse(localStorage.getItem('httq_done_stages') || '[]') || [];
+          doneActivities = JSON.parse(localStorage.getItem('httq_done_activities') || '{}') || {};
+        } catch (_) {}
+        const allStages = [];
+        if (levelData && Array.isArray(levelData.chapters)) {
+          levelData.chapters.forEach(ch => {
+            (ch.stages || []).forEach(stg => {
+              allStages.push(stg.stageKey);
+            });
+          });
+        }
+        if (allStages.length === 0) {
+          allStages.push('hsk30.L1.P1', 'hsk30.L1.P2', 'hsk30.L1.P3', 'hsk30.L1.R00', 'hsk30.L1.S01', 'hsk30.L1.S02', 'hsk30.L1.S03', 'hsk30.L1.S04', 'hsk30.L1.R01');
+        }
         return jsonResponse({
-          track,
+          track: track === 'hsk30-1' ? 'hsk30' : track,
           level: 'L1',
           enrollment: {
-            track,
+            track: track === 'hsk30-1' ? 'hsk30' : track,
+            current: true,
             currentLevel: 'L1',
-            startStageKey: `${track}.L1.C1.S1`,
-            stagesDone: 1,
-            stagesTotal: 7,
+            startStageKey: savedStageKey,
+            stagesDone: doneStages.length,
+            stagesTotal: allStages.length,
             active: true
           },
-          stages: [
-            { stageKey: `${track}.L1.C1.S1`, status: 'in_progress', activityKeysDone: ['learn'], examBestPct: null },
-            { stageKey: `${track}.L1.C1.S2`, status: 'available', activityKeysDone: [], examBestPct: null },
-            { stageKey: `${track}.L1.C1.S3`, status: 'available', activityKeysDone: [], examBestPct: null },
-            { stageKey: `${track}.L1.C1.S4`, status: 'available', activityKeysDone: [], examBestPct: null },
-            { stageKey: `${track}.L1.C2.S1`, status: 'available', activityKeysDone: [], examBestPct: null },
-            { stageKey: `${track}.L1.C2.S2`, status: 'locked', activityKeysDone: [], examBestPct: null },
-            { stageKey: `${track}.L1.C2.S3`, status: 'locked', activityKeysDone: [], examBestPct: null }
-          ],
+          stages: allStages.map(sk => ({
+            stageKey: sk,
+            status: doneStages.includes(sk) ? 'completed' : sk === savedStageKey ? 'in_progress' : 'available',
+            activityKeysDone: Array.isArray(doneActivities[sk]) ? doneActivities[sk] : [],
+            examBestPct: doneStages.includes(sk) ? 100 : undefined
+          })),
           levelTest: null
         });
       }
       if (sub === 'chapters') {
-        const chapterKey = parts[4] || `${track}.L1.C1`;
-        return jsonResponse({
-          chapterKey,
-          contentVersion: 'v1',
-          stages: [
-            {
-              stageKey: `${chapterKey}.S1`,
-              meta: {
-                titleVi: 'AI Tiểu Ngữ, xin chào!',
-                titleZh: 'AI小语，你好！',
-                titlePinyin: 'AI Xiǎoyǔ, nǐ hǎo!',
-                canDoVi: ['Chào hỏi và làm quen bằng tiếng Trung', 'Phản hồi lịch sự khi gặp mặt lần đầu'],
-                grammarNotes: []
-              },
-              activities: [
-                { activityKey: `${chapterKey}.S1.learn`, type: 'learn', titleVi: 'Từ vựng & Mẫu câu trọng tâm', required: true },
-                { activityKey: `${chapterKey}.S1.dialogue`, type: 'dialogue', titleVi: 'Hội thoại tình huống thực tế', required: true },
-                { activityKey: `${chapterKey}.S1.exam`, type: 'exam', titleVi: 'Kiểm tra tổng hợp cuối chặng', required: true }
-              ]
-            },
-            {
-              stageKey: `${chapterKey}.S2`,
-              meta: {
-                titleVi: 'Tôi tên là Lý Văn',
-                titleZh: '我叫李文',
-                titlePinyin: 'Wǒ jiào Lǐ Wén',
-                canDoVi: ['Giới thiệu họ tên và làm quen bạn mới', 'Hỏi tên lịch sự trong giao tiếp'],
-                grammarNotes: []
-              },
-              activities: [
-                { activityKey: `${chapterKey}.S2.learn`, type: 'learn', titleVi: 'Từ vựng & Mẫu câu trọng tâm', required: true },
-                { activityKey: `${chapterKey}.S2.dialogue`, type: 'dialogue', titleVi: 'Hội thoại tình huống thực tế', required: true },
-                { activityKey: `${chapterKey}.S2.exam`, type: 'exam', titleVi: 'Kiểm tra tổng hợp cuối chặng', required: true }
-              ]
-            },
-            {
-              stageKey: `${chapterKey}.S3`,
-              meta: {
-                titleVi: 'Tôi là người Trung Quốc',
-                titleZh: '我是中国人',
-                titlePinyin: 'Wǒ shì Zhōngguó rén',
-                canDoVi: ['Giới thiệu quốc tịch và quê hương', 'Hỏi người đối diện đến từ đâu'],
-                grammarNotes: []
-              },
-              activities: [
-                { activityKey: `${chapterKey}.S3.learn`, type: 'learn', titleVi: 'Từ vựng & Mẫu câu trọng tâm', required: true },
-                { activityKey: `${chapterKey}.S3.dialogue`, type: 'dialogue', titleVi: 'Hội thoại tình huống thực tế', required: true },
-                { activityKey: `${chapterKey}.S3.exam`, type: 'exam', titleVi: 'Kiểm tra tổng hợp cuối chặng', required: true }
-              ]
-            }
-          ]
-        });
+        const chapterKey = decodeURIComponent(parts[4] || 'hsk30.L1.C00');
+        const normKey = chapterKey.replace(/\.C(\d)$/, '.C0$1');
+        const chData =
+          (await loadLocalJson(`/data/learning-tracks/chapters/${normKey}.json`)) ||
+          (await loadLocalJson(`/data/learning-tracks/chapters/${chapterKey}.json`)) ||
+          (await loadLocalJson('/data/learning-tracks/chapters/hsk30.L1.C00.json'));
+        if (chData) {
+          return jsonResponse(chData);
+        }
       }
       if (sub === 'enroll' || sub === 'select') {
         const body = await parseRequestBody(init);
-        const startStageId = body.startStageId || `${track}.S1`;
-        const stageLessonMap = {
-          [`${track}.S1`]: 'bai-1-hello-ai-xiaoyu',
-          [`${track}.S2`]: 'bai-5-i-m-off-today',
-          [`${track}.S3`]: 'bai-9-i-ll-be-studying-at-school-tomorrow-morning'
-        };
-        const targetLessonId = stageLessonMap[startStageId] || 'bai-1-hello-ai-xiaoyu';
+        const startStageKey = (body && (body.startStageKey || body.startStageId)) || 'hsk30.L1.P1';
+        const targetLessonId = `${startStageKey}.learn.1`;
+        localStorage.setItem('httq_current_stage_key', startStageKey);
         localStorage.setItem('httq_current_lesson_id', targetLessonId);
         return jsonResponse({
           ok: true,
           currentLessonId: targetLessonId,
           enrollment: {
             pathSlug: track,
-            track,
-            currentLevel: 'L1',
-            currentStageId: startStageId,
+            track: 'hsk30',
+            current: true,
+            currentLevel: (body && body.level) || 'L1',
+            currentStageId: startStageKey,
             currentLessonId: targetLessonId,
-            startStageKey: `${track}.L1.C1.S1`,
+            startStageKey,
             stagesDone: 0,
-            stagesTotal: 3,
+            stagesTotal: 40,
             active: true,
             enrolledAt: new Date().toISOString()
           }
         });
       }
-      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'bai-1-hello-ai-xiaoyu';
+      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+      const savedStageKey = localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
       return jsonResponse({
         slug: track,
-        track,
+        track: 'hsk30',
         level: 1,
         titleVi: 'HSK 1',
         enrollment: {
           pathSlug: track,
-          track,
+          track: 'hsk30',
+          current: true,
           currentLevel: 'L1',
-          currentStageId: `${track}.S1`,
+          currentStageId: savedStageKey,
           currentLessonId: savedLessonId,
-          startStageKey: `${track}.L1.C1.S1`,
+          startStageKey: savedStageKey,
           stagesDone: 0,
-          stagesTotal: 3,
+          stagesTotal: 40,
           active: true,
           enrolledAt: '2026-11-10T00:00:00.000Z'
         },
         stages: [
           {
-            id: `${track}.S1`,
+            id: 'hsk30.L1.P1',
             index: 0,
-            titleVi: 'Chào hỏi & Làm quen cơ bản',
+            titleVi: 'Âm và thanh: Bốn thanh và thanh nhẹ',
             status: 'in_progress',
-            wordCount: 53,
-            grammarCount: 4,
-            progress: { lessonsDone: 1, lessonsTotal: 4 },
+            wordCount: 9,
+            grammarCount: 0,
+            progress: { lessonsDone: 0, lessonsTotal: 4 },
             lessons: [
-              { id: 'bai-1-hello-ai-xiaoyu', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào! (AI小语，你好！)', newWordCount: 12, estMinutes: 6 },
-              { id: 'bai-2-my-name-is-li-wen', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 2: Tôi tên là Lý Văn (我叫李文)', newWordCount: 14, estMinutes: 8 },
-              { id: 'bai-3-i-m-chinese', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 3: Tôi là người Trung Quốc (我是中国人)', newWordCount: 15, estMinutes: 8 },
-              { id: 'bai-4-i-have-two-children', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 4: Gia đình tôi có hai người con', newWordCount: 12, estMinutes: 10 }
+              { id: 'hsk30.L1.P1.learn.1', index: 0, kind: 'learn', status: 'available', titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)', newWordCount: 3, estMinutes: 6 },
+              { id: 'hsk30.L1.P1.dlg', index: 1, kind: 'learn', status: 'available', titleVi: 'Hội thoại: Bốn thanh và thanh nhẹ', newWordCount: 3, estMinutes: 4 },
+              { id: 'hsk30.L1.P1.rp1', index: 2, kind: 'learn', status: 'available', titleVi: 'Nhập vai 1: Chào hỏi bố mẹ Tiểu Văn', newWordCount: 3, estMinutes: 5 },
+              { id: 'hsk30.L1.P1.exam', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Luyện đề: Bốn thanh và thanh nhẹ', newWordCount: 3, estMinutes: 4 }
             ]
           },
           {
-            id: `${track}.S2`,
+            id: 'hsk30.L1.S01',
             index: 1,
-            titleVi: 'Thời gian, Điện thoại & Công việc',
+            titleVi: 'Chào hỏi, làm quen',
             status: 'available',
-            wordCount: 58,
-            grammarCount: 5,
+            wordCount: 44,
+            grammarCount: 4,
             progress: { lessonsDone: 0, lessonsTotal: 4 },
             lessons: [
-              { id: 'bai-5-i-m-off-today', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 5: Hôm nay tôi được nghỉ', newWordCount: 14, estMinutes: 8 },
-              { id: 'bai-6-what-s-your-cell-phone-number', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 6: Số điện thoại của bạn là gì?', newWordCount: 15, estMinutes: 8 },
-              { id: 'bai-7-i-ll-finish-work-at-6-30-in-the-evening', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 7: 6 rưỡi tối tôi tan làm', newWordCount: 15, estMinutes: 8 },
-              { id: 'bai-8-my-father-also-works-at-a-hospital', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 8: Bố tôi cũng làm việc ở bệnh viện', newWordCount: 14, estMinutes: 10 }
-            ]
-          },
-          {
-            id: `${track}.S3`,
-            index: 2,
-            titleVi: 'Trường học, Mua sắm & Thời tiết',
-            status: 'available',
-            wordCount: 62,
-            grammarCount: 5,
-            progress: { lessonsDone: 0, lessonsTotal: 4 },
-            lessons: [
-              { id: 'bai-9-i-ll-be-studying-at-school-tomorrow-morning', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 9: Sáng mai tôi học ở trường', newWordCount: 15, estMinutes: 8 },
-              { id: 'bai-10-the-apples-here-are-really-affordable', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 10: Táo ở đây thực sự rất rẻ', newWordCount: 16, estMinutes: 8 },
-              { id: 'bai-11-i-m-studying-at-university', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 11: Tôi đang học đại học', newWordCount: 15, estMinutes: 8 },
-              { id: 'bai-12-it-snowed-yesterday', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 12: Hôm qua trời có tuyết rơi', newWordCount: 16, estMinutes: 10 }
+              { id: 'hsk30.L1.S01.learn.1', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 1: Xin chào, cảm ơn, tạm biệt (老师，您好！)', newWordCount: 11, estMinutes: 6 },
+              { id: 'hsk30.L1.S02.learn.1', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 2: Bạn tên là gì? (你叫什么名字？)', newWordCount: 11, estMinutes: 6 },
+              { id: 'hsk30.L1.S03.learn.1', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 3: Bạn là người nước nào? (你是哪国人？)', newWordCount: 11, estMinutes: 6 },
+              { id: 'hsk30.L1.S04.learn.1', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 4: Nhà mình có mấy người (你家有几口人？)', newWordCount: 11, estMinutes: 8 }
             ]
           }
         ]
@@ -1845,7 +1835,8 @@
       return jsonResponse({ enabled: false, todayCard: false, checkpoint: { due: false } });
     }
     if (p === '/v2/today' || p === '/v2/today/session' || p.startsWith('/v2/today/session/steps/')) {
-      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'bai-1-hello-ai-xiaoyu';
+      let savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+      if (savedLessonId === 'bai-1-hello-ai-xiaoyu') savedLessonId = 'hsk30.L1.P1.learn.1';
       const todayStr = new Date().toISOString().slice(0, 10);
       let reqMin = Number(urlObj.searchParams.get('minutes')) || 15;
       let sessionStatus = method === 'POST' ? 'in_progress' : 'preview';
@@ -1873,9 +1864,9 @@
           id: 'step-lesson-1',
           kind: 'lesson',
           status: stepStatuses['step-lesson-1'] || 'pending',
-          titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào! (AI小语，你好！)',
-          detailVi: 'Học 12 từ mới và câu giao tiếp chào hỏi cơ bản',
-          reasonVi: 'Bài tiếp theo trong lộ trình HSK 1',
+          titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)',
+          detailVi: 'Học 3 từ mới và phân biệt 4 thanh điệu + thanh nhẹ',
+          reasonVi: 'Bài tiếp theo trong lộ trình HSK 3.0 Cấp 1',
           estMinutes: 6,
           lesson: {
             lessonId: savedLessonId
@@ -1903,7 +1894,7 @@
           reasonVi: 'Luyện giao tiếp hằng ngày',
           estMinutes: 2,
           talk: {
-            stageKey: 'hsk30.L1.C1.S1'
+            stageKey: 'hsk30.L1.P1'
           }
         }
       ];
@@ -1929,7 +1920,7 @@
         completedMinutes: 10,
         continue: { kind: 'lesson', lessonId: savedLessonId },
         items: [
-          { kind: 'lesson', lessonId: savedLessonId, titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào! (AI小语，你好！)', dueCount: 1, estMinutes: 6, locked: false },
+          { kind: 'lesson', lessonId: savedLessonId, titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)', dueCount: 1, estMinutes: 6, locked: false },
           { kind: 'review', titleVi: 'Ôn từ đến hạn', dueCount: 12, estMinutes: 4, locked: false },
           { kind: 'errors', titleVi: 'Sửa lỗi hay sai', dueCount: 3, estMinutes: 2, locked: false }
         ]
@@ -2098,8 +2089,8 @@
       });
     }
     if (p === '/v2/review/runs' || p.startsWith('/v2/lesson-runs') || p.includes('/runs')) {
-      let targetRunId = 'bai-1-hello-ai-xiaoyu';
-      let runKind = 'lesson';
+      let targetRunId = 'hsk30.L1.P1.learn.1';
+      let runKind = 'learn';
       let runMode = 'due';
       if (p === '/v2/review/runs') {
         const body = await parseRequestBody(init);
@@ -2114,20 +2105,29 @@
         }
         try { localStorage.setItem('httq_last_review_mode', targetRunId); } catch (_) {}
       } else if (p.startsWith('/v2/lessons/') && p.endsWith('/runs')) {
-        targetRunId = decodeURIComponent(p.slice('/v2/lessons/'.length, -'/runs'.length)) || 'bai-1-hello-ai-xiaoyu';
+        targetRunId = decodeURIComponent(p.slice('/v2/lessons/'.length, -'/runs'.length)) || 'hsk30.L1.P1.learn.1';
+        if (targetRunId === 'bai-1-hello-ai-xiaoyu') targetRunId = 'hsk30.L1.P1.learn.1';
         localStorage.setItem('httq_current_lesson_id', targetRunId);
       } else if (p.startsWith('/v2/stages/') && p.endsWith('/test-out-runs')) {
         const stg = decodeURIComponent(p.slice('/v2/stages/'.length, -'/test-out-runs'.length));
-        targetRunId = stg.endsWith('.S2') ? 'bai-5-i-m-off-today' : stg.endsWith('.S3') ? 'bai-9-i-ll-be-studying-at-school-tomorrow-morning' : 'bai-4-i-have-two-children';
+        targetRunId = `${stg}.exam`;
         localStorage.setItem('httq_current_lesson_id', targetRunId);
       } else if (p.startsWith('/v2/lesson-runs/')) {
-        targetRunId = decodeURIComponent(p.slice('/v2/lesson-runs/'.length).split('/')[0]) || 'bai-1-hello-ai-xiaoyu';
+        targetRunId = decodeURIComponent(p.slice('/v2/lesson-runs/'.length).split('/')[0]) || 'hsk30.L1.P1.learn.1';
       }
+      setTimeout(() => {
+        try {
+          if (!window.location.pathname.startsWith('/hoc/bai/')) {
+            origPushState.call(history, null, '', '/hoc/bai/' + encodeURIComponent(targetRunId));
+            checkAndRenderDynamicPage();
+          }
+        } catch (_) {}
+      }, 60);
       return jsonResponse({
         runId: targetRunId,
         kind: runKind,
         mode: runMode,
-        total: 12,
+        total: 21,
         answered: 0,
         steps: []
       });
@@ -3439,29 +3439,53 @@
     if (customRoot) {
       customRoot.remove();
     }
+    const runnerRoot = document.getElementById('xhz-lesson-runner-root');
+    if (runnerRoot) {
+      runnerRoot.remove();
+    }
+    if (window.__xhzLessonKeydownHandler) {
+      window.removeEventListener('keydown', window.__xhzLessonKeydownHandler);
+      window.__xhzLessonKeydownHandler = null;
+    }
     const main = document.querySelector('main');
     if (main) {
       main.style.display = '';
     }
+    document.body.style.overflow = '';
   }
 
-  function playPronunciation(text, audioUrl) {
-    if (audioUrl) {
-      const a = new window.Audio(rewriteMediaUrl(audioUrl));
-      a.play().catch(() => {
-        if ('speechSynthesis' in window && text) {
+  function playPronunciation(text, audioUrl, rate) {
+    const speakFallback = () => {
+      if ('speechSynthesis' in window && text) {
+        try {
+          window.speechSynthesis.cancel();
           const u = new SpeechSynthesisUtterance(text);
           u.lang = 'zh-CN';
+          u.rate = rate ? Math.min(1, Math.max(0.5, rate)) : 0.9;
           window.speechSynthesis.speak(u);
-        }
-      });
-      return;
+        } catch (_) {}
+      }
+    };
+    if (audioUrl && !audioUrl.includes('media-signed/tts/')) {
+      try {
+        const a = new window.Audio(rewriteMediaUrl(audioUrl));
+        if (rate) a.playbackRate = rate;
+        a.play().catch(speakFallback);
+        return;
+      } catch (_) {
+        speakFallback();
+        return;
+      }
     }
-    if ('speechSynthesis' in window && text) {
-      const u = new SpeechSynthesisUtterance(text);
-      u.lang = 'zh-CN';
-      window.speechSynthesis.speak(u);
+    if (text && /^[\u4e00-\u9fff]{1,4}$/.test(text.trim())) {
+      try {
+        const a = new window.Audio(rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(text.trim())}.mp3`));
+        if (rate) a.playbackRate = rate;
+        a.play().catch(speakFallback);
+        return;
+      } catch (_) {}
     }
+    speakFallback();
   }
   window.__xhzPlayAudio = playPronunciation;
 
@@ -5893,437 +5917,1784 @@
 
   // --------------------------------------------------------------------------
   // 6.9. Trang Chặng Học / Bài Học (/hoc/chang/:stageKey, /hoc/bai/:runId)
+  //      Interactive Capybara Lesson Runner 1:1 với xiehanzi.com
   // --------------------------------------------------------------------------
+  function ensureLessonRunnerAssets() {
+    ['/\_next/static/css/6090e9ab23b2dccf.css', '/\_next/static/css/70d4fb21c4146575.css'].forEach(href => {
+      const cleanHref = href.replace('\\_', '_');
+      if (!document.querySelector(`link[href="${cleanHref}"]`)) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = cleanHref;
+        document.head.appendChild(link);
+      }
+    });
+    if (!window.HanziWriter && !document.getElementById('xhz-hanzi-writer-cdn')) {
+      const s = document.createElement('script');
+      s.id = 'xhz-hanzi-writer-cdn';
+      s.src = 'https://cdn.jsdelivr.net/npm/hanzi-writer@3.7.2/dist/hanzi-writer.min.js';
+      s.async = true;
+      document.head.appendChild(s);
+    }
+  }
+
+  function detectPinyinTone(syllable) {
+    if (!syllable) return 5;
+    if (/[āēīōūǖĀĒĪŌŪǕ]/.test(syllable)) return 1;
+    if (/[áéíóúǘÁÉÍÓÚǗ]/.test(syllable)) return 2;
+    if (/[ǎěǐǒǔǚǍĚǏǑǓǙ]/.test(syllable)) return 3;
+    if (/[àèìòùǜÀÈÌÒÙǛ]/.test(syllable)) return 4;
+    return 5;
+  }
+
+  function renderColoredPinyin(pinyinStr, extraClass = '') {
+    if (!pinyinStr) return '';
+    const tokens = String(pinyinStr).split(/(\s+|[,，.。!！?？、]+)/);
+    const inner = tokens
+      .map(tok => {
+        if (!tok || /^\s+$/.test(tok) || /^[,，.。!！?？、]+$/.test(tok)) return tok;
+        const tone = detectPinyinTone(tok);
+        return `<span class="lp-t${tone}">${tok}</span>`;
+      })
+      .join('');
+    return `<span class="py ${extraClass}">${inner}</span>`;
+  }
+
+  function convertNumberedPinyin(inputStr) {
+    if (!inputStr) return '';
+    const toneMap = {
+      a: ['ā', 'á', 'ǎ', 'à', 'a'],
+      e: ['ē', 'é', 'ě', 'è', 'e'],
+      i: ['ī', 'í', 'ǐ', 'ì', 'i'],
+      o: ['ō', 'ó', 'ǒ', 'ò', 'o'],
+      u: ['ū', 'ú', 'ǔ', 'ù', 'u'],
+      ü: ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü'],
+      v: ['ǖ', 'ǘ', 'ǚ', 'ǜ', 'ü']
+    };
+    return String(inputStr).replace(/([a-zA-ZüÜvV]+)([1-5])/g, (_, syl, digit) => {
+      const tIdx = Number(digit) - 1;
+      let s = syl.replace(/v/g, 'ü').replace(/V/g, 'Ü');
+      const lower = s.toLowerCase();
+      let targetIdx = -1;
+      if (lower.includes('a')) targetIdx = lower.indexOf('a');
+      else if (lower.includes('e')) targetIdx = lower.indexOf('e');
+      else if (lower.includes('ou')) targetIdx = lower.indexOf('o');
+      else {
+        for (let i = lower.length - 1; i >= 0; i--) {
+          if ('aeiouvü'.includes(lower[i])) {
+            targetIdx = i;
+            break;
+          }
+        }
+      }
+      if (targetIdx === -1) return syl;
+      const ch = lower[targetIdx];
+      const rep = (toneMap[ch] && toneMap[ch][tIdx]) || s[targetIdx];
+      return s.slice(0, targetIdx) + rep + s.slice(targetIdx + 1);
+    });
+  }
+
+  function normalizePinyinCompare(str, requireTone = true) {
+    const converted = convertNumberedPinyin(String(str || '').trim().toLowerCase()).replace(/\s+/g, '');
+    if (requireTone) return converted;
+    return converted
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/ü/g, 'v');
+  }
+
+  async function buildDynamicRunFromStage(activityKey) {
+    const stgMatch = activityKey.match(/^(hsk30\.L\d+\.[A-Z]\d+)/i);
+    const stageKey = stgMatch ? stgMatch[1] : 'hsk30.L1.P1';
+    const actSuffix = activityKey.slice(stageKey.length + 1) || 'learn.1';
+    const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+    let chapterKey = 'hsk30.L1.C00';
+    if (levelData && Array.isArray(levelData.chapters)) {
+      for (const ch of levelData.chapters) {
+        if ((ch.stages || []).some(s => s.stageKey === stageKey)) {
+          chapterKey = ch.chapterKey;
+          break;
+        }
+      }
+    }
+    const chBundle =
+      (await loadLocalJson(`/data/learning-tracks/chapters/${chapterKey}.json`)) ||
+      (await loadLocalJson('/data/learning-tracks/chapters/hsk30.L1.C00.json'));
+    const stg =
+      (chBundle && Array.isArray(chBundle.stages) && chBundle.stages.find(s => s.stageKey === stageKey)) ||
+      (chBundle && chBundle.stages && chBundle.stages[0]);
+    if (!stg) return await loadLocalJson('/data/learning-tracks/runs/hsk30.L1.P1.learn.1.json');
+
+    const words = Array.isArray(stg.words) && stg.words.length > 0 ? stg.words : [];
+    const hwList = (stg.meta && Array.isArray(stg.meta.handwriting) && stg.meta.handwriting) || [];
+    const steps = [];
+    const distractorsPool = ['tám (số)', 'bố, cha', 'mẹ', 'xin chào', 'cảm ơn', 'tạm biệt', 'giáo viên', 'học sinh', 'bạn bè', 'Việt Nam'];
+
+    if (actSuffix === 'dlg' && stg.dialogue && Array.isArray(stg.dialogue.turns)) {
+      steps.push({
+        id: 'd1',
+        type: 'dialogue',
+        skill: 'listening',
+        itemKeys: words.map(w => w.key || `w:${w.hanzi}`),
+        graded: true,
+        prompt: { vi: 'Nghe hội thoại rồi trả lời câu hỏi' },
+        payload: {
+          dialogueKey: activityKey,
+          sceneVi: (stg.meta && stg.meta.scenario && stg.meta.scenario.placeVi) || stg.meta.titleVi,
+          roles: stg.dialogue.roles || [
+            { id: 'A', labelVi: 'Nhân vật A' },
+            { id: 'B', labelVi: 'Bạn', learner: true }
+          ],
+          turns: stg.dialogue.turns,
+          questions: stg.dialogue.questions || []
+        }
+      });
+      steps.push({ id: 's-end', type: 'summary', skill: null, itemKeys: [], graded: false });
+      return {
+        runId: activityKey,
+        kind: 'learn',
+        estMinutes: 4,
+        feedback: 'instant',
+        titleVi: `Hội thoại: ${stg.meta ? stg.meta.titleVi : stageKey}`,
+        hskLevel: 1,
+        track: 'hsk30',
+        stageKey,
+        activityKey,
+        steps
+      };
+    }
+
+    words.slice(0, 6).forEach((w, idx) => {
+      const hz = w.hanzi;
+      const py = w.wordPinyin || w.pinyin || '';
+      const vi = w.meaningVi || '';
+      const hv = w.hanviet || '';
+      const audioUrl = (w.audio && w.audio.url) || `https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`;
+      const ex = (Array.isArray(w.examples) && w.examples[0]) || { hanzi: `${hz}！`, pinyin: py, vi };
+
+      // 1. intro_word
+      const fakeTones = [py, convertNumberedPinyin(py.replace(/[āáǎà]/, 'ǎ') || 'bǎ'), convertNumberedPinyin(py.replace(/[āáǎà]/, 'á') || 'bá')];
+      const uniqTones = [...new Set([py, ...fakeTones, 'bā', 'bǎ', 'bá'])].slice(0, 3);
+      steps.push({
+        id: `intro-${idx}`,
+        type: 'intro_word',
+        skill: null,
+        itemKeys: [w.key || `w:${hz}`],
+        graded: false,
+        prompt: { vi: 'Từ mới' },
+        payload: {
+          word: {
+            key: w.key || `w:${hz}`,
+            hanzi: hz,
+            pinyin: py,
+            wordPinyin: py,
+            meaningVi: vi,
+            hanviet: hv,
+            hanvietGloss: w.hanvietGloss || hv,
+            wordClassVi: w.wordClassVi || 'từ vựng',
+            audio: { url: audioUrl },
+            example: {
+              hanzi: ex.hanzi,
+              pinyin: ex.pinyin,
+              vi: ex.vi,
+              audio: ex.audio || { url: audioUrl }
+            }
+          },
+          verifiedHanViet: hv ? { reading: hv, confidence: 'high' } : undefined,
+          breakdowns: [
+            {
+              hanzi: Array.from(hz)[0] || hz,
+              pinyin: py.split(/\s+/)[0] || py,
+              hanViet: hv.split(/\s+/)[0] || hv,
+              meaningVi: vi,
+              components: [],
+              memoryHint: w.hanvietGloss ? `Âm Hán Việt là "${hv}" (${w.hanvietGloss}), gắn liền với nghĩa "${vi}".` : `Ghi nhớ âm đọc ${py} và nghĩa "${vi}".`
+            }
+          ],
+          pretest: {
+            kind: 'tone',
+            promptVi: 'Nghe và đoán thanh điệu',
+            options: uniqTones.map((t, oi) => ({ id: `o${oi + 1}`, text: t })),
+            correctOptionId: 'o1',
+            revealVi: `${hz} đọc là ${py}.`
+          }
+        }
+      });
+
+      // 2. choose_meaning
+      const otherVi = words
+        .filter((_, i) => i !== idx)
+        .map(x => x.meaningVi)
+        .concat(distractorsPool)
+        .filter(x => x && x !== vi);
+      const uniqWrong = [...new Set(otherVi)].slice(0, 3);
+      const opts = [
+        { id: 'o1', text: vi },
+        { id: 'o2', text: uniqWrong[0] || 'xin chào' },
+        { id: 'o3', text: uniqWrong[1] || 'cảm ơn' },
+        { id: 'o4', text: uniqWrong[2] || 'tạm biệt' }
+      ];
+      steps.push({
+        id: `cm-${idx}`,
+        type: 'choose_meaning',
+        skill: 'meaning',
+        itemKeys: [w.key || `w:${hz}`],
+        graded: true,
+        prompt: { vi: 'Chọn nghĩa đúng' },
+        payload: {
+          direction: 'zh_vi',
+          question: { hanzi: hz, pinyin: py, audio: { url: audioUrl } },
+          options: opts
+        },
+        explanationVi: `${hz} (${py})${hv ? `, âm Hán Việt ${hv}` : ''}: ${vi}.`,
+        check: { correctOptionId: 'o1' },
+        retryHint: {
+          textVi: 'Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.',
+          cue: hv ? `Hán Việt: ${hv}` : `Pinyin: ${py}`,
+          audio: { url: audioUrl }
+        }
+      });
+
+      // 3. write_character (nếu có trong handwriting hoặc chữ đầu)
+      const hw = hwList.find(h => h.fromWord === hz || h.char === Array.from(hz)[0]) || {
+        char: Array.from(hz)[0] || hz,
+        pinyin: py,
+        hanviet: hv
+      };
+      if (idx < 3 && hw && hw.char) {
+        steps.push({
+          id: `wc-${idx}`,
+          type: 'write_character',
+          skill: 'writing',
+          itemKeys: [`c:${hw.char}`],
+          graded: true,
+          prompt: { vi: `Tập viết chữ mới: ${py}, “${vi}”` },
+          payload: {
+            char: hw.char,
+            mode: 'guided',
+            phases: ['demo', 'trace', 'recall'],
+            cue: {
+              meaningVi: vi,
+              pinyin: py,
+              hanviet: hw.hanviet || hv,
+              audio: { url: audioUrl }
+            }
+          },
+          explanationVi: 'Nét viết chưa đúng thứ tự hoặc hướng. Xem nét mẫu rồi viết lại.'
+        });
+      }
+
+      // 4. type_pinyin
+      steps.push({
+        id: `tp-${idx}`,
+        type: 'type_pinyin',
+        skill: 'sound',
+        itemKeys: [w.key || `w:${hz}`],
+        graded: true,
+        prompt: { vi: 'Gõ pinyin (có thanh điệu)' },
+        payload: {
+          hanzi: hz,
+          audio: { url: audioUrl },
+          toneRequired: true,
+          meaningVi: vi
+        },
+        explanationVi: `${hz} nghĩa là ${vi}. Chú ý thanh điệu của từng âm tiết.`,
+        check: { accepted: [py] },
+        retryHint: {
+          textVi: 'Nghe chậm để chọn thanh. Thanh 1 ngang cao, thanh 2 đi lên, thanh 3 xuống thấp rồi lên, thanh 4 đi xuống.',
+          cue: normalizePinyinCompare(py, false),
+          audio: { url: audioUrl }
+        }
+      });
+    });
+
+    // 5. match_pairs
+    if (words.length >= 2) {
+      const sliceW = words.slice(0, Math.min(4, words.length));
+      steps.push({
+        id: 'mp-1',
+        type: 'match_pairs',
+        skill: 'meaning',
+        itemKeys: sliceW.map(w => w.key || `w:${w.hanzi}`),
+        graded: true,
+        prompt: { vi: 'Ghép từ với nghĩa' },
+        payload: {
+          left: sliceW.map((w, i) => ({
+            id: `l${i + 1}`,
+            hanzi: w.hanzi,
+            audio: w.audio || { url: `https://static.xiehanzi.com/word_audios/${encodeURIComponent(w.hanzi)}.mp3` }
+          })),
+          right: sliceW
+            .map((w, i) => ({ id: `r${i + 1}`, text: w.meaningVi }))
+            .reverse()
+        },
+        explanationVi: 'Có cặp nối nhầm nghĩa. Nhớ lại nghĩa từng từ rồi thử lại.',
+        check: {
+          pairs: sliceW.map((_, i) => [`l${i + 1}`, `r${i + 1}`])
+        }
+      });
+    }
+
+    steps.push({ id: 's-summary', type: 'summary', skill: null, itemKeys: [], graded: false });
+
+    return {
+      runId: activityKey,
+      kind: 'learn',
+      estMinutes: 6,
+      feedback: 'instant',
+      titleVi: `Từ mới: ${stg.meta ? stg.meta.titleVi : stageKey}`,
+      hskLevel: 1,
+      track: 'hsk30',
+      stageKey,
+      activityKey,
+      steps
+    };
+  }
+
+  async function resolveLessonRunData(slug) {
+    const legacyMap = {
+      'bai-1-hello-ai-xiaoyu': 'hsk30.L1.P1.learn.1',
+      'hsk30.L1.C1.S1': 'hsk30.L1.P1.learn.1',
+      'hsk30-1.S1': 'hsk30.L1.P1.learn.1',
+      'hsk30.L1.P1': 'hsk30.L1.P1.learn.1',
+      '6af3478a270319be91af2e10': 'hsk30.L1.P1.learn.1',
+      '6af3efd75ef8914173f992b5': 'hsk30.L1.P1.learn.1',
+      '6af3efd70fb3998ecd760dd8': 'hsk30.L1.P1.dlg',
+      '6af3efd75ef8914173f992c2': 'hsk30.L1.P1.rp1',
+      '6af3efd70fb3998ecd760df3': 'hsk30.L1.P1.rp2',
+      '6af3efd75ef8914173f992ce': 'hsk30.L1.P1.exam',
+      'bai-2-my-name-is-li-wen': 'hsk30.L1.S02.learn.1',
+      'hsk30.L1.C1.S2': 'hsk30.L1.S02.learn.1',
+      'bai-3-i-m-chinese': 'hsk30.L1.S03.learn.1',
+      'hsk30.L1.C1.S3': 'hsk30.L1.S03.learn.1',
+      'bai-4-i-have-two-children': 'hsk30.L1.S04.learn.1',
+      'hsk30.L1.C1.S4': 'hsk30.L1.S04.learn.1'
+    };
+    let actKey = legacyMap[slug] || slug;
+    if (/^hsk30\.L\d+\.[A-Z]\d+$/i.test(actKey)) {
+      actKey = `${actKey}.learn.1`;
+    }
+    const directRun = await loadLocalJson(`/data/learning-tracks/runs/${actKey}.json`);
+    if (directRun && Array.isArray(directRun.steps) && directRun.steps.length > 0) {
+      return directRun;
+    }
+    return await buildDynamicRunFromStage(actKey);
+  }
+
   async function renderStudyStageOrRunPage(pathname) {
-    // Dọn dẹp modal chọn bạn đồng hành và khóa cuộn trang từ /hoc/bat-dau (nếu có)
     try {
       document.querySelectorAll('[data-modal-layer], [data-companion-picker]').forEach(el => el.remove());
       document.documentElement.removeAttribute('data-focus-session');
-      document.body.style.overflow = '';
     } catch (_) {}
 
     const parts = pathname.split('/').filter(Boolean);
-    const mode = parts[1];
-    const slug = decodeURIComponent(parts[2] || 'bai-1-hello-ai-xiaoyu');
+    const slug = decodeURIComponent(parts[2] || 'hsk30.L1.P1.learn.1');
 
     if (slug.startsWith('on-tap-') || slug.startsWith('review-')) {
       await renderReviewSessionPage(slug);
       return;
     }
 
-    const root = getMainContentContainer();
+    ensureLessonRunnerAssets();
 
-    let lvlNum = '1';
-    const explicitLvl =
-      slug.match(/new-hsk-(\d)/i) ||
-      slug.match(/hsk30-(\d)/i) ||
-      slug.match(/\.L(\d)\b/i) ||
-      slug.match(/^L(\d)$/i) ||
-      slug.match(/^hsk-?(\d)$/i);
-    if (explicitLvl && explicitLvl[1]) {
-      lvlNum = explicitLvl[1];
-    }
+    const run = (await resolveLessonRunData(slug)) || (await loadLocalJson('/data/learning-tracks/runs/hsk30.L1.P1.learn.1.json'));
+    if (!run || !Array.isArray(run.steps)) return;
 
-    const stageToLessonMap = {
-      s1: 'bai-1-hello-ai-xiaoyu',
-      s2: 'bai-2-my-name-is-li-wen',
-      s3: 'bai-3-i-m-chinese',
-      s4: 'bai-4-i-have-two-children',
-      s5: 'bai-5-i-m-off-today',
-      s6: 'bai-6-what-s-your-cell-phone-number'
-    };
-
-    const hsk1Lessons = [
-      { slug: 'bai-1-hello-ai-xiaoyu', num: 1, titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào!', titleZh: 'AI小语，你好！' },
-      { slug: 'bai-2-my-name-is-li-wen', num: 2, titleVi: 'Bài 2: Tôi tên là Lý Văn', titleZh: '我叫李文' },
-      { slug: 'bai-3-i-m-chinese', num: 3, titleVi: 'Bài 3: Tôi là người Trung Quốc', titleZh: '我是中国人' },
-      { slug: 'bai-4-i-have-two-children', num: 4, titleVi: 'Bài 4: Gia đình tôi có hai người con', titleZh: '我有两个孩子' },
-      { slug: 'bai-5-i-m-off-today', num: 5, titleVi: 'Bài 5: Hôm nay tôi được nghỉ', titleZh: '我今天休息' },
-      { slug: 'bai-6-what-s-your-cell-phone-number', num: 6, titleVi: 'Bài 6: Số điện thoại của bạn là gì?', titleZh: '你的手机号是多少？' }
-    ];
-
-    let targetLessonSlug = 'bai-1-hello-ai-xiaoyu';
-    if (slug.startsWith('bai-')) {
-      targetLessonSlug = slug;
-    } else {
-      const stgMatch = slug.match(/\.(s\d)$/i);
-      if (stgMatch && stageToLessonMap[stgMatch[1].toLowerCase()]) {
-        targetLessonSlug = stageToLessonMap[stgMatch[1].toLowerCase()];
-      } else {
-        const saved = localStorage.getItem('httq_current_lesson_id');
-        if (saved && saved.startsWith('bai-')) targetLessonSlug = saved;
+    const playableSteps = run.steps.filter(s => s.type !== 'summary');
+    const introWords = [];
+    run.steps.forEach(s => {
+      if (s.type === 'intro_word' && s.payload && s.payload.word && s.payload.word.hanzi) {
+        if (!introWords.includes(s.payload.word.hanzi)) introWords.push(s.payload.word.hanzi);
       }
-    }
-
-    const topicDetail =
-      (await loadLocalJson(`/data/curriculums/new-hsk/lessons/new-hsk-${lvlNum}--${targetLessonSlug}.json`)) ||
-      (await loadLocalJson(`/data/curriculums/new-hsk/lessons/new-hsk-1--${targetLessonSlug}.json`)) ||
-      (await loadLocalJson(`/data/curriculums/new-hsk/lessons/new-hsk-${lvlNum}--bai-1-hello-ai-xiaoyu.json`)) ||
-      (await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json'));
-
-    const lessonObj = (topicDetail && topicDetail.lesson) || {};
-    const words =
-      (lessonObj && Array.isArray(lessonObj.words) && lessonObj.words) ||
-      (topicDetail && topicDetail.topic && topicDetail.topic.words) ||
-      [];
-
-    const lessonTitleVi = lessonObj.titleVi || 'AI Tiểu Ngữ, xin chào!';
-    const lessonTitleZh = lessonObj.titleZh || 'AI小语，你好！';
-    const lessonNumber = lessonObj.lessonNumber || 1;
-
-    const companionInfo = buildCompanionCharactersResponse();
-    const companionId = localStorage.getItem('httq_companion_id') || companionInfo.selectedId || 'capy';
-    const companion = companionInfo.items.find(c => c.id === companionId) || companionInfo.items[0];
-    const companionImg = companionId === 'capy' ? '/images/capy/lesson/happy.webp' : `/images/companion/${companionId}/splash/hero.webp`;
-
-    document.title = `Bài ${lessonNumber}: ${lessonTitleVi} | HSK ${lvlNum} | XieHanzi`;
-
-    root.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-        <a href="/hoc" style="color:#ea580c;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">
-          ← Về Lộ trình Học (/hoc)
-        </a>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <a href="/hoc/on-tap" style="padding:6px 14px;border-radius:999px;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;font-weight:700;font-size:13px;text-decoration:none;">🔄 Ôn tập SRS</a>
-          <a href="/hoc/bat-dau" style="padding:6px 14px;border-radius:999px;background:#f5f5f4;color:#44403c;border:1px solid #e7e5e4;font-weight:600;font-size:13px;text-decoration:none;">⚙️ Đổi mục tiêu / Bạn đồng hành</a>
-        </div>
-      </div>
-
-      <!-- Companion Greeting Banner -->
-      <div style="display:flex;align-items:center;gap:16px;background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa;border-radius:20px;padding:16px 20px;margin-bottom:18px;box-shadow:0 2px 10px rgba(234,88,12,0.06);">
-        <img src="${companionImg}" alt="${companion.name}" style="width:68px;height:68px;border-radius:16px;object-fit:cover;background:#fff;border:2px solid #fdba74;flex-shrink:0;" />
-        <div style="flex:1;min-width:0;">
-          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <span style="font-size:16px;font-weight:800;color:#9a3412;">${companion.name} (${companion.nameZh})</span>
-            <span style="font-size:12px;padding:2px 10px;border-radius:999px;background:#fff;color:#ea580c;font-weight:700;border:1px solid #fdba74;">${companion.role}</span>
-          </div>
-          <p style="margin:6px 0 0 0;font-size:14px;color:#431407;line-height:1.5;">
-            “${companion.greetingText} Hôm nay chúng mình cùng chinh phục <strong>Bài ${lessonNumber}: ${lessonTitleVi} (${lessonTitleZh})</strong> với <strong>${words.length} từ vựng trọng tâm</strong> nhé!”
-          </p>
-        </div>
-      </div>
-
-      <!-- Lesson Switcher Bar -->
-      <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:10px;margin-bottom:16px;">
-        ${hsk1Lessons.map(l => {
-          const active = l.slug === targetLessonSlug;
-          return `<a href="/hoc/bai/${l.slug}" style="white-space:nowrap;padding:8px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${active ? '#ea580c' : '#e7e5e4'};background:${active ? '#ea580c' : '#fff'};color:${active ? '#fff' : '#44403c'};">
-            Bài ${l.num}: ${l.titleZh}
-          </a>`;
-        }).join('')}
-      </div>
-
-      <!-- Main Lesson Container -->
-      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:20px;border-bottom:1px solid #f5f5f4;padding-bottom:16px;">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#ea580c;text-transform:uppercase;letter-spacing:0.04em;">
-              Lộ trình Chuẩn HSK ${lvlNum} · ${mode === 'chang' ? 'Chặng học' : `Bài ${lessonNumber}`}
-            </div>
-            <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:4px 0;">
-              Bài ${lessonNumber}: ${lessonTitleVi} <span style="color:#ea580c;font-weight:700;">(${lessonTitleZh})</span>
-            </h1>
-            <p style="color:#57534e;margin:4px 0 0 0;font-size:14px;">
-              ${words.length} từ vựng & mẫu câu giao tiếp · Thời lượng ~${lessonObj.estimatedMinutes || 10} phút
-            </p>
-          </div>
-          <button id="xhz-lesson-play-all" style="padding:10px 18px;border-radius:12px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:700;cursor:pointer;font-size:14px;">
-            🔊 Nghe phát âm bài học
-          </button>
-        </div>
-
-        <!-- Mode Tabs -->
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;">
-          <button class="xhz-lesson-tab" data-tab="vocab" style="padding:10px 18px;border-radius:12px;border:2px solid #ea580c;background:#ea580c;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">
-            1. 📖 Từ vựng & Mẫu câu (${words.length})
-          </button>
-          <button class="xhz-lesson-tab" data-tab="flashcard" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:700;cursor:pointer;font-size:14px;">
-            2. 🗂️ Flashcard Lật thẻ
-          </button>
-          <button class="xhz-lesson-tab" data-tab="quiz" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:700;cursor:pointer;font-size:14px;">
-            3. 🎯 Bài tập Kiểm tra phản xạ
-          </button>
-        </div>
-
-        <!-- TAB 1: VOCABULARY & EXAMPLES -->
-        <div id="xhz-tab-vocab" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;">
-          ${words.map((w, idx) => {
-            const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
-            const py = w.wordPinyin || w.pinyin || '';
-            const hv = w.hanviet || '';
-            const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
-            const rawAudio = (Array.isArray(w.audios) && w.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
-            const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
-            return `<div style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
-              <div>
-                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-                  <div>
-                    <span style="font-size:12px;color:#78716c;font-weight:700;">#${idx + 1}</span>
-                    <a href="/tu-vung/${encodeURIComponent(hz)}" style="font-size:30px;font-weight:800;color:#1c1917;text-decoration:none;margin-left:6px;">${hz}</a>
-                  </div>
-                  <button class="xhz-word-audio-btn" data-hz="${hz}" data-audio="${rawAudio}" style="padding:6px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">
-                    🔊 ${py}
-                  </button>
-                </div>
-                ${hv ? `<div style="margin-top:4px;font-size:12px;font-weight:700;color:#ea580c;text-transform:uppercase;">Hán Việt: ${hv}</div>` : ''}
-                <div style="font-size:16px;font-weight:700;color:#1c1917;margin-top:6px;">${vi}</div>
-                ${ex ? `
-                  <div style="margin-top:10px;padding:10px 12px;border-radius:10px;background:#fff;border:1px solid #e7e5e4;font-size:13px;">
-                    <div style="font-weight:700;color:#1c1917;font-size:15px;">${ex.hanzi || ex.chinese || ''}</div>
-                    <div style="color:#ea580c;margin-top:2px;">${ex.pinyin || ''}</div>
-                    <div style="color:#57534e;margin-top:2px;">${ex.vietnamese || ex.meaningVi || ''}</div>
-                  </div>
-                ` : ''}
-              </div>
-              <div style="display:flex;gap:8px;margin-top:4px;">
-                <a href="/han-tu/${encodeURIComponent(Array.from(hz)[0] || hz)}" style="font-size:12px;color:#57534e;text-decoration:underline;font-weight:600;">✍️ Xem nét viết</a>
-                <a href="/tu-vung/${encodeURIComponent(hz)}" style="font-size:12px;color:#ea580c;text-decoration:underline;font-weight:600;margin-left:auto;">Chi tiết từ →</a>
-              </div>
-            </div>`;
-          }).join('')}
-        </div>
-
-        <!-- TAB 2: INTERACTIVE FLASHCARD -->
-        <div id="xhz-tab-flashcard" style="display:none;">
-          <div style="max-width:520px;margin:0 auto;text-align:center;">
-            <div id="xhz-fc-counter" style="font-size:14px;font-weight:700;color:#78716c;margin-bottom:12px;">Thẻ 1 / ${words.length}</div>
-            <div id="xhz-fc-card" style="padding:36px 24px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;cursor:pointer;min-height:240px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;box-shadow:0 8px 24px rgba(234,88,12,0.08);">
-              <div id="xhz-fc-hanzi" style="font-size:64px;font-weight:800;color:#1c1917;"></div>
-              <div id="xhz-fc-pinyin" style="font-size:22px;font-weight:700;color:#ea580c;"></div>
-              <div id="xhz-fc-back" style="display:none;margin-top:10px;padding-top:12px;border-top:1px dashed #fdba74;width:100%;">
-                <div id="xhz-fc-meaning" style="font-size:22px;font-weight:800;color:#1c1917;"></div>
-                <div id="xhz-fc-example" style="font-size:14px;color:#57534e;margin-top:8px;"></div>
-              </div>
-              <div style="font-size:12px;color:#9a3412;margin-top:8px;">(Bấm vào thẻ để lật xem nghĩa & ví dụ)</div>
-            </div>
-            <div style="display:flex;justify-content:center;gap:10px;margin-top:18px;flex-wrap:wrap;">
-              <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
-              <button id="xhz-fc-speak" style="padding:10px 18px;border-radius:12px;border:none;background:#ea580c;color:#fff;font-weight:700;cursor:pointer;">🔊 Phát âm</button>
-              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:1px solid #fdba74;background:#ffedd5;color:#9a3412;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
-              <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp theo →</button>
-            </div>
-          </div>
-        </div>
-
-        <!-- TAB 3: INTERACTIVE QUIZ -->
-        <div id="xhz-tab-quiz" style="display:none;">
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px;">
-            <div style="font-size:16px;font-weight:800;color:#1c1917;">Chọn nghĩa tiếng Việt đúng cho các từ vựng trong bài:</div>
-            <div id="xhz-lesson-quiz-score" style="padding:6px 14px;border-radius:999px;background:#dcfce7;color:#15803d;font-weight:800;font-size:14px;">Điểm: 0 / ${words.length}</div>
-          </div>
-          <div id="xhz-lesson-quiz-list" style="display:flex;flex-direction:column;gap:16px;"></div>
-        </div>
-
-        <!-- Footer CTA -->
-        <div style="margin-top:28px;padding-top:20px;border-top:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <button id="xhz-go-quiz-btn" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;font-size:15px;cursor:pointer;">
-            🎯 Làm bài tập kiểm tra ngay →
-          </button>
-          <button id="xhz-complete-lesson-btn" style="padding:12px 26px;border-radius:14px;background:#16a34a;color:#fff;border:none;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 4px 14px rgba(22,163,74,0.25);">
-            ✅ Hoàn thành bài học & Tiếp tục Lộ trình
-          </button>
-        </div>
-      </div>
-    `;
-
-    // Wire audio buttons
-    root.querySelectorAll('.xhz-word-audio-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        playPronunciation(btn.getAttribute('data-hz'), btn.getAttribute('data-audio'));
-      });
     });
 
-    const playAllBtn = root.querySelector('#xhz-lesson-play-all');
-    if (playAllBtn && words.length > 0) {
-      playAllBtn.onclick = () => {
-        const firstW = words[0];
-        const hz = (firstW.hanzi || firstW.word || '你好').replace(/\{|\}/g, '');
-        const audio = (Array.isArray(firstW.audios) && firstW.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
-        playPronunciation(hz, audio);
-      };
+    document.title = `${run.titleVi || 'Bài học'} | XieHanzi`;
+
+    // Ẩn main tĩnh và tạo full-screen overlay lp-runner
+    const main = document.querySelector('main');
+    if (main) main.style.display = 'none';
+    const oldCustom = document.getElementById('xhz-dynamic-page-root');
+    if (oldCustom) oldCustom.style.display = 'none';
+
+    let runnerRoot = document.getElementById('xhz-lesson-runner-root');
+    if (!runnerRoot) {
+      runnerRoot = document.createElement('div');
+      runnerRoot.id = 'xhz-lesson-runner-root';
+      document.body.appendChild(runnerRoot);
     }
 
-    // Wire Flashcard logic
-    let fcIndex = 0;
-    const fcCounter = root.querySelector('#xhz-fc-counter');
-    const fcCard = root.querySelector('#xhz-fc-card');
-    const fcHanzi = root.querySelector('#xhz-fc-hanzi');
-    const fcPinyin = root.querySelector('#xhz-fc-pinyin');
-    const fcBack = root.querySelector('#xhz-fc-back');
-    const fcMeaning = root.querySelector('#xhz-fc-meaning');
-    const fcExample = root.querySelector('#xhz-fc-example');
+    const state = {
+      showIntro: true,
+      stepIdx: 0,
+      phase: 'answering', // 'answering' | 'hint' | 'feedback' | 'done'
+      verdict: null,
+      hintedStepId: null,
+      disabledOptionIds: new Set(),
+      correctCount: 0,
+      gradedCount: 0,
+      startedAt: Date.now(),
+      // Per-step local UI state
+      pretestPickedId: null,
+      pretestRevealed: false,
+      selectedOptionId: null,
+      typedText: '',
+      orderedTokens: [],
+      matchedPairs: [],
+      matchLeftSelected: null,
+      matchWrongPair: null,
+      writePhaseIdx: 0, // 0: Xem (demo), 1: Tô theo (trace), 2: Tự viết (recall)
+      writeQuizDone: false,
+      readRecorded: false,
+      readScore: 95,
+      showExitModal: false
+    };
 
-    function renderFlashcard() {
-      if (!words.length) return;
-      const w = words[fcIndex % words.length];
-      const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
-      const py = w.wordPinyin || w.pinyin || '';
-      const hv = w.hanviet ? ` (Hán Việt: ${w.hanviet.toUpperCase()})` : '';
-      const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
-      const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
-      if (fcCounter) fcCounter.textContent = `Thẻ ${fcIndex + 1} / ${words.length}`;
-      if (fcHanzi) fcHanzi.textContent = hz;
-      if (fcPinyin) fcPinyin.textContent = `${py}${hv}`;
-      if (fcMeaning) fcMeaning.textContent = vi;
-      if (fcExample) {
-        fcExample.innerHTML = ex
-          ? `Ví dụ: <strong>${ex.hanzi || ''}</strong> (${ex.pinyin || ''}) — ${ex.vietnamese || ''}`
-          : '';
+    function resetStepUiState(step) {
+      state.phase = 'answering';
+      state.verdict = null;
+      state.disabledOptionIds = new Set();
+      state.pretestPickedId = null;
+      state.pretestRevealed = !(step && step.type === 'intro_word' && step.payload && step.payload.pretest);
+      state.selectedOptionId = null;
+      state.typedText = '';
+      state.orderedTokens = [];
+      state.matchedPairs = [];
+      state.matchLeftSelected = null;
+      state.matchWrongPair = null;
+      state.writePhaseIdx = 0;
+      state.writeQuizDone = false;
+      state.readRecorded = false;
+      state.readScore = 92 + (state.stepIdx % 7);
+    }
+
+    resetStepUiState(playableSteps[0]);
+
+    function getCurrentStep() {
+      return playableSteps[state.stepIdx] || null;
+    }
+
+    function getStepAudioInfo(step) {
+      if (!step || !step.payload) return { text: '', url: '' };
+      const p = step.payload;
+      if (step.type === 'intro_word' && p.word) {
+        return { text: p.word.hanzi, url: (p.word.audio && p.word.audio.url) || '' };
       }
-      if (fcBack) fcBack.style.display = 'none';
-    }
-    renderFlashcard();
-
-    if (fcCard) {
-      fcCard.onclick = () => {
-        if (fcBack) fcBack.style.display = fcBack.style.display === 'none' ? 'block' : 'none';
-      };
-    }
-    const fcFlipBtn = root.querySelector('#xhz-fc-flip');
-    if (fcFlipBtn) {
-      fcFlipBtn.onclick = () => {
-        if (fcBack) fcBack.style.display = fcBack.style.display === 'none' ? 'block' : 'none';
-      };
-    }
-    const fcPrevBtn = root.querySelector('#xhz-fc-prev');
-    if (fcPrevBtn) {
-      fcPrevBtn.onclick = () => {
-        fcIndex = (fcIndex - 1 + words.length) % Math.max(1, words.length);
-        renderFlashcard();
-      };
-    }
-    const fcNextBtn = root.querySelector('#xhz-fc-next');
-    if (fcNextBtn) {
-      fcNextBtn.onclick = () => {
-        fcIndex = (fcIndex + 1) % Math.max(1, words.length);
-        renderFlashcard();
-      };
-    }
-    const fcSpeakBtn = root.querySelector('#xhz-fc-speak');
-    if (fcSpeakBtn) {
-      fcSpeakBtn.onclick = () => {
-        if (!words.length) return;
-        const w = words[fcIndex % words.length];
-        const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
-        const audio = (Array.isArray(w.audios) && w.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
-        playPronunciation(hz, audio);
-      };
+      if (step.type === 'choose_meaning' && p.question) {
+        return { text: p.question.hanzi || '', url: (p.question.audio && p.question.audio.url) || '' };
+      }
+      if (step.type === 'write_character') {
+        return { text: p.char || '', url: (p.cue && p.cue.audio && p.cue.audio.url) || '' };
+      }
+      if (step.type === 'type_pinyin') {
+        return { text: p.hanzi || '', url: (p.audio && p.audio.url) || '' };
+      }
+      if (step.type === 'listen_choose') {
+        const rightOpt = (p.options || []).find(o => o.id === (step.check && step.check.correctOptionId));
+        return { text: (rightOpt && (rightOpt.hanzi || rightOpt.pinyin)) || '', url: (p.audio && p.audio.url) || '' };
+      }
+      if (step.type === 'order_sentence') {
+        const rightIds = (step.check && step.check.accepted && step.check.accepted[0]) || [];
+        const txt = rightIds.map(id => ((p.tokens || []).find(t => t.id === id) || {}).text || '').join('');
+        return { text: txt, url: (p.audio && p.audio.url) || '' };
+      }
+      if (step.type === 'read_sentence' && p.sentence) {
+        return { text: p.sentence.hanzi || '', url: (p.sentence.audio && p.sentence.audio.url) || '' };
+      }
+      if (step.type === 'dialogue' && Array.isArray(p.turns) && p.turns[0]) {
+        return { text: p.turns[0].hanzi || '', url: (p.turns[0].audio && p.turns[0].audio.url) || '' };
+      }
+      if (step.type === 'exam_item') {
+        const firstScript = (Array.isArray(p.script) && p.script[0]) || {};
+        return { text: firstScript.hanzi || '', url: (p.audio && p.audio.url) || (firstScript.audio && firstScript.audio.url) || '' };
+      }
+      return { text: '', url: '' };
     }
 
-    // Wire Quiz logic
-    const quizListEl = root.querySelector('#xhz-lesson-quiz-list');
-    const quizScoreEl = root.querySelector('#xhz-lesson-quiz-score');
-    const quizAnswered = {};
-    if (quizListEl && words.length > 0) {
-      words.forEach((w, qIdx) => {
-        const hz = (w.hanzi || w.word || '').replace(/\{|\}/g, '');
-        const py = w.wordPinyin || w.pinyin || '';
-        const rightVi = w.translationVi || w.wordMeaningVi || w.meaningVi || 'Xin chào';
-        const rawAudio = (Array.isArray(w.audios) && w.audios[0]) || `https://static.xiehanzi.com/word_audios/${hz}.mp3`;
+    function getCapyPromptLine(step) {
+      if (!step) return '';
+      if (state.phase === 'feedback' && state.verdict) {
+        return state.verdict.correct ? 'Giỏi lắm! Chuẩn luôn!' : 'Không sao, mình xem lại nhé.';
+      }
+      const p = step.payload || {};
+      switch (step.type) {
+        case 'intro_word':
+          return `Từ mới: ${p.word ? p.word.hanzi : ''}. Chạm loa để nghe nhé!`;
+        case 'choose_meaning':
+          if (p.direction === 'zh_vi' && p.question && p.question.hanzi) {
+            return `${p.question.hanzi} nghĩa là gì?`;
+          }
+          return (step.prompt && step.prompt.vi) || 'Chọn đáp án đúng.';
+        case 'write_character':
+          return 'Chữ mới! Xem cách viết, tô theo rồi tự viết nhé.';
+        case 'type_pinyin':
+          return `Gõ pinyin${p.toneRequired ? ' có thanh' : ''} cho ${p.hanzi || ''}.`;
+        case 'match_pairs':
+          return (step.prompt && step.prompt.vi) || 'Ghép từ với nghĩa';
+        case 'listen_choose':
+          return (step.prompt && step.prompt.vi) || 'Nghe và chọn đáp án đúng';
+        case 'order_sentence':
+          return `Xếp thành câu: "${p.translationVi || ''}"`;
+        case 'fill_blank':
+          return (step.prompt && step.prompt.vi) || 'Điền vào chỗ trống';
+        case 'read_sentence':
+          return 'Đọc to câu này. Chạm mic rồi nói nhé.';
+        case 'dialogue':
+          return (step.prompt && step.prompt.vi) || 'Nghe đoạn hội thoại rồi trả lời nhé.';
+        case 'exam_item':
+          return p.instruction || 'Đọc kỹ đề rồi chọn đáp án.';
+        default:
+          return (step.prompt && step.prompt.vi) || 'Cùng làm câu này nhé!';
+      }
+    }
 
-        const pool = words
-          .filter((_, i) => i !== qIdx)
-          .map(x => x.translationVi || x.wordMeaningVi || x.meaningVi)
-          .filter(Boolean);
-        const distractors = [];
-        for (let i = 0; i < pool.length && distractors.length < 3; i++) {
-          const cand = pool[(qIdx + i * 2) % pool.length];
-          if (cand && cand !== rightVi && !distractors.includes(cand)) distractors.push(cand);
+    function getCapySprite(step) {
+      if (state.phase === 'feedback' && state.verdict) {
+        return state.verdict.correct ? '/images/capy/lesson/cheering.webp' : '/images/capy/lesson/encouraging.webp';
+      }
+      if (state.phase === 'hint') {
+        return '/images/capy/lesson/encouraging.webp';
+      }
+      return '/images/capy/lesson/thinking.webp';
+    }
+
+    const speakerSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>`;
+    const snailSvg = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 17h13a4 4 0 0 0 4-4 6 6 0 0 0-12 0c0 2.2 1.8 4 4 4"/><circle cx="11" cy="13" r="2"/><path d="M19 13v-2a2 2 0 0 1 2-2M18 9l1 2M21 9l-1 2"/></svg>`;
+    const sparkleSvg = `<svg class="size-4" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.9 5.8a2 2 0 0 0 1.3 1.3L21 12l-5.8 1.9a2 2 0 0 0-1.3 1.3L12 21l-1.9-5.8a2 2 0 0 0-1.3-1.3L3 12l5.8-1.9a2 2 0 0 0 1.3-1.3L12 3z"/></svg>`;
+    const bulbSvg = `<svg class="mt-0.5 size-4 shrink-0 text-gold-ink" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7c.6.5 1 1.3 1 2.1V18h6v-1.2c0-.8.4-1.6 1-2.1A7 7 0 0 0 12 2z"/></svg>`;
+    const checkSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>`;
+    const exclSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 6.5v7"/><circle cx="12" cy="18" r=".6" fill="currentColor"/></svg>`;
+
+    function advanceStep() {
+      if (state.stepIdx + 1 >= playableSteps.length) {
+        state.phase = 'done';
+        // Lưu trạng thái hoàn thành
+        try {
+          if (run.stageKey) {
+            const doneActs = JSON.parse(localStorage.getItem('httq_done_activities') || '{}') || {};
+            const arr = Array.isArray(doneActs[run.stageKey]) ? doneActs[run.stageKey] : [];
+            if (run.activityKey && !arr.includes(run.activityKey)) arr.push(run.activityKey);
+            doneActs[run.stageKey] = arr;
+            localStorage.setItem('httq_done_activities', JSON.stringify(doneActs));
+          }
+        } catch (_) {}
+        renderRunner();
+        return;
+      }
+      state.stepIdx += 1;
+      resetStepUiState(playableSteps[state.stepIdx]);
+      renderRunner();
+      const nextSt = getCurrentStep();
+      const aud = getStepAudioInfo(nextSt);
+      if (aud.text || aud.url) {
+        setTimeout(() => playPronunciation(aud.text, aud.url, 1.0), 150);
+      }
+    }
+
+    function submitGradedAnswer(isCorrect, expectedDisplay, answerInfo) {
+      const step = getCurrentStep();
+      if (!step) return;
+      if (!isCorrect && step.retryHint && state.hintedStepId !== step.id) {
+        state.hintedStepId = step.id;
+        state.phase = 'hint';
+        if (state.selectedOptionId) {
+          state.disabledOptionIds.add(state.selectedOptionId);
         }
-        while (distractors.length < 3) {
-          const fallback = ['tạm biệt', 'giáo viên', 'học sinh', 'cảm ơn', 'mọi người'][distractors.length % 5];
-          if (fallback !== rightVi && !distractors.includes(fallback)) distractors.push(fallback);
-          else distractors.push(`Đáp án khác ${distractors.length + 1}`);
-        }
-        const options = [rightVi, ...distractors];
-        // Xáo trộn vị trí đáp án theo qIdx
-        const rot = qIdx % options.length;
-        const rotatedOpts = [...options.slice(rot), ...options.slice(0, rot)];
+        renderRunner();
+        return;
+      }
+      state.gradedCount += 1;
+      if (isCorrect) state.correctCount += 1;
+      state.verdict = {
+        correct: isCorrect,
+        expectedDisplay: expectedDisplay || '',
+        explanationVi: step.explanationVi || '',
+        answer: answerInfo || null
+      };
+      state.phase = 'feedback';
+      const aud = getStepAudioInfo(step);
+      if (isCorrect && (aud.text || aud.url)) {
+        playPronunciation(aud.text, aud.url, 1.0);
+      }
+      renderRunner();
+    }
 
-        const qCard = document.createElement('div');
-        qCard.style.cssText = 'padding:16px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;';
-        qCard.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px;">
-            <div style="font-size:17px;font-weight:800;color:#1c1917;">
-              <span style="color:#ea580c;margin-right:6px;">Câu ${qIdx + 1}.</span>
-              Từ “<span style="font-size:22px;color:#1c1917;">${hz}</span>” (${py}) có nghĩa là gì?
-            </div>
-            <button class="xhz-q-audio" style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 Nghe</button>
-          </div>
-          <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px;"></div>
-        `;
-        qCard.querySelector('.xhz-q-audio').onclick = () => playPronunciation(hz, rawAudio);
-        const optsBox = qCard.querySelector('.xhz-q-opts');
-        rotatedOpts.forEach((optText, oIdx) => {
-          const label = String.fromCharCode(65 + oIdx);
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;text-align:left;cursor:pointer;font-size:14px;';
-          btn.textContent = `${label}. ${optText}`;
-          btn.onclick = () => {
-            const isCorrect = optText === rightVi;
-            quizAnswered[qIdx] = isCorrect ? 1 : 0;
-            const total = Object.values(quizAnswered).reduce((a, b) => a + b, 0);
-            if (quizScoreEl) quizScoreEl.textContent = `Điểm: ${total} / ${words.length}`;
-            Array.from(optsBox.children).forEach(b => {
-              b.style.background = '#fff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            if (isCorrect) {
-              btn.style.background = '#dcfce7';
-              btn.style.borderColor = '#16a34a';
-              btn.style.color = '#14532d';
-              playPronunciation(hz, rawAudio);
-            } else {
-              btn.style.background = '#fee2e2';
-              btn.style.borderColor = '#dc2626';
-              btn.style.color = '#7f1d1d';
+    function mountHanziWriterIfNeeded() {
+      const step = getCurrentStep();
+      if (!step || step.type !== 'write_character' || state.showIntro || state.phase === 'done') return;
+      const targetEl = document.getElementById('xhz-hw-canvas');
+      if (!targetEl) return;
+      const ch = step.payload.char || '八';
+      const phase = ['demo', 'trace', 'recall'][state.writePhaseIdx] || 'demo';
+
+      const initWriter = () => {
+        if (!window.HanziWriter) {
+          setTimeout(initWriter, 150);
+          return;
+        }
+        targetEl.innerHTML = '';
+        try {
+          const writer = window.HanziWriter.create(targetEl, ch, {
+            width: 256,
+            height: 256,
+            padding: 16,
+            showCharacter: phase === 'demo',
+            showOutline: phase !== 'recall',
+            strokeAnimationSpeed: 1.1,
+            delayBetweenStrokes: 220,
+            strokeColor: '#191715',
+            outlineColor: '#D8D2C4',
+            drawingColor: '#C8251D',
+            highlightColor: '#2563EB',
+            drawingWidth: 22,
+            charDataLoader: function (char, onComplete) {
+              originalFetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/${encodeURIComponent(char)}.json`)
+                .then(r => r.json())
+                .then(onComplete)
+                .catch(() => {});
             }
-          };
-          optsBox.appendChild(btn);
-        });
-        quizListEl.appendChild(qCard);
-      });
-    }
-
-    // Wire Tabs switching
-    const tabBtns = root.querySelectorAll('.xhz-lesson-tab');
-    const tabPanels = {
-      vocab: root.querySelector('#xhz-tab-vocab'),
-      flashcard: root.querySelector('#xhz-tab-flashcard'),
-      quiz: root.querySelector('#xhz-tab-quiz')
-    };
-    function switchLessonTab(tabKey) {
-      tabBtns.forEach(b => {
-        const active = b.getAttribute('data-tab') === tabKey;
-        b.style.background = active ? '#ea580c' : '#fafaf9';
-        b.style.color = active ? '#fff' : '#1c1917';
-        b.style.borderColor = active ? '#ea580c' : '#e7e5e4';
-      });
-      if (tabPanels.vocab) tabPanels.vocab.style.display = tabKey === 'vocab' ? 'grid' : 'none';
-      if (tabPanels.flashcard) tabPanels.flashcard.style.display = tabKey === 'flashcard' ? 'block' : 'none';
-      if (tabPanels.quiz) tabPanels.quiz.style.display = tabKey === 'quiz' ? 'block' : 'none';
-    }
-    tabBtns.forEach(b => {
-      b.onclick = () => switchLessonTab(b.getAttribute('data-tab'));
-    });
-
-    const goQuizBtn = root.querySelector('#xhz-go-quiz-btn');
-    if (goQuizBtn) {
-      goQuizBtn.onclick = () => switchLessonTab('quiz');
-    }
-
-    const completeBtn = root.querySelector('#xhz-complete-lesson-btn');
-    if (completeBtn) {
-      completeBtn.onclick = () => {
-        const curIdx = hsk1Lessons.findIndex(l => l.slug === targetLessonSlug);
-        const nextLesson = hsk1Lessons[(curIdx + 1) % hsk1Lessons.length];
-        if (nextLesson) {
-          localStorage.setItem('httq_current_lesson_id', nextLesson.slug);
-        }
-        window.location.assign('/hoc');
+          });
+          window.__xhzActiveWriter = writer;
+          if (phase === 'demo') {
+            setTimeout(() => {
+              try { writer.animateCharacter(); } catch (_) {}
+            }, 250);
+            targetEl.onclick = () => {
+              try { writer.animateCharacter(); } catch (_) {}
+            };
+          } else {
+            targetEl.onclick = null;
+            writer.quiz({
+              showHintAfterMisses: 2,
+              highlightOnComplete: true,
+              onComplete: function () {
+                state.writeQuizDone = true;
+                if (state.writePhaseIdx === 1) {
+                  setTimeout(() => {
+                    state.writePhaseIdx = 2;
+                    state.writeQuizDone = false;
+                    renderRunner();
+                  }, 650);
+                } else {
+                  setTimeout(() => {
+                    submitGradedAnswer(true, ch, { hanzi: ch, pinyin: step.payload.cue && step.payload.cue.pinyin, vi: step.payload.cue && step.payload.cue.meaningVi });
+                  }, 500);
+                }
+              }
+            });
+          }
+        } catch (_) {}
       };
+      initWriter();
     }
+
+    function renderRunner() {
+      const step = getCurrentStep();
+      const progressPct = playableSteps.length > 0 ? Math.max(4, Math.round((state.stepIdx / playableSteps.length) * 100)) : 100;
+
+      // 1. Màn hình hoàn thành bài học (lp-done)
+      if (state.phase === 'done' || !step) {
+        const elapsedSec = Math.max(12, Math.round((Date.now() - state.startedAt) / 1000));
+        const mins = Math.floor(elapsedSec / 60);
+        const secs = elapsedSec % 60;
+        const timeStr = mins > 0 ? `${mins}p ${secs}s` : `${secs}s`;
+        const accPct = state.gradedCount > 0 ? Math.round((state.correctCount / state.gradedCount) * 100) : 100;
+        runnerRoot.innerHTML = `
+          <div class="lp lp-runner" data-testid="lesson-runner">
+            <div class="lp-runner-inner overflow-y-auto">
+              <div class="lp-done">
+                <img src="/images/capy/lesson/celebrating.webp" alt="Capy" style="width:180px;height:180px;object-fit:contain;" />
+                <h2>Hoàn thành xuất sắc!</h2>
+                <p class="sub">${run.titleVi || 'Bài học'} · Đã lưu vào tiến độ lộ trình HSK 3.0</p>
+                <div class="lp-stats">
+                  <div class="lp-stat xp">
+                    <span class="v">+20 XP</span>
+                    <span class="k">Kinh nghiệm</span>
+                  </div>
+                  <div class="lp-stat acc">
+                    <span class="v">${accPct}%</span>
+                    <span class="k">Chính xác</span>
+                  </div>
+                  <div class="lp-stat time">
+                    <span class="v">${timeStr}</span>
+                    <span class="k">Thời gian</span>
+                  </div>
+                </div>
+                <div class="lp-streak-card">
+                  <span style="font-size:28px;">🔥</span>
+                  <span><b>5</b> ngày liên tiếp giữ chuỗi học tập!</span>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-top:16px;">
+                  <button type="button" id="xhz-done-continue" class="lp-btn3d">Về lộ trình <kbd class="lp-kbd lp-kbd-in-btn">Enter</kbd></button>
+                  <button type="button" id="xhz-done-retry" class="lp-btn-text">Học lại bài này</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        `;
+        const contBtn = runnerRoot.querySelector('#xhz-done-continue');
+        if (contBtn) contBtn.onclick = () => window.location.assign('/hoc');
+        const retryBtn = runnerRoot.querySelector('#xhz-done-retry');
+        if (retryBtn) {
+          retryBtn.onclick = () => {
+            state.stepIdx = 0;
+            state.correctCount = 0;
+            state.gradedCount = 0;
+            resetStepUiState(playableSteps[0]);
+            renderRunner();
+          };
+        }
+        return;
+      }
+
+      // 2. Xây dựng nội dung cột trái (Prompt) và cột phải (Answer) + Footer theo từng loại step
+      let promptHtml = '';
+      let answerHtml = '';
+      let footerBtnLabel = 'Tiếp tục';
+      let footerBtnDisabled = false;
+      let footerAction = () => advanceStep();
+      const p = step.payload || {};
+      const isHard = step.type === 'type_pinyin' && p.toneRequired && state.phase === 'answering';
+
+      if (step.type === 'intro_word') {
+        const w = p.word || {};
+        const pre = p.pretest;
+        const wAudio = (w.audio && w.audio.url) || '';
+        if (pre) {
+          const optsHtml = (pre.options || [])
+            .map((opt, idx) => {
+              let optState = '';
+              if (state.pretestRevealed) {
+                optState = opt.id === pre.correctOptionId ? 'right' : opt.id === state.pretestPickedId ? 'wrong' : 'dim';
+              }
+              return `
+                <button type="button" class="lp-opt ${optState}" data-pretest-opt="${opt.id}" ${state.pretestRevealed ? 'disabled' : ''}>
+                  <span class="k">${idx + 1}</span>
+                  <span class="min-w-0 flex-1">${renderColoredPinyin(opt.text, 'text-2xl')}</span>
+                </button>
+              `;
+            })
+            .join('');
+          promptHtml = `
+            <div data-testid="intro-word-pretest" class="flex flex-col items-center gap-3.5 rounded-card border border-line bg-surface px-4 py-5 text-center shadow-card" style="background:var(--lp-surface);border-radius:18px;border:1.5px solid var(--lp-border);padding:20px 16px;">
+              <div class="flex flex-col items-center gap-1">
+                <span class="inline-flex items-center gap-1.5 text-[13px] font-bold uppercase text-interactive" style="color:var(--lp-blue);font-size:13px;font-weight:800;display:inline-flex;align-items:center;gap:6px;">
+                  ${sparkleSvg} ĐOÁN THỬ
+                </span>
+                <p style="font-size:17px;font-weight:700;color:var(--lp-ink);margin:2px 0 0 0;">${pre.promptVi || 'Nghe và đoán thanh điệu'}</p>
+              </div>
+              <span lang="zh" class="lp-hanzi" style="font-size:80px;line-height:1.1;color:var(--lp-ink);">${w.hanzi || ''}</span>
+              <div class="lp-audio-row">
+                <button type="button" class="lp-audio-btn big" data-play-text="${w.hanzi || ''}" data-play-url="${wAudio}" aria-label="Nghe phát âm">${speakerSvg}</button>
+                <button type="button" class="lp-audio-btn slow" data-play-text="${w.hanzi || ''}" data-play-url="${wAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+              </div>
+              <div class="lp-opts" style="width:100%;">
+                ${optsHtml}
+              </div>
+              ${
+                !state.pretestRevealed
+                  ? `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+                      <p style="font-size:13px;color:var(--lp-ink-2);margin:0;">Không tính điểm, cứ đoán</p>
+                      <button type="button" class="lp-btn-text" id="xhz-pretest-skip">Bỏ qua</button>
+                    </div>`
+                  : ''
+              }
+            </div>
+          `;
+        }
+
+        if (!state.pretestRevealed) {
+          answerHtml = '';
+          footerBtnLabel = 'Tiếp tục';
+          footerBtnDisabled = true;
+        } else {
+          const isPreCorrect = state.pretestPickedId === (pre && pre.correctOptionId);
+          const revealBanner =
+            pre && state.pretestPickedId
+              ? `<div role="status" data-testid="intro-word-pretest-reveal" style="display:flex;align-items:flex-start;gap:10px;border-radius:14px;padding:14px;background:${isPreCorrect ? 'var(--lp-ok-bg)' : 'var(--lp-gold-bg)'};">
+                  <span style="color:${isPreCorrect ? 'var(--lp-ok)' : 'var(--lp-gold-ink)'};flex-shrink:0;">${isPreCorrect ? checkSvg : bulbSvg}</span>
+                  <div>
+                    <p style="font-size:16px;font-weight:800;color:${isPreCorrect ? 'var(--lp-ok-ink)' : 'var(--lp-ink)'};margin:0;">${isPreCorrect ? 'Đoán đúng rồi!' : 'Chưa trúng, không sao cả'}</p>
+                    <p style="font-size:15px;color:var(--lp-ink);margin:4px 0 0 0;">${pre.revealVi || ''}</p>
+                  </div>
+                </div>`
+              : '';
+          const hvReading = (p.verifiedHanViet && p.verifiedHanViet.reading) || w.hanviet || '';
+          const hvCapitalized = hvReading ? hvReading.charAt(0).toUpperCase() + hvReading.slice(1) : '';
+          const breakdowns = Array.isArray(p.breakdowns) ? p.breakdowns : [];
+          const breakdownHtml = breakdowns.length
+            ? `<section data-testid="intro-word-breakdown" style="display:flex;flex-direction:column;gap:12px;border-radius:16px;border:1.5px solid var(--lp-border);background:var(--lp-surface);padding:16px;">
+                <h3 style="font-size:16px;font-weight:800;color:var(--lp-ink);margin:0;">Chữ này gồm</h3>
+                ${breakdowns
+                  .map(
+                    b => `
+                  <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                      ${Array.from(w.hanzi || '').length > 1 ? `<span lang="zh" class="lp-hanzi" style="font-size:32px;line-height:1;">${b.hanzi}</span>` : ''}
+                      <p style="font-size:16px;color:var(--lp-ink-2);margin:0;">
+                        ${b.pinyin || ''} · Hán Việt: <b style="color:var(--lp-ink);">${b.hanViet || ''}</b> · ${b.meaningVi || ''}
+                      </p>
+                    </div>
+                    ${
+                      b.radical
+                        ? `<div style="font-size:14px;color:var(--lp-ink);">Bộ ${b.radical.hanzi} (${b.radical.hanViet || ''}) · ${b.radical.meaningVi || ''}</div>`
+                        : ''
+                    }
+                    ${
+                      b.memoryHint
+                        ? `<div style="display:flex;align-items:flex-start;gap:8px;border-radius:10px;background:var(--lp-gold-bg);padding:10px 12px;font-size:14px;color:var(--lp-ink);">
+                            ${bulbSvg}
+                            <p style="margin:0;"><b>Mẹo nhớ: </b>${b.memoryHint}</p>
+                          </div>`
+                        : ''
+                    }
+                  </div>
+                `
+                  )
+                  .join('')}
+              </section>`
+            : '';
+          const ex = w.example;
+          const exHtml = ex
+            ? `<div class="lp-card" style="display:flex;align-items:center;gap:12px;padding:14px 16px;">
+                <button type="button" class="lp-audio-btn small" data-play-text="${ex.hanzi || ''}" data-play-url="${(ex.audio && ex.audio.url) || wAudio}" aria-label="Nghe câu ví dụ">${speakerSvg}</button>
+                <div style="min-width:0;flex:1;">
+                  <div lang="zh" class="lp-hanzi" style="font-size:21px;font-weight:700;color:var(--lp-ink);">${ex.hanzi || ''}</div>
+                  <div style="font-size:15px;margin-top:2px;">${renderColoredPinyin(ex.pinyin || '')}</div>
+                  <div style="font-size:14px;color:var(--lp-ink-2);margin-top:2px;">${ex.vi || ''}</div>
+                </div>
+              </div>`
+            : '';
+
+          answerHtml = `
+            <div style="display:flex;flex-direction:column;gap:14px;">
+              ${revealBanner}
+              <div class="lp-card lp-word-card">
+                ${!pre ? `<div lang="zh" class="lp-hanzi hz">${w.hanzi || ''}</div><div style="font-size:22px;">${renderColoredPinyin(w.wordPinyin || w.pinyin || '')}</div>` : ''}
+                ${hvCapitalized ? `<div><span class="hv">Hán Việt: ${hvCapitalized}</span></div>` : ''}
+                <div class="vi">${w.meaningVi || ''}</div>
+                ${w.wordClassVi ? `<div style="font-size:13px;color:var(--lp-ink-2);margin-top:-2px;">${w.wordClassVi}</div>` : ''}
+                <div class="lp-audio-row" style="margin-top:12px;">
+                  <button type="button" class="lp-audio-btn" data-play-text="${w.hanzi || ''}" data-play-url="${wAudio}" aria-label="Nghe từ">${speakerSvg}</button>
+                  <button type="button" class="lp-audio-btn slow" data-play-text="${w.hanzi || ''}" data-play-url="${wAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+                </div>
+              </div>
+              ${breakdownHtml}
+              ${w.hanvietGloss ? `<p class="lp-hint" style="margin:0;"><b>Hán Việt:</b> ${w.hanvietGloss}</p>` : ''}
+              ${exHtml}
+            </div>
+          `;
+          footerBtnLabel = 'Tiếp tục';
+          footerBtnDisabled = false;
+          footerAction = () => advanceStep();
+        }
+      } else if (step.type === 'choose_meaning') {
+        const q = p.question || {};
+        const qAudio = (q.audio && q.audio.url) || '';
+        const rightId = step.check && step.check.correctOptionId;
+        promptHtml = `
+          <div class="lp-q">
+            <span class="lp-hanzi big" lang="zh">${q.hanzi || ''}</span>
+            ${q.pinyin ? `<div style="font-size:20px;">${renderColoredPinyin(q.pinyin)}</div>` : ''}
+            <div class="lp-audio-row">
+              <button type="button" class="lp-audio-btn" data-play-text="${q.hanzi || ''}" data-play-url="${qAudio}" aria-label="Nghe">${speakerSvg}</button>
+              <button type="button" class="lp-audio-btn slow" data-play-text="${q.hanzi || ''}" data-play-url="${qAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+            </div>
+          </div>
+        `;
+        answerHtml = `
+          <div class="lp-opts" role="radiogroup" aria-label="Các lựa chọn">
+            ${(p.options || [])
+              .map((opt, idx) => {
+                const isDisabled = state.disabledOptionIds.has(opt.id) || state.phase !== 'answering';
+                let cls = '';
+                if (state.phase === 'feedback') {
+                  cls = opt.id === rightId ? 'right' : opt.id === state.selectedOptionId ? 'wrong' : 'dim';
+                } else if (state.phase === 'hint') {
+                  cls = opt.id === state.selectedOptionId ? 'wrong' : 'dim';
+                } else if (state.disabledOptionIds.has(opt.id)) {
+                  cls = 'dim';
+                } else if (state.selectedOptionId === opt.id) {
+                  cls = 'sel';
+                }
+                return `
+                  <button type="button" class="lp-opt ${cls}" data-choice-opt="${opt.id}" ${isDisabled ? 'disabled' : ''}>
+                    <span class="k">${idx + 1}</span>
+                    <span class="min-w-0 flex-1">${opt.text || ''}</span>
+                  </button>
+                `;
+              })
+              .join('')}
+          </div>
+        `;
+        footerBtnLabel = 'Kiểm tra';
+        footerBtnDisabled = !state.selectedOptionId || state.phase !== 'answering';
+        footerAction = () => {
+          if (!state.selectedOptionId) return;
+          const rightOpt = (p.options || []).find(o => o.id === rightId);
+          const isOk = state.selectedOptionId === rightId;
+          submitGradedAnswer(isOk, rightOpt ? rightOpt.text : '', {
+            hanzi: q.hanzi,
+            pinyin: q.pinyin,
+            vi: rightOpt ? rightOpt.text : '',
+            audioUrl: qAudio
+          });
+        };
+      } else if (step.type === 'write_character') {
+        const ch = p.char || '八';
+        const cue = p.cue || {};
+        const cueAudio = (cue.audio && cue.audio.url) || '';
+        const phases = ['Xem', 'Tô theo', 'Tự viết'];
+        const nudges = [
+          'Xem thứ tự nét. Chạm vào ô để xem lại.',
+          'Tô theo nét mờ, từng nét một.',
+          'Giờ tự viết, không còn nét mờ.'
+        ];
+        promptHtml = `
+          <div class="lp-card lp-write-cue">
+            <span lang="zh" class="lp-hanzi lp-write-cue-char">${ch}</span>
+            <div class="lp-write-cue-meta">
+              ${cue.pinyin ? `<div style="font-size:20px;">${renderColoredPinyin(cue.pinyin)}</div>` : ''}
+              ${cue.hanviet ? `<span class="lp-write-cue-hv">${cue.hanviet}</span>` : ''}
+              <span class="lp-write-cue-vi">${cue.meaningVi || ''}</span>
+            </div>
+            <button type="button" class="lp-audio-btn small" data-play-text="${ch}" data-play-url="${cueAudio}" aria-label="Nghe">${speakerSvg}</button>
+          </div>
+        `;
+        answerHtml = `
+          <div class="lp-write-stage">
+            <div class="lp-write-phases" role="tablist">
+              ${phases
+                .map(
+                  (label, idx) =>
+                    `<button type="button" class="lp-write-phase ${idx === state.writePhaseIdx ? 'active' : idx < state.writePhaseIdx ? 'done' : ''}" data-write-phase="${idx}">${label}</button>`
+                )
+                .join('')}
+            </div>
+            <div class="lp-write-box lp-write-grid" style="position:relative;">
+              <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" aria-hidden="true">
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#E4DEC9" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <line x1="50" y1="0" x2="50" y2="100" stroke="#E4DEC9" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <line x1="0" y1="0" x2="100" y2="100" stroke="#EDE8D8" stroke-width="0.5" stroke-dasharray="3,3"/>
+                <line x1="100" y1="0" x2="0" y2="100" stroke="#EDE8D8" stroke-width="0.5" stroke-dasharray="3,3"/>
+              </svg>
+              <div id="xhz-hw-canvas" style="position:relative;z-index:2;width:256px;height:256px;display:flex;align-items:center;justify-content:center;cursor:pointer;"></div>
+            </div>
+            <p class="lp-write-nudge">${nudges[state.writePhaseIdx] || nudges[0]}</p>
+            <button type="button" class="lp-btn-text" id="xhz-write-skip">Để sau</button>
+          </div>
+        `;
+        if (state.writePhaseIdx === 0) {
+          footerBtnLabel = 'Tô theo nét';
+          footerBtnDisabled = false;
+          footerAction = () => {
+            state.writePhaseIdx = 1;
+            state.writeQuizDone = false;
+            renderRunner();
+          };
+        } else if (state.writePhaseIdx === 1) {
+          footerBtnLabel = 'Tự viết';
+          footerBtnDisabled = false;
+          footerAction = () => {
+            state.writePhaseIdx = 2;
+            state.writeQuizDone = false;
+            renderRunner();
+          };
+        } else {
+          footerBtnLabel = 'Tiếp tục';
+          footerBtnDisabled = false;
+          footerAction = () => {
+            submitGradedAnswer(true, ch, { hanzi: ch, pinyin: cue.pinyin, vi: cue.meaningVi, audioUrl: cueAudio });
+          };
+        }
+      } else if (step.type === 'type_pinyin') {
+        const tAudio = (p.audio && p.audio.url) || '';
+        const accepted = (step.check && step.check.accepted) || ['bā'];
+        const previewConverted = convertNumberedPinyin(state.typedText);
+        const hasLetters = /[a-zA-ZüÜvVāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(state.typedText);
+        promptHtml = `
+          <div class="lp-q">
+            <span class="lp-hanzi big" lang="zh">${p.hanzi || ''}</span>
+            <div class="lp-audio-row">
+              <button type="button" class="lp-audio-btn" data-play-text="${p.hanzi || ''}" data-play-url="${tAudio}" aria-label="Nghe">${speakerSvg}</button>
+              <button type="button" class="lp-audio-btn slow" data-play-text="${p.hanzi || ''}" data-play-url="${tAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+            </div>
+            <span style="font-size:15px;color:var(--lp-ink-2);">nghĩa: ${p.meaningVi || ''}</span>
+          </div>
+        `;
+        const toneMarks = [
+          { digit: 1, mark: 'ˉ', label: 'Thanh 1' },
+          { digit: 2, mark: 'ˊ', label: 'Thanh 2' },
+          { digit: 3, mark: 'ˇ', label: 'Thanh 3' },
+          { digit: 4, mark: 'ˋ', label: 'Thanh 4' },
+          { digit: 5, mark: '·', label: 'Thanh nhẹ' }
+        ];
+        answerHtml = `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <input
+              id="xhz-pinyin-input"
+              type="text"
+              class="lp-input"
+              value="${state.typedText.replace(/"/g, '&quot;')}"
+              placeholder="${p.toneRequired ? 'vd: ma3 hoặc mǎ' : 'vd: ma'}"
+              autocomplete="off"
+              autocapitalize="none"
+              spellcheck="false"
+              ${state.phase !== 'answering' ? 'disabled' : ''}
+            />
+            <div class="lp-type-preview" id="xhz-pinyin-preview">
+              ${
+                previewConverted && previewConverted !== state.typedText.trim()
+                  ? `Hiển thị: <b>${previewConverted}</b>`
+                  : 'Gõ âm tiết trước, rồi gõ số 1-4 hoặc chạm phím thanh.'
+              }
+            </div>
+            <div class="lp-tone-keys" role="group" aria-label="Phím thanh">
+              ${toneMarks
+                .map(
+                  tm =>
+                    `<button type="button" data-tone-digit="${tm.digit}" aria-label="${tm.label}" ${state.phase !== 'answering' ? 'disabled' : ''}>${tm.mark}</button>`
+                )
+                .join('')}
+            </div>
+          </div>
+        `;
+        footerBtnLabel = 'Kiểm tra';
+        footerBtnDisabled = !hasLetters || state.phase !== 'answering';
+        footerAction = () => {
+          const val = state.typedText.trim();
+          if (!val) return;
+          const userNorm = normalizePinyinCompare(val, p.toneRequired);
+          const isOk = accepted.some(acc => normalizePinyinCompare(acc, p.toneRequired) === userNorm);
+          submitGradedAnswer(isOk, accepted[0], {
+            hanzi: p.hanzi,
+            pinyin: accepted[0],
+            vi: p.meaningVi,
+            audioUrl: tAudio
+          });
+        };
+      } else if (step.type === 'match_pairs') {
+        const leftItems = p.left || [];
+        const rightItems = p.right || [];
+        const validPairs = (step.check && step.check.pairs) || [];
+        const isLeftMatched = id => state.matchedPairs.some(pr => pr[0] === id);
+        const isRightMatched = id => state.matchedPairs.some(pr => pr[1] === id);
+        promptHtml = `
+          <p class="lp-hint" style="margin:0;">Chạm một chữ Hán ở cột trái rồi chạm nghĩa tương ứng ở cột phải.</p>
+        `;
+        answerHtml = `
+          <div class="lp-match">
+            <div class="lp-match-col">
+              ${leftItems
+                .map(item => {
+                  const matched = isLeftMatched(item.id);
+                  const sel = state.matchLeftSelected === item.id;
+                  const wrong = state.matchWrongPair && state.matchWrongPair[0] === item.id;
+                  return `<button type="button" lang="zh" class="lp-m hz ${matched ? 'gone' : sel ? 'sel' : ''} ${wrong ? 'wrong' : ''}" data-match-left="${item.id}" ${matched ? 'disabled' : ''}>${item.hanzi}</button>`;
+                })
+                .join('')}
+            </div>
+            <div class="lp-match-col">
+              ${rightItems
+                .map(item => {
+                  const matched = isRightMatched(item.id);
+                  const wrong = state.matchWrongPair && state.matchWrongPair[1] === item.id;
+                  return `<button type="button" class="lp-m ${matched ? 'gone' : ''} ${wrong ? 'wrong' : ''}" data-match-right="${item.id}" ${matched ? 'disabled' : ''}>${item.text}</button>`;
+                })
+                .join('')}
+            </div>
+          </div>
+        `;
+        footerBtnLabel = 'Tiếp tục';
+        footerBtnDisabled = state.matchedPairs.length < leftItems.length;
+        footerAction = () => {
+          if (state.matchedPairs.length >= leftItems.length) {
+            submitGradedAnswer(true, '', null);
+          }
+        };
+        // Gắn biến tạm xử lý chọn cặp trong wireEvents
+        state._validPairs = validPairs;
+        state._leftItems = leftItems;
+      } else if (step.type === 'listen_choose') {
+        const lAudio = (p.audio && p.audio.url) || '';
+        const rightId = step.check && step.check.correctOptionId;
+        const audInfo = getStepAudioInfo(step);
+        promptHtml = `
+          <div class="lp-audio-row" style="padding:16px 0;">
+            <button type="button" class="lp-audio-btn big" data-play-text="${audInfo.text}" data-play-url="${lAudio}" aria-label="Nghe lại">${speakerSvg}</button>
+            <button type="button" class="lp-audio-btn slow" data-play-text="${audInfo.text}" data-play-url="${lAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+          </div>
+        `;
+        answerHtml = `
+          <div class="lp-opts" role="radiogroup">
+            ${(p.options || [])
+              .map((opt, idx) => {
+                const isDisabled = state.disabledOptionIds.has(opt.id) || state.phase !== 'answering';
+                let cls = '';
+                if (state.phase === 'feedback') {
+                  cls = opt.id === rightId ? 'right' : opt.id === state.selectedOptionId ? 'wrong' : 'dim';
+                } else if (state.disabledOptionIds.has(opt.id)) {
+                  cls = 'dim';
+                } else if (state.selectedOptionId === opt.id) {
+                  cls = 'sel';
+                }
+                const labelContent = opt.hanzi
+                  ? `<span lang="zh" class="lp-hanzi" style="font-size:24px;">${opt.hanzi}</span>`
+                  : renderColoredPinyin(opt.pinyin || opt.text || '', 'text-[20px]');
+                return `
+                  <button type="button" class="lp-opt ${cls}" data-choice-opt="${opt.id}" ${isDisabled ? 'disabled' : ''}>
+                    <span class="k">${idx + 1}</span>
+                    <span class="min-w-0 flex-1">${labelContent}</span>
+                  </button>
+                `;
+              })
+              .join('')}
+          </div>
+        `;
+        footerBtnLabel = 'Kiểm tra';
+        footerBtnDisabled = !state.selectedOptionId || state.phase !== 'answering';
+        footerAction = () => {
+          if (!state.selectedOptionId) return;
+          const rightOpt = (p.options || []).find(o => o.id === rightId);
+          const isOk = state.selectedOptionId === rightId;
+          submitGradedAnswer(isOk, rightOpt ? rightOpt.hanzi || rightOpt.pinyin : '', {
+            hanzi: rightOpt && rightOpt.hanzi,
+            pinyin: rightOpt && rightOpt.pinyin,
+            audioUrl: lAudio
+          });
+        };
+      } else if (step.type === 'order_sentence') {
+        const tokens = p.tokens || [];
+        const oAudio = (p.audio && p.audio.url) || '';
+        const audInfo = getStepAudioInfo(step);
+        promptHtml = `
+          <div class="lp-card" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <p style="font-size:18px;font-weight:700;color:var(--lp-ink);margin:0;">${p.translationVi || ''}</p>
+            <div class="lp-audio-row">
+              <button type="button" class="lp-audio-btn small" data-play-text="${audInfo.text}" data-play-url="${oAudio}" aria-label="Nghe">${speakerSvg}</button>
+            </div>
+          </div>
+        `;
+        const pickedHtml = state.orderedTokens
+          .map(tid => {
+            const t = tokens.find(x => x.id === tid);
+            if (!t) return '';
+            return `<button type="button" class="lp-tile" data-unpick-token="${t.id}" ${state.phase !== 'answering' ? 'disabled' : ''}>
+              ${t.pinyin ? renderColoredPinyin(t.pinyin) : ''}
+              <span lang="zh" class="lp-hanzi">${t.text}</span>
+            </button>`;
+          })
+          .join('');
+        const bankHtml = tokens
+          .map(t => {
+            const used = state.orderedTokens.includes(t.id);
+            return `<button type="button" class="lp-tile ${used ? 'ghost' : ''}" data-pick-token="${t.id}" ${used || state.phase !== 'answering' ? 'disabled' : ''}>
+              ${t.pinyin ? renderColoredPinyin(t.pinyin) : ''}
+              <span lang="zh" class="lp-hanzi">${t.text}</span>
+            </button>`;
+          })
+          .join('');
+        answerHtml = `
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div class="lp-answer-line" aria-label="Câu của bạn">${pickedHtml}</div>
+            <div class="lp-bank" aria-label="Các ô chữ">${bankHtml}</div>
+          </div>
+        `;
+        footerBtnLabel = 'Kiểm tra';
+        footerBtnDisabled = state.orderedTokens.length === 0 || state.phase !== 'answering';
+        footerAction = () => {
+          const acceptedOrders = (step.check && step.check.accepted) || [];
+          const userStr = state.orderedTokens.map(id => (tokens.find(x => x.id === id) || {}).text || '').join('');
+          const rightIds = acceptedOrders[0] || tokens.map(t => t.id);
+          const rightStr = rightIds.map(id => (tokens.find(x => x.id === id) || {}).text || '').join('');
+          const isOk = userStr === rightStr;
+          submitGradedAnswer(isOk, rightStr, {
+            hanzi: rightStr,
+            vi: p.translationVi,
+            audioUrl: oAudio
+          });
+        };
+      } else if (step.type === 'fill_blank') {
+        const rightId = step.check && step.check.correctOptionId;
+        const pickedOpt = (p.options || []).find(o => o.id === state.selectedOptionId);
+        promptHtml = `
+          <div class="lp-card">
+            <div class="lp-sentence" lang="zh">
+              ${p.before || ''}<span class="lp-blank ${pickedOpt ? 'filled' : ''}">${pickedOpt ? pickedOpt.text : '___'}</span>${p.after || ''}
+            </div>
+            ${p.pinyin ? `<div style="margin-top:8px;font-size:15px;color:var(--lp-ink-2);">${p.pinyin}</div>` : ''}
+            ${p.translationVi ? `<div style="margin-top:6px;font-size:15px;color:var(--lp-ink-2);">${p.translationVi}</div>` : ''}
+          </div>
+        `;
+        answerHtml = `
+          <div class="lp-opts" role="radiogroup">
+            ${(p.options || [])
+              .map((opt, idx) => {
+                const isDisabled = state.disabledOptionIds.has(opt.id) || state.phase !== 'answering';
+                let cls = '';
+                if (state.phase === 'feedback') {
+                  cls = opt.id === rightId ? 'right' : opt.id === state.selectedOptionId ? 'wrong' : 'dim';
+                } else if (state.disabledOptionIds.has(opt.id)) {
+                  cls = 'dim';
+                } else if (state.selectedOptionId === opt.id) {
+                  cls = 'sel';
+                }
+                return `
+                  <button type="button" class="lp-opt ${cls}" data-choice-opt="${opt.id}" ${isDisabled ? 'disabled' : ''}>
+                    <span class="k">${idx + 1}</span>
+                    <span class="min-w-0 flex-1" style="display:flex;flex-direction:column;">
+                      ${opt.pinyin ? `<span style="font-size:13px;">${renderColoredPinyin(opt.pinyin)}</span>` : ''}
+                      <span lang="zh" class="lp-hanzi" style="font-size:22px;">${opt.text || ''}</span>
+                    </span>
+                  </button>
+                `;
+              })
+              .join('')}
+          </div>
+        `;
+        footerBtnLabel = 'Kiểm tra';
+        footerBtnDisabled = !state.selectedOptionId || state.phase !== 'answering';
+        footerAction = () => {
+          if (!state.selectedOptionId) return;
+          const rightOpt = (p.options || []).find(o => o.id === rightId);
+          const isOk = state.selectedOptionId === rightId;
+          submitGradedAnswer(isOk, rightOpt ? rightOpt.text : '', {
+            hanzi: `${p.before || ''}${rightOpt ? rightOpt.text : ''}${p.after || ''}`,
+            pinyin: p.pinyin,
+            vi: p.translationVi
+          });
+        };
+      } else if (step.type === 'read_sentence') {
+        const sent = p.sentence || {};
+        const sAudio = (sent.audio && sent.audio.url) || '';
+        promptHtml = `
+          <div class="lp-card lp-read-card">
+            <div class="lp-hanzi hz" lang="zh">${sent.hanzi || ''}</div>
+            ${sent.pinyin ? `<div style="font-size:18px;margin-top:4px;">${renderColoredPinyin(sent.pinyin)}</div>` : ''}
+            <div class="vi">${sent.vi || ''}</div>
+            <div class="lp-audio-row" style="margin-top:12px;">
+              <button type="button" class="lp-audio-btn" data-play-text="${sent.hanzi || ''}" data-play-url="${sAudio}" aria-label="Nghe câu mẫu">${speakerSvg}</button>
+              <button type="button" class="lp-audio-btn slow" data-play-text="${sent.hanzi || ''}" data-play-url="${sAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+            </div>
+          </div>
+        `;
+        answerHtml = `
+          <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 0;">
+            <button type="button" class="lp-mic ${state.readRecorded ? 'rec' : ''}" id="xhz-read-mic-btn" aria-label="Bắt đầu ghi âm">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg>
+            </button>
+            <p class="lp-status-line">
+              ${state.readRecorded ? `Đã chấm phát âm: <b>${state.readScore}% (Chuẩn!)</b>` : 'Chạm biểu tượng micro để đọc to câu trên'}
+            </p>
+            <button type="button" class="lp-btn-text" id="xhz-read-skip">Bỏ qua</button>
+          </div>
+        `;
+        footerBtnLabel = 'Tiếp tục';
+        footerBtnDisabled = !state.readRecorded;
+        footerAction = () => advanceStep();
+      } else if (step.type === 'dialogue') {
+        const turns = p.turns || [];
+        const roles = p.roles || [];
+        promptHtml = `
+          <div class="lp-card">
+            <div style="font-size:13px;font-weight:800;color:var(--lp-ink-2);text-transform:uppercase;">Bối cảnh hội thoại</div>
+            <p style="font-size:15px;color:var(--lp-ink);margin:6px 0 0 0;">${p.sceneVi || ''}</p>
+          </div>
+        `;
+        answerHtml = `
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            ${turns
+              .map(t => {
+                const rObj = roles.find(r => r.id === t.role) || { labelVi: t.role };
+                const tUrl = (t.audio && t.audio.url) || '';
+                return `
+                  <div class="lp-card" style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px;">
+                    <button type="button" class="lp-audio-btn small" data-play-text="${t.hanzi || ''}" data-play-url="${tUrl}" aria-label="Nghe">${speakerSvg}</button>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:12px;font-weight:800;color:var(--lp-blue);">${rObj.labelVi || ''}</div>
+                      <div lang="zh" class="lp-hanzi" style="font-size:20px;font-weight:700;color:var(--lp-ink);">${t.hanzi || ''}</div>
+                      <div style="font-size:14px;">${renderColoredPinyin(t.pinyin || '')}</div>
+                      <div style="font-size:14px;color:var(--lp-ink-2);">${t.vi || ''}</div>
+                    </div>
+                  </div>
+                `;
+              })
+              .join('')}
+          </div>
+        `;
+        footerBtnLabel = 'Tiếp tục';
+        footerBtnDisabled = false;
+        footerAction = () => advanceStep();
+      } else {
+        // exam_item hoặc roleplay_turn
+        const opts = p.options || p.choices || [];
+        const rightId = (step.check && step.check.correctOptionId) || (opts[0] && opts[0].id);
+        const eAudio = (p.audio && p.audio.url) || '';
+        const audInfo = getStepAudioInfo(step);
+        promptHtml = `
+          <div class="lp-card" style="text-align:center;">
+            <p style="font-size:17px;font-weight:700;color:var(--lp-ink);margin:0 0 12px 0;">${p.instruction || p.promptVi || 'Nghe và chọn đáp án đúng'}</p>
+            <div class="lp-audio-row">
+              <button type="button" class="lp-audio-btn big" data-play-text="${audInfo.text}" data-play-url="${eAudio}" aria-label="Nghe">${speakerSvg}</button>
+              <button type="button" class="lp-audio-btn slow" data-play-text="${audInfo.text}" data-play-url="${eAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+            </div>
+          </div>
+        `;
+        answerHtml = `
+          <div class="lp-opts">
+            ${opts
+              .map((opt, idx) => {
+                const sel = state.selectedOptionId === opt.id;
+                return `
+                  <button type="button" class="lp-opt ${sel ? 'sel' : ''}" data-choice-opt="${opt.id}">
+                    <span class="k">${opt.id || idx + 1}</span>
+                    <span class="min-w-0 flex-1">${opt.hanzi || opt.text || opt.vi || `Đáp án ${opt.id || idx + 1}`}</span>
+                  </button>
+                `;
+              })
+              .join('')}
+          </div>
+        `;
+        footerBtnLabel = 'Kiểm tra';
+        footerBtnDisabled = !state.selectedOptionId;
+        footerAction = () => {
+          const isOk = state.selectedOptionId === rightId;
+          submitGradedAnswer(isOk, String(rightId || ''), null);
+        };
+      }
+
+      // 3. Xây dựng Bottom Sheet (Retry Hint Sheet hoặc Feedback Sheet)
+      let sheetHtml = '';
+      if (state.phase === 'hint' && step.retryHint) {
+        const rh = step.retryHint;
+        const rhAudio = (rh.audio && rh.audio.url) || getStepAudioInfo(step).url;
+        const rhText = getStepAudioInfo(step).text;
+        sheetHtml = `
+          <div class="lp-sheet-backdrop" aria-hidden="true"></div>
+          <div class="lp-sheet hint" role="status" aria-live="polite" data-testid="retry-hint-sheet">
+            <div class="head">
+              <span class="badge">${bulbSvg}</span>
+              <b>Chưa đúng, thử lại nhé</b>
+              <img src="/images/capy/lesson/encouraging.webp" alt="Capy" class="mini-capy" style="width:64px;height:64px;object-fit:contain;" />
+            </div>
+            ${rh.cue ? `<div class="cue">${rh.cue}</div>` : ''}
+            ${rh.textVi ? `<p class="why">${rh.textVi}</p>` : ''}
+            <div class="actions">
+              <button type="button" class="lp-audio-btn slow" data-play-text="${rhText}" data-play-url="${rhAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
+              <button type="button" id="xhz-sheet-retry-btn" class="lp-btn3d gold">
+                Thử lại <kbd class="lp-kbd lp-kbd-in-btn">Enter</kbd>
+              </button>
+            </div>
+          </div>
+        `;
+      } else if (state.phase === 'feedback' && state.verdict) {
+        const v = state.verdict;
+        const ans = v.answer;
+        sheetHtml = `
+          <div class="lp-sheet-backdrop" aria-hidden="true"></div>
+          <div class="lp-sheet ${v.correct ? 'ok' : 'warn'}" role="status" aria-live="assertive" data-testid="feedback-sheet">
+            <div class="head">
+              <span class="badge">${v.correct ? checkSvg : exclSvg}</span>
+              <b>${v.correct ? 'Chính xác!' : 'Chưa đúng'}</b>
+              <img src="/images/capy/lesson/${v.correct ? 'happy' : 'encouraging'}.webp" alt="Capy" class="mini-capy" style="width:64px;height:64px;object-fit:contain;" />
+            </div>
+            ${
+              ans && (ans.hanzi || ans.pinyin)
+                ? `<div class="ans">
+                    <div class="min-w-0 flex-1">
+                      ${!v.correct ? `<div class="lbl">Đáp án đúng</div>` : ''}
+                      ${ans.hanzi ? `<span class="lp-hanzi" lang="zh">${ans.hanzi}</span> ` : ''}
+                      ${ans.pinyin ? renderColoredPinyin(ans.pinyin) : ''}
+                      ${ans.vi ? `<div class="vi">${ans.vi}</div>` : ''}
+                    </div>
+                    <button type="button" class="lp-audio-btn slow" data-play-text="${ans.hanzi || ''}" data-play-url="${ans.audioUrl || ''}" data-play-rate="0.65" aria-label="Nghe đáp án">${snailSvg}</button>
+                  </div>`
+                : ''
+            }
+            ${!v.correct && v.explanationVi ? `<p class="why">${v.explanationVi}</p>` : ''}
+            <div class="actions">
+              <button type="button" id="xhz-sheet-next-btn" class="lp-btn3d ${v.correct ? 'ok' : ''}">
+                Tiếp tục <kbd class="lp-kbd lp-kbd-in-btn">Enter</kbd>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      // 4. Xây dựng Intro Overlay (Screenshot 1)
+      const introOverlayHtml = state.showIntro
+        ? `
+          <div class="lp-intro-ov" data-testid="lesson-intro">
+            <img src="/images/capy/lesson/happy.webp" alt="Capy" style="width:200px;height:200px;object-fit:contain;" />
+            <div class="lp-bubble">
+              Bài này có ${introWords.length || 3} từ mới, chừng ${run.estMinutes || 6} phút. Mình đi cùng bạn nhé!
+            </div>
+            <div>
+              <h2>${run.titleVi || 'Từ mới: Bốn thanh và thanh nhẹ'}</h2>
+            </div>
+            ${
+              introWords.length > 0
+                ? `<div class="words" lang="zh">${introWords.map(w => `<span>${w}</span>`).join('')}</div>`
+                : ''
+            }
+            <div style="margin-top:10px;width:100%;max-width:420px;">
+              <button type="button" id="xhz-intro-start-btn" class="lp-btn3d">Bắt đầu</button>
+            </div>
+          </div>
+        `
+        : '';
+
+      // 5. Xây dựng Exit Confirmation Modal
+      const exitModalHtml = state.showExitModal
+        ? `
+          <div style="position:fixed;inset:0;z-index:80;background:rgba(0,0,0,0.65);display:flex;align-items:center;justify-content:center;padding:16px;">
+            <div style="background:var(--lp-surface);border:1.5px solid var(--lp-border);border-radius:20px;max-width:400px;width:100%;padding:24px;box-shadow:0 16px 40px rgba(0,0,0,0.2);">
+              <h3 style="font-size:20px;font-weight:800;color:var(--lp-ink);margin:0 0 8px 0;">Tạm dừng bài học?</h3>
+              <p style="font-size:15px;color:var(--lp-ink-2);margin:0 0 20px 0;line-height:1.5;">Câu trả lời đã làm được lưu lại. Lần sau bạn sẽ học tiếp từ câu đang dở.</p>
+              <div style="display:flex;gap:10px;justify-content:flex-end;">
+                <button type="button" id="xhz-exit-cancel" style="padding:10px 18px;border-radius:12px;border:1.5px solid var(--lp-border-strong);background:var(--lp-surface);color:var(--lp-ink);font-weight:700;cursor:pointer;">Học tiếp</button>
+                <button type="button" id="xhz-exit-confirm" style="padding:10px 18px;border-radius:12px;border:none;background:var(--lp-red);color:#fff;font-weight:700;cursor:pointer;">Thoát</button>
+              </div>
+            </div>
+          </div>
+        `
+        : '';
+
+      runnerRoot.innerHTML = `
+        <div class="lp lp-runner" data-testid="lesson-runner" data-split="true">
+          <div class="lp-runner-inner lp-split">
+            <!-- Top Progress Bar -->
+            <div class="lp-lesson-top">
+              <button type="button" id="xhz-runner-exit-btn" aria-label="Thoát bài học" class="lp-icon-btn">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              </button>
+              <div class="lp-progress" role="progressbar" aria-label="Tiến độ bài học" aria-valuemin="0" aria-valuemax="${playableSteps.length}" aria-valuenow="${state.stepIdx}">
+                <i style="width:${progressPct}%;"></i>
+              </div>
+              <button type="button" id="xhz-runner-audio-replay" aria-label="Cài đặt âm thanh" class="lp-icon-btn" title="Phát lại âm thanh (Space)">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              </button>
+            </div>
+
+            <!-- Main 2-Column Split Grid -->
+            <div class="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-8 lg:px-8">
+              <!-- Left Column: Capybara Row + Prompt -->
+              <div class="px-5 lg:min-h-0 lg:overflow-y-auto lg:px-0 lg:py-4">
+                <div class="lp-capyrow" data-testid="capy-row">
+                  <img src="${getCapySprite(step)}" alt="Capy" class="lp-capy" style="width:74px;height:74px;object-fit:contain;" />
+                  <div class="lp-bubble pop" aria-live="polite">
+                    ${isHard ? `<span class="lp-tag-hard">CÂU KHÓ</span><br/>` : ''}
+                    ${getCapyPromptLine(step)}
+                  </div>
+                </div>
+                <div class="mt-3.5">${promptHtml}</div>
+              </div>
+
+              <!-- Right Column: Step Answer Area + Footer + Sheet -->
+              <div class="relative flex min-h-0 flex-1 flex-col lg:overflow-hidden">
+                <div class="lp-step-area">
+                  <div class="lp-step-body">${answerHtml}</div>
+                </div>
+                <div class="lp-footer">
+                  <button type="button" id="xhz-runner-primary-btn" data-runner-action="" class="lp-btn3d" ${footerBtnDisabled ? 'disabled' : ''}>
+                    ${footerBtnLabel}
+                    ${!footerBtnDisabled ? `<kbd class="lp-kbd lp-kbd-in-btn" aria-hidden="true">Enter</kbd>` : ''}
+                  </button>
+                  <p class="lp-key-tips" aria-hidden="true"><kbd class="lp-kbd">Space</kbd> nghe lại</p>
+                </div>
+                ${sheetHtml}
+              </div>
+            </div>
+
+            ${introOverlayHtml}
+            ${exitModalHtml}
+          </div>
+        </div>
+      `;
+
+      // Wire events
+      const startBtn = runnerRoot.querySelector('#xhz-intro-start-btn');
+      if (startBtn) {
+        startBtn.onclick = () => {
+          state.showIntro = false;
+          renderRunner();
+          const aud = getStepAudioInfo(getCurrentStep());
+          if (aud.text || aud.url) {
+            playPronunciation(aud.text, aud.url, 1.0);
+          }
+        };
+      }
+
+      const exitBtn = runnerRoot.querySelector('#xhz-runner-exit-btn');
+      if (exitBtn) {
+        exitBtn.onclick = () => {
+          state.showExitModal = true;
+          renderRunner();
+        };
+      }
+      const exitCancel = runnerRoot.querySelector('#xhz-exit-cancel');
+      if (exitCancel) {
+        exitCancel.onclick = () => {
+          state.showExitModal = false;
+          renderRunner();
+        };
+      }
+      const exitConfirm = runnerRoot.querySelector('#xhz-exit-confirm');
+      if (exitConfirm) {
+        exitConfirm.onclick = () => {
+          window.location.assign('/hoc');
+        };
+      }
+
+      const replayGear = runnerRoot.querySelector('#xhz-runner-audio-replay');
+      if (replayGear) {
+        replayGear.onclick = () => {
+          const aud = getStepAudioInfo(getCurrentStep());
+          playPronunciation(aud.text, aud.url, 1.0);
+        };
+      }
+
+      runnerRoot.querySelectorAll('[data-play-text], [data-play-url]').forEach(btn => {
+        btn.onclick = () => {
+          const txt = btn.getAttribute('data-play-text') || '';
+          const url = btn.getAttribute('data-play-url') || '';
+          const rate = Number(btn.getAttribute('data-play-rate')) || 1.0;
+          playPronunciation(txt, url, rate);
+        };
+      });
+
+      // Pretest options (intro_word)
+      runnerRoot.querySelectorAll('[data-pretest-opt]').forEach(btn => {
+        btn.onclick = () => {
+          if (state.pretestRevealed) return;
+          state.pretestPickedId = btn.getAttribute('data-pretest-opt');
+          state.pretestRevealed = true;
+          const aud = getStepAudioInfo(step);
+          playPronunciation(aud.text, aud.url, 1.0);
+          renderRunner();
+        };
+      });
+      const pretestSkip = runnerRoot.querySelector('#xhz-pretest-skip');
+      if (pretestSkip) {
+        pretestSkip.onclick = () => {
+          state.pretestPickedId = null;
+          state.pretestRevealed = true;
+          const aud = getStepAudioInfo(step);
+          playPronunciation(aud.text, aud.url, 1.0);
+          renderRunner();
+        };
+      }
+
+      // Multiple-choice options (choose_meaning, listen_choose, fill_blank, exam_item)
+      runnerRoot.querySelectorAll('[data-choice-opt]').forEach(btn => {
+        btn.onclick = () => {
+          if (state.phase !== 'answering') return;
+          const optId = btn.getAttribute('data-choice-opt');
+          if (state.disabledOptionIds.has(optId)) return;
+          state.selectedOptionId = optId;
+          renderRunner();
+        };
+      });
+
+      // Write character phase tabs & skip
+      runnerRoot.querySelectorAll('[data-write-phase]').forEach(btn => {
+        btn.onclick = () => {
+          state.writePhaseIdx = Number(btn.getAttribute('data-write-phase')) || 0;
+          state.writeQuizDone = false;
+          renderRunner();
+        };
+      });
+      const writeSkip = runnerRoot.querySelector('#xhz-write-skip');
+      if (writeSkip) {
+        writeSkip.onclick = () => advanceStep();
+      }
+
+      // Type pinyin input & tone buttons
+      const pyInput = runnerRoot.querySelector('#xhz-pinyin-input');
+      if (pyInput) {
+        pyInput.focus();
+        pyInput.setSelectionRange(pyInput.value.length, pyInput.value.length);
+        pyInput.oninput = e => {
+          state.typedText = e.target.value;
+          const prevEl = runnerRoot.querySelector('#xhz-pinyin-preview');
+          const conv = convertNumberedPinyin(state.typedText);
+          if (prevEl) {
+            prevEl.innerHTML =
+              conv && conv !== state.typedText.trim()
+                ? `Hiển thị: <b>${conv}</b>`
+                : 'Gõ âm tiết trước, rồi gõ số 1-4 hoặc chạm phím thanh.';
+          }
+          const primBtn = runnerRoot.querySelector('#xhz-runner-primary-btn');
+          if (primBtn) {
+            primBtn.disabled = !/[a-zA-ZüÜvVāáǎàēéěèīíǐìōóǒòūúǔùǖǘǚǜ]/.test(state.typedText);
+          }
+        };
+        pyInput.onkeydown = e => {
+          if (e.key === 'Enter' && state.typedText.trim()) {
+            e.preventDefault();
+            footerAction();
+          }
+        };
+      }
+      runnerRoot.querySelectorAll('[data-tone-digit]').forEach(btn => {
+        btn.onclick = () => {
+          const digit = btn.getAttribute('data-tone-digit');
+          const cleaned = state.typedText.replace(/[1-5]$/, '');
+          state.typedText = convertNumberedPinyin(cleaned + digit);
+          renderRunner();
+        };
+      });
+
+      // Match pairs
+      runnerRoot.querySelectorAll('[data-match-left]').forEach(btn => {
+        btn.onclick = () => {
+          const lid = btn.getAttribute('data-match-left');
+          state.matchLeftSelected = lid;
+          const lItem = (state._leftItems || []).find(x => x.id === lid);
+          if (lItem) {
+            playPronunciation(lItem.hanzi, lItem.audio && lItem.audio.url, 1.0);
+          }
+          renderRunner();
+        };
+      });
+      runnerRoot.querySelectorAll('[data-match-right]').forEach(btn => {
+        btn.onclick = () => {
+          if (!state.matchLeftSelected) return;
+          const rid = btn.getAttribute('data-match-right');
+          const lid = state.matchLeftSelected;
+          const isValid = (state._validPairs || []).some(pr => pr[0] === lid && pr[1] === rid);
+          state.matchLeftSelected = null;
+          if (isValid) {
+            state.matchedPairs.push([lid, rid]);
+            renderRunner();
+            if (state.matchedPairs.length >= (state._leftItems || []).length) {
+              setTimeout(() => submitGradedAnswer(true, '', null), 300);
+            }
+          } else {
+            state.matchWrongPair = [lid, rid];
+            renderRunner();
+            setTimeout(() => {
+              state.matchWrongPair = null;
+              renderRunner();
+            }, 550);
+          }
+        };
+      });
+
+      // Order sentence tiles
+      runnerRoot.querySelectorAll('[data-pick-token]').forEach(btn => {
+        btn.onclick = () => {
+          const tid = btn.getAttribute('data-pick-token');
+          if (!state.orderedTokens.includes(tid)) {
+            state.orderedTokens.push(tid);
+            renderRunner();
+          }
+        };
+      });
+      runnerRoot.querySelectorAll('[data-unpick-token]').forEach(btn => {
+        btn.onclick = () => {
+          const tid = btn.getAttribute('data-unpick-token');
+          state.orderedTokens = state.orderedTokens.filter(x => x !== tid);
+          renderRunner();
+        };
+      });
+
+      // Read sentence mic & skip
+      const micBtn = runnerRoot.querySelector('#xhz-read-mic-btn');
+      if (micBtn) {
+        micBtn.onclick = () => {
+          state.readRecorded = true;
+          const sent = (step.payload && step.payload.sentence) || {};
+          playPronunciation(sent.hanzi || '', (sent.audio && sent.audio.url) || '', 1.0);
+          renderRunner();
+        };
+      }
+      const readSkip = runnerRoot.querySelector('#xhz-read-skip');
+      if (readSkip) {
+        readSkip.onclick = () => advanceStep();
+      }
+
+      // Sheet retry / next buttons
+      const sheetRetryBtn = runnerRoot.querySelector('#xhz-sheet-retry-btn');
+      if (sheetRetryBtn) {
+        sheetRetryBtn.onclick = () => {
+          state.phase = 'answering';
+          state.selectedOptionId = null;
+          renderRunner();
+        };
+      }
+      const sheetNextBtn = runnerRoot.querySelector('#xhz-sheet-next-btn');
+      if (sheetNextBtn) {
+        sheetNextBtn.onclick = () => advanceStep();
+      }
+
+      // Primary footer button
+      const primaryBtn = runnerRoot.querySelector('#xhz-runner-primary-btn');
+      if (primaryBtn) {
+        primaryBtn.onclick = () => {
+          if (!footerBtnDisabled) footerAction();
+        };
+      }
+
+      // Mount HanziWriter if write_character step
+      mountHanziWriterIfNeeded();
+    }
+
+    // Keyboard shortcuts: [Enter], [Space], [1-4]
+    if (window.__xhzLessonKeydownHandler) {
+      window.removeEventListener('keydown', window.__xhzLessonKeydownHandler);
+    }
+    window.__xhzLessonKeydownHandler = function (e) {
+      if (!document.getElementById('xhz-lesson-runner-root')) return;
+      const activeTag = (document.activeElement && document.activeElement.tagName) || '';
+      const isInput = activeTag === 'INPUT' || activeTag === 'TEXTAREA';
+
+      if (e.key === ' ' && !isInput) {
+        e.preventDefault();
+        const aud = getStepAudioInfo(getCurrentStep());
+        playPronunciation(aud.text, aud.url, 1.0);
+        return;
+      }
+      if (e.key === 'Enter' && !isInput) {
+        e.preventDefault();
+        if (state.showIntro) {
+          const sb = runnerRoot.querySelector('#xhz-intro-start-btn');
+          if (sb) sb.click();
+          return;
+        }
+        if (state.phase === 'hint') {
+          const rb = runnerRoot.querySelector('#xhz-sheet-retry-btn');
+          if (rb) rb.click();
+          return;
+        }
+        if (state.phase === 'feedback') {
+          const nb = runnerRoot.querySelector('#xhz-sheet-next-btn');
+          if (nb) nb.click();
+          return;
+        }
+        if (state.phase === 'done') {
+          const db = runnerRoot.querySelector('#xhz-done-continue');
+          if (db) db.click();
+          return;
+        }
+        const pb = runnerRoot.querySelector('#xhz-runner-primary-btn');
+        if (pb && !pb.disabled) pb.click();
+        return;
+      }
+      if (!isInput && !state.showIntro && state.phase === 'answering' && /^[1-4]$/.test(e.key)) {
+        const idx = Number(e.key) - 1;
+        const step = getCurrentStep();
+        if (step && step.type === 'intro_word' && !state.pretestRevealed) {
+          const preBtns = runnerRoot.querySelectorAll('[data-pretest-opt]');
+          if (preBtns[idx]) preBtns[idx].click();
+        } else {
+          const choiceBtns = runnerRoot.querySelectorAll('[data-choice-opt]');
+          if (choiceBtns[idx] && !choiceBtns[idx].disabled) choiceBtns[idx].click();
+        }
+      }
+    };
+    window.addEventListener('keydown', window.__xhzLessonKeydownHandler);
+
+    renderRunner();
   }
 
   // --------------------------------------------------------------------------

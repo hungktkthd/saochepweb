@@ -1,0 +1,1036 @@
+{
+    "runId":  "6af3efd75ef8914173f992b5",
+    "kind":  "learn",
+    "createdAt":  "2026-11-11T04:32:23.280Z",
+    "expiresAt":  "2026-11-12T04:32:23.280Z",
+    "contentVersion":  1,
+    "estMinutes":  6,
+    "feedback":  "instant",
+    "titleVi":  "Từ mới: Bốn thanh và thanh nhẹ",
+    "hskLevel":  1,
+    "track":  "hsk30",
+    "stageKey":  "hsk30.L1.P1",
+    "activityKey":  "hsk30.L1.P1.learn.1",
+    "trackContentVersion":  "c3-23b226e1",
+    "steps":  [
+                  {
+                      "id":  "s1",
+                      "type":  "intro_word",
+                      "skill":  null,
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  false,
+                      "prompt":  {
+                                     "vi":  "Từ mới"
+                                 },
+                      "payload":  {
+                                      "word":  {
+                                                   "key":  "w:八",
+                                                   "hanzi":  "八",
+                                                   "pinyin":  "bā",
+                                                   "wordPinyin":  "bā",
+                                                   "meaningVi":  "tám (số)",
+                                                   "hanviet":  "bát",
+                                                   "hanvietGloss":  "số tám, thứ tám, phân chia",
+                                                   "wordClassVi":  "số từ",
+                                                   "audio":  {
+                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                             },
+                                                   "example":  {
+                                                                   "hanzi":  "八、拔、把、爸。",
+                                                                   "pinyin":  "Bā, bá, bǎ, bà.",
+                                                                   "vi":  "bā, bá, bǎ, bà: bốn thanh trên âm ba.",
+                                                                   "audio":  {
+                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0"
+                                                                             }
+                                                               }
+                                               },
+                                      "showStrokeDemo":  false,
+                                      "verifiedHanViet":  {
+                                                              "reading":  "bát",
+                                                              "confidence":  "high"
+                                                          },
+                                      "breakdowns":  [
+                                                         {
+                                                             "hanzi":  "八",
+                                                             "pinyin":  "bā",
+                                                             "hanViet":  "bát",
+                                                             "hanVietConfidence":  "high",
+                                                             "meaningVi":  "tám, 8",
+                                                             "components":  [
+
+                                                                            ],
+                                                             "memoryHint":  "Hai nét tách ra hai bên như chia đôi, đọc Hán Việt là bát: số tám.",
+                                                             "slug":  "bat-八"
+                                                         }
+                                                     ],
+                                      "pretest":  {
+                                                      "kind":  "tone",
+                                                      "promptVi":  "Nghe và đoán thanh điệu",
+                                                      "options":  [
+                                                                      {
+                                                                          "id":  "o1",
+                                                                          "text":  "bǎ"
+                                                                      },
+                                                                      {
+                                                                          "id":  "o2",
+                                                                          "text":  "bá"
+                                                                      },
+                                                                      {
+                                                                          "id":  "o3",
+                                                                          "text":  "bā"
+                                                                      }
+                                                                  ],
+                                                      "correctOptionId":  "o3",
+                                                      "revealVi":  "八 đọc là bā: thanh 1."
+                                                  }
+                                  }
+                  },
+                  {
+                      "id":  "s2",
+                      "type":  "intro_word",
+                      "skill":  null,
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  false,
+                      "prompt":  {
+                                     "vi":  "Từ mới"
+                                 },
+                      "payload":  {
+                                      "word":  {
+                                                   "key":  "w:爸爸",
+                                                   "hanzi":  "爸爸",
+                                                   "pinyin":  "bàba",
+                                                   "wordPinyin":  "bàba",
+                                                   "meaningVi":  "bố, cha",
+                                                   "hanviet":  "ba ba",
+                                                   "hanvietGloss":  "bố, cha (tiếng Việt có dùng từ ba)",
+                                                   "wordClassVi":  "danh từ",
+                                                   "audio":  {
+                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                             },
+                                                   "example":  {
+                                                                   "hanzi":  "爸爸，你好！",
+                                                                   "pinyin":  "Bàba, nǐ hǎo!",
+                                                                   "vi":  "Con chào bố!",
+                                                                   "audio":  {
+                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600\u0026s=TL28s4uAj8EeZ20nS-xxosLJxlFX6PkAfN_bYSPcNHM"
+                                                                             }
+                                                               }
+                                               },
+                                      "showStrokeDemo":  false,
+                                      "breakdowns":  [
+                                                         {
+                                                             "hanzi":  "爸",
+                                                             "pinyin":  "bà",
+                                                             "hanViet":  "ba",
+                                                             "hanVietConfidence":  "medium",
+                                                             "otherHanViet":  [
+                                                                                  "bả"
+                                                                              ],
+                                                             "meaningVi":  "bố",
+                                                             "radical":  {
+                                                                             "hanzi":  "父",
+                                                                             "hanViet":  "phụ",
+                                                                             "meaningVi":  "cha, bố"
+                                                                         },
+                                                             "structure":  "pictophonetic",
+                                                             "components":  [
+                                                                                {
+                                                                                    "hanzi":  "父",
+                                                                                    "role":  "meaning",
+                                                                                    "hanViet":  "phụ",
+                                                                                    "pinyin":  "fù",
+                                                                                    "meaningVi":  "cha, bố",
+                                                                                    "slug":  "phu-父"
+                                                                                },
+                                                                                {
+                                                                                    "hanzi":  "巴",
+                                                                                    "role":  "sound",
+                                                                                    "hanViet":  "ba",
+                                                                                    "pinyin":  "bā",
+                                                                                    "meaningVi":  "mong ngóng",
+                                                                                    "slug":  "ba-巴"
+                                                                                }
+                                                                            ],
+                                                             "memoryHint":  "父 (cha) chỉ nghĩa, 巴 (bā) gợi âm: người cha mà ta gọi là \u0027ba\u0027.",
+                                                             "slug":  "ba-爸"
+                                                         }
+                                                     ],
+                                      "pretest":  {
+                                                      "kind":  "tone",
+                                                      "promptVi":  "Nghe và đoán thanh điệu",
+                                                      "options":  [
+                                                                      {
+                                                                          "id":  "o1",
+                                                                          "text":  "bàba"
+                                                                      },
+                                                                      {
+                                                                          "id":  "o2",
+                                                                          "text":  "bāba"
+                                                                      },
+                                                                      {
+                                                                          "id":  "o3",
+                                                                          "text":  "bába"
+                                                                      }
+                                                                  ],
+                                                      "correctOptionId":  "o1",
+                                                      "revealVi":  "爸爸 đọc là bàba: thanh 4."
+                                                  }
+                                  }
+                  },
+                  {
+                      "id":  "s3",
+                      "type":  "choose_meaning",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Chọn nghĩa đúng"
+                                 },
+                      "payload":  {
+                                      "direction":  "zh_vi",
+                                      "question":  {
+                                                       "hanzi":  "八",
+                                                       "pinyin":  "bā",
+                                                       "audio":  {
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                                 }
+                                                   },
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "text":  "cái cốc, ly"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "text":  "làm gì"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "text":  "bố, cha"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "text":  "tám (số)"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "八 (bā), âm Hán Việt bát.",
+                      "check":  {
+                                    "correctOptionId":  "o4"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.",
+                                        "cue":  "Hán Việt: bát",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s19",
+                      "type":  "write_character",
+                      "skill":  "writing",
+                      "itemKeys":  [
+                                       "c:八"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Tập viết chữ mới: bā, “tám (số)”"
+                                 },
+                      "payload":  {
+                                      "char":  "八",
+                                      "strokesUrl":  "https://api.xiehanzi.com/api/v2/strokes/%E5%85%AB",
+                                      "mode":  "guided",
+                                      "hintAfterMistakes":  2,
+                                      "phases":  [
+                                                     "demo",
+                                                     "trace",
+                                                     "recall"
+                                                 ],
+                                      "cue":  {
+                                                  "meaningVi":  "tám (số)",
+                                                  "pinyin":  "bā",
+                                                  "hanviet":  "bát",
+                                                  "audio":  {
+                                                                "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                            }
+                                              }
+                                  },
+                      "explanationVi":  "Nét viết chưa đúng thứ tự hoặc hướng. Xem nét mẫu rồi viết lại."
+                  },
+                  {
+                      "id":  "s4",
+                      "type":  "intro_word",
+                      "skill":  null,
+                      "itemKeys":  [
+                                       "w:妈妈"
+                                   ],
+                      "graded":  false,
+                      "prompt":  {
+                                     "vi":  "Từ mới"
+                                 },
+                      "payload":  {
+                                      "word":  {
+                                                   "key":  "w:妈妈",
+                                                   "hanzi":  "妈妈",
+                                                   "pinyin":  "māma",
+                                                   "wordPinyin":  "māma",
+                                                   "meaningVi":  "mẹ",
+                                                   "hanviet":  "ma ma",
+                                                   "hanvietGloss":  "mẹ, má",
+                                                   "wordClassVi":  "danh từ",
+                                                   "traditional":  "媽媽",
+                                                   "audio":  {
+                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                             },
+                                                   "example":  {
+                                                                   "hanzi":  "妈妈，你好！",
+                                                                   "pinyin":  "Māma, nǐ hǎo!",
+                                                                   "vi":  "Con chào mẹ!",
+                                                                   "audio":  {
+                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600\u0026s=m_oc4g7XzOjUQYFAFUDjTHKbr8270jT-JmYIBhSNeSQ"
+                                                                             },
+                                                                   "traditional":  "媽媽，你好！",
+                                                                   "traditionalReviewed":  false
+                                                               }
+                                               },
+                                      "showStrokeDemo":  false,
+                                      "breakdowns":  [
+                                                         {
+                                                             "hanzi":  "妈",
+                                                             "traditional":  "媽",
+                                                             "pinyin":  "mā",
+                                                             "hanViet":  "ma",
+                                                             "hanVietConfidence":  "medium",
+                                                             "otherHanViet":  [
+                                                                                  "mụ"
+                                                                              ],
+                                                             "meaningVi":  "mẹ đẻ",
+                                                             "radical":  {
+                                                                             "hanzi":  "女",
+                                                                             "hanViet":  "nữ",
+                                                                             "meaningVi":  "đàn bà, con gái"
+                                                                         },
+                                                             "structure":  "pictophonetic",
+                                                             "components":  [
+                                                                                {
+                                                                                    "hanzi":  "女",
+                                                                                    "role":  "meaning",
+                                                                                    "hanViet":  "nữ",
+                                                                                    "pinyin":  "nǚ",
+                                                                                    "meaningVi":  "đàn bà, con gái",
+                                                                                    "slug":  "nu-女"
+                                                                                },
+                                                                                {
+                                                                                    "hanzi":  "马",
+                                                                                    "traditional":  "馬",
+                                                                                    "role":  "sound",
+                                                                                    "hanViet":  "mã",
+                                                                                    "pinyin":  "mǎ",
+                                                                                    "meaningVi":  "con ngựa",
+                                                                                    "slug":  "ma-马"
+                                                                                }
+                                                                            ],
+                                                             "memoryHint":  "女 (phụ nữ) chỉ nghĩa, 马 (mǎ) gợi âm: người phụ nữ ta gọi là \u0027ma\u0027, chính là mẹ.",
+                                                             "slug":  "ma-妈"
+                                                         }
+                                                     ]
+                                  }
+                  },
+                  {
+                      "id":  "s5",
+                      "type":  "choose_meaning",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Chọn nghĩa đúng"
+                                 },
+                      "payload":  {
+                                      "direction":  "zh_vi",
+                                      "question":  {
+                                                       "hanzi":  "爸爸",
+                                                       "pinyin":  "bàba",
+                                                       "audio":  {
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                                 }
+                                                   },
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "text":  "trợ từ cuối câu: … thì sao?, … nhỉ? (hỏi tiếp, hỏi lại)"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "text":  "lần, thứ tự"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "text":  "bao nhiêu"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "text":  "bố, cha"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "爸爸 (bàba), âm Hán Việt ba ba.",
+                      "check":  {
+                                    "correctOptionId":  "o4"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.",
+                                        "cue":  "Hán Việt: ba ba",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s20",
+                      "type":  "write_character",
+                      "skill":  "writing",
+                      "itemKeys":  [
+                                       "c:爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Tập viết chữ mới: bàba, “bố, cha”"
+                                 },
+                      "payload":  {
+                                      "char":  "爸",
+                                      "strokesUrl":  "https://api.xiehanzi.com/api/v2/strokes/%E7%88%B8",
+                                      "mode":  "guided",
+                                      "hintAfterMistakes":  2,
+                                      "phases":  [
+                                                     "demo",
+                                                     "trace",
+                                                     "recall"
+                                                 ],
+                                      "cue":  {
+                                                  "meaningVi":  "bố, cha",
+                                                  "pinyin":  "bàba",
+                                                  "hanviet":  "ba",
+                                                  "audio":  {
+                                                                "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                            }
+                                              }
+                                  },
+                      "explanationVi":  "Nét viết chưa đúng thứ tự hoặc hướng. Xem nét mẫu rồi viết lại."
+                  },
+                  {
+                      "id":  "s6",
+                      "type":  "choose_meaning",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:妈妈"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Chọn nghĩa đúng"
+                                 },
+                      "payload":  {
+                                      "direction":  "zh_vi",
+                                      "question":  {
+                                                       "hanzi":  "妈妈",
+                                                       "pinyin":  "māma",
+                                                       "audio":  {
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                                 }
+                                                   },
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "text":  "miếng, khối, cục (lượng từ) hoặc đồng nhân dân tệ"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "text":  "gì, cái gì"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "text":  "nhân dân tệ, đồng (tiền)"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "text":  "mẹ"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "妈妈 (māma), âm Hán Việt ma ma.",
+                      "check":  {
+                                    "correctOptionId":  "o4"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.",
+                                        "cue":  "Hán Việt: ma ma",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s11",
+                      "type":  "type_pinyin",
+                      "skill":  "sound",
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Gõ pinyin (có thanh điệu)"
+                                 },
+                      "payload":  {
+                                      "hanzi":  "八",
+                                      "audio":  {
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                },
+                                      "toneRequired":  true,
+                                      "meaningVi":  "tám (số)"
+                                  },
+                      "explanationVi":  "八 nghĩa là tám (số). Chú ý thanh điệu của từng âm tiết.",
+                      "check":  {
+                                    "accepted":  [
+                                                     "bā"
+                                                 ]
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Chữ cái là thế này, nghe chậm để chọn thanh. Thanh 1 ngang cao, thanh 2 đi lên, thanh 3 xuống thấp rồi lên, thanh 4 đi xuống.",
+                                        "cue":  "ba",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s10",
+                      "type":  "match_pairs",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:八",
+                                       "w:爸爸",
+                                       "w:妈妈"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Ghép từ với nghĩa"
+                                 },
+                      "payload":  {
+                                      "left":  [
+                                                   {
+                                                       "id":  "l3",
+                                                       "hanzi":  "妈妈",
+                                                       "audio":  {
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                                 }
+                                                   },
+                                                   {
+                                                       "id":  "l1",
+                                                       "hanzi":  "八",
+                                                       "audio":  {
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                                 }
+                                                   },
+                                                   {
+                                                       "id":  "l2",
+                                                       "hanzi":  "爸爸",
+                                                       "audio":  {
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                                 }
+                                                   }
+                                               ],
+                                      "right":  [
+                                                    {
+                                                        "id":  "r1",
+                                                        "text":  "tám (số)"
+                                                    },
+                                                    {
+                                                        "id":  "r2",
+                                                        "text":  "bố, cha"
+                                                    },
+                                                    {
+                                                        "id":  "r3",
+                                                        "text":  "mẹ"
+                                                    }
+                                                ]
+                                  },
+                      "explanationVi":  "Có cặp nối nhầm nghĩa. Nhớ lại nghĩa từng từ rồi thử lại.",
+                      "check":  {
+                                    "pairs":  [
+                                                  [
+                                                      "l1",
+                                                      "r1"
+                                                  ],
+                                                  [
+                                                      "l2",
+                                                      "r2"
+                                                  ],
+                                                  [
+                                                      "l3",
+                                                      "r3"
+                                                  ]
+                                              ]
+                                }
+                  },
+                  {
+                      "id":  "s12",
+                      "type":  "type_pinyin",
+                      "skill":  "sound",
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Gõ pinyin (có thanh điệu)"
+                                 },
+                      "payload":  {
+                                      "hanzi":  "爸爸",
+                                      "audio":  {
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                },
+                                      "toneRequired":  true,
+                                      "meaningVi":  "bố, cha"
+                                  },
+                      "explanationVi":  "爸爸 nghĩa là bố, cha. Chú ý thanh điệu của từng âm tiết.",
+                      "check":  {
+                                    "accepted":  [
+                                                     "bàba"
+                                                 ]
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Âm tiết đầu là thế này. Nghe chậm rồi gõ lại cả từ.",
+                                        "cue":  "bà …",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s7",
+                      "type":  "listen_choose",
+                      "skill":  "tone",
+                      "itemKeys":  [
+                                       "w:妈妈"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Nghe và chọn pinyin đúng thanh điệu"
+                                 },
+                      "payload":  {
+                                      "audio":  {
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                },
+                                      "target":  "word",
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "pinyin":  "māma"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "pinyin":  "máma"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "pinyin":  "mǎma"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "pinyin":  "màma"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "妈妈 đọc là māma, thanh 1 (ngang).",
+                      "check":  {
+                                    "correctOptionId":  "o1"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Nghe chậm một lần nữa. Thanh 1 ngang cao, thanh 2 đi lên, thanh 3 xuống thấp rồi lên, thanh 4 đi xuống.",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s13",
+                      "type":  "type_pinyin",
+                      "skill":  "sound",
+                      "itemKeys":  [
+                                       "w:妈妈"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Gõ pinyin (có thanh điệu)"
+                                 },
+                      "payload":  {
+                                      "hanzi":  "妈妈",
+                                      "audio":  {
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                },
+                                      "toneRequired":  true,
+                                      "meaningVi":  "mẹ"
+                                  },
+                      "explanationVi":  "妈妈 nghĩa là mẹ. Chú ý thanh điệu của từng âm tiết.",
+                      "check":  {
+                                    "accepted":  [
+                                                     "māma"
+                                                 ]
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Âm tiết đầu là thế này. Nghe chậm rồi gõ lại cả từ.",
+                                        "cue":  "mā …",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s8",
+                      "type":  "listen_choose",
+                      "skill":  "listening",
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Nghe và chọn từ đúng"
+                                 },
+                      "payload":  {
+                                      "audio":  {
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                },
+                                      "target":  "word",
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "hanzi":  "八"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "hanzi":  "个"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "hanzi":  "茶"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "hanzi":  "谁"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "八 nghĩa là tám (số).",
+                      "check":  {
+                                    "correctOptionId":  "o1"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Nghe chậm, chú ý phụ âm đầu.",
+                                        "cue":  "Bắt đầu bằng b…",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s9",
+                      "type":  "listen_choose",
+                      "skill":  "listening",
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Nghe và chọn từ đúng"
+                                 },
+                      "payload":  {
+                                      "audio":  {
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                },
+                                      "target":  "word",
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "hanzi":  "呢"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "hanzi":  "爸爸"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "hanzi":  "什么"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "hanzi":  "八"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "爸爸 nghĩa là bố, cha.",
+                      "check":  {
+                                    "correctOptionId":  "o2"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Nghe chậm, chú ý âm tiết đầu.",
+                                        "cue":  "Âm đầu: bà…",
+                                        "audio":  {
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                  }
+                                    }
+                  },
+                  {
+                      "id":  "s14",
+                      "type":  "order_sentence",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Sắp xếp thành câu đúng"
+                                 },
+                      "payload":  {
+                                      "tokens":  [
+                                                     {
+                                                         "id":  "t2",
+                                                         "text":  "你好！",
+                                                         "pinyin":  "nǐ hǎo"
+                                                     },
+                                                     {
+                                                         "id":  "t1",
+                                                         "text":  "爸爸，",
+                                                         "pinyin":  "bàba"
+                                                     }
+                                                 ],
+                                      "translationVi":  "Con chào bố!",
+                                      "audio":  {
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600\u0026s=TL28s4uAj8EeZ20nS-xxosLJxlFX6PkAfN_bYSPcNHM"
+                                                }
+                                  },
+                      "explanationVi":  "Nghĩa của câu: Con chào bố!",
+                      "check":  {
+                                    "accepted":  [
+                                                     [
+                                                         "t1",
+                                                         "t2"
+                                                     ]
+                                                 ]
+                                }
+                  },
+                  {
+                      "id":  "s16",
+                      "type":  "fill_blank",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Điền vào chỗ trống"
+                                 },
+                      "payload":  {
+                                      "before":  "",
+                                      "after":  "、拔、把、爸。",
+                                      "pinyin":  "___, bá, bǎ, bà.",
+                                      "translationVi":  "bā, bá, bǎ, bà: bốn thanh trên âm ba.",
+                                      "mode":  "choice",
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "text":  "什么",
+                                                          "pinyin":  "shénme"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "text":  "块",
+                                                          "pinyin":  "kuài"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "text":  "八",
+                                                          "pinyin":  "bā"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "text":  "下次",
+                                                          "pinyin":  "xiàcì"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "八 (bā) nghĩa là tám (số).",
+                      "check":  {
+                                    "correctOptionId":  "o3"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Nhớ lại từ có nghĩa này rồi chọn lại.",
+                                        "cue":  "Nghĩa: tám (số)"
+                                    }
+                  },
+                  {
+                      "id":  "s15",
+                      "type":  "order_sentence",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:妈妈"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Sắp xếp thành câu đúng"
+                                 },
+                      "payload":  {
+                                      "tokens":  [
+                                                     {
+                                                         "id":  "t2",
+                                                         "text":  "你好！",
+                                                         "pinyin":  "nǐ hǎo"
+                                                     },
+                                                     {
+                                                         "id":  "t1",
+                                                         "text":  "妈妈，",
+                                                         "pinyin":  "māma"
+                                                     }
+                                                 ],
+                                      "translationVi":  "Con chào mẹ!",
+                                      "audio":  {
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600\u0026s=m_oc4g7XzOjUQYFAFUDjTHKbr8270jT-JmYIBhSNeSQ"
+                                                }
+                                  },
+                      "explanationVi":  "Nghĩa của câu: Con chào mẹ!",
+                      "check":  {
+                                    "accepted":  [
+                                                     [
+                                                         "t1",
+                                                         "t2"
+                                                     ]
+                                                 ]
+                                }
+                  },
+                  {
+                      "id":  "s17",
+                      "type":  "fill_blank",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Điền vào chỗ trống"
+                                 },
+                      "payload":  {
+                                      "before":  "",
+                                      "after":  "，你好！",
+                                      "pinyin":  "___, nǐ hǎo!",
+                                      "translationVi":  "Con chào bố!",
+                                      "mode":  "choice",
+                                      "options":  [
+                                                      {
+                                                          "id":  "o1",
+                                                          "text":  "爸爸",
+                                                          "pinyin":  "bàba"
+                                                      },
+                                                      {
+                                                          "id":  "o2",
+                                                          "text":  "杯",
+                                                          "pinyin":  "bēi"
+                                                      },
+                                                      {
+                                                          "id":  "o3",
+                                                          "text":  "干什么",
+                                                          "pinyin":  "gàn shénme"
+                                                      },
+                                                      {
+                                                          "id":  "o4",
+                                                          "text":  "几",
+                                                          "pinyin":  "jǐ"
+                                                      }
+                                                  ]
+                                  },
+                      "explanationVi":  "爸爸 (bàba) nghĩa là bố, cha.",
+                      "check":  {
+                                    "correctOptionId":  "o1"
+                                },
+                      "retryHint":  {
+                                        "textVi":  "Nhớ lại từ có nghĩa này rồi chọn lại.",
+                                        "cue":  "Nghĩa: bố, cha"
+                                    }
+                  },
+                  {
+                      "id":  "s18",
+                      "type":  "read_sentence",
+                      "skill":  "speaking",
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Đọc to câu sau"
+                                 },
+                      "payload":  {
+                                      "sentence":  {
+                                                       "id":  "hsk30.L1.P1-0",
+                                                       "hanzi":  "八、拔、把、爸。",
+                                                       "pinyin":  "Bā, bá, bǎ, bà.",
+                                                       "vi":  "bā, bá, bǎ, bà: bốn thanh trên âm ba.",
+                                                       "audio":  {
+                                                                     "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0"
+                                                                 }
+                                                   },
+                                      "maxSeconds":  11,
+                                      "scorer":  "chivox",
+                                      "allowSkip":  true
+                                  },
+                      "explanationVi":  "Một vài âm đọc chưa chuẩn. Nghe mẫu rồi đọc chậm từng cụm từ."
+                  },
+                  {
+                      "id":  "s21",
+                      "type":  "summary",
+                      "skill":  null,
+                      "itemKeys":  [
+
+                                   ],
+                      "graded":  false
+                  }
+              ],
+    "assets":  [
+                   {
+                       "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600\u0026s=TL28s4uAj8EeZ20nS-xxosLJxlFX6PkAfN_bYSPcNHM",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/api/v2/strokes/%E5%85%AB",
+                       "kind":  "strokes"
+                   },
+                   {
+                       "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600\u0026s=m_oc4g7XzOjUQYFAFUDjTHKbr8270jT-JmYIBhSNeSQ",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/api/v2/strokes/%E7%88%B8",
+                       "kind":  "strokes"
+                   }
+               ]
+}

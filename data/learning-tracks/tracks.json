@@ -1,0 +1,129 @@
+﻿{
+    "tracks":  [
+                   {
+                       "track":  "hsk30",
+                       "brandVi":  "HSK 3.0",
+                       "standard":  {
+                                        "titleZh":  "中文水平考试 HSK考试大纲",
+                                        "issuerVi":  "Trung tâm Hợp tác Giao lưu Ngôn ngữ Trung Quốc - Nước ngoài",
+                                        "year":  2025,
+                                        "sourceLineVi":  "Theo Đề cương thi HSK (HSK 3.0, ban hành 11/2025)"
+                                    },
+                       "placementAvailable":  true,
+                       "levels":  [
+                                      {
+                                          "level":  "L1",
+                                          "titleVi":  "Cấp 1",
+                                          "chapterCount":  8,
+                                          "stageCount":  40
+                                      },
+                                      {
+                                          "level":  "L2",
+                                          "titleVi":  "Cấp 2",
+                                          "chapterCount":  6,
+                                          "stageCount":  29
+                                      },
+                                      {
+                                          "level":  "L3",
+                                          "titleVi":  "Cấp 3",
+                                          "chapterCount":  8,
+                                          "stageCount":  38
+                                      },
+                                      {
+                                          "level":  "L4",
+                                          "titleVi":  "Cấp 4",
+                                          "chapterCount":  9,
+                                          "stageCount":  47
+                                      },
+                                      {
+                                          "level":  "L5",
+                                          "titleVi":  "Cấp 5",
+                                          "chapterCount":  11,
+                                          "stageCount":  60
+                                      },
+                                      {
+                                          "level":  "L6",
+                                          "titleVi":  "Cấp 6",
+                                          "chapterCount":  11,
+                                          "stageCount":  63
+                                      },
+                                      {
+                                          "level":  "L7",
+                                          "titleVi":  "Cấp 7",
+                                          "chapterCount":  5,
+                                          "stageCount":  50
+                                      },
+                                      {
+                                          "level":  "L8",
+                                          "titleVi":  "Cấp 8",
+                                          "chapterCount":  5,
+                                          "stageCount":  50
+                                      },
+                                      {
+                                          "level":  "L9",
+                                          "titleVi":  "Cấp 9",
+                                          "chapterCount":  5,
+                                          "stageCount":  50
+                                      }
+                                  ]
+                   },
+                   {
+                       "track":  "yct",
+                       "brandVi":  "YCT",
+                       "standard":  {
+                                        "titleZh":  "YCT 考试大纲",
+                                        "sourceLineVi":  "Theo đề cương thi YCT"
+                                    },
+                       "placementAvailable":  false,
+                       "levels":  [
+                                      {
+                                          "level":  "L1",
+                                          "titleVi":  "Cấp 1",
+                                          "chapterCount":  4,
+                                          "stageCount":  15
+                                      },
+                                      {
+                                          "level":  "L2",
+                                          "titleVi":  "Cấp 2",
+                                          "chapterCount":  4,
+                                          "stageCount":  11
+                                      },
+                                      {
+                                          "level":  "L3",
+                                          "titleVi":  "Cấp 3",
+                                          "chapterCount":  9,
+                                          "stageCount":  34
+                                      },
+                                      {
+                                          "level":  "L4",
+                                          "titleVi":  "Cấp 4",
+                                          "chapterCount":  10,
+                                          "stageCount":  47
+                                      }
+                                  ]
+                   },
+                   {
+                       "track":  "boya",
+                       "brandVi":  "Boya",
+                       "standard":  {
+                                        "titleZh":  "博雅汉语 初级起步篇",
+                                        "sourceLineVi":  "Bám theo giáo trình Boya Sơ cấp"
+                                    },
+                       "placementAvailable":  false,
+                       "levels":  [
+                                      {
+                                          "level":  "E1",
+                                          "titleVi":  "Sơ cấp 1",
+                                          "chapterCount":  6,
+                                          "stageCount":  36
+                                      },
+                                      {
+                                          "level":  "E2",
+                                          "titleVi":  "Sơ cấp 2",
+                                          "chapterCount":  5,
+                                          "stageCount":  30
+                                      }
+                                  ]
+                   }
+               ]
+}

@@ -1,0 +1,403 @@
+﻿{
+    "runId":  "6af3efd70fb3998ecd760de4",
+    "kind":  "learn",
+    "createdAt":  "2026-11-11T04:32:23.646Z",
+    "expiresAt":  "2026-11-12T04:32:23.646Z",
+    "contentVersion":  1,
+    "estMinutes":  5,
+    "feedback":  "instant",
+    "titleVi":  "Nhập vai: Bốn thanh và thanh nhẹ",
+    "hskLevel":  1,
+    "track":  "hsk30",
+    "stageKey":  "hsk30.L1.P1",
+    "activityKey":  "hsk30.L1.P1.rp2",
+    "trackContentVersion":  "c3-23b226e1",
+    "steps":  [
+                  {
+                      "id":  "t1",
+                      "type":  "roleplay_turn",
+                      "skill":  "speaking",
+                      "itemKeys":  [
+                                       "w:你好",
+                                       "w:小文"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Chọn một câu rồi nói"
+                                 },
+                      "payload":  {
+                                      "roleplayKey":  "hsk30.L1.P1.rp2",
+                                      "turnIndex":  1,
+                                      "prepCardVi":  "Bạn đang gọi video cho bố mẹ thì Tiểu Văn đến, bạn đồng hành ngồi bên. Hãy (1) chào Tiểu Văn, (2) giới thiệu bố mẹ trên màn hình, (3) cảm ơn khi Tiểu Văn sửa giúp cách đọc 爸爸.",
+                                      "checklist":  [
+                                                        {
+                                                            "id":  "c1",
+                                                            "goalVi":  "Mở lời chào"
+                                                        },
+                                                        {
+                                                            "id":  "c2",
+                                                            "goalVi":  "Gọi đúng bố, mẹ"
+                                                        },
+                                                        {
+                                                            "id":  "c3",
+                                                            "goalVi":  "Cảm ơn Tiểu Văn"
+                                                        }
+                                                    ],
+                                      "checklistId":  "c1",
+                                      "roles":  [
+                                                    {
+                                                        "id":  "A",
+                                                        "labelVi":  "Tiểu Văn",
+                                                        "voice":  "npc_f"
+                                                    }
+                                                ],
+                                      "choices":  [
+                                                      {
+                                                          "id":  "a",
+                                                          "hanzi":  "小文，你好！",
+                                                          "pinyin":  "Xiǎowén, nǐ hǎo!",
+                                                          "vi":  "Tiểu Văn, chào bạn!",
+                                                          "tokens":  [
+                                                                         {
+                                                                             "text":  "小文",
+                                                                             "wordKey":  "w:小文"
+                                                                         },
+                                                                         {
+                                                                             "text":  "，"
+                                                                         },
+                                                                         {
+                                                                             "text":  "你好",
+                                                                             "wordKey":  "w:你好"
+                                                                         },
+                                                                         {
+                                                                             "text":  "！"
+                                                                         }
+                                                                     ],
+                                                          "audio":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/2d17394d8494f9cb45efd4e7ed3be6fcbd640aeb6ec66663772a8eb463d96a54.mp3?e=1794387600\u0026s=92InxGJq5w7UvLKE1rcrplxz71etUyr-Nw-kjJ02ln4"
+                                                                    }
+                                                      },
+                                                      {
+                                                          "id":  "b",
+                                                          "hanzi":  "你好，小文！",
+                                                          "pinyin":  "Nǐ hǎo, Xiǎowén!",
+                                                          "vi":  "Chào Tiểu Văn!",
+                                                          "tokens":  [
+                                                                         {
+                                                                             "text":  "你好",
+                                                                             "wordKey":  "w:你好"
+                                                                         },
+                                                                         {
+                                                                             "text":  "，"
+                                                                         },
+                                                                         {
+                                                                             "text":  "小文",
+                                                                             "wordKey":  "w:小文"
+                                                                         },
+                                                                         {
+                                                                             "text":  "！"
+                                                                         }
+                                                                     ],
+                                                          "audio":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/feda91c171d00d6632baa5dc2bb499f82b89b4e7591878dd58ac6a4d7546e8cd.mp3?e=1794387600\u0026s=bGi0LnfpPhlTbYUCCkc8s3OwjiVY03ZXVV4pGwAOLA0"
+                                                                    }
+                                                      }
+                                                  ],
+                                      "coachVi":  "Chào Tiểu Văn trước nhé.",
+                                      "maxSeconds":  10,
+                                      "scorer":  "chivox",
+                                      "scoreGate":  40,
+                                      "allowSkip":  true
+                                  }
+                  },
+                  {
+                      "id":  "t2",
+                      "type":  "roleplay_turn",
+                      "skill":  "speaking",
+                      "itemKeys":  [
+                                       "w:妈妈",
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Chọn một câu rồi nói"
+                                 },
+                      "payload":  {
+                                      "roleplayKey":  "hsk30.L1.P1.rp2",
+                                      "turnIndex":  2,
+                                      "checklistId":  "c2",
+                                      "roles":  [
+                                                    {
+                                                        "id":  "A",
+                                                        "labelVi":  "Tiểu Văn",
+                                                        "voice":  "npc_f"
+                                                    }
+                                                ],
+                                      "npcRole":  "A",
+                                      "npcLine":  {
+                                                      "hanzi":  "你好！",
+                                                      "pinyin":  "Nǐ hǎo!",
+                                                      "vi":  "Chào bạn!",
+                                                      "tokens":  [
+                                                                     {
+                                                                         "text":  "你好",
+                                                                         "wordKey":  "w:你好"
+                                                                     },
+                                                                     {
+                                                                         "text":  "！"
+                                                                     }
+                                                                 ],
+                                                      "audio":  {
+                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/b8392e78410eb4677547508840e8658230b4bdfc04ef7028d7a7f26cdf03e436.mp3?e=1794387600\u0026s=e6Sw2DMmoBexdFT8Q8FwZ_5_0mthzKlaGtvuFSzN4_w"
+                                                                }
+                                                  },
+                                      "choices":  [
+                                                      {
+                                                          "id":  "a",
+                                                          "hanzi":  "爸爸，妈妈。",
+                                                          "pinyin":  "Bàba, māma.",
+                                                          "vi":  "Bố mình, mẹ mình.",
+                                                          "tokens":  [
+                                                                         {
+                                                                             "text":  "爸爸",
+                                                                             "wordKey":  "w:爸爸"
+                                                                         },
+                                                                         {
+                                                                             "text":  "，"
+                                                                         },
+                                                                         {
+                                                                             "text":  "妈妈",
+                                                                             "wordKey":  "w:妈妈"
+                                                                         },
+                                                                         {
+                                                                             "text":  "。"
+                                                                         }
+                                                                     ],
+                                                          "audio":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600\u0026s=iPwRQY4TeQDecUi0U9qSDp1AqDTQmqPIijsqtZj--zY"
+                                                                    }
+                                                      },
+                                                      {
+                                                          "id":  "b",
+                                                          "hanzi":  "妈妈，爸爸。",
+                                                          "pinyin":  "Māma, bàba.",
+                                                          "vi":  "Mẹ mình, bố mình.",
+                                                          "tokens":  [
+                                                                         {
+                                                                             "text":  "妈妈",
+                                                                             "wordKey":  "w:妈妈"
+                                                                         },
+                                                                         {
+                                                                             "text":  "，"
+                                                                         },
+                                                                         {
+                                                                             "text":  "爸爸",
+                                                                             "wordKey":  "w:爸爸"
+                                                                         },
+                                                                         {
+                                                                             "text":  "。"
+                                                                         }
+                                                                     ],
+                                                          "audio":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/24ce6666897db6a64b8aa344fae850a5edff990a56476d56d9ae7d25990b3000.mp3?e=1794387600\u0026s=KjmwBPchOojjwcqJHm7Ev_eCSvx2zjyeC8ZGAb2zt74"
+                                                                    }
+                                                      }
+                                                  ],
+                                      "coachVi":  "Giới thiệu bố mẹ trên màn hình.",
+                                      "buddyLines":  [
+                                                         {
+                                                             "afterTurn":  2,
+                                                             "hanzi":  "八八？爸爸，妈妈！",
+                                                             "pinyin":  "Bābā? Bàba, māma!",
+                                                             "vi":  "Tám tám... à không, bố, mẹ!",
+                                                             "tokens":  [
+                                                                            {
+                                                                                "text":  "八",
+                                                                                "wordKey":  "w:八"
+                                                                            },
+                                                                            {
+                                                                                "text":  "八",
+                                                                                "wordKey":  "w:八"
+                                                                            },
+                                                                            {
+                                                                                "text":  "？"
+                                                                            },
+                                                                            {
+                                                                                "text":  "爸爸",
+                                                                                "wordKey":  "w:爸爸"
+                                                                            },
+                                                                            {
+                                                                                "text":  "，"
+                                                                            },
+                                                                            {
+                                                                                "text":  "妈妈",
+                                                                                "wordKey":  "w:妈妈"
+                                                                            },
+                                                                            {
+                                                                                "text":  "！"
+                                                                            }
+                                                                        ],
+                                                             "audio":  {
+                                                                           "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/963d8a8a919dba9cbca9853aafecb1046b88431303e91ca9cd31cf6bf9e42212.mp3?e=1794387600\u0026s=l_FW7GAugShY8HiL2c2JN6MzOIJDDbmcZTdYXFqtwAk"
+                                                                       }
+                                                         }
+                                                     ],
+                                      "maxSeconds":  10,
+                                      "scorer":  "chivox",
+                                      "scoreGate":  40,
+                                      "allowSkip":  true
+                                  }
+                  },
+                  {
+                      "id":  "t3",
+                      "type":  "roleplay_turn",
+                      "skill":  "speaking",
+                      "itemKeys":  [
+                                       "w:小文",
+                                       "w:谢谢"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Chọn một câu rồi nói"
+                                 },
+                      "payload":  {
+                                      "roleplayKey":  "hsk30.L1.P1.rp2",
+                                      "turnIndex":  3,
+                                      "checklistId":  "c3",
+                                      "roles":  [
+                                                    {
+                                                        "id":  "A",
+                                                        "labelVi":  "Tiểu Văn",
+                                                        "voice":  "npc_f"
+                                                    }
+                                                ],
+                                      "npcRole":  "A",
+                                      "npcLine":  {
+                                                      "hanzi":  "爸爸，爸爸。",
+                                                      "pinyin":  "Bàba, bàba.",
+                                                      "vi":  "Bàba chứ, bàba (bố).",
+                                                      "tokens":  [
+                                                                     {
+                                                                         "text":  "爸爸",
+                                                                         "wordKey":  "w:爸爸"
+                                                                     },
+                                                                     {
+                                                                         "text":  "，"
+                                                                     },
+                                                                     {
+                                                                         "text":  "爸爸",
+                                                                         "wordKey":  "w:爸爸"
+                                                                     },
+                                                                     {
+                                                                         "text":  "。"
+                                                                     }
+                                                                 ],
+                                                      "audio":  {
+                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/8753bc8ff891e6182b5d57149ae25300688541eeb8c592a6bd261dfd62235299.mp3?e=1794387600\u0026s=-VPvgYSLcXKke16FMnK8DNKs9jfeK5KBTv2leh_Mroo"
+                                                                }
+                                                  },
+                                      "choices":  [
+                                                      {
+                                                          "id":  "a",
+                                                          "hanzi":  "谢谢小文！",
+                                                          "pinyin":  "Xièxie Xiǎowén!",
+                                                          "vi":  "Cảm ơn Tiểu Văn!",
+                                                          "tokens":  [
+                                                                         {
+                                                                             "text":  "谢谢",
+                                                                             "wordKey":  "w:谢谢"
+                                                                         },
+                                                                         {
+                                                                             "text":  "小文",
+                                                                             "wordKey":  "w:小文"
+                                                                         },
+                                                                         {
+                                                                             "text":  "！"
+                                                                         }
+                                                                     ],
+                                                          "audio":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1787dacb0d783d66a39a5bc9300aa97278c8d6bea3bb09d26a7a4f8bb60c7bca.mp3?e=1794387600\u0026s=oEp0AmDwnhfo19Jj0F8UDilJjno1CEzmGZkPC06QVjs"
+                                                                    }
+                                                      },
+                                                      {
+                                                          "id":  "b",
+                                                          "hanzi":  "小文，谢谢！",
+                                                          "pinyin":  "Xiǎowén, xièxie!",
+                                                          "vi":  "Tiểu Văn, cảm ơn nha!",
+                                                          "tokens":  [
+                                                                         {
+                                                                             "text":  "小文",
+                                                                             "wordKey":  "w:小文"
+                                                                         },
+                                                                         {
+                                                                             "text":  "，"
+                                                                         },
+                                                                         {
+                                                                             "text":  "谢谢",
+                                                                             "wordKey":  "w:谢谢"
+                                                                         },
+                                                                         {
+                                                                             "text":  "！"
+                                                                         }
+                                                                     ],
+                                                          "audio":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/349091377644d3e0ffc3559aebf85bd6fa568db2bba2b68e7284dde291d6c1b4.mp3?e=1794387600\u0026s=TT4LfkPX9Fyl3O9PRPuOlFgaZfL688bEMG1Gfrl-Wu0"
+                                                                    }
+                                                      }
+                                                  ],
+                                      "coachVi":  "Tiểu Văn sửa giúp cách đọc. Cảm ơn bạn ấy.",
+                                      "maxSeconds":  10,
+                                      "scorer":  "chivox",
+                                      "scoreGate":  40,
+                                      "allowSkip":  true
+                                  }
+                  },
+                  {
+                      "id":  "s-end",
+                      "type":  "summary",
+                      "skill":  null,
+                      "itemKeys":  [
+
+                                   ],
+                      "graded":  false
+                  }
+              ],
+    "assets":  [
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/2d17394d8494f9cb45efd4e7ed3be6fcbd640aeb6ec66663772a8eb463d96a54.mp3?e=1794387600\u0026s=92InxGJq5w7UvLKE1rcrplxz71etUyr-Nw-kjJ02ln4",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/feda91c171d00d6632baa5dc2bb499f82b89b4e7591878dd58ac6a4d7546e8cd.mp3?e=1794387600\u0026s=bGi0LnfpPhlTbYUCCkc8s3OwjiVY03ZXVV4pGwAOLA0",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/b8392e78410eb4677547508840e8658230b4bdfc04ef7028d7a7f26cdf03e436.mp3?e=1794387600\u0026s=e6Sw2DMmoBexdFT8Q8FwZ_5_0mthzKlaGtvuFSzN4_w",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600\u0026s=iPwRQY4TeQDecUi0U9qSDp1AqDTQmqPIijsqtZj--zY",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/24ce6666897db6a64b8aa344fae850a5edff990a56476d56d9ae7d25990b3000.mp3?e=1794387600\u0026s=KjmwBPchOojjwcqJHm7Ev_eCSvx2zjyeC8ZGAb2zt74",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/963d8a8a919dba9cbca9853aafecb1046b88431303e91ca9cd31cf6bf9e42212.mp3?e=1794387600\u0026s=l_FW7GAugShY8HiL2c2JN6MzOIJDDbmcZTdYXFqtwAk",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/8753bc8ff891e6182b5d57149ae25300688541eeb8c592a6bd261dfd62235299.mp3?e=1794387600\u0026s=-VPvgYSLcXKke16FMnK8DNKs9jfeK5KBTv2leh_Mroo",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1787dacb0d783d66a39a5bc9300aa97278c8d6bea3bb09d26a7a4f8bb60c7bca.mp3?e=1794387600\u0026s=oEp0AmDwnhfo19Jj0F8UDilJjno1CEzmGZkPC06QVjs",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/349091377644d3e0ffc3559aebf85bd6fa568db2bba2b68e7284dde291d6c1b4.mp3?e=1794387600\u0026s=TT4LfkPX9Fyl3O9PRPuOlFgaZfL688bEMG1Gfrl-Wu0",
+                       "kind":  "audio"
+                   }
+               ]
+}

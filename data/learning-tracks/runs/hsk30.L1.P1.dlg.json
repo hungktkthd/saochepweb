@@ -1,0 +1,436 @@
+﻿{
+    "runId":  "6af3efd70fb3998ecd760dd8",
+    "kind":  "learn",
+    "createdAt":  "2026-11-11T04:32:23.518Z",
+    "expiresAt":  "2026-11-12T04:32:23.518Z",
+    "contentVersion":  1,
+    "estMinutes":  4,
+    "feedback":  "instant",
+    "titleVi":  "Hội thoại: Bốn thanh và thanh nhẹ",
+    "hskLevel":  1,
+    "track":  "hsk30",
+    "stageKey":  "hsk30.L1.P1",
+    "activityKey":  "hsk30.L1.P1.dlg",
+    "trackContentVersion":  "c3-23b226e1",
+    "steps":  [
+                  {
+                      "id":  "d1",
+                      "type":  "dialogue",
+                      "skill":  "listening",
+                      "itemKeys":  [
+                                       "w:你好",
+                                       "w:八",
+                                       "w:妈妈",
+                                       "w:小文",
+                                       "w:您好",
+                                       "w:把",
+                                       "w:拔",
+                                       "w:爸",
+                                       "w:爸爸",
+                                       "w:谢谢"
+                                   ],
+                      "graded":  true,
+                      "prompt":  {
+                                     "vi":  "Nghe hội thoại rồi trả lời câu hỏi"
+                                 },
+                      "payload":  {
+                                      "dialogueKey":  "hsk30.L1.P1.dlg",
+                                      "sceneVi":  "Tối ở ký túc xá Bắc Kinh, Tiểu Văn gọi video cho bố mẹ, bạn và bạn đồng hành ngồi cạnh chào hỏi, cúp máy rồi tập thanh",
+                                      "roles":  [
+                                                    {
+                                                        "id":  "A",
+                                                        "labelVi":  "Tiểu Văn",
+                                                        "voice":  "npc_f"
+                                                    },
+                                                    {
+                                                        "id":  "F",
+                                                        "labelVi":  "Bố của Tiểu Văn",
+                                                        "voice":  "npc_m"
+                                                    },
+                                                    {
+                                                        "id":  "B",
+                                                        "labelVi":  "Bạn",
+                                                        "voice":  "npc_f",
+                                                        "learner":  true
+                                                    },
+                                                    {
+                                                        "id":  "buddy",
+                                                        "labelVi":  "Bạn đồng hành",
+                                                        "voice":  "character"
+                                                    }
+                                                ],
+                                      "turns":  [
+                                                    {
+                                                        "i":  1,
+                                                        "role":  "A",
+                                                        "hanzi":  "爸爸！妈妈！",
+                                                        "pinyin":  "Bàba! Māma!",
+                                                        "vi":  "Bố ơi! Mẹ ơi!",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "爸爸",
+                                                                           "wordKey":  "w:爸爸"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       },
+                                                                       {
+                                                                           "text":  "妈妈",
+                                                                           "wordKey":  "w:妈妈"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/869f7ee16259016e294378a38cdb7946b86df3850dadefe551fe9001dc8e8bcd.mp3?e=1794387600\u0026s=0r3zqmuwxs49zoXD-XBrLC5a1b7dhtkHWFAqoWyChQk"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  2,
+                                                        "role":  "F",
+                                                        "hanzi":  "你好，你好！",
+                                                        "pinyin":  "Nǐ hǎo, nǐ hǎo!",
+                                                        "vi":  "Chào cháu, chào cháu! (bố Tiểu Văn thấy bạn trên màn hình)",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "你好",
+                                                                           "wordKey":  "w:你好"
+                                                                       },
+                                                                       {
+                                                                           "text":  "，"
+                                                                       },
+                                                                       {
+                                                                           "text":  "你好",
+                                                                           "wordKey":  "w:你好"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/80229f73895b3319b706f170721f4279f5fe8d9062b00e584102cd2abd02e817.mp3?e=1794387600\u0026s=_3rG4mnHQTKkYQDkbJ0jLA6nt2uzlFoi1sZA3TauNe0"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  3,
+                                                        "role":  "B",
+                                                        "hanzi":  "您好！",
+                                                        "pinyin":  "Nín hǎo!",
+                                                        "vi":  "Chào bác ạ!",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "您好",
+                                                                           "wordKey":  "w:您好"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1036c244afdd13a1575a9b3a420769a6aab9220697d3c005d5a246d95a94a0c0.mp3?e=1794387600\u0026s=ZgFisbSn-0BrSjfgZqp7QAsj5cU1E1uPCYNF25whVjw"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  4,
+                                                        "role":  "buddy",
+                                                        "hanzi":  "八八！妈妈！",
+                                                        "pinyin":  "Bābā! Māma!",
+                                                        "vi":  "Bābā! Māma! (Bạn đồng hành đọc theo, đọc nhầm 爸爸 thành 八八, nghĩa là tám tám)",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "八",
+                                                                           "wordKey":  "w:八"
+                                                                       },
+                                                                       {
+                                                                           "text":  "八",
+                                                                           "wordKey":  "w:八"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       },
+                                                                       {
+                                                                           "text":  "妈妈",
+                                                                           "wordKey":  "w:妈妈"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/dfe2dd3dfbdb1a616b47176c6635acbb624572d946ecb7b6c860a0268d03576e.mp3?e=1794387600\u0026s=xCTuO5lvAeGpuVYnhuwcjshagbbvu_9nxipPkYfk3ls"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  5,
+                                                        "role":  "A",
+                                                        "hanzi":  "爸爸，爸爸。",
+                                                        "pinyin":  "Bàba, bàba.",
+                                                        "vi":  "Bàba chứ, bàba (bố).",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "爸爸",
+                                                                           "wordKey":  "w:爸爸"
+                                                                       },
+                                                                       {
+                                                                           "text":  "，"
+                                                                       },
+                                                                       {
+                                                                           "text":  "爸爸",
+                                                                           "wordKey":  "w:爸爸"
+                                                                       },
+                                                                       {
+                                                                           "text":  "。"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/8753bc8ff891e6182b5d57149ae25300688541eeb8c592a6bd261dfd62235299.mp3?e=1794387600\u0026s=-VPvgYSLcXKke16FMnK8DNKs9jfeK5KBTv2leh_Mroo"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  6,
+                                                        "role":  "B",
+                                                        "shadow":  true,
+                                                        "hanzi":  "爸爸，妈妈。",
+                                                        "pinyin":  "Bàba, māma.",
+                                                        "vi":  "(đọc theo Tiểu Văn) bàba, māma",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "爸爸",
+                                                                           "wordKey":  "w:爸爸"
+                                                                       },
+                                                                       {
+                                                                           "text":  "，"
+                                                                       },
+                                                                       {
+                                                                           "text":  "妈妈",
+                                                                           "wordKey":  "w:妈妈"
+                                                                       },
+                                                                       {
+                                                                           "text":  "。"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600\u0026s=iPwRQY4TeQDecUi0U9qSDp1AqDTQmqPIijsqtZj--zY"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  7,
+                                                        "role":  "A",
+                                                        "hanzi":  "八、拔、把、爸。",
+                                                        "pinyin":  "Bā, bá, bǎ, bà.",
+                                                        "vi":  "bā, bá, bǎ, bà: bốn thanh.",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "八",
+                                                                           "wordKey":  "w:八"
+                                                                       },
+                                                                       {
+                                                                           "text":  "、"
+                                                                       },
+                                                                       {
+                                                                           "text":  "拔",
+                                                                           "wordKey":  "w:拔"
+                                                                       },
+                                                                       {
+                                                                           "text":  "、"
+                                                                       },
+                                                                       {
+                                                                           "text":  "把",
+                                                                           "wordKey":  "w:把"
+                                                                       },
+                                                                       {
+                                                                           "text":  "、"
+                                                                       },
+                                                                       {
+                                                                           "text":  "爸",
+                                                                           "wordKey":  "w:爸"
+                                                                       },
+                                                                       {
+                                                                           "text":  "。"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  8,
+                                                        "role":  "B",
+                                                        "shadow":  true,
+                                                        "hanzi":  "八、拔、把、爸。",
+                                                        "pinyin":  "Bā, bá, bǎ, bà.",
+                                                        "vi":  "bā, bá, bǎ, bà.",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "八",
+                                                                           "wordKey":  "w:八"
+                                                                       },
+                                                                       {
+                                                                           "text":  "、"
+                                                                       },
+                                                                       {
+                                                                           "text":  "拔",
+                                                                           "wordKey":  "w:拔"
+                                                                       },
+                                                                       {
+                                                                           "text":  "、"
+                                                                       },
+                                                                       {
+                                                                           "text":  "把",
+                                                                           "wordKey":  "w:把"
+                                                                       },
+                                                                       {
+                                                                           "text":  "、"
+                                                                       },
+                                                                       {
+                                                                           "text":  "爸",
+                                                                           "wordKey":  "w:爸"
+                                                                       },
+                                                                       {
+                                                                           "text":  "。"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/3f050cb68fde9be519b295d4c696610e3a12ca2d8aa89111ba348ef2c848fdf1.mp3?e=1794387600\u0026s=_UqKo_Ij5pVVG5uavl4TNvnKFhZEY2hetfYfBjd1xUU"
+                                                                  }
+                                                    },
+                                                    {
+                                                        "i":  9,
+                                                        "role":  "buddy",
+                                                        "hanzi":  "谢谢小文！",
+                                                        "pinyin":  "Xièxie Xiǎowén!",
+                                                        "vi":  "Cảm ơn Tiểu Văn nha!",
+                                                        "tokens":  [
+                                                                       {
+                                                                           "text":  "谢谢",
+                                                                           "wordKey":  "w:谢谢"
+                                                                       },
+                                                                       {
+                                                                           "text":  "小文",
+                                                                           "wordKey":  "w:小文"
+                                                                       },
+                                                                       {
+                                                                           "text":  "！"
+                                                                       }
+                                                                   ],
+                                                        "audio":  {
+                                                                      "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/80f32751971849c68c5d7f2aecb8536314db922d00e2f87bb26af73deb5edb64.mp3?e=1794387600\u0026s=ufb1djGf9R6mlhc3hu4LJ-svWA2JQQit2pVlt_3gud4"
+                                                                  }
+                                                    }
+                                                ],
+                                      "questions":  [
+                                                        {
+                                                            "id":  "q1",
+                                                            "promptVi":  "Bạn đồng hành đọc nhầm 爸爸 thành gì?",
+                                                            "options":  [
+                                                                            {
+                                                                                "id":  "a",
+                                                                                "text":  "八八 (tám tám)"
+                                                                            },
+                                                                            {
+                                                                                "id":  "b",
+                                                                                "text":  "妈妈 (mẹ)"
+                                                                            },
+                                                                            {
+                                                                                "id":  "c",
+                                                                                "text":  "你好 (xin chào)"
+                                                                            }
+                                                                        ]
+                                                        },
+                                                        {
+                                                            "id":  "q2",
+                                                            "promptVi":  "Âm tiết nào mang thanh 3?",
+                                                            "options":  [
+                                                                            {
+                                                                                "id":  "a",
+                                                                                "text":  "八 (bā)"
+                                                                            },
+                                                                            {
+                                                                                "id":  "b",
+                                                                                "text":  "拔 (bá)"
+                                                                            },
+                                                                            {
+                                                                                "id":  "c",
+                                                                                "text":  "把 (bǎ)"
+                                                                            }
+                                                                        ]
+                                                        }
+                                                    ],
+                                      "chunks":  [
+                                                     {
+                                                         "zh":  "爸爸，妈妈",
+                                                         "vi":  "bố, mẹ (âm sau đọc nhẹ, ngắn)",
+                                                         "role":  "produce",
+                                                         "itemKey":  "w:爸爸"
+                                                     },
+                                                     {
+                                                         "zh":  "八、拔、把、爸",
+                                                         "vi":  "bốn thanh trên âm ba",
+                                                         "role":  "produce",
+                                                         "itemKey":  "w:八"
+                                                     }
+                                                 ]
+                                  },
+                      "check":  {
+                                    "answers":  [
+                                                    {
+                                                        "questionId":  "q1",
+                                                        "correctOptionId":  "a"
+                                                    },
+                                                    {
+                                                        "questionId":  "q2",
+                                                        "correctOptionId":  "c"
+                                                    }
+                                                ]
+                                }
+                  },
+                  {
+                      "id":  "s-end",
+                      "type":  "summary",
+                      "skill":  null,
+                      "itemKeys":  [
+
+                                   ],
+                      "graded":  false
+                  }
+              ],
+    "assets":  [
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/869f7ee16259016e294378a38cdb7946b86df3850dadefe551fe9001dc8e8bcd.mp3?e=1794387600\u0026s=0r3zqmuwxs49zoXD-XBrLC5a1b7dhtkHWFAqoWyChQk",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/80229f73895b3319b706f170721f4279f5fe8d9062b00e584102cd2abd02e817.mp3?e=1794387600\u0026s=_3rG4mnHQTKkYQDkbJ0jLA6nt2uzlFoi1sZA3TauNe0",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1036c244afdd13a1575a9b3a420769a6aab9220697d3c005d5a246d95a94a0c0.mp3?e=1794387600\u0026s=ZgFisbSn-0BrSjfgZqp7QAsj5cU1E1uPCYNF25whVjw",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/dfe2dd3dfbdb1a616b47176c6635acbb624572d946ecb7b6c860a0268d03576e.mp3?e=1794387600\u0026s=xCTuO5lvAeGpuVYnhuwcjshagbbvu_9nxipPkYfk3ls",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/8753bc8ff891e6182b5d57149ae25300688541eeb8c592a6bd261dfd62235299.mp3?e=1794387600\u0026s=-VPvgYSLcXKke16FMnK8DNKs9jfeK5KBTv2leh_Mroo",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600\u0026s=iPwRQY4TeQDecUi0U9qSDp1AqDTQmqPIijsqtZj--zY",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/3f050cb68fde9be519b295d4c696610e3a12ca2d8aa89111ba348ef2c848fdf1.mp3?e=1794387600\u0026s=_UqKo_Ij5pVVG5uavl4TNvnKFhZEY2hetfYfBjd1xUU",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/80f32751971849c68c5d7f2aecb8536314db922d00e2f87bb26af73deb5edb64.mp3?e=1794387600\u0026s=ufb1djGf9R6mlhc3hu4LJ-svWA2JQQit2pVlt_3gud4",
+                       "kind":  "audio"
+                   }
+               ]
+}

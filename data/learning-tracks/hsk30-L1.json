@@ -1,0 +1,604 @@
+﻿{
+    "track":  "hsk30",
+    "level":  "L1",
+    "levelVersion":  "lv-552f60bb-t",
+    "chapters":  [
+                     {
+                         "chapterKey":  "hsk30.L1.C00",
+                         "order":  0,
+                         "titleVi":  "Âm và thanh",
+                         "contentVersion":  "c3-23b226e1",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.P1",
+                                            "kind":  "phonetics",
+                                            "order":  1,
+                                            "titleVi":  "Bốn thanh và thanh nhẹ",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nghe và nói đúng 4 thanh và thanh nhẹ.",
+                                                            "Bạn có thể phân biệt cặp thanh trong từ hai âm tiết."
+                                                        ],
+                                            "newWordCount":  3,
+                                            "estMinutes":  19,
+                                            "titleZh":  "爸爸，妈妈"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.P2",
+                                            "kind":  "phonetics",
+                                            "order":  2,
+                                            "titleVi":  "Các âm người Việt dễ nhầm",
+                                            "canDoVi":  [
+                                                            "Bạn có thể phân biệt s/sh và q/x/ch.",
+                                                            "Bạn có thể đọc đúng 四, 十 và 七."
+                                                        ],
+                                            "newWordCount":  3,
+                                            "estMinutes":  19,
+                                            "titleZh":  "四十七"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.P3",
+                                            "kind":  "phonetics",
+                                            "order":  3,
+                                            "titleVi":  "Biến điệu 一, 不 và 3+3",
+                                            "canDoVi":  [
+                                                            "Bạn có thể đọc đúng biến điệu của 一, 不 và hai thanh 3 liền nhau.",
+                                                            "Bạn có thể nói một câu chào hoàn chỉnh."
+                                                        ],
+                                            "newWordCount":  3,
+                                            "estMinutes":  19,
+                                            "titleZh":  "你好！"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R00",
+                                            "kind":  "review",
+                                            "order":  4,
+                                            "titleVi":  "Kiểm tra nhanh âm và thanh",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nghe và đọc đúng bốn thanh, thanh nhẹ, các âm dễ nhầm và biến điệu 一, 不.",
+                                                            "Đạt từ 8/10 câu thì bạn có thể bỏ qua chương âm và thanh."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9,
+                                            "titleZh":  "你好！"
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C01",
+                         "order":  1,
+                         "titleVi":  "Chào hỏi, làm quen",
+                         "contentVersion":  "c3-ace5d641",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S01",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Xin chào, cảm ơn, tạm biệt",
+                                            "canDoVi":  [
+                                                            "Bạn có thể chào, cảm ơn, xin lỗi và tạm biệt.",
+                                                            "Bạn có thể đáp lại lời cảm ơn, lời xin lỗi."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "老师，您好！"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S02",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Bạn tên là gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi tên và nói tên mình.",
+                                                            "Bạn có thể nói rất vui được làm quen."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你叫什么名字？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S03",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Bạn là người nước nào?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi và nói quốc tịch.",
+                                                            "Bạn có thể hỏi lại người kia bằng 呢."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你是哪国人？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S04",
+                                            "kind":  "stage",
+                                            "order":  4,
+                                            "titleVi":  "Nhà mình có mấy người",
+                                            "canDoVi":  [
+                                                            "Bạn có thể giới thiệu gia đình mình.",
+                                                            "Bạn có thể hỏi nhà bạn có mấy người, có anh chị em không."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你家有几口人？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R01",
+                                            "kind":  "review",
+                                            "order":  5,
+                                            "titleVi":  "Ôn tập: Làm quen ở bữa tiệc",
+                                            "canDoVi":  [
+                                                            "Bạn có thể làm quen trọn vẹn: chào hỏi, nói tên, quốc tịch và gia đình.",
+                                                            "Bạn có thể cảm ơn, xin lỗi và chào tạm biệt đúng lúc."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9,
+                                            "titleZh":  "认识你很高兴！"
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C02",
+                         "order":  2,
+                         "titleVi":  "Sống sót ngày đầu",
+                         "contentVersion":  "c3-f5fd1ee7",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S05",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Số đếm, bạn bao nhiêu tuổi?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể đếm và nói số từ 0 đến 99.",
+                                                            "Bạn có thể hỏi và nói tuổi."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你多大？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S06",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Mua hoa quả: bao nhiêu tiền?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi giá và hiểu số tiền.",
+                                                            "Bạn có thể nói mình muốn mua cái này hay cái kia."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "苹果多少钱？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S07",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Mua nước uống",
+                                            "canDoVi":  [
+                                                            "Bạn có thể mua một đồ uống và nói số lượng.",
+                                                            "Bạn có thể nói đắt hay rẻ, không lấy nữa."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "我要一杯茶"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S08",
+                                            "kind":  "stage",
+                                            "order":  4,
+                                            "titleVi":  "Xin hỏi, ... ở đâu?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi một chỗ ở đâu.",
+                                                            "Bạn có thể hiểu trước, sau, trong, ngoài, trên khi được chỉ đường."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "请问，商店在哪儿？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R02",
+                                            "kind":  "review",
+                                            "order":  5,
+                                            "titleVi":  "Ôn tập: Ngày đầu ở Bắc Kinh",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi chỗ, mua nước uống và mua hoa quả trong một tình huống liền mạch.",
+                                                            "Bạn có thể làm bài nghe và đọc dạng đề HSK 3.0 cấp 1 về số, giá tiền và vị trí."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9,
+                                            "titleZh":  "商店在哪儿？"
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C03",
+                         "order":  3,
+                         "titleVi":  "Thời gian, hẹn gặp",
+                         "contentVersion":  "c3-86b29e44",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S09",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Số điện thoại của bạn là gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi và đọc số điện thoại.",
+                                                            "Bạn có thể nhấc máy, nhờ người kia nói lại."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你手机号是多少？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S10",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Hôm nay thứ mấy, ngày mấy?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói ngày, tháng, năm và thứ.",
+                                                            "Bạn có thể hỏi hôm nay, ngày mai là thứ mấy."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "今天星期几？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S11",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Bây giờ mấy giờ?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi và nói giờ.",
+                                                            "Bạn có thể nói mình làm gì vào buổi sáng, trưa, chiều, tối."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "现在几点？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S12",
+                                            "kind":  "stage",
+                                            "order":  4,
+                                            "titleVi":  "Hẹn gặp ở đâu, lúc nào?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể rủ bạn đi xem phim.",
+                                                            "Bạn có thể hẹn ngày, giờ và chỗ gặp."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "我们什么时候见？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R03",
+                                            "kind":  "review",
+                                            "order":  5,
+                                            "titleVi":  "Ôn tập: Hẹn đi xem phim",
+                                            "canDoVi":  [
+                                                            "Bạn có thể gọi điện rủ bạn đi xem phim, hẹn ngày, giờ và chỗ gặp."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9,
+                                            "titleZh":  "我们去看电影吧！"
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C04",
+                         "order":  4,
+                         "titleVi":  "Mua sắm và ăn uống",
+                         "contentVersion":  "c3-69a9a83e",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S13",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Cái này là gì? Của ai?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi tên đồ vật.",
+                                                            "Bạn có thể hỏi và nói đồ vật là của ai."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "这是谁的书？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S14",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Cái to hay cái nhỏ? Chọn đồ",
+                                            "canDoVi":  [
+                                                            "Bạn có thể tả đồ to, nhỏ, mới, đẹp.",
+                                                            "Bạn có thể chọn một món và hỏi cửa hàng có bán không."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "哪个好看？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S15",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Bạn thích ăn gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói mình muốn ăn gì, thích hay không thích một món.",
+                                                            "Bạn có thể hỏi bạn bè thích ăn gì và hiểu câu trả lời.",
+                                                            "Bạn có thể nói về bữa sáng, bữa trưa, bữa tối."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你喜欢吃什么？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S16",
+                                            "kind":  "stage",
+                                            "order":  4,
+                                            "titleVi":  "Gọi món ở quán",
+                                            "canDoVi":  [
+                                                            "Bạn có thể gọi món ăn và đồ uống, nói rõ số lượng.",
+                                                            "Bạn có thể trả lời câu hỏi của nhân viên khi gọi món.",
+                                                            "Bạn có thể đọc thực đơn đơn giản, hỏi giá và trả tiền."
+                                                        ],
+                                            "newWordCount":  7,
+                                            "estMinutes":  25,
+                                            "titleZh":  "在饭店"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S17",
+                                            "kind":  "stage",
+                                            "order":  5,
+                                            "titleVi":  "Đói rồi, đi ăn thôi!",
+                                            "canDoVi":  [
+                                                            "Bạn có thể rủ bạn đi ăn và nói đi ăn ở đâu.",
+                                                            "Bạn có thể nhận lời hoặc nói mình bận, có việc.",
+                                                            "Bạn có thể nói hôm nay có nấu ăn hay ăn ở ngoài."
+                                                        ],
+                                            "newWordCount":  9,
+                                            "estMinutes":  25,
+                                            "titleZh":  "我们去吃饭吧！"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S18",
+                                            "kind":  "stage",
+                                            "order":  6,
+                                            "titleVi":  "Người Trung Quốc ăn gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể giới thiệu vài món truyền thống Trung Quốc và nói mình thích hay không.",
+                                                            "Bạn có thể đọc thực đơn có bánh bao, sủi cảo, mì, trà."
+                                                        ],
+                                            "newWordCount":  9,
+                                            "estMinutes":  25,
+                                            "titleZh":  "大家都喜欢吃饺子吗？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R04",
+                                            "kind":  "review",
+                                            "order":  7,
+                                            "titleVi":  "Ôn tập: Một ngày ăn uống ở Bắc Kinh",
+                                            "canDoVi":  [
+                                                            "Bạn có thể chọn đồ, mua đồ, rủ bạn đi ăn và gọi món trong một tình huống liền mạch.",
+                                                            "Bạn có thể làm bài nghe và đọc dạng đề HSK 3.0 cấp 1 về ăn uống."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C05",
+                         "order":  5,
+                         "titleVi":  "Đi lại, nơi chốn, thời tiết",
+                         "contentVersion":  "c3-0dbf8005",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S19",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Bạn đi bằng gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói mình đi học, đi làm bằng gì.",
+                                                            "Bạn có thể hỏi đi mất bao lâu."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你怎么上学？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S20",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Chỗ này thế nào?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể tả một nơi: to nhỏ, tốt hay không, ở đâu.",
+                                                            "Bạn có thể nói mình có thích nơi đó không."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "这里怎么样？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S21",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Hôm nay trời thế nào?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi và nói thời tiết nóng, lạnh, mưa, tuyết.",
+                                                            "Bạn có thể nói mình thích thời tiết nào và nên mặc gì."
+                                                        ],
+                                            "newWordCount":  9,
+                                            "estMinutes":  25,
+                                            "titleZh":  "今天天气怎么样？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R05",
+                                            "kind":  "review",
+                                            "order":  4,
+                                            "titleVi":  "Ôn tập: Đi ga tàu",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói cách đi, hỏi chỗ trong ga và nói về thời tiết trong một chuyến đi bằng tàu.",
+                                                            "Bạn có thể đọc biển chỉ dẫn đơn giản và làm bài nghe, đọc dạng đề HSK 3.0 cấp 1 về đi lại, nơi chốn, thời tiết."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C06",
+                         "order":  6,
+                         "titleVi":  "Học tập, công việc",
+                         "contentVersion":  "c3-2c2169c6",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S22",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Bạn học ở đâu, học gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói mình học ở trường nào, học môn gì.",
+                                                            "Bạn có thể hỏi bạn học tiếng Trung bao lâu, mỗi ngày mấy tiết."
+                                                        ],
+                                            "newWordCount":  11,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你在哪个学校学习？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S23",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Trường mình và sau giờ học",
+                                            "canDoVi":  [
+                                                            "Bạn có thể giới thiệu trường, thầy cô, bạn học.",
+                                                            "Bạn có thể nói mình đang làm gì sau giờ học."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你在做什么呢？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S24",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Bạn làm nghề gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể hỏi và nói nghề, nơi làm việc.",
+                                                            "Bạn có thể nói giờ đi làm, tan làm."
+                                                        ],
+                                            "newWordCount":  9,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你做什么工作？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R06",
+                                            "kind":  "review",
+                                            "order":  4,
+                                            "titleVi":  "Ôn tập: Bạn cùng lớp mới",
+                                            "canDoVi":  [
+                                                            "Bạn có thể làm quen bạn cùng lớp mới: nói việc học, nói đang làm gì, hỏi nghề người nhà.",
+                                                            "Bạn có thể đọc thời khoá biểu đơn giản và làm bài dạng đề HSK 3.0 cấp 1 về học tập, công việc."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9,
+                                            "titleZh":  "新同学"
+                                        }
+                                    ]
+                     },
+                     {
+                         "chapterKey":  "hsk30.L1.C07",
+                         "order":  7,
+                         "titleVi":  "Cuộc sống hằng ngày",
+                         "contentVersion":  "c3-4720b931",
+                         "stages":  [
+                                        {
+                                            "stageKey":  "hsk30.L1.S25",
+                                            "kind":  "stage",
+                                            "order":  1,
+                                            "titleVi":  "Chủ nhật bạn đã làm gì?",
+                                            "canDoVi":  [
+                                                            "Bạn có thể kể cuối tuần đã làm gì.",
+                                                            "Bạn có thể nói kế hoạch nghỉ ngơi, giải trí."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "星期天你做什么了？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S26",
+                                            "kind":  "stage",
+                                            "order":  2,
+                                            "titleVi":  "Bạn biết làm gì? Sở thích",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói mình biết làm gì, có thể làm gì.",
+                                                            "Bạn có thể nói về thú cưng và việc mình thích."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "你会做什么？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S27",
+                                            "kind":  "stage",
+                                            "order":  3,
+                                            "titleVi":  "Mình bị ốm",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nói mình bị ốm và muốn đi khám.",
+                                                            "Bạn có thể an ủi bạn ốm, dặn nghỉ ngơi nhiều."
+                                                        ],
+                                            "newWordCount":  8,
+                                            "estMinutes":  25,
+                                            "titleZh":  "我生病了"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S28",
+                                            "kind":  "stage",
+                                            "order":  4,
+                                            "titleVi":  "Nhờ giúp, gọi điện báo",
+                                            "canDoVi":  [
+                                                            "Bạn có thể nhờ người khác giúp một việc nhỏ.",
+                                                            "Bạn có thể gọi điện báo mình ở đâu, đang làm gì."
+                                                        ],
+                                            "newWordCount":  8,
+                                            "estMinutes":  25,
+                                            "titleZh":  "请你找一下"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.S29",
+                                            "kind":  "stage",
+                                            "order":  5,
+                                            "titleVi":  "Giới thiệu người thân, bạn bè",
+                                            "canDoVi":  [
+                                                            "Bạn có thể giới thiệu người thân, bạn bè với người khác.",
+                                                            "Bạn có thể hỏi những người này là ai, ở đâu."
+                                                        ],
+                                            "newWordCount":  10,
+                                            "estMinutes":  25,
+                                            "titleZh":  "这些小朋友是谁？"
+                                        },
+                                        {
+                                            "stageKey":  "hsk30.L1.R07",
+                                            "kind":  "review",
+                                            "order":  6,
+                                            "titleVi":  "Ôn tập: Cuối tuần của mình",
+                                            "canDoVi":  [
+                                                            "Bạn có thể kể về cuối tuần của mình, nói sở thích và việc mình biết làm.",
+                                                            "Bạn có thể báo mình bị ốm, nhờ người khác giúp một việc nhỏ.",
+                                                            "Bạn có thể giới thiệu người thân với bạn bè."
+                                                        ],
+                                            "newWordCount":  0,
+                                            "estMinutes":  9,
+                                            "titleZh":  "我的星期六、星期天"
+                                        }
+                                    ]
+                     }
+                 ],
+    "levelTest":  {
+                      "available":  true,
+                      "testId":  "hsk30.L1.LT",
+                      "titleVi":  "Kiểm tra cuối cấp 1",
+                      "questionCount":  40,
+                      "sections":  {
+                                       "listening":  20,
+                                       "reading":  20
+                                   },
+                      "passPct":  80,
+                      "estMinutes":  15
+                  }
+}

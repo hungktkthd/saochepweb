@@ -1,0 +1,276 @@
+﻿{
+    "runId":  "6af3efd75ef8914173f992ce",
+    "kind":  "learn",
+    "createdAt":  "2026-11-11T04:32:23.702Z",
+    "expiresAt":  "2026-11-12T04:32:23.702Z",
+    "contentVersion":  1,
+    "estMinutes":  4,
+    "feedback":  "instant",
+    "titleVi":  "Luyện đề: Bốn thanh và thanh nhẹ",
+    "hskLevel":  1,
+    "track":  "hsk30",
+    "stageKey":  "hsk30.L1.P1",
+    "activityKey":  "hsk30.L1.P1.exam",
+    "trackContentVersion":  "c3-23b226e1",
+    "steps":  [
+                  {
+                      "id":  "e1",
+                      "type":  "exam_item",
+                      "skill":  "listening",
+                      "itemKeys":  [
+                                       "w:妈妈"
+                                   ],
+                      "graded":  true,
+                      "payload":  {
+                                      "itemKey":  "hsk30.L1.P1.ex.1",
+                                      "examType":  "image_choice",
+                                      "section":  "listening",
+                                      "instruction":  "Nghe và chọn tranh đúng.",
+                                      "script":  [
+                                                     {
+                                                         "role":  "npc_f",
+                                                         "speakerZh":  "女",
+                                                         "hanzi":  "妈妈。",
+                                                         "pinyin":  "Māma.",
+                                                         "tokens":  [
+                                                                        {
+                                                                            "text":  "妈妈",
+                                                                            "wordKey":  "w:妈妈"
+                                                                        },
+                                                                        {
+                                                                            "text":  "。"
+                                                                        }
+                                                                    ],
+                                                         "audio":  {
+                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600\u0026s=-8-4hTpeoJZnWE3KRbp_8hCa9TCgEloN6k8MHNAJA0A"
+                                                                   }
+                                                     }
+                                                 ],
+                                      "audio":  {
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600\u0026s=-8-4hTpeoJZnWE3KRbp_8hCa9TCgEloN6k8MHNAJA0A"
+                                                },
+                                      "options":  [
+                                                      {
+                                                          "id":  "A",
+                                                          "text":  "",
+                                                          "image":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/be24c8fe92c479c0.webp?e=1794387600\u0026s=nkEaEJb8M5NYJJwGP8SoWTGkS9qOwBz03gDO-8WhGeE"
+                                                                    }
+                                                      },
+                                                      {
+                                                          "id":  "B",
+                                                          "text":  "",
+                                                          "image":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/eb71b09f0893f912.webp?e=1794387600\u0026s=LsqDq5zs1wuBvQdmLgUnL_u5gP3KAOQlmVb_kFpyTr8"
+                                                                    }
+                                                      },
+                                                      {
+                                                          "id":  "C",
+                                                          "text":  "",
+                                                          "image":  {
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/a3deec03ddf0fa65.webp?e=1794387600\u0026s=Rj7slh2M5YWhnmrB3RlKss8CGn0ZUjrdazFuAA3pa1w"
+                                                                    }
+                                                      }
+                                                  ],
+                                      "hanziOnly":  false
+                                  },
+                      "explanationVi":  "妈妈 (māma) là mẹ.",
+                      "check":  {
+                                    "correctOptionId":  "A"
+                                }
+                  },
+                  {
+                      "id":  "e2",
+                      "type":  "exam_item",
+                      "skill":  "listening",
+                      "itemKeys":  [
+                                       "w:八"
+                                   ],
+                      "graded":  true,
+                      "payload":  {
+                                      "itemKey":  "hsk30.L1.P1.ex.2",
+                                      "examType":  "multiple_choice",
+                                      "section":  "listening",
+                                      "instruction":  "Nghe và chọn âm tiết đúng thanh.",
+                                      "script":  [
+                                                     {
+                                                         "role":  "npc_m",
+                                                         "speakerZh":  "男",
+                                                         "hanzi":  "把。",
+                                                         "pinyin":  "Bǎ.",
+                                                         "tokens":  [
+                                                                        {
+                                                                            "text":  "把",
+                                                                            "wordKey":  "w:把"
+                                                                        },
+                                                                        {
+                                                                            "text":  "。"
+                                                                        }
+                                                                    ],
+                                                         "audio":  {
+                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600\u0026s=13XbBXRAcTASTS6yfmlkITVGgA94NyFIDEOKMqJEPG8"
+                                                                   }
+                                                     }
+                                                 ],
+                                      "audio":  {
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600\u0026s=13XbBXRAcTASTS6yfmlkITVGgA94NyFIDEOKMqJEPG8"
+                                                },
+                                      "options":  [
+                                                      {
+                                                          "id":  "A",
+                                                          "text":  "八",
+                                                          "pinyin":  "bā"
+                                                      },
+                                                      {
+                                                          "id":  "B",
+                                                          "text":  "把",
+                                                          "pinyin":  "bǎ"
+                                                      },
+                                                      {
+                                                          "id":  "C",
+                                                          "text":  "拔",
+                                                          "pinyin":  "bá"
+                                                      }
+                                                  ],
+                                      "hanziOnly":  false
+                                  },
+                      "explanationVi":  "Âm nghe được đi xuống thấp rồi lên: thanh 3, bǎ (把).",
+                      "check":  {
+                                    "correctOptionId":  "B"
+                                }
+                  },
+                  {
+                      "id":  "e3",
+                      "type":  "exam_item",
+                      "skill":  "listening",
+                      "itemKeys":  [
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "payload":  {
+                                      "itemKey":  "hsk30.L1.P1.ex.3",
+                                      "examType":  "multiple_choice",
+                                      "section":  "listening",
+                                      "instruction":  "Nghe và chọn từ bạn nghe được.",
+                                      "script":  [
+                                                     {
+                                                         "role":  "npc_f",
+                                                         "speakerZh":  "女",
+                                                         "hanzi":  "爸爸。",
+                                                         "pinyin":  "Bàba.",
+                                                         "tokens":  [
+                                                                        {
+                                                                            "text":  "爸爸",
+                                                                            "wordKey":  "w:爸爸"
+                                                                        },
+                                                                        {
+                                                                            "text":  "。"
+                                                                        }
+                                                                    ],
+                                                         "audio":  {
+                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4"
+                                                                   }
+                                                     }
+                                                 ],
+                                      "audio":  {
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4"
+                                                },
+                                      "options":  [
+                                                      {
+                                                          "id":  "A",
+                                                          "text":  "爸爸",
+                                                          "pinyin":  "bàba"
+                                                      },
+                                                      {
+                                                          "id":  "B",
+                                                          "text":  "妈妈",
+                                                          "pinyin":  "māma"
+                                                      },
+                                                      {
+                                                          "id":  "C",
+                                                          "text":  "八八",
+                                                          "pinyin":  "bābā"
+                                                      }
+                                                  ],
+                                      "hanziOnly":  false
+                                  },
+                      "explanationVi":  "Âm tiết đầu rơi mạnh (thanh 4), âm tiết sau nhẹ: bàba (爸爸), không phải bābā.",
+                      "check":  {
+                                    "correctOptionId":  "A"
+                                }
+                  },
+                  {
+                      "id":  "e4",
+                      "type":  "exam_item",
+                      "skill":  "meaning",
+                      "itemKeys":  [
+                                       "w:妈妈",
+                                       "w:爸爸"
+                                   ],
+                      "graded":  true,
+                      "payload":  {
+                                      "itemKey":  "hsk30.L1.P1.ex.4",
+                                      "examType":  "multiple_choice",
+                                      "section":  "reading",
+                                      "instruction":  "Từ nào nghĩa là \"mẹ\"?",
+                                      "options":  [
+                                                      {
+                                                          "id":  "A",
+                                                          "text":  "八",
+                                                          "pinyin":  "bā"
+                                                      },
+                                                      {
+                                                          "id":  "B",
+                                                          "text":  "妈妈",
+                                                          "pinyin":  "māma"
+                                                      },
+                                                      {
+                                                          "id":  "C",
+                                                          "text":  "爸爸",
+                                                          "pinyin":  "bàba"
+                                                      }
+                                                  ],
+                                      "hanziOnly":  false
+                                  },
+                      "explanationVi":  "妈妈 là mẹ, 爸爸 là bố, 八 là số tám.",
+                      "check":  {
+                                    "correctOptionId":  "B"
+                                }
+                  },
+                  {
+                      "id":  "s-end",
+                      "type":  "summary",
+                      "skill":  null,
+                      "itemKeys":  [
+
+                                   ],
+                      "graded":  false
+                  }
+              ],
+    "assets":  [
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600\u0026s=-8-4hTpeoJZnWE3KRbp_8hCa9TCgEloN6k8MHNAJA0A",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/be24c8fe92c479c0.webp?e=1794387600\u0026s=nkEaEJb8M5NYJJwGP8SoWTGkS9qOwBz03gDO-8WhGeE",
+                       "kind":  "image"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/eb71b09f0893f912.webp?e=1794387600\u0026s=LsqDq5zs1wuBvQdmLgUnL_u5gP3KAOQlmVb_kFpyTr8",
+                       "kind":  "image"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/a3deec03ddf0fa65.webp?e=1794387600\u0026s=Rj7slh2M5YWhnmrB3RlKss8CGn0ZUjrdazFuAA3pa1w",
+                       "kind":  "image"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600\u0026s=13XbBXRAcTASTS6yfmlkITVGgA94NyFIDEOKMqJEPG8",
+                       "kind":  "audio"
+                   },
+                   {
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4",
+                       "kind":  "audio"
+                   }
+               ]
+}
