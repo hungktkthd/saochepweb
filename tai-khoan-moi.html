@@ -47,6 +47,30 @@
         : "Chưa đăng nhập";
       login.hidden = !!user;
       logout.hidden = !user;
+      if (user && session?.access_token) {
+        try {
+          const meta = user.user_metadata || {};
+          const displayName = meta.full_name || meta.name || user.email.split("@")[0];
+          const avatar = meta.avatar_url || meta.picture || "";
+          const userObj = {
+            id: user.id,
+            _id: user.id,
+            email: user.email,
+            username: user.email.split("@")[0],
+            name: displayName,
+            displayName: displayName,
+            avatar: avatar,
+            role: "user",
+            isGuest: false,
+            streak: 5
+          };
+          localStorage.setItem("xiehanzi_access_token", session.access_token);
+          localStorage.setItem("sb_access_token", session.access_token);
+          localStorage.setItem("httq_user", JSON.stringify(userObj));
+          localStorage.setItem("httq_user_id", user.id);
+          localStorage.setItem("httq_real_auth", "1");
+        } catch (_e) {}
+      }
     }
 
     client.auth.onAuthStateChange((_event, session) => {

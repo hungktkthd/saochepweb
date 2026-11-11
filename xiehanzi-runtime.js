@@ -14,21 +14,193 @@
 (function () {
   'use strict';
 
-  const SUPABASE_URL = 'https://xcthntcgenzfybefaphh.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM';
+  const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18';
   const RAW_GITHUB_REPO = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
   const DEFAULT_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLXhoei0xIiwidHlwIjoiYWNjZXNzIiwiZyI6MCwiZXhwIjo0MTAyNDQ0ODAwfQ.xhzsignature';
 
   const originalFetch = window.fetch.bind(window);
   const jsonCache = new Map();
 
-  // Tự động khởi tạo JWT hợp lệ để mở khóa toàn bộ các trang /hoc, /hoc/on-tap, /hoc/so-loi, /hoc/tu-da-hoc
+  function decodeJwtPayload(token) {
+    try {
+      if (!token || typeof token !== 'string') return null;
+      const part = token.split('.')[1];
+      if (!part) return null;
+      const base64 = part.replace(/-/g, '+').replace(/_/g, '/');
+      const padded = base64 + '='.repeat((4 - (base64.length % 4)) % 4);
+      const bytes = Uint8Array.from(atob(padded), c => c.charCodeAt(0));
+      return JSON.parse(new TextDecoder().decode(bytes));
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function getSavedUser() {
+    try {
+      if (localStorage.getItem('httq_real_auth') !== '1') return null;
+      const raw = localStorage.getItem('httq_user');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return parsed && parsed.email ? parsed : null;
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function saveAuthSession(accessToken, refreshToken, profileOverride) {
+    try {
+      const payload = decodeJwtPayload(accessToken) || {};
+      const meta = payload.user_metadata || {};
+      const over = profileOverride || {};
+      const email = over.email || payload.email || meta.email || 'hocvien@gmail.com';
+      const displayName =
+        over.displayName ||
+        over.name ||
+        meta.full_name ||
+        meta.name ||
+        (email ? email.split('@')[0] : 'Học viên XieHanzi');
+      const avatar = over.avatar || meta.avatar_url || meta.picture || '';
+      const uid = over.id || payload.sub || 'user-' + Date.now();
+      const userObj = {
+        id: uid,
+        _id: uid,
+        email: email,
+        username: email.split('@')[0] || 'hocvien',
+        name: displayName,
+        displayName: displayName,
+        avatar: avatar,
+        role: 'user',
+        isGuest: false,
+        hasPassword: Boolean(over.hasPassword),
+        showPinyinByDefault: over.showPinyinByDefault !== undefined ? over.showPinyinByDefault : true,
+        showOnPublicFeed: over.showOnPublicFeed !== undefined ? over.showOnPublicFeed : true,
+        streak: 5
+      };
+      const validJwt = accessToken && accessToken.split('.').length === 3 ? accessToken : DEFAULT_JWT;
+      localStorage.setItem('xiehanzi_access_token', validJwt);
+      localStorage.setItem('sb_access_token', accessToken || validJwt);
+      if (refreshToken) localStorage.setItem('sb_refresh_token', refreshToken);
+      localStorage.setItem('httq_user', JSON.stringify(userObj));
+      localStorage.setItem('httq_user_id', uid);
+      localStorage.setItem('httq_real_auth', '1');
+      return userObj;
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function clearAuthSession() {
+    try {
+      const sbToken = localStorage.getItem('sb_access_token');
+      if (sbToken && sbToken !== DEFAULT_JWT) {
+        originalFetch(`${SUPABASE_URL}/auth/v1/logout`, {
+          method: 'POST',
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${sbToken}`
+          }
+        }).catch(() => {});
+      }
+      localStorage.removeItem('httq_user');
+      localStorage.removeItem('httq_real_auth');
+      localStorage.removeItem('sb_access_token');
+      localStorage.removeItem('sb_refresh_token');
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
+          localStorage.removeItem(k);
+        }
+      }
+      localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
+    } catch (_e) {}
+  }
+
+  // Xử lý OAuth callback từ Supabase Google Login (#access_token=... hoặc token lưu bởi @supabase/supabase-js)
   try {
+    const hash = window.location.hash ? window.location.hash.substring(1) : '';
+    if (hash && hash.includes('access_token=')) {
+      const params = new URLSearchParams(hash);
+      const accessToken = params.get('access_token');
+      const refreshToken = params.get('refresh_token');
+      if (accessToken) {
+        saveAuthSession(accessToken, refreshToken);
+        try {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search);
+        } catch (_e) {}
+        originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
+          headers: {
+            'apikey': SUPABASE_ANON_KEY,
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+          .then(r => (r.ok ? r.json() : null))
+          .then(u => {
+            if (u && u.email) {
+              const m = u.user_metadata || {};
+              saveAuthSession(accessToken, refreshToken, {
+                id: u.id,
+                email: u.email,
+                displayName: m.full_name || m.name || u.email.split('@')[0],
+                avatar: m.avatar_url || m.picture || ''
+              });
+            }
+          })
+          .catch(() => {});
+      }
+    } else {
+      // Kiểm tra nếu người dùng đã đăng nhập qua tai-khoan-moi.html (sb-skxgzzdunqloxxombtuc-auth-token)
+      const sbRaw = localStorage.getItem('sb-skxgzzdunqloxxombtuc-auth-token');
+      if (sbRaw && localStorage.getItem('httq_real_auth') !== '1') {
+        const sbSession = JSON.parse(sbRaw);
+        if (sbSession && sbSession.access_token && sbSession.user) {
+          const m = sbSession.user.user_metadata || {};
+          saveAuthSession(sbSession.access_token, sbSession.refresh_token, {
+            id: sbSession.user.id,
+            email: sbSession.user.email,
+            displayName: m.full_name || m.name || (sbSession.user.email || '').split('@')[0],
+            avatar: m.avatar_url || m.picture || ''
+          });
+        }
+      }
+    }
     const existingToken = localStorage.getItem('xiehanzi_access_token');
     if (!existingToken || existingToken.split('.').length !== 3) {
       localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
     }
   } catch (_e) {}
+
+  // Đồng bộ khi Next.js gọi localStorage.removeItem('xiehanzi_access_token') lúc Đăng xuất
+  try {
+    const origRemoveItem = Storage.prototype.removeItem;
+    Storage.prototype.removeItem = function (key) {
+      origRemoveItem.apply(this, arguments);
+      if (key === 'xiehanzi_access_token') {
+        origRemoveItem.call(localStorage, 'httq_user');
+        origRemoveItem.call(localStorage, 'httq_real_auth');
+        origRemoveItem.call(localStorage, 'sb_access_token');
+        origRemoveItem.call(localStorage, 'sb_refresh_token');
+        localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
+      }
+    };
+  } catch (_e) {}
+
+  window.loginWithGoogle = function (returnUrl) {
+    let dest = returnUrl;
+    if (!dest || typeof dest !== 'string') {
+      const sp = new URLSearchParams(window.location.search);
+      dest = sp.get('returnUrl') || '/tai-khoan';
+    }
+    const fullRedirect = dest.startsWith('http')
+      ? dest
+      : window.location.origin + (dest.startsWith('/') ? dest : '/' + dest);
+    window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(fullRedirect)}`;
+  };
+
+  window.logoutXieHanzi = function () {
+    clearAuthSession();
+    window.location.href = '/tai-khoan';
+  };
 
   async function loadLocalJson(path) {
     if (jsonCache.has(path)) return jsonCache.get(path);
@@ -39,8 +211,10 @@
     return p;
   }
 
-  // Stub Google Identity Services để tránh lỗi 403 origin trên /dang-nhap & /dang-ky
+  // Tích hợp Google Identity Services với Supabase Google OAuth trên /dang-nhap, /dang-ky, /tai-khoan
   try {
+    const googleSvg =
+      '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:18px;height:18px;flex-shrink:0;"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>';
     window.google = window.google || {
       accounts: {
         id: {
@@ -48,7 +222,17 @@
           renderButton: function (el) {
             if (el) {
               el.innerHTML =
-                '<button type="button" style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d6d3d1;background:#ffffff;color:#1c1917;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><span>G</span><span>Tiếp tục với Google</span></button>';
+                '<button type="button" data-google-oauth="1" style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d6d3d1;background:#ffffff;color:#1c1917;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 1px 2px rgba(0,0,0,0.04);">' +
+                googleSvg +
+                '<span>Tiếp tục với Google</span></button>';
+              const btn = el.querySelector('button');
+              if (btn) {
+                btn.addEventListener('click', function (e) {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  window.loginWithGoogle();
+                });
+              }
             }
           },
           prompt: function () {},
@@ -56,8 +240,8 @@
           disableAutoSelect: function () {}
         },
         oauth2: {
-          initTokenClient: function () { return { requestAccessToken: function () {} }; },
-          initCodeClient: function () { return { requestCode: function () {} }; }
+          initTokenClient: function () { return { requestAccessToken: function () { window.loginWithGoogle(); } }; },
+          initCodeClient: function () { return { requestCode: function () { window.loginWithGoogle(); } }; }
         }
       }
     };
@@ -800,28 +984,117 @@
       const data = await loadLocalJson('/data/misc/social-proof-summary.json');
       return jsonResponse(data || { ok: true });
     }
-    if (p.includes('/v1/auth/') || p.includes('/v2/auth/') || p.includes('/v1/users/me') || p.includes('/v1/profile')) {
+    if (p.includes('/users/me/weekly-activity') || p === '/v2/me/weekly-activity') {
+      return jsonResponse({ ok: true, daysActive: 5, minutes: 145 });
+    }
+    if (p.includes('/users/me/recent-actions') || p === '/v2/me/recent-actions') {
+      return jsonResponse({ ok: true, actions: [] });
+    }
+    if (p.includes('/v1/speaking/sample-consent')) {
+      return jsonResponse({ ok: true, granted: false, decided: true, deleted: 0 });
+    }
+    if (p.includes('/v1/grammar-progress')) {
+      return jsonResponse({ ok: true, learnedGrammarIds: [] });
+    }
+    if (p.includes('/v1/study-time/sync')) {
+      return jsonResponse({ ok: true, blocks: [] });
+    }
+    if (p.includes('/auth/logout')) {
+      clearAuthSession();
+      return jsonResponse({ ok: true });
+    }
+    if (p.includes('/v1/auth/google')) {
+      const cb = urlObj.searchParams.get('callbackUrl') || '/tai-khoan';
+      setTimeout(() => window.loginWithGoogle(cb), 10);
+      return jsonResponse({ ok: true });
+    }
+    if (p.includes('/v1/auth/login') || p.includes('/v1/auth/register')) {
+      const body = await parseRequestBody(init);
+      const email = (body.email || 'hocvien@gmail.com').trim();
+      const displayName = (body.displayName || body.name || email.split('@')[0] || 'Học viên').trim();
+      const userObj = saveAuthSession(DEFAULT_JWT, '', {
+        id: 'user-' + Date.now(),
+        email,
+        displayName,
+        hasPassword: true
+      });
       return jsonResponse({
         ok: true,
         isAuthenticated: true,
         accessToken: DEFAULT_JWT,
         token: DEFAULT_JWT,
-        id: 'user-xhz-1',
-        _id: 'user-xhz-1',
-        email: 'hocvien@xiehanzi.com',
-        username: 'hocvien',
-        name: 'Học viên XieHanzi',
-        displayName: 'Học viên XieHanzi',
-        role: 'user',
+        ...userObj,
+        user: userObj
+      });
+    }
+    if (p.includes('/v1/users/me/profile') || p.includes('/v1/users/me/preferences')) {
+      const body = await parseRequestBody(init);
+      const cur = getSavedUser() || { email: 'hocvien@gmail.com', displayName: 'Học viên' };
+      const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
+        ...cur,
+        ...body,
+        displayName: body.displayName || body.name || cur.displayName
+      });
+      return jsonResponse({ ok: true, ...updated, user: updated });
+    }
+    if (p.includes('/v1/users/me/avatar')) {
+      const cur = getSavedUser() || { email: 'hocvien@gmail.com', displayName: 'Học viên' };
+      if (method === 'DELETE') {
+        const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
+          ...cur,
+          avatar: ''
+        });
+        return jsonResponse({ ok: true, ...updated, user: updated });
+      }
+      const body = await parseRequestBody(init);
+      const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
+        ...cur,
+        avatar: body.image || body.avatar || cur.avatar
+      });
+      return jsonResponse({ ok: true, ...updated, user: updated });
+    }
+    if (p.includes('/v1/users/me/password')) {
+      return jsonResponse({ ok: true });
+    }
+    if (p.includes('/v1/auth/') || p.includes('/v2/auth/') || p.includes('/v1/users/me') || p.includes('/v1/profile')) {
+      const savedUser = getSavedUser();
+      if (savedUser) {
+        const tok = localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT;
+        return jsonResponse({
+          ok: true,
+          isAuthenticated: true,
+          isGuest: false,
+          accessToken: tok,
+          token: tok,
+          ...savedUser,
+          user: savedUser
+        });
+      }
+      return jsonResponse({
+        ok: true,
+        isAuthenticated: false,
+        isGuest: true,
+        accessToken: DEFAULT_JWT,
+        token: DEFAULT_JWT,
+        id: 'guest-xhz',
+        _id: 'guest-xhz',
+        email: '',
+        username: 'guest',
+        name: 'Khách',
+        displayName: 'Khách',
+        avatar: '',
+        role: 'guest',
         streak: 5,
         user: {
-          id: 'user-xhz-1',
-          _id: 'user-xhz-1',
-          email: 'hocvien@xiehanzi.com',
-          username: 'hocvien',
-          name: 'Học viên XieHanzi',
-          displayName: 'Học viên XieHanzi',
-          role: 'user',
+          id: 'guest-xhz',
+          _id: 'guest-xhz',
+          email: '',
+          username: 'guest',
+          name: 'Khách',
+          displayName: 'Khách',
+          avatar: '',
+          role: 'guest',
+          isGuest: true,
           streak: 5
         }
       });
@@ -1083,7 +1356,7 @@
         ...saved
       });
     }
-    if (p === '/v2/me/progress') {
+    if (p === '/v2/me/progress' || p === '/v1/me/progress') {
       return jsonResponse({
         streakDays: 5,
         totalMinutes: 145,
@@ -1091,21 +1364,81 @@
         wordsLearning: 22,
         lessonsDone: 4,
         stagesDone: 1,
-        accuracyPct: 91
+        accuracyPct: 91,
+        activity: [
+          { isoWeek: '2026-W34', minutes: 25, activeDays: 2 },
+          { isoWeek: '2026-W35', minutes: 40, activeDays: 3 },
+          { isoWeek: '2026-W36', minutes: 35, activeDays: 3 },
+          { isoWeek: '2026-W37', minutes: 50, activeDays: 4 },
+          { isoWeek: '2026-W38', minutes: 45, activeDays: 4 },
+          { isoWeek: '2026-W39', minutes: 60, activeDays: 5 },
+          { isoWeek: '2026-W40', minutes: 55, activeDays: 4 },
+          { isoWeek: '2026-W41', minutes: 70, activeDays: 5 },
+          { isoWeek: '2026-W42', minutes: 65, activeDays: 5 },
+          { isoWeek: '2026-W43', minutes: 80, activeDays: 6 },
+          { isoWeek: '2026-W44', minutes: 75, activeDays: 5 },
+          { isoWeek: '2026-W45', minutes: 90, activeDays: 6 }
+        ]
       });
     }
-    if (p === '/v2/me/habit') {
-      let savedHabit = { dailyMinutes: 15, reminderTime: '20:00', reminderEnabled: true };
+    if (p === '/v2/me/habit' || p === '/v2/me/habit/weekly-goal') {
+      let savedHabit = { dailyMinutes: 15, reminderTime: '20:00', reminderEnabled: true, goalSessions: 5 };
       try {
         const raw = JSON.parse(localStorage.getItem('httq_habit_settings') || '{}');
         savedHabit = { ...savedHabit, ...raw };
       } catch (_) {}
       if (method === 'PATCH' || method === 'PUT' || method === 'POST') {
         const body = await parseRequestBody(init);
+        if (body && body.sessions !== undefined) {
+          savedHabit.goalSessions = Number(body.sessions) || 5;
+        }
         savedHabit = { ...savedHabit, ...(body || {}) };
         try { localStorage.setItem('httq_habit_settings', JSON.stringify(savedHabit)); } catch (_) {}
       }
-      return jsonResponse({ ok: true, streakDays: 5, ...savedHabit });
+      const goalSessions = Number(savedHabit.goalSessions) || 5;
+      const sessionsDone = 4;
+      return jsonResponse({
+        ok: true,
+        streakDays: 5,
+        masteredWords: 64,
+        ...savedHabit,
+        streak: {
+          count: 5,
+          longest: 14,
+          todayDone: true,
+          activeDates: ['2026-11-07', '2026-11-08', '2026-11-09', '2026-11-10', '2026-11-11']
+        },
+        week: {
+          goalSessions,
+          sessionsDone,
+          reached: sessionsDone >= goalSessions,
+          days: [
+            { day: '2026-11-09', done: true, sessions: 1 },
+            { day: '2026-11-10', done: true, sessions: 2 },
+            { day: '2026-11-11', done: true, sessions: 1 }
+          ]
+        }
+      });
+    }
+    if (p === '/v2/me/plans' || p === '/v2/plans' || p === '/plans' || p === '/v2/me/plans/interest') {
+      return jsonResponse({
+        ok: true,
+        currentPlan: 'pro',
+        tier: 'pro',
+        plan: 'pro',
+        grading: { used: 12, limit: 100, resetsAt: '2026-12-01T00:00:00Z' },
+        speaking: { used: 12, limit: 100, resetsAt: '2026-12-01T00:00:00Z' },
+        companionTurns: { used: 5, limit: 50, resetsAt: '2026-12-01T00:00:00Z' },
+        plans: [
+          {
+            plan: 'pro',
+            titleVi: 'Gói Pro (Trọn đời)',
+            badge: 'Đang kích hoạt',
+            price: 0,
+            features: ['Học không giới hạn', 'Lộ trình đầy đủ', 'Chấm phát âm AI']
+          }
+        ]
+      });
     }
     if (p === '/v2/me/entitlements') {
       return jsonResponse({
@@ -1121,6 +1454,9 @@
     }
     if (p === '/v2/me/skill-map') {
       return jsonResponse({
+        level: 'HSK 1',
+        wordsSeen: 64,
+        wordsTotal: 300,
         skills: [
           { skill: 'listening', labelVi: 'Nghe hiểu', score: 78 },
           { skill: 'reading', labelVi: 'Đọc hiểu', score: 85 },
@@ -5974,9 +6310,89 @@
     restoreOriginalMainIfStatic();
   }
 
-  // Capture-phase click handler for internal <a> links so static export never stalls on missing .rsc files
+  function enhanceAccountPageAuthUI() {
+    try {
+      const path = (window.location.pathname || '').replace(/\/+$/, '');
+      if (path !== '/tai-khoan' && path !== '/tai-khoan.html') return;
+
+      const googleIconHtml =
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" style="width:20px;height:20px;flex-shrink:0;"><path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/><path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/><path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/><path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/></svg>';
+
+      // 1. Giao diện Khách (chưa đăng nhập): thêm nút "Đăng nhập bằng Google" trực tiếp
+      const guestBenefits = document.querySelector('[data-testid="account-guest-benefits"]');
+      if (guestBenefits && !document.getElementById('xhz-direct-google-btn')) {
+        const btnGroup = guestBenefits.nextElementSibling;
+        if (btnGroup) {
+          const gBtn = document.createElement('button');
+          gBtn.id = 'xhz-direct-google-btn';
+          gBtn.type = 'button';
+          gBtn.setAttribute('data-google-oauth', '1');
+          gBtn.style.cssText =
+            'width:100%;height:52px;padding:0 24px;border-radius:12px;border:1.5px solid #e7e5e4;background:#ffffff;color:#1c1917;font-weight:700;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:0 2px 6px rgba(0,0,0,0.05);transition:all 0.15s ease;';
+          gBtn.innerHTML = googleIconHtml + '<span>Đăng nhập bằng Google</span>';
+          gBtn.addEventListener('click', function (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            window.loginWithGoogle('/tai-khoan');
+          });
+          btnGroup.insertBefore(gBtn, btnGroup.firstChild);
+        }
+      }
+
+      // 2. Giao diện Đã đăng nhập: thêm thẻ thông tin tài khoản Google + nút Đăng xuất nổi bật
+      const planCard = document.querySelector('[data-testid="account-plan-card"]');
+      const savedUser = getSavedUser();
+      if (planCard && savedUser && !document.getElementById('xhz-user-auth-banner')) {
+        const banner = document.createElement('div');
+        banner.id = 'xhz-user-auth-banner';
+        banner.style.cssText =
+          'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;margin-bottom:16px;border-radius:16px;border:1px solid #e7e5e4;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.04);';
+        const initial = (savedUser.displayName || savedUser.email || 'U').trim().charAt(0).toUpperCase();
+        const avatarHtml = savedUser.avatar
+          ? `<img src="${savedUser.avatar}" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
+          : `<div style="width:44px;height:44px;border-radius:999px;background:#fef2f2;color:#dc2626;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:1px solid #fecaca;">${initial}</div>`;
+        banner.innerHTML =
+          `<div style="display:flex;align-items:center;gap:12px;min-width:0;">` +
+          avatarHtml +
+          `<div style="min-width:0;">` +
+          `<div style="font-weight:700;font-size:16px;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${savedUser.displayName || 'Học viên'}</div>` +
+          `<div style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${savedUser.email}</div>` +
+          `</div>` +
+          `</div>` +
+          `<button type="button" id="xhz-direct-logout-btn" style="padding:8px 16px;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-weight:600;font-size:14px;cursor:pointer;">Đăng xuất</button>`;
+        if (planCard.parentElement) {
+          planCard.parentElement.insertBefore(banner, planCard);
+          const outBtn = banner.querySelector('#xhz-direct-logout-btn');
+          if (outBtn) {
+            outBtn.addEventListener('click', function (ev) {
+              ev.preventDefault();
+              window.logoutXieHanzi();
+            });
+          }
+        }
+      }
+    } catch (_e) {}
+  }
+
+  // Capture-phase click handler for Google OAuth buttons & internal <a> links
   window.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    const btn = e.target && e.target.closest ? e.target.closest('button, a') : null;
+    if (btn) {
+      const txt = (btn.textContent || '').trim();
+      if (
+        btn.hasAttribute('data-google-oauth') ||
+        txt.includes('Tiếp tục với Google') ||
+        txt.includes('Đăng nhập với Google') ||
+        txt.includes('Đăng ký với Google') ||
+        txt.includes('Đăng nhập bằng Google')
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+        window.loginWithGoogle();
+        return;
+      }
+    }
     const anchor = e.target && e.target.closest ? e.target.closest('a[href]') : null;
     if (!anchor) return;
     const rawHref = anchor.getAttribute('href');
@@ -6016,15 +6432,21 @@
   history.pushState = function (...args) {
     origPushState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
+    setTimeout(enhanceAccountPageAuthUI, 100);
   };
   history.replaceState = function (...args) {
     origReplaceState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
+    setTimeout(enhanceAccountPageAuthUI, 100);
   };
-  window.addEventListener('popstate', () => setTimeout(checkAndRenderDynamicPage, 30));
+  window.addEventListener('popstate', () => {
+    setTimeout(checkAndRenderDynamicPage, 30);
+    setTimeout(enhanceAccountPageAuthUI, 100);
+  });
 
   function boot() {
     rewriteDomMedia(document);
+    enhanceAccountPageAuthUI();
     supabaseFetchInitial();
     if (isDynamicSpaRoute(window.location.pathname)) {
       setTimeout(checkAndRenderDynamicPage, 450);
@@ -6036,6 +6458,7 @@
           if (node.nodeType === 1) rewriteDomMedia(node);
         });
       }
+      enhanceAccountPageAuthUI();
     });
     if (document.documentElement) {
       obs.observe(document.documentElement, { childList: true, subtree: true });
