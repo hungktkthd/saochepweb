@@ -1,6 +1,6 @@
 # 📋 TÀI LIỆU BÀN GIAO, TIẾN ĐỘ & CÂU LỆNH TIẾP TỤC TRÊN TRÌNH DUYỆT / MÁY MỚI (`PROJECT_HANDOVER.md`)
 
-> **Cập nhật lần cuối**: Phiên bản **v10.0** (Đã tích hợp Lesson Runner Capybara 1:1 `/hoc/bai/*`, giao diện bài học giáo trình 1:1 `/thu-vien-*`, giao diện làm đề ngữ pháp 1:1 `/kiem-tra-ngu-phap/lam-bai`, sửa tra cứu từ đơn `/tu-vung/的`, nâng cấp AI Chatbox Dương Dương `/api/ai`, và đồng bộ tiến độ thực 2 chiều với Supabase Auth `user_metadata.xhz_progress` trên **`https://hoctiengtrungquoc.vercel.app`**).
+> **Cập nhật lần cuối**: **v10.1 — 11/11/2026**. Sửa xác thực và đồng bộ Supabase, lưu trữ theo tài khoản, SRS thật, bộ lọc Hán tự, luyện ngữ pháp, pinyin, dictation và ngăn chấm đề thiếu đáp án. Xem [báo cáo kiểm thử và giới hạn đã xác minh](docs/PARITY_AUDIT_2026-11-11.md). Giữ lesson runner, dữ liệu và giao diện mới của v10.
 
 ---
 
@@ -18,7 +18,7 @@ Hãy thực hiện các bước sau trước khi bắt đầu:
      git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
    - Nếu đã có repo, hãy chạy `git pull origin main` để đồng bộ bản mới nhất.
 2. Đọc kỹ file `PROJECT_HANDOVER.md` và `xiehanzi-runtime.js` ở thư mục gốc của repo để nắm toàn bộ kiến trúc hệ thống:
-   - GitHub (`https://github.com/hungktkthd/saochepweb`) -> Vercel (`https://hoctiengtrungquoc.vercel.app`) -> Supabase (`xcthntcgenzfybefaphh`) + Vercel Serverless AI API (`/api/ai.js`).
+   - GitHub (`https://github.com/hungktkthd/saochepweb`) -> Vercel (`https://hoctiengtrungquoc.vercel.app`) -> Supabase (`skxgzzdunqloxxombtuc`) + Vercel Serverless AI API (`/api/ai.js`).
    - Toàn bộ cơ chế chặn API `/v1/*`, `/v2/*`, luồng SSE voice/chat, trình phát phân đoạn YouTube Dictation, hệ thống ôn tập SRS `/on-tap`, các trang chi tiết động và rewrite URL nằm trong `xiehanzi-runtime.js` (6.050+ dòng) và `vercel.json`.
 3. Xác nhận trạng thái đồng bộ hiện tại với tôi và sẵn sàng nhận yêu cầu kiểm tra / chỉnh sửa / nâng cấp tiếp theo. Mỗi khi sửa xong bất kỳ tính năng nào, luôn kiểm thử bằng trình duyệt thực tế, commit và push thẳng lên nhánh `main` của `https://github.com/hungktkthd/saochepweb` để tự động cập nhật lên `https://hoctiengtrungquoc.vercel.app`.
 ```
@@ -35,7 +35,7 @@ git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb
 cd saochepweb
 
 # 2. Chạy thử ngay ở máy local (cổng 3000)
-npx serve . -l 3000
+node scripts/dev-server.mjs
 
 # 3. Đẩy thay đổi lên GitHub (Vercel tự động deploy lên https://hoctiengtrungquoc.vercel.app)
 git add -A
@@ -54,7 +54,7 @@ GitHub (https://github.com/hungktkthd/saochepweb)
 Vercel (https://hoctiengtrungquoc.vercel.app)
        │
        ├──► xiehanzi-runtime.js (6.050+ dòng) — Bộ định tuyến SPA, API Interceptor (/v1/*, /v2/*), SSE Voice/Chat, Dictation Player, SRS Review
-       ├──► Supabase (https://xcthntcgenzfybefaphh.supabase.co) — Tài khoản, tiến độ học, kết quả thi, sổ tay
+       ├──► Supabase (https://skxgzzdunqloxxombtuc.supabase.co) — Tài khoản, tiến độ học, kết quả thi, sổ tay
        └──► AI APIs (/api/ai.js + Web Speech / TTS)             — Chấm nói, chấm viết, dịch, gia sư AI
 ```
 
@@ -67,8 +67,9 @@ Vercel (https://hoctiengtrungquoc.vercel.app)
 | **Supabase Project ID** | `skxgzzdunqloxxombtuc` (kích hoạt Google OAuth `external.google: true`) |
 | **Supabase URL** | `https://skxgzzdunqloxxombtuc.supabase.co` |
 | **Supabase Publishable Key** | `sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18` |
-| **Google OAuth Redirect URL** | `https://hoctiengtrungquoc.vercel.app/tai-khoan` |
-| **Các bảng Supabase đã tạo (có RLS)** | `public.study_profiles` (lưu tiến độ, từ vựng đã lưu, streak cho workspace `hoctiengtrungquoc`), `public.exam_results` (lưu lịch sử làm đề thi HSK) |
+| **Google Cloud authorized redirect URI** | `https://skxgzzdunqloxxombtuc.supabase.co/auth/v1/callback` |
+| **Ứng dụng nhận callback sau đăng nhập** | `https://hoctiengtrungquoc.vercel.app/tai-khoan` |
+| **Bảng Supabase đã xác minh (có RLS)** | `public.study_profiles`, workspace `hoctiengtrungquoc`; tiến độ v10 giữ trong Auth `user_metadata.xhz_progress`. Chưa có bảng `exam_results` trong project này. |
 
 ---
 

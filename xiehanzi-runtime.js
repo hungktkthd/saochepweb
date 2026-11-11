@@ -7,7 +7,7 @@
  * Kết nối trực tiếp tới:
  *   1) Kho dữ liệu JSON cục bộ (/data/*)
  *   2) Kho 94,655 file Media trên GitHub hungktkthd/saochepweb
- *   3) Cơ sở dữ liệu đám mây Supabase (xcthntcgenzfybefaphh)
+ *   3) Cơ sở dữ liệu đám mây Supabase (skxgzzdunqloxxombtuc)
  *   4) Serverless AI Endpoint (/api/ai)
  * ============================================================================
  */
@@ -16,8 +16,6 @@
 
   const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18';
-  const SUPABASE_DB_URL = 'https://xcthntcgenzfybefaphh.supabase.co';
-  const SUPABASE_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM';
   const RAW_GITHUB_REPO = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
   const DEFAULT_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLXhoei0xIiwidHlwIjoiYWNjZXNzIiwiZyI6MCwiZXhwIjo0MTAyNDQ0ODAwfQ.xhzsignature';
 
@@ -44,26 +42,38 @@
       const raw = localStorage.getItem('httq_user');
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed && parsed.email ? parsed : null;
+      const token = localStorage.getItem('sb_access_token');
+      const payload = decodeJwtPayload(token);
+      return parsed && parsed.email && token !== DEFAULT_JWT && payload && payload.sub === parsed.id &&
+        payload.iss === `${SUPABASE_URL}/auth/v1` && payload.role === 'authenticated' ? parsed : null;
     } catch (_e) {
       return null;
     }
   }
 
-  function saveAuthSession(accessToken, refreshToken, profileOverride) {
+  let authSessionRequest = null;
+  let authCallbackRequest = null;
+  let authSessionRevision = 0;
+  let validatedAuthToken = '';
+
+  // Only call this with a user returned by Supabase Auth, never decoded JWT metadata.
+  function saveAuthSession(accessToken, refreshToken, verifiedUser) {
     try {
-      const payload = decodeJwtPayload(accessToken) || {};
-      const meta = payload.user_metadata || {};
-      const over = profileOverride || {};
-      const email = over.email || payload.email || meta.email || 'hocvien@gmail.com';
+      const payload = decodeJwtPayload(accessToken);
+      if (!payload || accessToken === DEFAULT_JWT || !verifiedUser || !verifiedUser.id || !verifiedUser.email ||
+          payload.sub !== verifiedUser.id || payload.iss !== `${SUPABASE_URL}/auth/v1` ||
+          payload.role !== 'authenticated' || !Number.isFinite(Number(payload.exp)) || Number(payload.exp) <= Date.now() / 1000) return null;
+      const meta = verifiedUser.user_metadata || {};
+      const preferences = meta.xhz_preferences || {};
+      const email = verifiedUser.email;
       const displayName =
-        over.displayName ||
-        over.name ||
+        meta.displayName || meta.display_name ||
         meta.full_name ||
         meta.name ||
-        (email ? email.split('@')[0] : 'Học viên XieHanzi');
-      const avatar = over.avatar || meta.avatar_url || meta.picture || '';
-      const uid = over.id || payload.sub || 'user-' + Date.now();
+        email.split('@')[0];
+      const avatar = Object.prototype.hasOwnProperty.call(meta, 'avatar_url') ? meta.avatar_url : meta.picture || '';
+      const uid = verifiedUser.id;
+      const providers = (verifiedUser.app_metadata || {}).providers || [];
       const userObj = {
         id: uid,
         _id: uid,
@@ -74,9 +84,9 @@
         avatar: avatar,
         role: 'user',
         isGuest: false,
-        hasPassword: Boolean(over.hasPassword),
-        showPinyinByDefault: over.showPinyinByDefault !== undefined ? over.showPinyinByDefault : true,
-        showOnPublicFeed: over.showOnPublicFeed !== undefined ? over.showOnPublicFeed : true,
+        hasPassword: providers.includes('email') || (verifiedUser.app_metadata || {}).provider === 'email' || meta.xhz_has_password === true,
+        showPinyinByDefault: preferences.showPinyinByDefault !== undefined ? preferences.showPinyinByDefault : true,
+        showOnPublicFeed: preferences.showOnPublicFeed !== undefined ? preferences.showOnPublicFeed : true,
         streak: 0
       };
       localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
@@ -85,17 +95,20 @@
       localStorage.setItem('httq_user', JSON.stringify(userObj));
       localStorage.setItem('httq_user_id', uid);
       localStorage.setItem('httq_real_auth', '1');
+      validatedAuthToken = accessToken;
       return userObj;
     } catch (_e) {
       return null;
     }
   }
 
-  function clearAuthSession() {
+  function clearAuthSession(notifyServer = true) {
     try {
+      authSessionRevision++;
+      validatedAuthToken = '';
       const sbToken = localStorage.getItem('sb_access_token');
-      if (sbToken && sbToken !== DEFAULT_JWT) {
-        originalFetch(`${SUPABASE_URL}/auth/v1/logout`, {
+      if (notifyServer && sbToken && sbToken !== DEFAULT_JWT) {
+        originalFetch(`${SUPABASE_URL}/auth/v1/logout?scope=local`, {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -104,24 +117,137 @@
         }).catch(() => {});
       }
       localStorage.removeItem('httq_user');
+      localStorage.removeItem('httq_user_id');
       localStorage.removeItem('httq_real_auth');
       localStorage.removeItem('httq_oauth_return_to');
       localStorage.removeItem('sb_access_token');
       localStorage.removeItem('sb_refresh_token');
-      localStorage.removeItem('httq_progress_v2');
-      localStorage.removeItem('httq_done_stages');
-      localStorage.removeItem('httq_done_activities');
-      localStorage.removeItem('httq_curr_learned_words');
-      localStorage.removeItem('httq_state');
-      localStorage.removeItem('httq_companion_chat_turns');
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
-          localStorage.removeItem(k);
-        }
-      }
+      localStorage.removeItem('sb-skxgzzdunqloxxombtuc-auth-token');
       localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
     } catch (_e) {}
+  }
+
+  async function requestSupabaseAuth(path, options = {}) {
+    const response = await originalFetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+      ...options,
+      headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json', ...(options.headers || {}) }
+    });
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok) {
+      const error = new Error(data.msg || data.message || data.error_description || 'Không thể kết nối dịch vụ tài khoản.');
+      error.status = response.status;
+      error.code = data.error_code || data.code || data.error || 'auth_request_failed';
+      throw error;
+    }
+    return data;
+  }
+
+  async function getSupabaseSession() {
+    if (authCallbackRequest) await authCallbackRequest;
+    if (authSessionRequest) return authSessionRequest;
+    const token = localStorage.getItem('sb_access_token');
+    const refresh = localStorage.getItem('sb_refresh_token') || '';
+    if (!token || token === DEFAULT_JWT) {
+      if (token === DEFAULT_JWT || localStorage.getItem('httq_real_auth') === '1' || localStorage.getItem('httq_user')) clearAuthSession(false);
+      return null;
+    }
+    const revision = authSessionRevision;
+    const owner = getSavedUser();
+    const stillCurrent = () => revision === authSessionRevision && localStorage.getItem('sb_access_token') === token;
+    const operation = (async () => {
+      try {
+        let accessToken = token;
+        let refreshToken = refresh;
+        let payload = decodeJwtPayload(token);
+        let user;
+        if (!payload || Number(payload.exp) <= Date.now() / 1000 + 60) {
+          if (!refresh) { if (stillCurrent()) clearAuthSession(false); return null; }
+          const next = await requestSupabaseAuth('token?grant_type=refresh_token', {
+            method: 'POST', body: JSON.stringify({ refresh_token: refresh })
+          });
+          if (!stillCurrent()) return null;
+          accessToken = next.access_token;
+          refreshToken = next.refresh_token;
+          user = next.user;
+          payload = decodeJwtPayload(accessToken);
+        }
+        if (!user && (validatedAuthToken !== accessToken || !owner)) {
+          user = await requestSupabaseAuth('user', { headers: { Authorization: `Bearer ${accessToken}` } });
+        }
+        if (!stillCurrent()) return null;
+        if (user) {
+          if (owner && user.id !== owner.id) { clearAuthSession(false); return null; }
+          if (!saveAuthSession(accessToken, refreshToken, user)) { clearAuthSession(false); return null; }
+        }
+        const currentUser = getSavedUser();
+        if (!currentUser || !payload || payload.sub !== currentUser.id || validatedAuthToken !== accessToken) return null;
+        return { access_token: accessToken, refresh_token: refreshToken, user: currentUser, expires_at: Number(payload.exp) };
+      } catch (error) {
+        if (stillCurrent() && (error.status === 400 || error.status === 401 || error.status === 403)) clearAuthSession(false);
+        return null;
+      }
+    })();
+    authSessionRequest = operation;
+    try { return await operation; } finally { if (authSessionRequest === operation) authSessionRequest = null; }
+  }
+  window.getSupabaseSession = getSupabaseSession;
+
+  function authErrorResponse(error) {
+    const code = error.code || 'auth_request_failed';
+    const messages = {
+      invalid_credentials: 'Email hoặc mật khẩu không đúng.',
+      email_not_confirmed: 'Vui lòng xác nhận email trước khi đăng nhập.',
+      over_email_send_rate_limit: 'Đã gửi quá nhiều email. Vui lòng chờ rồi thử lại.',
+      over_request_rate_limit: 'Bạn thao tác quá nhanh. Vui lòng chờ rồi thử lại.',
+      signup_disabled: 'Đăng ký email hiện chưa được bật. Bạn có thể đăng nhập bằng Google.'
+    };
+    const message = messages[code] || error.message || 'Không thể kết nối dịch vụ tài khoản.';
+    return jsonResponse({ ok: false, code, message, error: { code, message } }, error.status || 503);
+  }
+
+  async function updateSupabaseProfile(body, kind, method) {
+    const revision = authSessionRevision;
+    const session = await getSupabaseSession();
+    if (!session) return authErrorResponse({ status: 401, code: 'unauthorized', message: 'Vui lòng đăng nhập để cập nhật tài khoản.' });
+    const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === session.user.id;
+    if (!stillCurrent()) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+    if (method === 'GET') return jsonResponse({ ok: true, ...session.user, user: session.user });
+    try {
+      const data = {};
+      if (kind === 'profile') {
+        const name = String(body.displayName || body.name || '').trim();
+        if (name.length < 2 || name.length > 40) return authErrorResponse({ status: 400, code: 'invalid_name', message: 'Tên hiển thị phải từ 2 đến 40 ký tự.' });
+        data.displayName = name;
+        data.full_name = name;
+        data.name = name;
+      } else if (kind === 'preferences') {
+        data.xhz_preferences = {
+          showPinyinByDefault: session.user.showPinyinByDefault,
+          showOnPublicFeed: session.user.showOnPublicFeed
+        };
+        for (const key of ['showPinyinByDefault', 'showOnPublicFeed']) {
+          if (body[key] !== undefined) {
+            if (typeof body[key] !== 'boolean') return authErrorResponse({ status: 400, code: 'invalid_preference', message: 'Tùy chọn tài khoản không hợp lệ.' });
+            data.xhz_preferences[key] = body[key];
+          }
+        }
+      } else {
+        const avatar = method === 'DELETE' ? '' : body.image || body.avatar;
+        if (typeof avatar !== 'string' || avatar.length > 512000 || (avatar && !/^https:\/\/[^\s"'<>]+$/.test(avatar) && !/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(avatar))) {
+          return authErrorResponse({ status: 400, code: 'invalid_avatar', message: 'Vui lòng chọn ảnh JPG, PNG hoặc WebP có dung lượng nhỏ hơn 500KB.' });
+        }
+        data.avatar_url = avatar;
+        data.picture = avatar;
+      }
+      const user = await requestSupabaseAuth('user', {
+        method: 'PUT', headers: { Authorization: `Bearer ${session.access_token}` }, body: JSON.stringify({ data })
+      });
+      if (!stillCurrent() || user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+      const updated = saveAuthSession(session.access_token, session.refresh_token, user);
+      if (!updated) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
+      return jsonResponse({ ok: true, ...updated, user: updated });
+    } catch (error) { return authErrorResponse(error); }
   }
 
   // Xử lý OAuth callback từ Supabase Google Login (#access_token=... hoặc token lưu bởi @supabase/supabase-js)
@@ -132,34 +258,28 @@
       const accessToken = params.get('access_token');
       const refreshToken = params.get('refresh_token');
       if (accessToken) {
-        saveAuthSession(accessToken, refreshToken);
+        const callbackRevision = ++authSessionRevision;
         try {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         } catch (_e) {}
-        const returnTo = localStorage.getItem('httq_oauth_return_to') || '/tai-khoan';
+        let returnTo = '/tai-khoan';
+        try {
+          const target = new URL(localStorage.getItem('httq_oauth_return_to') || returnTo, window.location.origin);
+          if (target.origin === window.location.origin) returnTo = target.pathname + target.search;
+        } catch (_) {}
         localStorage.removeItem('httq_oauth_return_to');
-        const curPath = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
-        originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-          .then(r => (r.ok ? r.json() : null))
+        let callbackValidated = false;
+        authCallbackRequest = requestSupabaseAuth('user', { headers: { Authorization: `Bearer ${accessToken}` } })
           .then(u => {
-            if (u && u.email) {
-              const m = u.user_metadata || {};
-              saveAuthSession(accessToken, refreshToken, {
-                id: u.id,
-                email: u.email,
-                displayName: m.full_name || m.name || u.email.split('@')[0],
-                avatar: m.avatar_url || m.picture || ''
-              });
+            if (callbackRevision === authSessionRevision && u && u.email) {
+              if (!saveAuthSession(accessToken, refreshToken, u)) throw new Error('invalid_session');
+              callbackValidated = true;
             }
           })
-          .catch(() => {})
+          .catch(() => { if (callbackRevision === authSessionRevision) clearAuthSession(false); })
           .finally(() => {
-            if (curPath === '/' || curPath === '/index.html' || curPath === '/dang-nhap' || curPath === '/dang-ky') {
+            authCallbackRequest = null;
+            if (callbackValidated && callbackRevision === authSessionRevision) {
               window.location.replace(returnTo);
             }
           });
@@ -169,14 +289,10 @@
       const sbRaw = localStorage.getItem('sb-skxgzzdunqloxxombtuc-auth-token');
       if (sbRaw && localStorage.getItem('httq_real_auth') !== '1') {
         const sbSession = JSON.parse(sbRaw);
-        if (sbSession && sbSession.access_token && sbSession.user) {
-          const m = sbSession.user.user_metadata || {};
-          saveAuthSession(sbSession.access_token, sbSession.refresh_token, {
-            id: sbSession.user.id,
-            email: sbSession.user.email,
-            displayName: m.full_name || m.name || (sbSession.user.email || '').split('@')[0],
-            avatar: m.avatar_url || m.picture || ''
-          });
+        if (sbSession && sbSession.access_token) {
+          localStorage.setItem('sb_access_token', sbSession.access_token);
+          if (sbSession.refresh_token) localStorage.setItem('sb_refresh_token', sbSession.refresh_token);
+          getSupabaseSession();
         }
       }
     }
@@ -188,12 +304,8 @@
     const origRemoveItem = Storage.prototype.removeItem;
     Storage.prototype.removeItem = function (key) {
       origRemoveItem.apply(this, arguments);
-      if (key === 'xiehanzi_access_token') {
-        origRemoveItem.call(localStorage, 'httq_user');
-        origRemoveItem.call(localStorage, 'httq_real_auth');
-        origRemoveItem.call(localStorage, 'sb_access_token');
-        origRemoveItem.call(localStorage, 'sb_refresh_token');
-        localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
+      if (this === localStorage && key === 'xiehanzi_access_token') {
+        clearAuthSession();
       }
     };
   } catch (_e) {}
@@ -204,13 +316,12 @@
       const sp = new URLSearchParams(window.location.search);
       dest = sp.get('returnUrl') || '/tai-khoan';
     }
-    const cleanDest = dest.startsWith('http') ? new URL(dest).pathname : dest.startsWith('/') ? dest : '/' + dest;
+    let cleanDest = '/tai-khoan';
+    try { const target = new URL(dest, window.location.origin); if (target.origin === window.location.origin) cleanDest = target.pathname + target.search; } catch (_) {}
     try {
       localStorage.setItem('httq_oauth_return_to', cleanDest || '/tai-khoan');
     } catch (_e) {}
-    const fullRedirect = dest.startsWith('http')
-      ? dest
-      : window.location.origin + (dest.startsWith('/') ? dest : '/' + dest);
+    const fullRedirect = window.location.origin + cleanDest;
     window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(fullRedirect)}`;
   };
 
@@ -520,7 +631,7 @@
           prog.doneActivities[k] = [...merged];
         }
       }
-      const st = JSON.parse(localStorage.getItem('httq_state') || '{}');
+      const st = getLocalState();
       const savedWordKeys = [
         ...Object.keys((st && st.masteredChars) || {}),
         ...Object.keys((st && st.savedWords) || {})
@@ -593,6 +704,20 @@
 
   function getRealProgressSummary() {
     const prog = getRealProgress();
+    // Enrol existing v10 learning progress before the native dashboard requests
+    // its first review summary. Every card corresponds to an actually learned word.
+    const studyState = getLocalState();
+    studyState.collections = studyState.collections || {};
+    const existingCards = studyState.collections.reviewCards || [];
+    const enrolledKeys = new Set(existingCards.filter(card => card.skill === 'meaning').map(card => card.itemKey));
+    let enrolled = false;
+    for (const word of prog.learnedWords || []) {
+      const hanzi = String(word || '').trim();
+      if (!hanzi || enrolledKeys.has(`w:${hanzi}`)) continue;
+      enrolledKeys.add(`w:${hanzi}`); enrolled = true;
+      existingCards.push({ itemKey: `w:${hanzi}`, skill: 'meaning', state: 'learning', dueAt: new Date().toISOString(), wrongCount: 0, correctStreak: 0, attempts: 0, createdAt: new Date().toISOString(), content: { hanzi } });
+    }
+    if (enrolled) { studyState.collections.reviewCards = existingCards; saveLocalState(studyState); }
     const todayStr = new Date().toISOString().slice(0, 10);
     const activeSet = new Set(Array.isArray(prog.activeDates) ? prog.activeDates : []);
     // Tính chuỗi ngày học liên tiếp (streak)
@@ -654,17 +779,15 @@
       0
     );
     const wordsMastered = (prog.learnedWords || []).length;
-    const dueTotal = wordsMastered > 0 ? Math.min(wordsMastered, Math.max(1, Math.ceil(wordsMastered * 0.4))) : 0;
-    const dueMeaning = Math.ceil(dueTotal * 0.65);
-    const duePinyin = Math.max(0, dueTotal - dueMeaning);
+    const reviewCards = getLocalState().collections?.reviewCards || [];
+    const dueCards = reviewCards.filter(card => !card.deletedAt && (!card.dueAt || new Date(card.dueAt).getTime() <= Date.now()));
+    const dueTotal = dueCards.length;
+    const dueMeaning = dueCards.filter(card => card.skill !== 'pinyin').length;
+    const duePinyin = dueCards.filter(card => card.skill === 'pinyin').length;
 
     prog.wordsLearned = prog.learnedWords || [];
     const todayMinutes = Number((prog.minutesByDate && prog.minutesByDate[todayStr]) || 0);
-    let dismissedMistakes = [];
-    try {
-      dismissedMistakes = JSON.parse(localStorage.getItem('httq_dismissed_mistakes') || '[]') || [];
-    } catch (_) {}
-    const mistakesCount = lessonsDone > 0 ? Math.max(0, 3 - dismissedMistakes.length) : 0;
+    const mistakesCount = reviewCards.filter(card => !card.deletedAt && card.wrongCount > 0 && card.correctStreak < 2 && !card.dismissed).length;
 
     return {
       prog,
@@ -683,12 +806,12 @@
       lessonsDone,
       stagesDone: (prog.doneStages || []).length,
       wordsMastered,
-      wordsLearning: wordsMastered > 0 ? Math.max(1, Math.ceil(wordsMastered * 0.3)) : 0,
+      wordsLearning: new Set(reviewCards.filter(card => !card.deletedAt && (Number(card.correctStreak) || 0) < 3).map(card => card.itemKey)).size,
       wordsSeen: wordsMastered,
       dueTotal,
       dueMeaning,
       duePinyin,
-      totalCards: wordsMastered,
+      totalCards: reviewCards.filter(card => !card.deletedAt).length,
       mistakesCount,
       gradingUsed: Number(prog.gradingUsed) || 0,
       voiceUsed: Number(prog.voiceUsed) || 0
@@ -696,16 +819,18 @@
   }
 
   async function syncProgressToSupabaseAuth(progOverride) {
+    const owner = getSavedUser();
+    const revision = authSessionRevision;
     const prog = progOverride || getRealProgress();
     saveRealProgress(prog);
     try {
-      const sbToken = localStorage.getItem('sb_access_token');
-      if (!sbToken || sbToken === DEFAULT_JWT) return false;
+      const session = await getSupabaseSession();
+      if (!session || !owner || owner.id !== session.user.id || revision !== authSessionRevision || (getSavedUser() || {}).id !== owner.id) return false;
       const res = await originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
         method: 'PUT',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${sbToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -715,7 +840,7 @@
           }
         })
       });
-      return res.ok;
+      return res.ok && revision === authSessionRevision && (getSavedUser() || {}).id === owner.id;
     } catch (_e) {
       return false;
     }
@@ -723,24 +848,22 @@
 
   async function syncProgressFromSupabaseAuth(forceReloadUi = false) {
     try {
-      const sbToken = localStorage.getItem('sb_access_token');
-      if (!sbToken || sbToken === DEFAULT_JWT) return null;
+      const revision = authSessionRevision;
+      const session = await getSupabaseSession();
+      if (!session || revision !== authSessionRevision) return null;
+      const ownerId = session.user.id;
+      const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === ownerId;
       const res = await originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${sbToken}`
+          'Authorization': `Bearer ${session.access_token}`
         }
       });
-      if (!res.ok) return null;
+      if (!res.ok || !stillCurrent()) return null;
       const u = await res.json();
-      if (!u || !u.id) return null;
+      if (!u || u.id !== ownerId || !stillCurrent()) return null;
       const meta = u.user_metadata || {};
-      saveAuthSession(sbToken, localStorage.getItem('sb_refresh_token') || '', {
-        id: u.id,
-        email: u.email,
-        displayName: meta.full_name || meta.name || (u.email || '').split('@')[0],
-        avatar: meta.avatar_url || meta.picture || ''
-      });
+      saveAuthSession(session.access_token, session.refresh_token, u);
       const localP = getRealProgress();
       const remoteP = meta.xhz_progress || null;
       const merged = mergeProgressObjects(localP, remoteP);
@@ -748,7 +871,7 @@
       if (!remoteP || (Number(localP.updatedAt) || 0) > (Number(remoteP.updatedAt) || 0)) {
         await syncProgressToSupabaseAuth(merged);
       }
-      if (forceReloadUi) {
+      if (forceReloadUi && stillCurrent()) {
         window.location.reload();
       }
       return merged;
@@ -806,30 +929,172 @@
     return prog;
   }
 
-  window.__xhzSyncCloudProgress = () => syncProgressFromSupabaseAuth(true);
+  window.__xhzSyncCloudProgress = async () => {
+    if (!await supabasePull()) return false;
+    return supabaseUpsert(getLocalState());
+  };
   window.__xhzRecordProgress = recordStudyProgress;
 
-  function getLocalState() {
-    try {
-      return JSON.parse(localStorage.getItem('httq_state') || '{"masteredChars":{},"savedWords":{},"examCount":0,"history":[]}');
-    } catch (_e) {
-      return { masteredChars: {}, savedWords: {}, examCount: 0, history: [] };
+  // BEGIN GENERATED STORAGE SUPPORT
+  // Scope the original client's fixed localStorage keys without changing auth
+  // credentials or sessionStorage. Call once before the copied client starts.
+  function initializeScopedStorage() {
+    if (typeof Storage === 'undefined' || typeof window === 'undefined') return false;
+    const prototype = Storage.prototype;
+    const marker = Symbol.for('httq.scopedStorage.v1');
+    if (prototype[marker]) return true;
+    let local;
+    try { local = window.localStorage; } catch (_) { return false; }
+    if (!local) return false;
+    const keys = new Set(['xhz-practice-v1', 'xhz-study-time-v1', 'xhz-intake-v1',
+      'httq_companion_chat_turns', 'httq_learning_profile', 'httq_current_lesson_id',
+      'httq_habit_settings', 'httq_account_profile', 'httq_companion_id',
+      'httq_learned_grammar', 'httq_dismissed_mistakes', 'httq_progress_v2',
+      'httq_done_stages', 'httq_done_activities', 'httq_curr_learned_words',
+      'httq_current_stage_key', 'httq_last_review_mode', 'them-pinyin-history',
+      'xhz-curriculum-place-v1', 'xhz-daily-session-opened-v1', 'xhz-grammar-study-v1',
+      'xhz-lesson-prefs-v1', 'xhz-listening-v1', 'xhz-path-last-current',
+      'xhz-practice-sound-v1', 'xhz-recent-lessons-v1', 'xhz-review-import-v1',
+      'xhz-review-signals-v1', 'xhz-review-source', 'xhz-seen-words-sync-v1',
+      'xhz-seen-words-v1', 'xhz-speaking-progress-v1', 'xhz-speaking-v1',
+      'xhz-track-onboarding-v1', 'xhz_intake', 'xhz-collection-import-v1',
+      'templateHistory', 'thay-do-world-guide-done']);
+    const isScoped = key => keys.has(key) || key.startsWith('httq_daily_steps_') || key.startsWith('xiehanzi:dictation:');
+    const nativeGet = prototype.getItem, nativeSet = prototype.setItem, nativeRemove = prototype.removeItem;
+    const descriptors = Object.fromEntries(['getItem', 'setItem', 'removeItem'].map(name => [name, Object.getOwnPropertyDescriptor(prototype, name)]));
+    const scope = () => typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state:guest';
+    const scopedKey = (key, owner) => `${key}:${owner}`;
+    function getItem(input) {
+      if (!arguments.length) return nativeGet.call(this);
+      const key = String(input);
+      if (this !== local || !isScoped(key)) return nativeGet.call(this, key);
+      const owner = scope(), target = scopedKey(key, owner);
+      let value = nativeGet.call(this, target);
+      // Previously unscoped data belongs to this device's guest workspace. Never
+      // import it into whichever registered account happens to sign in first.
+      if (value === null && owner === 'httq_state:guest') {
+        const legacy = nativeGet.call(this, key);
+        if (legacy !== null) {
+          nativeSet.call(this, target, legacy);
+          nativeRemove.call(this, key);
+          value = legacy;
+        }
+      }
+      return value;
     }
-  }
-
-  function saveLocalState(state) {
+    function setItem(input, value) {
+      if (arguments.length < 2) return nativeSet.apply(this, arguments);
+      const key = String(input);
+      return nativeSet.call(this, this === local && isScoped(key) ? scopedKey(key, scope()) : key, value);
+    }
+    function removeItem(input) {
+      if (!arguments.length) return nativeRemove.call(this);
+      const key = String(input);
+      if (this !== local || !isScoped(key)) return nativeRemove.call(this, key);
+      const owner = scope();
+      nativeRemove.call(this, scopedKey(key, owner));
+      if (owner === 'httq_state:guest') nativeRemove.call(this, key);
+    }
     try {
-      localStorage.setItem('httq_state', JSON.stringify(state));
-    } catch (_e) {}
+      Object.defineProperties(prototype, {
+        getItem: { ...descriptors.getItem, value: getItem },
+        setItem: { ...descriptors.setItem, value: setItem },
+        removeItem: { ...descriptors.removeItem, value: removeItem }
+      });
+      Object.defineProperty(prototype, marker, { value: true, configurable: true });
+    } catch (_) {
+      for (const [name, descriptor] of Object.entries(descriptors)) {
+        try { if (descriptor) Object.defineProperty(prototype, name, descriptor); } catch (_) {}
+      }
+      return false;
+    }
+    if (typeof window.addEventListener === 'function' && typeof StorageEvent !== 'undefined') {
+      window.addEventListener('storage', event => {
+        if (event.storageArea !== local || typeof event.key !== 'string') return;
+        const markerIndex = event.key.lastIndexOf(':httq_state:');
+        const key = markerIndex < 0 ? '' : event.key.slice(0, markerIndex);
+        if (!key || !isScoped(key)) return;
+        // Existing bundle listeners compare event.key with the original fixed
+        // name. Translate only the active owner's event; ignore other owners.
+        event.stopImmediatePropagation();
+        if (event.key !== scopedKey(key, scope())) return;
+        window.dispatchEvent(new StorageEvent('storage', { key, oldValue: event.oldValue, newValue: event.newValue,
+          url: event.url, storageArea: local }));
+      }, true);
+    }
+    return true;
+  }
+  initializeScopedStorage();
+
+  // END GENERATED STORAGE SUPPORT
+
+  function getStudyStateStorageKey() {
+    const user = getSavedUser();
+    return user && user.id ? `httq_state:user:${user.id}` : 'httq_state:guest';
   }
 
-  async function supabaseUpsert(state) {
-    saveLocalState(state);
-    await syncProgressToSupabaseAuth();
+  function getLocalState() {
+    const empty = { masteredChars: {}, savedWords: {}, examCount: 0, history: [] };
+    try {
+      const key = getStudyStateStorageKey();
+      let raw = localStorage.getItem(key);
+      if (!raw) {
+        const legacy = localStorage.getItem('httq_state');
+        const legacyOwner = localStorage.getItem('httq_state_owner');
+        if (legacy && (key === 'httq_state:guest' || legacyOwner === key)) {
+          localStorage.setItem(key, legacy);
+          raw = legacy;
+        }
+      }
+      const state = JSON.parse(raw || '{}');
+      return state && typeof state === 'object' && !Array.isArray(state) ? { ...empty, ...state } : empty;
+    } catch (_) { return empty; }
+  }
+
+  function saveLocalState(state, key = getStudyStateStorageKey()) {
+    if (key !== getStudyStateStorageKey()) return false;
+    try { localStorage.setItem(key, JSON.stringify(state)); return true; }
+    catch (_) { return false; }
+  }
+
+  let studyCloudQueue = Promise.resolve();
+  function supabaseUpsert(state, options = {}) {
+    const key = options.storageKey || getStudyStateStorageKey();
+    if (!saveLocalState(state, key)) return Promise.resolve(false);
+    const write = async () => {
+      try {
+        const session = await getSupabaseSession();
+        if (!session || key !== getStudyStateStorageKey() || key !== `httq_state:user:${session.user.id}`) return false;
+        const res = await originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles?on_conflict=user_id,workspace`, {
+          method: 'POST',
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
+          body: JSON.stringify({ user_id: session.user.id, workspace: 'hoctiengtrungquoc', state: getLocalState(), updated_at: new Date().toISOString() })
+        });
+        const metadataSynced = res.ok && key === getStudyStateStorageKey() && await syncProgressToSupabaseAuth();
+        return Boolean(metadataSynced && key === getStudyStateStorageKey() && (getSavedUser() || {}).id === session.user.id);
+      } catch (_) { return false; }
+    };
+    const run = () => navigator.locks && navigator.locks.request ? navigator.locks.request(`httq-study-cloud:${key}`, write) : write();
+    const operation = studyCloudQueue.then(run, run);
+    studyCloudQueue = operation.catch(() => false);
+    return operation;
   }
 
   async function supabasePull() {
-    await syncProgressFromSupabaseAuth(false);
+    const key = getStudyStateStorageKey();
+    const metadata = await syncProgressFromSupabaseAuth(false);
+    try {
+      const session = await getSupabaseSession();
+      if (!session || key !== getStudyStateStorageKey() || key !== `httq_state:user:${session.user.id}`) return false;
+      const res = await originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles?select=state&user_id=eq.${encodeURIComponent(session.user.id)}&workspace=eq.hoctiengtrungquoc`, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}` }
+      });
+      if (!res.ok) return false;
+      const rows = await res.json();
+      if (key !== getStudyStateStorageKey() || (getSavedUser() || {}).id !== session.user.id || !Array.isArray(rows)) return false;
+      if (rows[0] && rows[0].state && !saveLocalState(mergeStudyState(rows[0].state, getLocalState()), key)) return false;
+      return Boolean(metadata);
+    } catch (_) { return false; }
   }
   supabasePull();
 
@@ -866,6 +1131,10 @@
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '');
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   }
 
   async function lookupCharacter(slugOrChar) {
@@ -1007,8 +1276,7 @@
         if (found) return found;
       }
     }
-    const firstChunk = (await loadLocalJson('/data/han-viet/han-viet-01.json')) || [];
-    return firstChunk[0] || null;
+    return null;
   }
 
   // ==========================================================================
@@ -1282,9 +1550,7 @@
       `/data/tests/papers/level-3-${cleanId}.json`,
       `/data/tests/papers/level-4-${cleanId}.json`,
       `/data/tests/papers/level-5-${cleanId}.json`,
-      `/data/tests/papers/level-6-${cleanId}.json`,
-      `/data/tests/papers/hsk30-${fallbackLevel || 1}.json`,
-      `/data/tests/papers/hsk30-1.json`
+      `/data/tests/papers/level-6-${cleanId}.json`
     ];
     for (const c of candidates) {
       const data = await loadLocalJson(c);
@@ -1345,10 +1611,555 @@
     };
   }
 
+
+
+
+
+
+
+
+  async function annotateLocalPinyin(text) {
+    const charIndex = await loadLocalJson('/data/characters/index.json') || [];
+    const wordIndex = await loadLocalJson('/data/vocabulary/index.json') || [];
+    const characters = new Map(charIndex.map(item => [item.c, item]));
+    const words = new Map(wordIndex.map(item => [item.w, item]));
+    const input = Array.from(text);
+    const annotations = [];
+    const maxLength = Math.min(input.length, Math.max(1, ...wordIndex.map(item => Array.from(item.w || '').length)));
+    for (let index = 0; index < input.length;) {
+      const char = input[index];
+      const isHanzi = /\p{Script=Han}/u.test(char);
+      let match = null;
+      if (isHanzi) {
+        for (let size = Math.min(maxLength, input.length - index); size >= 2; size--) {
+          const word = words.get(input.slice(index, index + size).join(''));
+          if (!word) continue;
+          const syllables = String(word.p || '').trim().split(/\s+/);
+          if (syllables.length === size && input.slice(index, index + size).every(value => /\p{Script=Han}/u.test(value))) {
+            match = { word, syllables, size }; break;
+          }
+        }
+      }
+      if (match) {
+        for (let offset = 0; offset < match.size; offset++) annotations.push({ char: input[index + offset], isHanzi: true, pinyin: match.syllables[offset], meaningVi: match.word.m || '', isWordStart: offset === 0, wordHanzi: match.word.w, wordPinyin: match.syllables.join(' ') });
+        index += match.size;
+      } else {
+        const info = characters.get(char);
+        annotations.push({ char, isHanzi, pinyin: isHanzi && info ? String(info.p || '').split(/[,，;/]/)[0].trim() : '', meaningVi: isHanzi && info ? info.m || '' : '', isWordStart: false });
+        index++;
+      }
+    }
+    return annotations;
+  }
+
+  // BEGIN GENERATED PERSISTENCE SUPPORT
+  // Persistent adapters for the contracts used by the original client bundles.
+  // Insert this fragment inside the runtime IIFE and call handlePersistentApi
+  // before the legacy handlers. Unknown routes return null.
+  function studyRecordTime(record) {
+    const value = record && (record.updatedAt || record.ts || record.receivedAt || record.createdAt);
+    const timestamp = Date.parse(value);
+    return Number.isFinite(timestamp) ? timestamp : 0;
+  }
+  function studyRecordKey(record) {
+    return String(record && (record._id || record.id || record.localId || record.signalId || record.itemKey) || '');
+  }
+  function mergeStudyRecords(remote, local, keyOf = studyRecordKey, merge) {
+    const records = new Map();
+    for (const record of [...(Array.isArray(remote) ? remote : []), ...(Array.isArray(local) ? local : [])]) {
+      if (!record || typeof record !== 'object') continue;
+      const key = keyOf(record); if (!key) continue;
+      const previous = records.get(key);
+      if (!previous) records.set(key, record);
+      else if (merge) records.set(key, merge(previous, record));
+      else records.set(key, studyRecordTime(record) >= studyRecordTime(previous) ? { ...previous, ...record } : { ...record, ...previous });
+    }
+    return [...records.values()];
+  }
+  function applyStudyReviewSignal(card, signal, receivedAt = new Date().toISOString()) {
+    card.attempts = (Number(card.attempts) || 0) + 1;
+    card.correctStreak = Number(card.correctStreak) || 0; card.wrongCount = Number(card.wrongCount) || 0;
+    card.lastOutcome = signal.outcome; card.updatedAt = signal.ts || receivedAt; card.source = signal.source;
+    if (signal.detail && typeof signal.detail === 'object') card.content = { ...(card.content || {}), ...signal.detail };
+    if (signal.outcome === 'correct') card.correctStreak++;
+    else { card.correctStreak = 0; card.wrongCount++; card.lastWrongAt = signal.ts || receivedAt; card.dismissed = false; }
+    const grade = signal.detail && signal.detail.grade;
+    let days = signal.outcome === 'correct' ? [1, 3, 7, 14, 30][Math.min(4, card.correctStreak - 1)] : 0;
+    if (grade === 'easy') days = Math.max(4, days);
+    const waitMs = grade === 'again' ? 60000 : grade === 'hard' ? 600000 : days ? days * 86400000 : 600000;
+    const timestamp = Number.isFinite(Date.parse(signal.ts)) ? Date.parse(signal.ts) : Number.isFinite(Date.parse(receivedAt)) ? Date.parse(receivedAt) : Date.now();
+    card.dueAt = new Date(timestamp + waitMs).toISOString(); card.intervalMs = waitMs;
+    card.state = card.correctStreak >= 2 ? 'review' : 'learning';
+    return card;
+  }
+  function mergeStudyState(remoteValue, localValue) {
+    const clone = value => JSON.parse(JSON.stringify(value && typeof value === 'object' && !Array.isArray(value) ? value : {}));
+    const remote = clone(remoteValue), local = clone(localValue);
+    const result = { ...remote, ...local };
+    const historyKey = item => String(item.id || `${item.at || item.createdAt}:${item.paperId || item.testId || item.kind || ''}`);
+    result.history = mergeStudyRecords(remote.history, local.history, historyKey).sort((a, b) => Date.parse(b.at || b.createdAt || 0) - Date.parse(a.at || a.createdAt || 0));
+    result.masteredChars = { ...(remote.masteredChars || {}), ...(local.masteredChars || {}) };
+    result.savedWords = { ...(remote.savedWords || {}), ...(local.savedWords || {}) };
+    result.examCount = Math.max(Number(remote.examCount) || 0, Number(local.examCount) || 0);
+    const r = remote.collections || {}, l = local.collections || {};
+    const store = result.collections = { ...r, ...l };
+    if (r.intake || l.intake) store.intake = studyRecordTime(l.intake) >= studyRecordTime(r.intake) ? { ...(r.intake || {}), ...(l.intake || {}) } : { ...(l.intake || {}), ...(r.intake || {}) };
+    store.tombstones = mergeStudyRecords(r.tombstones, l.tombstones, item => `${item.kind}:${item.id}`,
+      (a, b) => Date.parse(b.deletedAt) >= Date.parse(a.deletedAt) ? b : a);
+    const deleted = (kind, record) => store.tombstones.some(tombstone => tombstone.kind === kind && tombstone.id === studyRecordKey(record) &&
+      (Date.parse(tombstone.deletedAt) || 0) >= studyRecordTime(record));
+    for (const [key, kind] of [['library', 'annotation'], ['worksheets', 'worksheet'], ['examNotes', 'notes']]) {
+      store[key] = mergeStudyRecords(r[key], l[key]).filter(item => !deleted(kind, item));
+    }
+    store.lists = mergeStudyRecords(r.lists, l.lists, studyRecordKey, (a, b) => {
+      const list = studyRecordTime(b) >= studyRecordTime(a) ? { ...a, ...b } : { ...b, ...a };
+      list.sections = mergeStudyRecords(a.sections, b.sections, studyRecordKey, (x, y) => {
+        const section = studyRecordTime(y) >= studyRecordTime(x) ? { ...x, ...y } : { ...y, ...x };
+        section.items = mergeStudyRecords(x.items, y.items).filter(item => !deleted('listItem', item));
+        return section;
+      }).filter(section => !deleted('section', section));
+      return list;
+    }).filter(list => !deleted('list', list));
+    // Filter nested records even when a list/section exists on only one device.
+    for (const list of store.lists) {
+      list.sections = (list.sections || []).filter(section => !deleted('section', section));
+      const flattened = list.sections.flatMap(section => (section.items || []).filter(item => !deleted('listItem', item))
+        .map(item => ({ ...item, sectionId: item.sectionId || section._id || section.id })));
+      const words = mergeStudyRecords([], flattened, item => item.hanzi ? `${item.type || 'word'}:${item.hanzi}` : studyRecordKey(item));
+      list.sections = list.sections.map(section => ({ ...section, items: words.filter(item => item.sectionId === (section._id || section.id)) }));
+    }
+    store.studyBlocks = mergeStudyRecords(r.studyBlocks, l.studyBlocks, studyRecordKey, (a, b) => {
+      if (studyRecordTime(a) === studyRecordTime(b)) return Number(b.seconds) >= Number(a.seconds) ? b : a;
+      return studyRecordTime(b) > studyRecordTime(a) ? b : a;
+    });
+    store.speaking = { ...(r.speaking || {}) };
+    for (const [key, item] of Object.entries(l.speaking || {})) {
+      if (['__proto__', 'prototype', 'constructor'].includes(key)) continue;
+      const previous = store.speaking[key] || {};
+      const recent = studyRecordTime(item) >= studyRecordTime(previous) ? item : previous;
+      store.speaking[key] = { ...recent, best: Math.max(Number(previous.best) || 0, Number(item.best) || 0), attempts: Math.max(Number(previous.attempts) || 0, Number(item.attempts) || 0) };
+    }
+    store.reviewSignals = mergeStudyRecords(r.reviewSignals, l.reviewSignals, item => String(item.signalId || '')).sort((a, b) =>
+      studyRecordTime(a) - studyRecordTime(b) || String(a.signalId).localeCompare(String(b.signalId)));
+    const snapshots = mergeStudyRecords(r.reviewCards, l.reviewCards, card => `${card.itemKey}|${card.skill || 'meaning'}`);
+    const replayed = new Map();
+    for (const signal of store.reviewSignals) {
+      if (!signal.itemKey || !['correct', 'wrong', 'partial'].includes(signal.outcome)) continue;
+      const skill = signal.skill || 'meaning', key = `${signal.itemKey}|${skill}`;
+      let card = replayed.get(key);
+      if (!card) { const snapshot = snapshots.find(item => `${item.itemKey}|${item.skill || 'meaning'}` === key); card = { itemKey: signal.itemKey, skill, attempts: 0, wrongCount: 0, correctStreak: 0,
+        createdAt: snapshot && snapshot.createdAt || signal.ts || signal.receivedAt, content: snapshot && snapshot.content }; }
+      replayed.set(key, applyStudyReviewSignal(card, signal, signal.receivedAt || signal.ts));
+    }
+    store.reviewCards = snapshots.filter(card => !replayed.has(`${card.itemKey}|${card.skill || 'meaning'}`));
+    for (const [key, card] of replayed) {
+      const snapshot = snapshots.find(item => `${item.itemKey}|${item.skill || 'meaning'}` === key);
+      // Older snapshots may predate event logging; retain their counters rather
+      // than resetting activity that cannot be reconstructed from stored events.
+      if (snapshot && Number(snapshot.attempts) > card.attempts && studyRecordTime(snapshot) >= studyRecordTime(card)) store.reviewCards.push(snapshot);
+      else {
+        if (snapshot && snapshot.dismissedAt && Date.parse(snapshot.dismissedAt) >= studyRecordTime(card)) { card.dismissed = true; card.dismissedAt = snapshot.dismissedAt; }
+        store.reviewCards.push(card);
+      }
+    }
+    for (const list of store.lists) for (const section of list.sections) for (const item of section.items) {
+      const target = item.type === 'character' ? result.masteredChars : result.savedWords;
+      target[item.hanzi] = { ...item, word: item.hanzi, character: item.hanzi };
+    }
+    for (const tombstone of store.tombstones.filter(item => item.kind === 'listItem' && item.hanzi)) {
+      const retained = store.lists.some(list => list.sections.some(section => section.items.some(item => item.hanzi === tombstone.hanzi)));
+      if (!retained) { delete result.masteredChars[tombstone.hanzi]; delete result.savedWords[tombstone.hanzi]; }
+    }
+    return result;
+  }
+  function persistentStudyStorageKey() {
+    return typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state';
+  }
+  let xhzPersistenceQueue = Promise.resolve();
+  function handlePersistentApi(p, urlObj, init, method) {
+    const supported = /^\/v1\/(?:library|user-lists|user-worksheets|hsk-note-sets)(?:\/|$)/.test(p) ||
+      ['/v1/study-time/sync', '/v1/speaking-progress/sync', '/v2/review/signals',
+        '/v2/review/summary', '/v2/review/words', '/v2/review/mistakes',
+        '/v2/review/mistakes/dismiss', '/v2/review/sentence-cards', '/v1/users/me/intake'].includes(p);
+    if (!supported) return Promise.resolve(null);
+    const requestStorageKey = persistentStudyStorageKey();
+    const operation = xhzPersistenceQueue.then(async () => {
+      if (persistentStudyStorageKey() !== requestStorageKey) return jsonResponse({ ok: false, error: 'session_changed' }, 409);
+      const state = getLocalState();
+      if (!state.collections || typeof state.collections !== 'object' || Array.isArray(state.collections)) state.collections = {};
+      const store = state.collections;
+      for (const key of ['library', 'lists', 'worksheets', 'examNotes', 'studyBlocks', 'reviewSignals', 'reviewCards', 'tombstones']) {
+        if (!Array.isArray(store[key])) store[key] = [];
+      }
+      let enrolledCards = false;
+      // Enroll words from existing v10 progress, without creating sample cards.
+      if (typeof getRealProgress === 'function') {
+        const progress = getRealProgress();
+        for (const rawWord of (Array.isArray(progress.learnedWords) ? progress.learnedWords : [])) {
+          const hanzi = String(rawWord || '').trim();
+          if (!hanzi || store.reviewCards.some(card => card.itemKey === `w:${hanzi}` && card.skill === 'meaning')) continue;
+          store.reviewCards.push({ itemKey: `w:${hanzi}`, skill: 'meaning', state: 'learning',
+            dueAt: new Date().toISOString(), wrongCount: 0, correctStreak: 0, attempts: 0,
+            content: { hanzi }, createdAt: new Date().toISOString() });
+          enrolledCards = true;
+        }
+      }
+      if (!store.speaking || typeof store.speaking !== 'object' || Array.isArray(store.speaking)) store.speaking = {};
+      const body = method === 'GET' || method === 'HEAD' ? {} : (await parseRequestBody(init)) || {};
+      const now = new Date().toISOString();
+      const id = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      const error = (code, status = 400) => jsonResponse({ ok: false, error: code }, status);
+      const page = Math.max(1, Number(urlObj.searchParams.get('page')) || 1);
+      const limit = Math.max(1, Math.min(100, Number(urlObj.searchParams.get('limit')) || 20));
+      const paginate = items => ({ items: items.slice((page - 1) * limit, page * limit), total: items.length, page, limit, hasMore: page * limit < items.length });
+      const commit = async result => {
+        // Do not acknowledge queued sync data when persistence fails. The client
+        // removes its queue on any 2xx response, so quota failures must be 5xx.
+        if (persistentStudyStorageKey() !== requestStorageKey) return error('session_changed', 409);
+        try { localStorage.setItem(requestStorageKey, JSON.stringify(state)); }
+        catch (_) { return error('storage_unavailable', 507); }
+        try { await supabaseUpsert(state, { storageKey: requestStorageKey }); } catch (_) {}
+        return jsonResponse(result);
+      };
+      if (enrolledCards) {
+        const enrollment = await commit({ ok: true });
+        if (!enrollment.ok) return enrollment;
+      }
+      const rememberDeletion = (kind, record) => {
+        const recordId = studyRecordKey(record); if (!recordId) return;
+        store.tombstones = store.tombstones.filter(item => item.kind !== kind || item.id !== recordId);
+        store.tombstones.push({ kind, id: recordId, deletedAt: now, ...(record.hanzi ? { hanzi: record.hanzi } : {}) });
+      };
+      const defaultList = () => ({ id: 'default', _id: 'default', name: 'Chữ Hán & từ', createdAt: now, updatedAt: now,
+        sections: [{ id: 'default-section', _id: 'default-section', name: 'Đã lưu', items: [], createdAt: now, updatedAt: now }] });
+      const getList = listId => store.lists.find(item => item._id === listId || item.id === listId);
+      const ensureList = () => { if (!store.lists.length) store.lists.push(defaultList()); return store.lists[0]; };
+      const saveWord = input => {
+        const list = (input.listId && getList(input.listId)) || ensureList();
+        const section = (input.sectionId && list.sections.find(item => item._id === input.sectionId)) || list.sections[0];
+        const hanzi = String(input.hanzi || input.word || input.character || '').trim();
+        if (!hanzi || !section) return null;
+        const duplicate = list.sections.flatMap(item => item.items).find(item => item.type === (input.type || (hanzi.length === 1 ? 'character' : 'word')) &&
+          ((input.refId && item.refId === input.refId) || item.hanzi === hanzi));
+        if (duplicate) return { item: duplicate, isDuplicate: true, listId: list._id, sectionId: duplicate.sectionId };
+        const itemId = id('item');
+        const item = { ...input, id: itemId, _id: itemId, hanzi, type: input.type || (hanzi.length === 1 ? 'character' : 'word'),
+          sectionId: section._id, createdAt: input.createdAt || now, updatedAt: now, masteredAt: input.masteredAt || null };
+        section.items.push(item); list.updatedAt = now;
+        state.masteredChars = state.masteredChars || {}; state.savedWords = state.savedWords || {};
+        const key = item.type === 'character' ? 'masteredChars' : 'savedWords';
+        state[key][hanzi] = { ...item, word: hanzi, character: hanzi };
+        return { item, isDuplicate: false, listId: list._id, sectionId: section._id };
+      };
+      const forgetWord = item => {
+        if (store.lists.some(list => list.sections.some(section => section.items.some(other => other.hanzi === item.hanzi)))) return;
+        if (state.masteredChars) delete state.masteredChars[item.hanzi];
+        if (state.savedWords) delete state.savedWords[item.hanzi];
+      };
+
+      if (p === '/v1/users/me/intake') {
+        if (method === 'GET') return jsonResponse({ ok: true, intake: store.intake || null });
+        if (method !== 'PATCH' && method !== 'POST') return error('method_not_allowed', 405);
+        const input = { ...(store.intake || {}), ...body };
+        const aliases = { 'hsk1-2': 'hsk1', 'hsk3-4': 'hsk3', 'hsk5+': 'hsk5' };
+        const level = aliases[input.level] || input.level;
+        const levels = ['chua-biet', 'hsk1', 'hsk2', 'hsk3', 'hsk4', 'hsk5', 'hsk6'];
+        const goals = ['giao-tiep', 'hsk-cert', 'tu-vung', 'cong-viec', 'du-hoc'];
+        const times = ['5p', '15p', '30p+'];
+        if (!levels.includes(level) || !goals.includes(input.goal) || !times.includes(input.time)) return error('invalid_intake');
+        if (input.targetLevel && !levels.slice(1).includes(input.targetLevel)) return error('invalid_target_level');
+        if (input.examDate && (!/^\d{4}-\d{2}-\d{2}$/.test(input.examDate) || !Number.isFinite(Date.parse(input.examDate)) || new Date(input.examDate).toISOString().slice(0, 10) !== input.examDate)) return error('invalid_exam_date');
+        const topics = new Set(['gia-dinh', 'an-uong', 'du-lich', 'cong-viec', 'hoc-tap', 'mua-sam', 'suc-khoe', 'giai-tri']);
+        const intake = { level, goal: input.goal, time: input.time, updatedAt: now,
+          ...(input.targetLevel ? { targetLevel: input.targetLevel } : {}), ...(input.examDate ? { examDate: input.examDate } : {}),
+          ...(Array.isArray(input.topicSlugs) ? { topicSlugs: [...new Set(input.topicSlugs.filter(topic => topics.has(topic)))] } : {}),
+          source: typeof input.source === 'string' ? input.source.slice(0, 80) : 'web' };
+        store.intake = intake;
+        const result = await commit({ ok: true, intake });
+        if (result.ok && persistentStudyStorageKey() === requestStorageKey) {
+          try { localStorage.setItem('xhz-intake-v1', JSON.stringify({ ...intake, ts: Date.now() })); } catch (_) {}
+        }
+        return result;
+      }
+
+      if (p === '/v1/library' || p.startsWith('/v1/library/')) {
+        const libraryId = decodeURIComponent(p.slice('/v1/library/'.length));
+        if (p === '/v1/library' && method === 'GET') {
+          const skip = Math.max(0, Number(urlObj.searchParams.get('skip')) || 0);
+          const annotations = store.library.slice(skip, skip + limit);
+          return jsonResponse({ annotations, items: annotations, total: store.library.length, hasMore: skip + limit < store.library.length });
+        }
+        if (p === '/v1/library' && method === 'POST') {
+          if (!String(body.text || '').trim()) return error('empty_text');
+          const itemId = id('annotation');
+          const item = { id: itemId, _id: itemId, title: String(body.title || '').trim(), text: String(body.text),
+            annotations: Array.isArray(body.annotations) ? body.annotations : [], createdAt: now, updatedAt: now };
+          store.library.unshift(item);
+          return commit(item);
+        }
+        const index = store.library.findIndex(item => item.id === libraryId || item._id === libraryId);
+        if (index < 0) return error('not_found', 404);
+        if (method === 'GET') return jsonResponse(store.library[index]);
+        if (method === 'DELETE') { rememberDeletion('annotation', store.library[index]); store.library.splice(index, 1); return commit({ ok: true }); }
+        if (method === 'PATCH') {
+          const item = store.library[index];
+          for (const key of ['title', 'text', 'annotations']) if (body[key] !== undefined) item[key] = body[key];
+          item.updatedAt = now; return commit(item);
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/user-lists' || p.startsWith('/v1/user-lists/')) {
+        if (p === '/v1/user-lists' && method === 'GET') {
+          const lists = store.lists.length ? store.lists : [defaultList()];
+          return jsonResponse({ lists: lists.map(list => ({ ...list, itemCount: list.sections.reduce((sum, section) => sum + section.items.length, 0) })) });
+        }
+        if (p === '/v1/user-lists' && method === 'POST') {
+          const list = defaultList(); list.id = list._id = id('list'); list.name = String(body.name || list.name);
+          list.sections[0].id = list.sections[0]._id = id('section'); store.lists.push(list); return commit(list);
+        }
+        if (p === '/v1/user-lists/quick-save' && method === 'POST') {
+          const result = saveWord(body); return result ? commit({ ok: true, ...result }) : error('empty_hanzi');
+        }
+        if (p === '/v1/user-lists/sync-guest' && method === 'POST') {
+          const items = Array.isArray(body.items) ? body.items : [];
+          const results = items.map(saveWord).filter(Boolean);
+          return commit({ ok: true, imported: results.filter(item => !item.isDuplicate).length, count: results.length, listId: ensureList()._id });
+        }
+        const parts = p.slice('/v1/user-lists/'.length).split('/').map(decodeURIComponent);
+        let list = getList(parts[0]);
+        if (!list && parts[0] === 'default') { list = defaultList(); if (method !== 'GET') store.lists.push(list); }
+        if (!list) return error('not_found', 404);
+        if (parts.length === 1) {
+          if (method === 'GET') return jsonResponse(list);
+          if (method === 'PATCH') { list.name = String(body.name || list.name); list.updatedAt = now; return commit(list); }
+          if (method === 'DELETE') {
+            rememberDeletion('list', list);
+            list.sections.forEach(section => { rememberDeletion('section', section); section.items.forEach(item => rememberDeletion('listItem', item)); });
+            store.lists = store.lists.filter(item => item !== list);
+            list.sections.flatMap(section => section.items).forEach(forgetWord);
+            return commit({ ok: true });
+          }
+        }
+        if (parts[1] === 'sections') {
+          if (parts.length === 2 && method === 'POST') {
+            if (!String(body.name || '').trim()) return error('empty_name');
+            const sectionId = id('section');
+            const section = { id: sectionId, _id: sectionId, name: String(body.name).trim(), items: [], createdAt: now, updatedAt: now };
+            list.sections.push(section); list.updatedAt = now; return commit(section);
+          }
+          const section = list.sections.find(item => item._id === parts[2]);
+          if (!section) return error('not_found', 404);
+          if (method === 'PATCH') { section.name = String(body.name || section.name); section.updatedAt = now; list.updatedAt = now; return commit(section); }
+          if (method === 'DELETE') {
+            if (list.sections.length === 1) return error('last_section');
+            rememberDeletion('section', section); section.items.forEach(item => rememberDeletion('listItem', item));
+            list.sections = list.sections.filter(item => item !== section); section.items.forEach(forgetWord);
+            return commit({ ok: true });
+          }
+        }
+        if (parts[1] === 'items' && parts[2]) {
+          const section = list.sections.find(item => item.items.some(word => word._id === parts[2]));
+          const item = section && section.items.find(word => word._id === parts[2]);
+          if (!item) return error('not_found', 404);
+          if (method === 'DELETE') { rememberDeletion('listItem', item); section.items = section.items.filter(word => word !== item); forgetWord(item); return commit({ ok: true }); }
+          if (method === 'PATCH') {
+            if (body.moveToSectionId) {
+              const target = list.sections.find(item => item._id === body.moveToSectionId);
+              if (!target) return error('section_not_found', 404);
+              if (target !== section) { section.items = section.items.filter(word => word !== item); target.items.push(item); item.sectionId = target._id; }
+            }
+            if (body.mastered !== undefined) item.masteredAt = body.mastered ? now : null;
+            item.updatedAt = now; list.updatedAt = now;
+            const savedKey = item.type === 'character' ? 'masteredChars' : 'savedWords';
+            if (state[savedKey] && state[savedKey][item.hanzi]) state[savedKey][item.hanzi] = { ...item, word: item.hanzi, character: item.hanzi };
+            return commit(item);
+          }
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/user-worksheets' || p.startsWith('/v1/user-worksheets/')) {
+        const create = input => {
+          const worksheetId = id('worksheet');
+          return { _id: worksheetId, id: worksheetId, name: String(input.name || input.text || 'Vở tập viết').trim().slice(0, 80),
+            text: String(input.text || ''), settings: input.settings && typeof input.settings === 'object' ? input.settings : {},
+            templateId: input.templateId || null, localId: input.localId, createdAt: input.createdAt || now, updatedAt: now };
+        };
+        if (p === '/v1/user-worksheets' && method === 'GET') return jsonResponse({ worksheets: store.worksheets });
+        if (p === '/v1/user-worksheets' && method === 'POST') {
+          if (!String(body.text || '').trim()) return error('empty_text');
+          const worksheet = create(body); store.worksheets.unshift(worksheet); return commit(worksheet);
+        }
+        if (p === '/v1/user-worksheets/sync-guest' && method === 'POST') {
+          let imported = 0;
+          for (const input of (Array.isArray(body.items) ? body.items : [])) {
+            if (!String(input.text || '').trim() || (input.localId && store.worksheets.some(item => item.localId === input.localId))) continue;
+            store.worksheets.unshift(create(input)); imported++;
+          }
+          return commit({ ok: true, imported, worksheets: store.worksheets });
+        }
+        const worksheetId = decodeURIComponent(p.slice('/v1/user-worksheets/'.length));
+        const worksheet = store.worksheets.find(item => item._id === worksheetId);
+        if (!worksheet) return error('not_found', 404);
+        if (method === 'GET') return jsonResponse(worksheet);
+        if (method === 'DELETE') { rememberDeletion('worksheet', worksheet); store.worksheets = store.worksheets.filter(item => item !== worksheet); return commit({ ok: true }); }
+        if (method === 'PATCH') {
+          for (const key of ['name', 'text', 'settings', 'templateId']) if (body[key] !== undefined) worksheet[key] = key === 'name' ? String(body[key]).slice(0, 80) : body[key];
+          worksheet.updatedAt = now; return commit(worksheet);
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/hsk-note-sets' || p.startsWith('/v1/hsk-note-sets/')) {
+        if (p === '/v1/hsk-note-sets' && method === 'GET') {
+          const testId = urlObj.searchParams.get('testId');
+          return jsonResponse(paginate(store.examNotes.filter(item => !testId || item.testId === testId)));
+        }
+        const noteId = decodeURIComponent(p.slice('/v1/hsk-note-sets/'.length));
+        let entry = store.examNotes.find(item => item.id === noteId);
+        if (p === '/v1/hsk-note-sets' && method === 'POST') entry = store.examNotes.find(item => item.testId === body.testId);
+        if (p !== '/v1/hsk-note-sets' && !entry) return error('not_found', 404);
+        if (method === 'DELETE' && entry) { rememberDeletion('notes', entry); store.examNotes = store.examNotes.filter(item => item !== entry); return commit({ ok: true }); }
+        if (method === 'GET' && entry) return jsonResponse(entry);
+        if (method === 'POST' || method === 'PATCH') {
+          const notes = Array.isArray(body.notes) ? body.notes.filter(note => note.questionId && String(note.text || '').trim()) : [];
+          if (!notes.length) return error('empty_notes');
+          const testId = (entry && entry.testId) || body.testId;
+          if (!testId) return error('test_not_found', 404);
+          const paper = await loadTestPaperById(testId, body.level);
+          if (!paper || paper.testId !== testId) return error('test_not_found', 404);
+          const questions = (paper.sections || []).flatMap(section => (section.questions || []).map(question => ({ ...question, sectionTitle: section.title || section.name || '' })));
+          if (!questions.length && Array.isArray(paper.questions)) questions.push(...paper.questions);
+          if (notes.some(note => !questions.some(question => String(question.id || question._id) === String(note.questionId)))) return error('question_not_found', 404);
+          const itemId = entry ? entry.id : id('notes');
+          const updated = { id: itemId, _id: itemId, testId, level: paper.level, testTitle: paper.title, testAvailable: true,
+            createdAt: entry ? entry.createdAt : now, updatedAt: now, noteCount: notes.length,
+            notes: notes.map(note => {
+              const question = questions.find(question => String(question.id || question._id) === String(note.questionId));
+              return { ...note, text: String(note.text).trim(), questionNumber: question.number || question.questionNumber,
+                prompt: question.prompt || '', sectionTitle: question.sectionTitle || '', correctAnswer: question.correctAnswer || question.answer || question.correctOption || '' };
+            }) };
+          store.examNotes = [updated, ...store.examNotes.filter(item => item !== entry)]; return commit(updated);
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/study-time/sync') {
+        if (method !== 'POST' && method !== 'GET') return error('method_not_allowed', 405);
+        if (method === 'POST') {
+          for (const block of (Array.isArray(body.blocks) ? body.blocks : [])) {
+            if (!block || !block.id || !Number.isFinite(Number(block.seconds)) || Number(block.seconds) < 0) continue;
+            const index = store.studyBlocks.findIndex(item => item.id === block.id);
+            const current = store.studyBlocks[index];
+            if (!current || String(block.updatedAt || '') > String(current.updatedAt || '') || (block.updatedAt === current.updatedAt && Number(block.seconds) > Number(current.seconds))) {
+              if (index < 0) store.studyBlocks.push({ ...block, seconds: Number(block.seconds) });
+              else store.studyBlocks[index] = { ...block, seconds: Number(block.seconds) };
+            }
+          }
+        }
+        const result = { blocks: store.studyBlocks, totalSeconds: store.studyBlocks.reduce((sum, block) => sum + Number(block.seconds || 0), 0) };
+        return method === 'POST' ? commit(result) : jsonResponse(result);
+      }
+      if (p === '/v1/speaking-progress/sync') {
+        if (method !== 'POST' && method !== 'GET') return error('method_not_allowed', 405);
+        for (const item of (Array.isArray(body.items) ? body.items : [])) {
+          if (!item || typeof item.key !== 'string' || ['__proto__', 'constructor', 'prototype'].includes(item.key)) continue;
+          const current = store.speaking[item.key] || {};
+          const recent = String(item.updatedAt || '') >= String(current.updatedAt || '') ? item : current;
+          store.speaking[item.key] = { best: Math.max(Number(current.best) || 0, Number(item.best) || 0),
+            attempts: Math.max(Number(current.attempts) || 0, Number(item.attempts) || 0), lastScore: recent.lastScore, updatedAt: recent.updatedAt || now };
+        }
+        return method === 'POST' ? commit({ items: store.speaking }) : jsonResponse({ items: store.speaking });
+      }
+
+      if (p === '/v2/review/signals') {
+        if (method !== 'POST') return error('method_not_allowed', 405);
+        if (!Array.isArray(body.signals)) return error('invalid_signals');
+        const seen = new Set(store.reviewSignals.map(signal => signal.signalId));
+        let accepted = 0;
+        for (const signal of body.signals) {
+          if (!signal || !signal.signalId || !signal.itemKey || !['correct', 'wrong', 'partial'].includes(signal.outcome)) return error('invalid_signal');
+          if (seen.has(signal.signalId)) continue;
+          seen.add(signal.signalId); store.reviewSignals.push({ ...signal, receivedAt: now }); accepted++;
+          const skill = signal.skill || 'meaning';
+          let card = store.reviewCards.find(item => item.itemKey === signal.itemKey && item.skill === skill);
+          if (!card) { card = { itemKey: signal.itemKey, skill, correctStreak: 0, attempts: 0, wrongCount: 0, createdAt: now }; store.reviewCards.push(card); }
+          applyStudyReviewSignal(card, signal, now);
+        }
+        // An offline client may deliver older activity after newer activity.
+        // Replay the union in event order instead of moving the due date backward.
+        state.collections = mergeStudyState({}, state).collections;
+        return commit({ ok: true, accepted, duplicates: body.signals.length - accepted });
+      }
+      const cards = store.reviewCards;
+      const activeMistakes = cards.filter(card => card.wrongCount > 0 && card.correctStreak < 2 && !card.dismissed);
+      if (p === '/v2/review/summary') {
+        const bucket = selected => selected.reduce((counts, card) => { counts[card.skill === 'sound' ? 'pinyin' : card.skill] = (counts[card.skill === 'sound' ? 'pinyin' : card.skill] || 0) + 1; return counts; }, { meaning: 0, pinyin: 0 });
+        const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
+        const forecast = Array.from({ length: 7 }, (_, offset) => {
+          const day = new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
+          const due = cards.filter(card => card.dueAt.slice(0, 10) === day).length;
+          return { day, due, minutes: Math.ceil(due / 3), heavy: due >= 15 };
+        });
+        return jsonResponse({ dueNow: bucket(cards.filter(card => Date.parse(card.dueAt) <= Date.now())),
+          dueToday: bucket(cards.filter(card => Date.parse(card.dueAt) <= todayEnd.getTime())), errorsQueue: activeMistakes.length, totalCards: cards.length, openRun: null, forecast });
+      }
+      if (p === '/v2/review/sentence-cards') {
+        const sentences = cards.filter(card => card.itemKey.startsWith('s:'));
+        return jsonResponse({ dueToday: sentences.filter(card => Date.parse(card.dueAt) <= Date.now() + 86400000).length,
+          total: sentences.length, upcoming: sentences.filter(card => Date.parse(card.dueAt) > Date.now()).length, measureWords: 0, newPerDay: 5 });
+      }
+      if (p === '/v2/review/mistakes/dismiss') {
+        if (method !== 'POST' || !body.itemKey) return error('invalid_item');
+        cards.filter(card => card.itemKey === body.itemKey).forEach(card => { card.dismissed = true; card.dismissedAt = now; });
+        return commit({ ok: true });
+      }
+      const enrichCard = async card => {
+        const hanzi = card.itemKey.replace(/^[a-z]:/, '');
+        const info = card.itemKey.startsWith('c:') ? await lookupCharacter(hanzi) : await lookupWord(hanzi);
+        const content = card.content || {};
+        const word = { hanzi: content.hanzi || hanzi, word: content.hanzi || hanzi, pinyin: content.pinyin || (info && (info.pinyin || info.wordPinyin)) || '',
+          meaningVi: content.meaningVi || (info && (info.meaningVi || info.wordMeaningVi)) || '' };
+        return { ...card, ...word, titleZh: hanzi, word, count: card.wrongCount, errorCount: card.wrongCount,
+          category: card.skill === 'sound' || card.skill === 'pinyin' ? 'tone_error' : 'vocab_confusion',
+          categoryLabelVi: card.skill === 'sound' || card.skill === 'pinyin' ? 'Phát âm / thanh điệu' : 'Nội dung cần ôn',
+          progress: { cleared: card.correctStreak, needed: 2, nextCheckDay: card.dueAt.slice(0, 10) } };
+      };
+      if (p === '/v2/review/mistakes') {
+        const category = urlObj.searchParams.get('category');
+        const all = await Promise.all(activeMistakes.map(enrichCard));
+        const filtered = category ? all.filter(card => card.category === category) : all;
+        const categories = [...new Set(all.map(card => card.category))].map(category => ({ category, labelVi: all.find(card => card.category === category).categoryLabelVi,
+          count: all.filter(card => card.category === category).length }));
+        return jsonResponse({ ...paginate(filtered), mistakes: filtered.slice((page - 1) * limit, page * limit), categories });
+      }
+      if (p === '/v2/review/words') {
+        const q = (urlObj.searchParams.get('q') || '').trim().toLowerCase();
+        const status = urlObj.searchParams.get('status') || 'all';
+        const unique = [...new Map(cards.filter(card => /^[cw]:/.test(card.itemKey)).map(card => [card.itemKey, card])).values()];
+        const known = unique.filter(card => card.state === 'review').length;
+        let items = await Promise.all(unique.map(enrichCard));
+        items = items.map(item => ({ ...item, word: item.hanzi }));
+        if (status === 'known') items = items.filter(item => item.state === 'review');
+        if (status === 'learning') items = items.filter(item => item.state !== 'review');
+        if (q) items = items.filter(item => `${item.hanzi} ${item.pinyin} ${item.meaningVi}`.toLowerCase().includes(q));
+        return jsonResponse({ ...paginate(items), totals: { known, learning: unique.length - known }, nextCursor: null });
+      }
+      return null;
+    });
+    xhzPersistenceQueue = operation.catch(() => {});
+    return operation;
+  }
+  // END GENERATED PERSISTENCE SUPPORT
+
   async function handleApiRequest(urlOrObj, init) {
     const urlObj = typeof urlOrObj === 'string' ? new URL(urlOrObj, window.location.origin) : urlOrObj;
     const p = (urlObj.pathname || '').replace(/^\/api/, '');
     const method = (init && init.method ? init.method : 'GET').toUpperCase();
+
+    const persisted = await handlePersistentApi(p, urlObj, init, method);
+    if (persisted) return persisted;
 
     // ------------------------------------------------------------------------
     // A. SERVER TIME & PUBLIC SETTINGS & AUTH
@@ -1393,55 +2204,53 @@
     }
     if (p.includes('/v1/auth/login') || p.includes('/v1/auth/register')) {
       const body = await parseRequestBody(init);
-      const email = (body.email || 'hocvien@gmail.com').trim();
-      const displayName = (body.displayName || body.name || email.split('@')[0] || 'Học viên').trim();
-      const userObj = saveAuthSession(DEFAULT_JWT, '', {
-        id: 'user-' + Date.now(),
-        email,
-        displayName,
-        hasPassword: true
-      });
-      return jsonResponse({
-        ok: true,
-        isAuthenticated: true,
-        accessToken: DEFAULT_JWT,
-        token: DEFAULT_JWT,
-        ...userObj,
-        user: userObj
-      });
+      const email = typeof body.email === 'string' ? body.email.trim() : '';
+      const password = typeof body.password === 'string' ? body.password : '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 6) return authErrorResponse({ status: 400, code: 'invalid_credentials', message: 'Vui lòng nhập email hợp lệ và mật khẩu từ 6 ký tự.' });
+      const register = p.includes('/v1/auth/register');
+      const revision = ++authSessionRevision;
+      try {
+        const data = register
+          ? await requestSupabaseAuth(`signup?redirect_to=${encodeURIComponent(window.location.origin + '/tai-khoan')}`, {
+            method: 'POST', body: JSON.stringify({ email, password, data: { full_name: String(body.displayName || body.name || email.split('@')[0]).trim() } })
+          })
+          : await requestSupabaseAuth('token?grant_type=password', { method: 'POST', body: JSON.stringify({ email, password }) });
+        if (revision !== authSessionRevision) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        if (register && !data.access_token) return jsonResponse({ ok: true, isAuthenticated: false, requiresEmailConfirmation: true, message: 'Vui lòng kiểm tra email và mở liên kết xác nhận trước khi đăng nhập.' }, 202);
+        const user = data.user || await requestSupabaseAuth('user', { headers: { Authorization: `Bearer ${data.access_token}` } });
+        if (revision !== authSessionRevision) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        const userObj = saveAuthSession(data.access_token, data.refresh_token, user);
+        if (!userObj) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Không thể xác thực phiên đăng nhập.' });
+        return jsonResponse({ ok: true, isAuthenticated: true, accessToken: DEFAULT_JWT, token: DEFAULT_JWT, ...userObj, user: userObj });
+      } catch (error) { return authErrorResponse(error); }
     }
     if (p.includes('/v1/users/me/profile') || p.includes('/v1/users/me/preferences')) {
-      const body = await parseRequestBody(init);
-      const cur = getSavedUser() || { email: 'hocvien@gmail.com', displayName: 'Học viên' };
-      const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
-        ...cur,
-        ...body,
-        displayName: body.displayName || body.name || cur.displayName
-      });
-      return jsonResponse({ ok: true, ...updated, user: updated });
+      return updateSupabaseProfile(await parseRequestBody(init), p.includes('/preferences') ? 'preferences' : 'profile', method);
     }
     if (p.includes('/v1/users/me/avatar')) {
-      const cur = getSavedUser() || { email: 'hocvien@gmail.com', displayName: 'Học viên' };
-      if (method === 'DELETE') {
-        const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
-          ...cur,
-          avatar: ''
-        });
-        return jsonResponse({ ok: true, ...updated, user: updated });
-      }
-      const body = await parseRequestBody(init);
-      const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
-        ...cur,
-        avatar: body.image || body.avatar || cur.avatar
-      });
-      return jsonResponse({ ok: true, ...updated, user: updated });
+      return updateSupabaseProfile(await parseRequestBody(init), 'avatar', method);
     }
     if (p.includes('/v1/users/me/password')) {
-      return jsonResponse({ ok: true });
+      const body = await parseRequestBody(init);
+      if (typeof body.currentPassword !== 'string' || !body.currentPassword) return authErrorResponse({ status: 400, code: 'current_password_required', message: 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu.' });
+      if (typeof body.newPassword !== 'string' || body.newPassword.length < 6) return authErrorResponse({ status: 400, code: 'weak_password', message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+      const revision = authSessionRevision;
+      const session = await getSupabaseSession();
+      if (!session) return authErrorResponse({ status: 401, code: 'unauthorized', message: 'Vui lòng đăng nhập để đổi mật khẩu.' });
+      const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === session.user.id;
+      try {
+        const verified = await requestSupabaseAuth('token?grant_type=password', { method: 'POST', body: JSON.stringify({ email: session.user.email, password: body.currentPassword }) });
+        if (!stillCurrent() || !verified.user || verified.user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        const user = await requestSupabaseAuth('user', { method: 'PUT', headers: { Authorization: `Bearer ${verified.access_token}` }, body: JSON.stringify({ password: body.newPassword, data: { xhz_has_password: true } }) });
+        if (!stillCurrent() || user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        if (!saveAuthSession(verified.access_token, verified.refresh_token, user)) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Vui lòng đăng nhập lại bằng mật khẩu mới.' });
+        return jsonResponse({ ok: true });
+      } catch (error) { return authErrorResponse(error); }
     }
     if (p.includes('/v1/auth/') || p.includes('/v2/auth/') || p.includes('/v1/users/me') || p.includes('/v1/profile')) {
       const realSum = getRealProgressSummary();
-      const savedUser = getSavedUser();
+      const session = await getSupabaseSession();
+      const savedUser = session && session.user;
       if (savedUser) {
         const tok = localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT;
         const mergedUser = { ...savedUser, streak: realSum.streakDays };
@@ -2768,6 +3577,7 @@
     if (p.startsWith('/v1/games/rounds/')) {
       const parts = p.split('/').filter(Boolean); // ['v1','games','rounds', roundId, action?]
       const roundId = parts[3];
+      if (!roundId) return jsonResponse({ error: 'round_not_found' }, 404);
       const action = parts[4] || '';
       let round = gameRoundsStore.get(roundId);
       if (!round) {
@@ -3410,6 +4220,11 @@
       return jsonResponse({ words: results, items });
     }
     if (p.startsWith('/v1/pinyin-lookup')) {
+      if (method === 'POST') {
+        const body = await parseRequestBody(init);
+        if (typeof body.text !== 'string' || Array.from(body.text).length > 2000) return jsonResponse({ error: 'invalid_text', message: 'Nhập tối đa 2000 ký tự.' }, 400);
+        return jsonResponse({ annotations: await annotateLocalPinyin(body.text) });
+      }
       const q = (urlObj.searchParams.get('q') || urlObj.searchParams.get('pinyin') || '').trim().toLowerCase();
       const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
       const matches = (Array.isArray(charIdx) ? charIdx : [])
@@ -3593,12 +4408,16 @@
         (paper && (paper.questions && paper.questions.length ? paper.questions : (Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : null))) ||
         body.questions ||
         [];
+      if (!Array.isArray(questions) || !questions.length) return jsonResponse({ error: 'EMPTY_EXAM', message: 'Chưa có câu hỏi để chấm bài.' }, 400);
+      if (questions.some(q => ![q.correctAnswer, q.answer, q.correctOption].some(answer => answer !== undefined && answer !== null && String(answer).trim() !== ''))) {
+        return jsonResponse({ error: 'ANSWER_KEY_UNAVAILABLE', message: 'Đề này chưa có đáp án chuẩn trong kho dữ liệu. Có thể lưu bài làm để xem lại, nhưng chưa thể tính điểm chính xác.' }, 409);
+      }
       const userAnswers = body.answers || body.userAnswers || {};
       let correctCount = 0;
       const results = questions.map((q, idx) => {
         const qId = q.id || q._id || q.number || q.questionNumber || idx + 1;
         const userAns = userAnswers[qId] !== undefined ? userAnswers[qId] : userAnswers[idx];
-        const rightAns = q.correctAnswer || q.answer || q.correctOption || 'A';
+        const rightAns = q.correctAnswer ?? q.answer ?? q.correctOption;
         const isCorrect = String(userAns || '').trim().toUpperCase() === String(rightAns || '').trim().toUpperCase();
         if (isCorrect) correctCount++;
         return {
@@ -3898,14 +4717,17 @@
       customRoot = document.createElement('div');
       customRoot.id = 'xhz-dynamic-page-root';
       customRoot.className = 'mx-auto max-w-5xl px-4 py-8';
-      customRoot.style.color = '#1c1917';
+      customRoot.style.color = 'inherit';
       if (main && main.parentNode) {
         main.parentNode.insertBefore(customRoot, main);
       } else {
         document.body.appendChild(customRoot);
       }
     }
-    customRoot.style.color = '#1c1917';
+    customRoot.style.color = 'inherit';
+    customRoot.style.width = '100%';
+    customRoot.style.boxSizing = 'border-box';
+    customRoot.style.minWidth = '0';
     return customRoot;
   }
 
@@ -3972,7 +4794,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu chữ Hán...</div>`;
     const data = await lookupCharacter(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chữ Hán cho "${decodeURIComponent(slug)}". <a href="/tu-dien" style="text-decoration:underline;margin-left:8px;">Quay lại Từ điển</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chữ Hán cho "${escapeHtml(decodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;margin-left:8px;">Quay lại Từ điển</a></div>`;
       return;
     }
     const ch = data.character || data.c || extractHanziChar(slug);
@@ -3992,7 +4814,7 @@
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/tu-dien" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
+        <a href="/tra-chu" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #f5f5f4;padding:16px;">
@@ -4107,7 +4929,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu từ vựng...</div>`;
     const data = await lookupWord(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy từ vựng "${decodeURIComponent(slug)}". <a href="/tu-dien" style="text-decoration:underline;">Quay lại Từ điển</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy từ vựng "${escapeHtml(decodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;">Quay lại Từ điển</a></div>`;
       return;
     }
     const word = data.word || data.hanzi || decodeURIComponent(slug);
@@ -4135,7 +4957,7 @@
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/tu-dien" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
+        <a href="/tra-chu" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
@@ -4248,7 +5070,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải âm Hán Việt...</div>`;
     const data = await lookupHanViet(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy âm Hán Việt "${decodeURIComponent(slug)}". <a href="/han-viet">Xem toàn bộ danh sách</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy âm Hán Việt "${escapeHtml(decodeURIComponent(slug))}". <a href="/han-viet">Xem toàn bộ danh sách</a></div>`;
       return;
     }
     const groups = Array.isArray(data.groups) ? data.groups : [];
@@ -4406,6 +5228,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tạo đề kiểm tra ngữ pháp...</div>`;
 
     const tracksParam = (searchParams.get('tracks') || 'new-hsk1').split(',').filter(Boolean);
+    const grammarId = searchParams.get('grammarId') || '';
     const count = Math.max(1, Math.min(100, Number(searchParams.get('count')) || 20));
     const typesParam = (searchParams.get('types') || 'mcq,translate_zh_vi,translate_vi_zh').split(',').filter(Boolean);
 
@@ -4417,14 +5240,37 @@
         allQuestions.push(...qData.questions.filter(q => typesParam.includes(q.type)));
       }
     }
-    if (allQuestions.length === 0) {
+    let grammarPoint = null;
+    if (grammarId) {
+      allQuestions = allQuestions.filter(question => question.grammarId === grammarId);
+      const grammarLevel = (grammarId.match(/\d+/) || ['1'])[0];
+      const grammarIsNew = /_new_|^new-/.test(grammarId);
+      const grammarData = await loadLocalJson(`/data/grammar/${grammarIsNew ? 'new-hsk' : 'hsk'}-level-${grammarLevel}.json`);
+      grammarPoint = grammarData && Array.isArray(grammarData.items) ? grammarData.items.find(item => item.id === grammarId) : null;
+      if (!grammarPoint) {
+        root.innerHTML = `<h1>Không tìm thấy chủ điểm ngữ pháp</h1><p>${escapeHtml(grammarId)}</p><a href="/ngu-phap">Quay lại ngữ pháp</a>`;
+        return;
+      }
+      for (const [index, example] of (grammarPoint.example || []).entries()) {
+        if (!example.chinese || !example.vietnamese) continue;
+        for (const type of ['translate_zh_vi', 'translate_vi_zh']) {
+          if (!typesParam.includes(type)) continue;
+          const prompt = type === 'translate_zh_vi' ? example.chinese : example.vietnamese;
+          if (allQuestions.some(question => question.type === type && question.prompt === prompt)) continue;
+          allQuestions.push({ questionId: `${grammarId}_example_${index}_${type}`, grammarId, type, prompt,
+            answer: type === 'translate_zh_vi' ? example.vietnamese : example.chinese,
+            explanation: grammarPoint.grammar_explanation || '' });
+        }
+      }
+    }
+    if (allQuestions.length === 0 && !grammarId) {
       const fallback = await loadLocalJson('/data/grammar/quiz-new-hsk1.json');
       if (fallback && Array.isArray(fallback.questions)) {
         allQuestions = fallback.questions;
       }
     }
     const questions = allQuestions.slice(0, count);
-    document.title = `Kiểm tra ngữ pháp (${questions.length} câu) | XieHanzi`;
+    document.title = `${grammarPoint ? `Luyện tập: ${grammarPoint.topic}` : 'Kiểm tra ngữ pháp'} (${questions.length} câu) | XieHanzi`;
     root = getMainContentContainer();
 
     root.innerHTML = `
@@ -4459,6 +5305,7 @@
         .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #f5f2eb; }
       </style>
       <div class="xhz-gq-shell">
+        ${grammarPoint ? `<div style="max-width:1120px;margin:auto;padding:20px;"><a href="/ngu-phap/${/_new_|^new-/.test(grammarId) ? 'new-hsk-' : ''}${(grammarId.match(/\d+/) || ['1'])[0]}/${encodeURIComponent(grammarId)}">← Xem lý thuyết</a><h1 style="font-size:24px;font-weight:800;margin:12px 0;">Luyện tập: ${escapeHtml(grammarPoint.topic)}</h1><p>${questions.length} câu hỏi từ chủ điểm này và các ví dụ có trong dữ liệu.</p></div>` : ''}
         <div class="xhz-gq-topbar">
           <div class="xhz-gq-topbar-inner">
             <div style="display:flex;align-items:center;gap:18px;">
@@ -5382,14 +6229,41 @@
 
     function normalizePinyinCompare(str) {
       return String(str || '')
+        .replace(/u:/gi, 'ü')
         .normalize('NFD')
+        .replace(/u\u0308/gi, 'v')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '');
+        .replace(/[1-5]/g, '')
+        .replace(/[^a-z]+/g, '');
     }
 
     function normalizeHanziCompare(str) {
       return Array.from(String(str || '')).filter(c => /[\u4e00-\u9fffA-Za-z0-9]/.test(c)).join('');
+    }
+
+    function getDictationBlankTargets(seg) {
+      const chars = Array.from(seg.hanzi || '').filter(ch => /[\u4e00-\u9fff]/.test(ch));
+      const raw = Array.isArray(seg.blankCharIdx) ? seg.blankCharIdx : [seg.blankCharIdx];
+      let indices = [...new Set(raw.filter(value => typeof value === 'number' && Number.isInteger(value) && value >= 0 && value < chars.length))].sort((a, b) => a - b);
+      if (!indices.length && chars.length) indices = [0];
+      const syllables = String(seg.pinyin || '').match(/[\p{Script=Latin}\p{M}0-9:]+/gu) || [];
+      const units = String(seg.hanzi || '').match(/[\u4e00-\u9fff]|[A-Za-z0-9]+/g) || [];
+      const pinyinByChar = [];
+      if (syllables.length === units.length) {
+        units.forEach((unit, index) => { if (/[\u4e00-\u9fff]/.test(unit)) pinyinByChar.push(syllables[index]); });
+      } else if (syllables.length === chars.length) {
+        pinyinByChar.push(...syllables);
+      }
+      return indices.map(index => ({ index, hanzi: chars[index], pinyin: pinyinByChar[index] || '' }));
+    }
+
+    function isDictationBlankCorrect(target, input, usePinyin) {
+      const value = String(input || '').trim();
+      if (!value) return false;
+      if (value === target.hanzi) return true;
+      const isPinyin = /^[\p{Script=Latin}\p{M}]+[1-5]?$/u.test(value.replace(/u:/gi, 'ü'));
+      return Boolean(usePinyin && isPinyin && target.pinyin && normalizePinyinCompare(value) && normalizePinyinCompare(value) === normalizePinyinCompare(target.pinyin));
     }
 
     const hskColors = {
@@ -5872,15 +6746,19 @@
           </div>
         `;
       } else if (mode === 'blank') {
-        const blankIdx = typeof seg.blankCharIdx === 'number' ? seg.blankCharIdx : 0;
-        const targetBlankChar = hanziChars[blankIdx] || hanziChars[0] || '';
+        const targets = getDictationBlankTargets(seg);
+        const targetByIndex = new Map(targets.map(target => [target.index, target]));
+        const blankValues = curState.blankInputs && typeof curState.blankInputs === 'object' ? curState.blankInputs : {};
+        const escapeInput = value => String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const fullChars = Array.from(seg.hanzi || '');
         let hCounter = -1;
         const sentenceWithBlankHtml = fullChars.map(ch => {
           if (/[\u4e00-\u9fff]/.test(ch)) {
             hCounter++;
-            if (hCounter === blankIdx) {
-              return `<input type="text" id="xhz-dict-blank-input" value="${(curState.input || '').replace(/"/g, '&quot;')}" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'pinyin' : '?'}" style="width:${pinyinMode ? '96px' : '56px'};margin:0 6px;border:none;border-bottom:2px solid #d97706;background:#fffbeb;padding:2px 6px;text-align:center;font-size:22px;font-weight:800;color:#1c1917;outline:none;" />`;
+            if (targetByIndex.has(hCounter)) {
+              const first = hCounter === targets[0].index;
+              const value = blankValues[hCounter] !== undefined ? blankValues[hCounter] : targets.length === 1 ? curState.input || '' : '';
+              return `<input type="text" id="xhz-dict-blank-input${first ? '' : '-' + hCounter}" class="xhz-dict-blank-input" data-blank-index="${hCounter}" aria-label="Điền chữ Hán thứ ${hCounter + 1}${pinyinMode ? ' hoặc phiên âm tương ứng' : ''}" value="${escapeInput(value)}" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'pinyin' : '?'}" style="width:${pinyinMode ? '96px' : '56px'};margin:0 6px;border:none;border-bottom:2px solid #d97706;background:#fffbeb;padding:2px 6px;text-align:center;font-size:22px;font-weight:800;color:#1c1917;outline:none;" />`;
             }
           }
           return `<span>${ch}</span>`;
@@ -5888,6 +6766,7 @@
 
         stageEl.innerHTML = `
           <div style="display:flex;flex-direction:column;gap:14px;">
+            ${pinyinMode && targets.some(target => !target.pinyin) ? '<p style="margin:0;font-size:13px;color:#92400e;">Một số ô chưa có phiên âm được căn theo chữ. Vui lòng nhập chữ Hán vào những ô này.</p>' : ''}
             <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;padding:16px;font-size:24px;font-weight:700;color:#1c1917;line-height:1.8;">
               ${sentenceWithBlankHtml}
             </div>
@@ -5903,22 +6782,26 @@
           </div>
         `;
 
-        const blankInput = document.getElementById('xhz-dict-blank-input');
+        const blankInputs = [...stageEl.querySelectorAll('.xhz-dict-blank-input')];
+        const readBlankInputs = () => Object.fromEntries(blankInputs.map(input => [Number(input.getAttribute('data-blank-index')), input.value.trim()]));
         const checkBlank = () => {
-          const val = (blankInput ? blankInput.value : '').trim();
-          const ok = val.length > 0 && (val === targetBlankChar || (seg.hanzi || '').includes(val) || (pinyinMode && normalizePinyinCompare( seg.pinyin || '' ).includes(normalizePinyinCompare(val))));
-          segStates[currentIndex] = { status: ok ? 'correct' : 'wrong', input: val, checked: true };
+          const values = readBlankInputs();
+          const ok = targets.length > 0 && targets.every(target => isDictationBlankCorrect(target, values[target.index], pinyinMode));
+          segStates[currentIndex] = { status: ok ? 'correct' : 'wrong', input: targets.map(target => values[target.index] || '').join(' '), blankInputs: values, checked: true };
           persistDictState();
           renderAllDictationUI();
         };
-        if (blankInput && !isSubmitted) {
-          blankInput.focus();
-          blankInput.onkeydown = e => {
+        if (blankInputs.length && !isSubmitted) {
+          blankInputs[0].focus();
+          blankInputs.forEach(blankInput => { blankInput.oninput = () => {
+            segStates[currentIndex] = { ...curState, blankInputs: readBlankInputs() };
+            persistDictState();
+          }; blankInput.onkeydown = e => {
             if (e.key === 'Enter') {
               e.preventDefault();
               checkBlank();
             }
-          };
+          }; });
         }
         const btnCheck = document.getElementById('xhz-dict-btn-check');
         if (btnCheck) btnCheck.onclick = checkBlank;
@@ -6054,766 +6937,389 @@
   // 6.8. Trang Làm Đề Thi HSK / YCT (/kiem-tra-hsk/... và /de-kiem-tra/lam-bai/:id)
   // --------------------------------------------------------------------------
   async function renderHskTestPaperPage(pathname) {
-    let root = getMainContentContainer();
-    root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải đề thi...</div>`;
+    const root = getMainContentContainer();
+    const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    root.innerHTML = '<p style="padding:32px;text-align:center;">Đang tải đề thi...</p>';
     const parts = pathname.split('/').filter(Boolean);
-    let lastPart = decodeURIComponent(parts[parts.length - 1] || '');
-    if (lastPart === 'undefined' || !lastPart) {
-      lastPart = 'hsk30-1';
-      try {
-        origReplaceState.call(history, null, '', '/de-kiem-tra/lam-bai/hsk30-1');
-      } catch (_) {}
-    }
-
-    let paper = await loadTestPaperById(lastPart);
-    root = getMainContentContainer();
+    const paperId = decodeURIComponent(parts[parts.length - 1] || '');
+    const paper = await loadTestPaperById(paperId);
     if (!paper) {
-      const levelNum = (lastPart.match(/\d+/) || ['1'])[0];
-      const papersHsk = await loadLocalJson('/data/tests/papers-hsk.json');
-      const lvlEntry = papersHsk && Array.isArray(papersHsk.levels) ? papersHsk.levels.find(l => String(l.level) === String(levelNum)) : null;
-      if (lvlEntry && Array.isArray(lvlEntry.items) && lvlEntry.items.length > 0) {
-        document.title = `Đề thi HSK Cấp ${levelNum} | XieHanzi`;
-        root.innerHTML = `
-          <div style="margin-bottom:16px;">
-            <a href="/kiem-tra-hsk" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại Phòng thi HSK</a>
-          </div>
-          <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-            <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:0 0 16px 0;">📋 Danh sách Đề thi HSK Cấp ${levelNum}</h1>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
-              ${lvlEntry.items.map(it => `
-                <a href="/kiem-tra-hsk/hsk${levelNum}/test/${encodeURIComponent(it.testId || it.id)}" style="display:block;padding:18px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
-                  <div style="font-size:18px;font-weight:700;color:#1c1917;">${it.title || it.name || it.testId}</div>
-                  <div style="font-size:14px;color:#57534e;margin-top:6px;">Số câu: ${it.questionCount || 40} câu • Thời gian: ${it.durationMinutes || 40} phút</div>
-                  <div style="margin-top:10px;display:inline-block;padding:6px 14px;border-radius:999px;background:#ea580c;color:#fff;font-size:13px;font-weight:700;">Vào làm bài →</div>
-                </a>
-              `).join('')}
-            </div>
-          </div>
-        `;
-        return;
+      const level = (paperId.match(/^hsk([1-6])$/) || [])[1];
+      const index = level && await loadLocalJson('/data/tests/papers-hsk.json');
+      const entry = index && Array.isArray(index.levels) && index.levels.find(item => String(item.level) === level);
+      if (entry && entry.items && entry.items.length) {
+        root.innerHTML = `<h1 style="font-size:28px;font-weight:800;">Đề thi HSK cấp ${level}</h1><p><a href="/kiem-tra-hsk">← Phòng thi HSK</a></p><div style="display:grid;gap:12px;margin-top:20px;">${entry.items.map(item => `<a href="/kiem-tra-hsk/hsk${level}/test/${encodeURIComponent(item.testId || item.id)}" style="padding:18px;border:1px solid #e7e5e4;border-radius:14px;">${escape(item.title || item.name || item.testId)}</a>`).join('')}</div>`;
+      } else root.innerHTML = '<h1>Không tìm thấy đề thi</h1><p>Đề thi này chưa có dữ liệu. <a href="/kiem-tra-hsk">Quay lại phòng thi HSK</a></p>';
+      return;
+    }
+    const questions = Array.isArray(paper.questions) && paper.questions.length ? paper.questions : (paper.sections || []).flatMap(section => section.questions || []);
+    const title = paper.title || paper.name || paper.testId || paperId;
+    const durationMinutes = Math.max(1, Number(paper.durationMinutes) || 40);
+    const questionKey = (question, index) => String(question.id || question.questionId || question.number || index + 1);
+    const answerKey = question => {
+      if (question.type === 'writing_essay' || question.kind === 'writing_essay') return null;
+      for (const field of ['correctAnswer', 'answer', 'correctOption']) {
+        if (question[field] !== undefined && question[field] !== null && String(question[field]).trim() !== '') return String(question[field]).trim();
       }
-      const rawFallback = await loadLocalJson('/data/tests/papers/hsk30-1.json');
-      paper = normalizeTestPaper(rawFallback, 'hsk30-1');
+      return null;
+    };
+    const gradableCount = questions.filter(question => answerKey(question) !== null).length;
+    const normalize = value => String(value || '').trim().toLocaleLowerCase().replace(/[\s\p{P}]+/gu, '');
+    const identityKey = typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state:guest';
+    const storageKey = `${identityKey}:hsk-paper:${paperId}`;
+    let attempt = null;
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (saved && saved.paperId === paperId && saved.answers && typeof saved.answers === 'object') attempt = saved;
+    } catch (_) {}
+    let selectedMode = attempt && attempt.mode === 'practice' ? 'practice' : 'exam';
+    let timer;
+    const audioPlayers = [];
+    let storageFailed = false;
+    const stopPlayers = () => { audioPlayers.forEach(player => { try { player.pause(); } catch (_) {} }); audioPlayers.length = 0; };
+    const stopTimer = () => { if (timer) clearInterval(timer); timer = null; };
+    const saveAttempt = () => {
+      try { localStorage.setItem(storageKey, JSON.stringify(attempt)); storageFailed = false; }
+      catch (_) { storageFailed = true; }
+      const status = root.querySelector('#xhz-exam-save-status');
+      if (status) status.textContent = storageFailed ? 'Chưa lưu được bài trên thiết bị. Hãy giữ trang này mở.' : 'Đã lưu bài làm trên thiết bị này.';
+      return !storageFailed;
+    };
+    const stylesheet = `<style>
+      .xhz-exam{--exam-bg:#fff;--exam-alt:#fafaf9;--exam-text:#292524;--exam-muted:#78716c;--exam-border:#e7e5e4;color:var(--exam-text);max-width:1000px;margin:0 auto}.dark .xhz-exam{--exam-bg:#211d18;--exam-alt:#29241e;--exam-text:#f5f5f4;--exam-muted:#a8a29e;--exam-border:#57534e}
+      .xhz-exam h1{font-size:28px;font-weight:800;margin:14px 0}.xhz-exam h2{font-weight:800;font-size:19px;margin:0 0 12px}.xhz-exam p{margin:10px 0}.xhz-exam .exam-panel{padding:22px;border:1px solid var(--exam-border);border-radius:18px;background:var(--exam-bg);margin:18px 0}.xhz-exam .exam-note{padding:15px 18px;border:1px solid #fbbf24;border-radius:12px;background:#fffbeb;color:#78350f;margin:18px 0;line-height:1.6}.xhz-exam .exam-muted{color:var(--exam-muted);font-size:14px}.xhz-exam .exam-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}.xhz-exam button{padding:11px 16px;border:1px solid var(--exam-border);border-radius:11px;background:var(--exam-bg);color:var(--exam-text);font-weight:700;cursor:pointer}.xhz-exam button:disabled{opacity:.65;cursor:default}.xhz-exam .exam-primary{background:#ea580c;border-color:#ea580c;color:#fff}.xhz-exam .exam-option{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--exam-border);border-radius:12px;background:var(--exam-alt);padding:13px;cursor:pointer}.xhz-exam .exam-option:has(input:checked){border-color:#ea580c;box-shadow:inset 0 0 0 1px #ea580c}.xhz-exam input[type=radio]{accent-color:#ea580c;margin-top:6px}.xhz-exam .exam-options,.xhz-exam .exam-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}.xhz-exam img{max-height:160px;max-width:100%;object-fit:contain;display:block;background:#fff;border-radius:8px}.xhz-exam textarea,.xhz-exam input[type=text]{width:100%;padding:12px;border:1px solid var(--exam-border);border-radius:10px;background:var(--exam-bg);color:var(--exam-text);font-size:17px}.xhz-exam .exam-feedback{font-size:14px;margin-top:12px}.xhz-exam :focus-visible{outline:3px solid #ea580c;outline-offset:3px}@media(max-width:480px){.xhz-exam .exam-panel{padding:16px}.xhz-exam h1{font-size:24px}}
+    </style>`;
+    const warning = gradableCount === 0
+      ? 'Chưa có đáp án chuẩn cho đề này. Bạn có thể làm và lưu lựa chọn; bài chưa được chấm điểm.'
+      : gradableCount < questions.length ? `Đề có đáp án cho ${gradableCount}/${questions.length} câu. Những câu còn thiếu đáp án chưa được chấm điểm.` : '';
+    const shell = body => `${stylesheet}<section class="xhz-exam"><p><a href="/kiem-tra-hsk">← Quay lại danh sách đề thi</a></p><h1>${escape(title)}</h1>${warning ? `<div class="exam-note" role="status">${warning}</div>` : ''}${body}</section>`;
+
+    function renderLobby() {
+      stopTimer(); stopPlayers();
+      const inProgress = attempt && !attempt.submittedAt;
+      root.innerHTML = shell(`<div class="exam-panel"><h2>Chọn chế độ</h2><p>${questions.length} câu · khoảng ${durationMinutes} phút</p>
+        <div class="exam-options"><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="exam" ${selectedMode === 'exam' ? 'checked' : ''}><span><strong>Thi thử</strong><p class="exam-muted">${durationMinutes} phút, không tạm dừng; mỗi đoạn nghe phát một lần.</p></span></label><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="practice" ${selectedMode === 'practice' ? 'checked' : ''}><span><strong>Luyện tập</strong><p class="exam-muted">Không giới hạn thời gian; được nghe lại các đoạn âm thanh.</p></span></label></div>
+        <p>Hãy đeo tai nghe. Bài làm tự lưu trên thiết bị này.</p>
+        ${attempt ? `<p>${inProgress ? 'Bạn có một bài đang làm.' : 'Bạn đã lưu bài làm này.'} Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu.</p><button type="button" id="xhz-exam-resume" class="exam-primary">${inProgress ? 'Tiếp tục bài đang làm' : 'Xem bài đã lưu'}</button>` : ''}
+        <button type="button" id="xhz-exam-start" ${attempt ? '' : 'class="exam-primary"'}>${attempt ? 'Bắt đầu bài mới' : 'Bắt đầu'}</button><p class="exam-muted" id="xhz-exam-save-status"></p></div>`);
+      root.querySelectorAll('input[name="xhz-exam-mode"]').forEach(input => { input.onchange = () => { selectedMode = input.value; }; });
+      const resume = root.querySelector('#xhz-exam-resume');
+      if (resume) resume.onclick = renderRun;
+      root.querySelector('#xhz-exam-start').onclick = () => {
+        // Preserve the previous attempt before starting a fresh one.
+        if (attempt) { try { localStorage.setItem(`${storageKey}:previous`, JSON.stringify(attempt)); } catch (_) {} }
+        const now = Date.now();
+        attempt = { paperId, mode: selectedMode, startedAt: new Date(now).toISOString(), deadlineAt: selectedMode === 'exam' ? now + durationMinutes * 60000 : null, answers: {}, heard: {}, submittedAt: null };
+        saveAttempt(); renderRun();
+      };
     }
 
-    const questions =
-      (paper && Array.isArray(paper.questions) && paper.questions.length > 0 && paper.questions) ||
-      (paper && Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : []);
+    function updateQuestionFeedback(question, index, feedback) {
+      const selected = attempt.answers[questionKey(question, index)];
+      const expected = answerKey(question);
+      if (selected === undefined) { feedback.textContent = ''; return; }
+      if (expected === null) { feedback.textContent = 'Đã lưu lựa chọn. Câu này chưa có đáp án chuẩn để chấm.'; return; }
+      if (attempt.mode === 'exam' && !attempt.submittedAt) { feedback.textContent = 'Đã lưu lựa chọn.'; return; }
+      const isCorrect = normalize(selected) === normalize(expected);
+      feedback.textContent = `${isCorrect ? '✓ Chính xác.' : `Đáp án chuẩn: ${expected}.`} ${question.explanationVi || question.explanation || ''}`;
+    }
 
-    const title = (paper && (paper.title || paper.name || paper.testId)) || `Đề thi ${lastPart.toUpperCase()}`;
-    const fullAudio = paper && (paper.audioUrl || paper.audio) ? rewriteMediaUrl(paper.audioUrl || paper.audio) : '';
-    document.title = `${title} | Phòng thi XieHanzi`;
-
-    root.innerHTML = `
-      <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <a href="/kiem-tra-hsk" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại Phòng thi HSK</a>
-        <div id="xhz-exam-score-badge" style="padding:8px 18px;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:800;border:1px solid #fed7aa;">
-          Điểm số: 0 / ${questions.length}
-        </div>
-      </div>
-      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-bottom:1px solid #e7e5e4;padding-bottom:16px;">
-          <div>
-            <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:0;">🏆 ${title} (${questions.length} câu)</h1>
-            <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chọn đáp án trực tiếp trên từng câu hỏi để chấm điểm và xem giải thích chi tiết.</p>
-          </div>
-          ${fullAudio ? `<audio controls src="${fullAudio}" style="height:40px;"></audio>` : ''}
-        </div>
-        <div id="xhz-questions-list" style="display:flex;flex-direction:column;gap:20px;"></div>
-      </div>
-    `;
-
-    const listEl = document.getElementById('xhz-questions-list');
-    const scoreBadge = document.getElementById('xhz-exam-score-badge');
-    const answeredMap = {};
-
-    questions.forEach((q, idx) => {
-      const qNum = q.number || q.questionNumber || idx + 1;
-      const qType = q.type || q.kind || 'multiple_choice';
-      const prompt = q.prompt || q.question || q.stem || q.text || q.transcript || `Câu hỏi số ${qNum}`;
-      const pinyin = q.pinyin || q.transcriptPinyin || '';
-      const qAudio = (q.audio || q.audioUrl) ? rewriteMediaUrl(q.audio || q.audioUrl) : '';
-      const qImgs = Array.isArray(q.images) ? q.images.map(u => rewriteMediaUrl(u)) : [];
-      const singleQuestionImg =
-        q.imageUrl || q.image
-          ? rewriteMediaUrl(q.imageUrl || q.image)
-          : ((qType === 'component_match' || qType === 'writing_sentence') && qImgs.length === 1 ? qImgs[0] : '');
-
-      let rawOpts = Array.isArray(q.options) ? q.options : (Array.isArray(q.choices) ? q.choices : []);
-      const isWrittenQuestion = qType === 'character_fill' || qType === 'writing_sentence' || qType === 'writing_essay';
-
-      if (rawOpts.length === 0 && !isWrittenQuestion) {
-        if (qType === 'true_false') {
-          rawOpts = [
-            { key: 'true', text: '✓ Đúng (对)' },
-            { key: 'false', text: '✗ Sai (错)' }
-          ];
-        } else if (qImgs.length > 0) {
-          rawOpts = qImgs.map((imgUrl, i) => ({
-            key: String.fromCharCode(65 + i),
-            text: `Hình ${String.fromCharCode(65 + i)}`,
-            image: imgUrl
-          }));
-        } else {
-          rawOpts = ['A', 'B', 'C'].map(k => ({ key: k, text: `Phương án ${k}` }));
-        }
-      }
-      const rightAns = String(q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : (q.correctOption || 'A'))).trim();
-
-      const card = document.createElement('div');
-      card.style.cssText = 'padding:20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;';
-
-      // Shared image bank for image_match or multiple images when options don't carry individual images
-      const showSharedImageGrid = qType === 'image_match' && qImgs.length > 0;
-      const sharedImagesHtml = showSharedImageGrid
-        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
-            ${qImgs.map((u, i) => `
-              <div style="background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:10px;text-align:center;">
-                <div style="font-weight:800;color:#ea580c;font-size:14px;margin-bottom:6px;">Hình ${String.fromCharCode(65 + i)}</div>
-                <img src="${u}" alt="Hình ${String.fromCharCode(65 + i)}" style="max-height:130px;max-width:100%;border-radius:8px;object-fit:contain;margin:0 auto;display:block;" />
-              </div>
-            `).join('')}
-          </div>`
-        : '';
-
-      const passageHtml = q.passage
-        ? `<div style="margin-bottom:12px;padding:14px 16px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:16px;line-height:1.7;color:#1c1917;">
-            ${q.passage}
-            ${q.passagePinyin ? `<div style="font-size:13px;color:#ea580c;margin-top:6px;">${q.passagePinyin}</div>` : ''}
-          </div>`
-        : '';
-
-      card.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:16px;font-weight:800;color:#1c1917;">
-            <span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#ffedd5;color:#9a3412;margin-right:8px;font-size:13px;">Câu ${qNum}</span>
-            ${prompt}
-          </div>
-          ${q.sectionTitle ? `<span style="font-size:12px;padding:3px 10px;border-radius:999px;background:#e7e5e4;color:#44403c;font-weight:600;">${q.sectionTitle}</span>` : ''}
-        </div>
-        ${pinyin ? `<div style="font-size:14px;color:#ea580c;font-weight:600;margin-bottom:8px;">${pinyin}</div>` : ''}
-        ${qAudio ? `<div style="margin-bottom:12px;"><audio controls src="${qAudio}" style="height:38px;max-width:100%;"></audio></div>` : ''}
-        ${singleQuestionImg ? `<div style="margin-bottom:12px;"><img src="${singleQuestionImg}" alt="Câu ${qNum}" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid #e7e5e4;background:#fff;padding:6px;object-fit:contain;" /></div>` : ''}
-        ${passageHtml}
-        ${sharedImagesHtml}
-        <div class="xhz-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
-        <div class="xhz-exp" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;font-size:14px;color:#78350f;"></div>
-      `;
-
-      const optsWrap = card.querySelector('.xhz-opts');
-      const expEl = card.querySelector('.xhz-exp');
-
-      if (isWrittenQuestion) {
-        optsWrap.style.display = 'block';
-        optsWrap.innerHTML = `
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">
-            ${qType === 'writing_essay'
-              ? `<textarea class="xhz-write-input" rows="4" placeholder="Nhập bài viết tiếng Trung của bạn..." style="flex:1;min-width:260px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;"></textarea>`
-              : `<input type="text" class="xhz-write-input" placeholder="Nhập đáp án chữ Hán..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;" />`
-            }
-            <button class="xhz-write-check" style="padding:10px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">Kiểm tra đáp án</button>
-          </div>
-        `;
-        const inputEl = optsWrap.querySelector('.xhz-write-input');
-        const checkBtn = optsWrap.querySelector('.xhz-write-check');
-        checkBtn.onclick = () => {
-          const userVal = (inputEl.value || '').trim();
-          const isRight = qType === 'writing_essay' ? userVal.length > 0 : userVal === rightAns;
-          answeredMap[qNum] = isRight ? 1 : 0;
-          const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
-          if (scoreBadge) scoreBadge.textContent = `Điểm số: ${totalScore} / ${questions.length}`;
-          if (expEl) {
-            expEl.style.display = 'block';
-            expEl.innerHTML = `${rightAns && rightAns !== 'null' ? `<strong>Đáp án chuẩn: ${rightAns}</strong><br/>` : ''}${q.explanationVi || q.explanation || ''}`;
-          }
+    function renderRun() {
+      stopTimer(); stopPlayers();
+      if (!attempt) { renderLobby(); return; }
+      if (!attempt.heard || typeof attempt.heard !== 'object') attempt.heard = {};
+      const isExam = attempt.mode === 'exam';
+      const submitted = Boolean(attempt.submittedAt);
+      const correctCount = questions.reduce((sum, question, index) => { const expected = answerKey(question); return sum + (expected !== null && attempt.answers[questionKey(question, index)] !== undefined && normalize(attempt.answers[questionKey(question, index)]) === normalize(expected) ? 1 : 0); }, 0);
+      root.innerHTML = shell(`<div id="xhz-exam-run"><div class="exam-toolbar"><strong>${submitted ? 'Bài làm đã lưu' : isExam ? 'Thi thử' : 'Luyện tập'}</strong><strong id="xhz-exam-timer" aria-live="off">${isExam && !submitted ? 'Đang tính thời gian...' : 'Không giới hạn thời gian'}</strong><button type="button" id="xhz-exam-back">Về màn chọn chế độ</button></div>
+        <p id="xhz-exam-save-status" class="exam-muted" role="status">${storageFailed ? 'Chưa lưu được bài trên thiết bị. Hãy giữ trang này mở.' : 'Đã lưu bài làm trên thiết bị này.'}</p>
+        <p id="xhz-exam-progress">Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu${submitted && gradableCount ? ` · Đúng ${correctCount}/${gradableCount} câu có đáp án` : ''}${submitted && !gradableCount ? ' · Chưa chấm điểm' : ''}</p>
+        ${paper.audioUrl || paper.audio ? '<div class="exam-panel" id="xhz-exam-full-audio"><h2>Âm thanh toàn đề</h2></div>' : ''}<div id="xhz-exam-questions"></div><div class="exam-toolbar"><button type="button" id="xhz-exam-submit" class="exam-primary" ${submitted ? 'disabled' : ''}>${submitted ? 'Đã lưu bài làm' : 'Nộp bài và lưu lựa chọn'}</button></div></div>`);
+      const runRoot = root.querySelector('#xhz-exam-run');
+      const updateProgress = () => { const progress = root.querySelector('#xhz-exam-progress'); if (progress) progress.textContent = `Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu`; };
+      const mountAudio = (container, rawUrl, key) => {
+        if (!rawUrl) return;
+        const src = rewriteMediaUrl(rawUrl);
+        if (!isExam) { const audio = document.createElement('audio'); audio.controls = true; audio.preload = 'none'; audio.src = src; audio.style.cssText = 'width:100%;max-width:420px;margin:10px 0;'; container.appendChild(audio); audioPlayers.push(audio); return; }
+        const button = document.createElement('button');
+        button.type = 'button'; button.textContent = attempt.heard[key] ? 'Đã phát đoạn nghe này' : 'Phát đoạn nghe (1 lần)';
+        button.disabled = Boolean(attempt.heard[key]) || submitted;
+        button.onclick = () => {
+          const audio = new window.Audio(src); audioPlayers.push(audio); button.disabled = true;
+          const failed = () => { delete attempt.heard[key]; saveAttempt(); button.disabled = false; button.textContent = 'Chưa tải được âm thanh — thử lại'; };
+          audio.onerror = failed;
+          audio.onended = () => { button.textContent = 'Đã phát đoạn nghe này'; };
+          audio.play().then(() => { attempt.heard[key] = true; saveAttempt(); button.textContent = 'Đang phát đoạn nghe'; }).catch(failed);
         };
-      } else {
-        rawOpts.forEach((opt, oIdx) => {
-          const key = typeof opt === 'object' ? (opt.key || opt.label || opt.id || String.fromCharCode(65 + oIdx)) : String.fromCharCode(65 + oIdx);
-          const text = typeof opt === 'object' ? (opt.text || opt.hanzi || opt.content || opt.value || key) : String(opt);
-          const optPinyin = typeof opt === 'object' ? (opt.pinyin || '') : '';
-          const optImg = (typeof opt === 'object' && (opt.image || opt.imageUrl))
-            ? rewriteMediaUrl(opt.image || opt.imageUrl)
-            : ((qType === 'image_choice' || qType === 'image_match') && qImgs[oIdx] ? qImgs[oIdx] : '');
-
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:12px 14px;border-radius:12px;border:2px solid #d6d3d1;background:#ffffff;color:#1c1917;text-align:left;cursor:pointer;font-size:15px;font-weight:700;transition:all 0.15s;display:flex;flex-direction:column;gap:8px;';
-          btn.innerHTML = `
-            <div>
-              <span style="color:#ea580c;font-weight:800;margin-right:6px;">${key.toUpperCase()}.</span>
-              <span style="color:#1c1917;">${text !== key ? text : `Hình ${key.toUpperCase()}`}</span>
-              ${optPinyin ? `<div style="font-size:12px;color:#78716c;font-weight:500;margin-top:2px;">${optPinyin}</div>` : ''}
-            </div>
-            ${optImg ? `<img src="${optImg}" alt="Phương án ${key}" style="max-height:140px;width:100%;object-fit:contain;border-radius:8px;background:#fafaf9;padding:4px;" />` : ''}
-          `;
-          btn.onclick = () => {
-            const isRight = String(key).toUpperCase() === rightAns.toUpperCase() || String(text).toUpperCase() === rightAns.toUpperCase();
-            answeredMap[qNum] = isRight ? 1 : 0;
-            const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
-            if (scoreBadge) scoreBadge.textContent = `Điểm số: ${totalScore} / ${questions.length}`;
-
-            Array.from(optsWrap.children).forEach(b => {
-              b.style.background = '#ffffff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            if (isRight) {
-              btn.style.background = '#dcfce7';
-              btn.style.borderColor = '#16a34a';
-              btn.style.color = '#14532d';
-            } else {
-              btn.style.background = '#fee2e2';
-              btn.style.borderColor = '#dc2626';
-              btn.style.color = '#7f1d1d';
-            }
-            if (expEl) {
-              expEl.style.display = 'block';
-              expEl.innerHTML = `<strong>Đáp án đúng: ${rightAns.toUpperCase()}</strong> ${q.explanationVi || q.explanation || (q.transcript ? `<br/>Lời thoại (Transcript): <strong>${q.transcript}</strong> (${q.transcriptPinyin || ''}) — ${q.translationVi || ''}` : '')}`;
-            }
-          };
-          optsWrap.appendChild(btn);
-        });
-      }
-
-      listEl.appendChild(card);
-    });
+        container.appendChild(button);
+      };
+      const fullAudio = root.querySelector('#xhz-exam-full-audio');
+      if (fullAudio) mountAudio(fullAudio, paper.audioUrl || paper.audio, 'full-paper');
+      const list = root.querySelector('#xhz-exam-questions');
+      questions.forEach((question, index) => {
+        const key = questionKey(question, index);
+        const number = question.number || question.questionNumber || index + 1;
+        const type = question.type || question.kind || 'multiple_choice';
+        const written = ['character_fill', 'writing_sentence', 'writing_essay'].includes(type);
+        const images = (Array.isArray(question.images) ? question.images : []).map(rewriteMediaUrl);
+        const card = document.createElement('section'); card.className = 'exam-panel';
+        card.innerHTML = `<h2>Câu ${number}${question.sectionTitle ? ` · ${escape(question.sectionTitle)}` : ''}</h2>${question.instruction ? `<p class="exam-muted">${escape(question.instruction)}</p>` : ''}<p style="font-size:20px;white-space:pre-line;">${escape(question.prompt || question.question || question.stem || question.text || '')}</p>${question.pinyin || question.transcriptPinyin ? `<p class="exam-muted">${escape(question.pinyin || question.transcriptPinyin)}</p>` : ''}${question.passage ? `<p style="white-space:pre-line;">${escape(question.passage)}</p>` : ''}<div class="exam-audio"></div>${question.imageUrl || question.image ? `<img src="${escape(rewriteMediaUrl(question.imageUrl || question.image))}" alt="Minh họa câu ${number}" loading="lazy">` : ''}${type === 'image_match' && images.length ? `<div class="exam-images">${images.map((src, idx) => `<div><strong>Hình ${String.fromCharCode(65 + idx)}</strong><img src="${escape(src)}" alt="Hình ${String.fromCharCode(65 + idx)}" loading="lazy"></div>`).join('')}</div>` : ''}<div class="exam-answers"></div><p class="exam-feedback" role="status"></p>`;
+        list.appendChild(card);
+        mountAudio(card.querySelector('.exam-audio'), question.audio || question.audioUrl, key);
+        const answerRoot = card.querySelector('.exam-answers');
+        const feedback = card.querySelector('.exam-feedback');
+        const saveAnswer = value => { if (value === '') delete attempt.answers[key]; else attempt.answers[key] = value; saveAttempt(); updateProgress(); updateQuestionFeedback(question, index, feedback); };
+        if (written) {
+          const input = document.createElement(type === 'writing_essay' ? 'textarea' : 'input');
+          if (input.tagName === 'INPUT') input.type = 'text'; else input.rows = 5;
+          input.setAttribute('aria-label', `Đáp án câu ${number}`); input.placeholder = type === 'writing_essay' ? 'Nhập bài viết tiếng Trung...' : 'Nhập đáp án chữ Hán...'; input.value = attempt.answers[key] || ''; input.disabled = submitted;
+          input.oninput = () => saveAnswer(input.value);
+          answerRoot.appendChild(input);
+        } else {
+          let options = Array.isArray(question.options) ? question.options : (Array.isArray(question.choices) ? question.choices : []);
+          if (!options.length && type === 'true_false') options = [{ key: 'true', text: 'Đúng (对)' }, { key: 'false', text: 'Sai (错)' }];
+          if (!options.length && images.length) options = images.map((_, idx) => ({ key: String.fromCharCode(65 + idx), text: `Hình ${String.fromCharCode(65 + idx)}` }));
+          if (!options.length) { answerRoot.innerHTML = '<p class="exam-muted">Câu này chưa có lựa chọn trả lời trong dữ liệu.</p>'; }
+          answerRoot.className += ' exam-options';
+          options.forEach((option, optionIndex) => {
+            const optionKey = typeof option === 'object' ? String(option.key || option.label || option.id || String.fromCharCode(65 + optionIndex)) : String.fromCharCode(65 + optionIndex);
+            const text = typeof option === 'object' ? option.text || option.hanzi || option.content || option.value || `Phương án ${optionKey}` : String(option);
+            const image = typeof option === 'object' && (option.image || option.imageUrl) ? rewriteMediaUrl(option.image || option.imageUrl) : type === 'image_choice' ? images[optionIndex] : '';
+            const label = document.createElement('label'); label.className = 'exam-option';
+            const input = document.createElement('input'); input.type = 'radio'; input.name = `xhz-exam-answer-${key}`; input.value = optionKey; input.checked = attempt.answers[key] === optionKey; input.disabled = submitted; input.setAttribute('aria-label', `Câu ${number}, ${optionKey}: ${text}`);
+            const body = document.createElement('span'); body.innerHTML = `<strong>${escape(optionKey)}.</strong> ${escape(text)}${typeof option === 'object' && option.pinyin ? `<small class="exam-muted"> ${escape(option.pinyin)}</small>` : ''}${image ? `<img src="${escape(image)}" alt="Câu ${number}, phương án ${escape(optionKey)}" loading="lazy">` : ''}`;
+            input.onchange = () => { if (input.checked) saveAnswer(input.value); };
+            label.append(input, body); answerRoot.appendChild(label);
+          });
+        }
+        updateQuestionFeedback(question, index, feedback);
+      });
+      root.querySelector('#xhz-exam-back').onclick = renderLobby;
+      const finish = expired => { if (attempt.submittedAt) return; attempt.submittedAt = new Date().toISOString(); attempt.expired = Boolean(expired); saveAttempt(); renderRun(); };
+      root.querySelector('#xhz-exam-submit').onclick = () => finish(false);
+      if (isExam && !submitted) {
+        const updateTime = () => {
+          if (!runRoot.isConnected) { stopTimer(); stopPlayers(); return; }
+          const seconds = Math.max(0, Math.ceil((Number(attempt.deadlineAt) - Date.now()) / 1000));
+          const label = root.querySelector('#xhz-exam-timer');
+          if (label) label.textContent = `Còn ${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+          if (!seconds) finish(true);
+        };
+        updateTime();
+        if (!attempt.submittedAt) timer = setInterval(updateTime, 1000);
+      } else if (submitted) root.querySelector('#xhz-exam-timer').textContent = attempt.expired ? 'Hết giờ — bài làm đã kết thúc' : 'Đã kết thúc bài làm';
+    }
+    document.title = `${title} | Thi thử HSK`;
+    renderLobby();
   }
 
-  // --------------------------------------------------------------------------
+
   // 6.8b. Trang Phiên Ôn Tập SRS & Sửa Lỗi (/hoc/bai/on-tap-den-han, on-tap-loi-sai, on-tap-the-cau)
   // --------------------------------------------------------------------------
   async function renderReviewSessionPage(slug) {
     const root = getMainContentContainer();
-    let savedProf = {};
-    try {
-      savedProf = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}') || {};
-    } catch (_) {}
-    const hidePinyin = !!savedProf.hidePinyinInReview;
-    const reviewFormat = savedProf.reviewFormat || 'mixed';
-
-    const lesson1 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json');
-    const lesson2 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-2-my-name-is-li-wen.json');
-    const rawWords = [
-      ...((lesson1 && lesson1.lesson && lesson1.lesson.words) || []),
-      ...((lesson2 && lesson2.lesson && lesson2.lesson.words) || [])
-    ].slice(0, 12);
-
-    const dueItems = rawWords.length > 0 ? rawWords.map((w, idx) => {
-      const hz = (w.hanzi || w.word || '你好').replace(/\{|\}/g, '');
-      return {
-        id: `due-${idx + 1}`,
-        hanzi: hz,
-        pinyin: w.wordPinyin || w.pinyin || 'nǐ hǎo',
-        hanviet: w.hanviet || '',
-        meaningVi: w.translationVi || w.wordMeaningVi || w.meaningVi || 'Xin chào',
-        audioUrl: (Array.isArray(w.audios) && w.audios[0]) || `/word_audios/${hz}.mp3`,
-        exampleZh: (w.examples && w.examples[0] && w.examples[0].hanzi) || `${hz}！`,
-        examplePy: (w.examples && w.examples[0] && w.examples[0].pinyin) || '',
-        exampleVi: (w.examples && w.examples[0] && w.examples[0].vietnamese) || ''
-      };
-    }) : [
-      { id: 'due-1', hanzi: '你好', pinyin: 'nǐ hǎo', hanviet: 'NHĨ HẢO', meaningVi: 'Xin chào', audioUrl: '/word_audios/你好.mp3', exampleZh: '老师，你好！', examplePy: 'Lǎoshī, nǐ hǎo!', exampleVi: 'Chào thầy/cô ạ!' },
-      { id: 'due-2', hanzi: '老师', pinyin: 'lǎoshī', hanviet: 'LÃO SƯ', meaningVi: 'Giáo viên, thầy cô', audioUrl: '/word_audios/老师.mp3', exampleZh: '她是我们的汉语老师。', examplePy: 'Tā shì wǒmen de Hànyǔ lǎoshī.', exampleVi: 'Cô ấy là giáo viên tiếng Trung của chúng tôi.' },
-      { id: 'due-3', hanzi: '谢谢', pinyin: 'xièxie', hanviet: 'TẠ TẠ', meaningVi: 'Cảm ơn', audioUrl: '/word_audios/谢谢.mp3', exampleZh: '谢谢你的帮助！', examplePy: 'Xièxie nǐ de bāngzhù!', exampleVi: 'Cảm ơn sự giúp đỡ của bạn!' },
-      { id: 'due-4', hanzi: '不客气', pinyin: 'bú kèqi', hanviet: 'BẤT KHÁCH KHÍ', meaningVi: 'Đừng khách sáo, không có gì', audioUrl: '/word_audios/不客气.mp3', exampleZh: 'A: 谢谢！ B: 不客气。', examplePy: 'Xièxie! Bú kèqi.', exampleVi: 'Cảm ơn! Không có gì.' },
-      { id: 'due-5', hanzi: '对不起', pinyin: 'duìbuqǐ', hanviet: 'ĐỐI BẤT KHỞI', meaningVi: 'Xin lỗi', audioUrl: '/word_audios/对不起.mp3', exampleZh: '对不起，我来晚了。', examplePy: 'Duìbuqǐ, wǒ lái wǎn le.', exampleVi: 'Xin lỗi, tôi đến muộn.' },
-      { id: 'due-6', hanzi: '没关系', pinyin: 'méi guānxi', hanviet: 'MỘT QUAN HỆ', meaningVi: 'Không sao đâu', audioUrl: '/word_audios/没关系.mp3', exampleZh: 'A: 对不起！ B: 没关系。', examplePy: 'Duìbuqǐ! Méi guānxi.', exampleVi: 'Xin lỗi! Không sao đâu.' },
-      { id: 'due-7', hanzi: '再见', pinyin: 'zàijiàn', hanviet: 'TÁI KIẾN', meaningVi: 'Tạm biệt', audioUrl: '/word_audios/再见.mp3', exampleZh: '明天见，再见！', examplePy: 'Míngtiān jiàn, zàijiàn!', exampleVi: 'Mai gặp lại, tạm biệt!' },
-      { id: 'due-8', hanzi: '请', pinyin: 'qǐng', hanviet: 'THỈNH', meaningVi: 'Mời, xin vui lòng', audioUrl: '/word_audios/请.mp3', exampleZh: '请坐，请喝茶。', examplePy: 'Qǐng zuò, qǐng hē chá.', exampleVi: 'Mời ngồi, mời uống trà.' }
-    ];
-
-    const mistakeItems = [
-      {
-        id: 'm-1',
-        hanzi: '谢谢',
-        pinyin: 'xièxie',
-        meaningVi: 'Cảm ơn',
-        confusedWith: '对不起 (duìbuqǐ — Xin lỗi)',
-        reasonVi: 'Bạn từng nhầm nghĩa giữa "谢谢" (Cảm ơn) và "对不起" (Xin lỗi) trong hội thoại Bài 1.',
-        tipVi: 'Ghi nhớ: 谢谢 (Tạ tạ) = Cảm ơn khi nhận sự giúp đỡ; 对不起 (Đối bất khởi) = Xin lỗi khi làm phiền.',
-        question: 'Khi bạn được người khác giúp đỡ, bạn nói câu nào?',
-        options: ['谢谢 (xièxie)', '对不起 (duìbuqǐ)', '没关系 (méi guānxi)', '再见 (zàijiàn)'],
-        correctIndex: 0
-      },
-      {
-        id: 'm-2',
-        hanzi: '不客气',
-        pinyin: 'bú kèqi',
-        meaningVi: 'Đừng khách sáo (đáp lại lời cảm ơn)',
-        confusedWith: '没关系 (méi guānxi — Không sao đâu)',
-        reasonVi: 'Bạn từng dùng "不客气" để đáp lại câu "对不起" (Xin lỗi).',
-        tipVi: 'Cặp chuẩn: 谢谢 ↔ 不客气 (Cảm ơn ↔ Đừng khách sáo) | 对不起 ↔ 没关系 (Xin lỗi ↔ Không sao đâu).',
-        question: 'Người đối diện nói “谢谢你！” (Cảm ơn bạn!), bạn đáp lại thế nào?',
-        options: ['不客气 (bú kèqi)', '没关系 (méi guānxi)', '对不起 (duìbuqǐ)', '请问 (qǐngwèn)'],
-        correctIndex: 0
-      },
-      {
-        id: 'm-3',
-        hanzi: '老师',
-        pinyin: 'lǎoshī',
-        meaningVi: 'Giáo viên, thầy/cô',
-        confusedWith: 'lǎoshì (sai thanh điệu âm shī)',
-        reasonVi: 'Bạn từng chọn nhầm thanh điệu của chữ 师 (shī - thanh 1 ngang) thành thanh 4 (shì).',
-        tipVi: 'Chữ 师 (Sư) đọc thanh 1 cao và bằng: lǎoshī (老 thanh 3 + 师 thanh 1).',
-        question: 'Phiên âm Pinyin chính xác của từ “老师” (Giáo viên) là gì?',
-        options: ['lǎoshī', 'lǎoshì', 'láoshī', 'lǎosī'],
-        correctIndex: 0
-      },
-      {
-        id: 'm-4',
-        hanzi: '买 / 卖',
-        pinyin: 'mǎi / mài',
-        meaningVi: '买 (mǎi): Mua — 卖 (mài): Bán',
-        confusedWith: 'Nhầm nét chữ 十 trên đầu chữ 卖 (Bán)',
-        reasonVi: 'Bạn từng nhầm giữa 买 (mǎi - Mua) và 卖 (mài - Bán).',
-        tipVi: 'Chữ 买 (Mua) không có chữ 十 ở trên. Có thêm hàng (十) ở trên là 卖 (Bán - mài thanh 4).',
-        question: 'Trong câu “我去商店买水果” (Tôi đi cửa hàng mua hoa quả), từ “买” đọc và nghĩa là gì?',
-        options: ['mǎi — Mua', 'mài — Bán', 'mái — Đến', 'mǎn — Đầy'],
-        correctIndex: 0
-      }
-    ];
-
-    const sentenceCards = [
-      { id: 'sc-1', hanzi: '一个人', pinyin: 'yí gè rén', meaningVi: 'Một người (Lượng từ 个 dùng phổ biến nhất cho người & vật)', blankQuestion: '一 ___ 人 (Một người)', options: ['个 (gè)', '本 (běn)', '杯 (bēi)', '件 (jiàn)'], answer: '个 (gè)' },
-      { id: 'sc-2', hanzi: '两本书', pinyin: 'liǎng běn shū', meaningVi: 'Hai quyển sách (Lượng từ 本 dùng cho sách, vở, từ điển)', blankQuestion: '两 ___ 书 (Hai quyển sách)', options: ['本 (běn)', '个 (gè)', '只 (zhī)', '杯 (bēi)'], answer: '本 (běn)' },
-      { id: 'sc-3', hanzi: '三杯茶', pinyin: 'sān bēi chá', meaningVi: 'Ba tách/cốc trà (Lượng từ 杯 dùng cho cốc, tách, ly đồ uống)', blankQuestion: '三 ___ 茶 (Ba tách trà)', options: ['杯 (bēi)', '本 (běn)', '件 (jiàn)', '张 (zhāng)'], answer: '杯 (bēi)' },
-      { id: 'sc-4', hanzi: '四件衣服', pinyin: 'sì jiàn yīfu', meaningVi: 'Bốn bộ/chiếc quần áo (Lượng từ 件 dùng cho áo, việc, món quà)', blankQuestion: '四 ___ 衣服 (Bốn chiếc áo)', options: ['件 (jiàn)', '本 (běn)', '杯 (bēi)', '只 (zhī)'], answer: '件 (jiàn)' },
-      { id: 'sc-5', hanzi: '五只猫', pinyin: 'wǔ zhī māo', meaningVi: 'Năm con mèo (Lượng từ 只 dùng cho động vật nhỏ: mèo, chó, chim)', blankQuestion: '五 ___ 猫 (Năm con mèo)', options: ['只 (zhī)', '本 (běn)', '件 (jiàn)', '杯 (bēi)'], answer: '只 (zhī)' },
-      { id: 'sc-6', hanzi: '我叫李文，我是越南人。', pinyin: 'Wǒ jiào Lǐ Wén, wǒ shì Yuènán rén.', meaningVi: 'Tôi tên là Lý Văn, tôi là người Việt Nam.', blankQuestion: '我 ___ 李文，我是越南人。 (Tôi tên là Lý Văn)', options: ['叫 (jiào)', '是 (shì)', '有 (yǒu)', '在 (zài)'], answer: '叫 (jiào)' }
-    ];
-
+    const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    let preferences = {};
+    try { preferences = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}') || {}; } catch (_) {}
+    const hidePinyin = Boolean(preferences.hidePinyinInReview);
+    getRealProgressSummary(); // Enrol real words from existing v10 progress on direct entry.
+    const state = getLocalState();
+    const allCards = Array.isArray(state.collections && state.collections.reviewCards) ? state.collections.reviewCards : [];
+    const due = allCards.filter(card => Date.parse(card.dueAt) <= Date.now());
+    const mistakes = allCards.filter(card => card.wrongCount > 0 && card.correctStreak < 2 && !card.dismissed);
+    const sentences = due.filter(card => card.itemKey.startsWith('s:'));
     const isMistakeMode = slug.includes('loi-sai');
     const isSentenceMode = slug.includes('the-cau');
-
-    const modeTitle = isMistakeMode
-      ? 'Ôn lỗi sai — Sửa lỗi hay nhầm'
-      : isSentenceMode
-        ? 'Luyện thẻ câu & Lượng từ HSK 1'
-        : 'Ôn bài đến hạn (SRS Ngắt quãng)';
-
-    const modeSubtitle = isMistakeMode
-      ? `${mistakeItems.length} mục hay nhầm · Phân biệt trực tiếp lỗi sai và kiểm tra lại ngay`
-      : isSentenceMode
-        ? `${sentenceCards.length} mẫu câu & lượng từ trọng tâm · Lật thẻ & Điền lượng từ`
-        : `${dueItems.length} mục đến hạn ôn hôm nay · Chế độ: ${reviewFormat === 'flashcard' ? 'Thẻ lật' : reviewFormat === 'multiple_choice' ? 'Trắc nghiệm' : reviewFormat === 'typing' ? 'Tự gõ' : 'Hỗn hợp'}${hidePinyin ? ' · Đang ẩn Pinyin mặt trước' : ''}`;
-
-    document.title = `${modeTitle} | Ôn tập XieHanzi`;
-
-    root.innerHTML = `
-      <div id="xhz-review-session-root" style="max-width:920px;margin:0 auto;">
-        <!-- Top Navigation Bar -->
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
-          <a href="/on-tap" style="color:#ea580c;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:15px;">
-            ← Quay lại Trung tâm Ôn tập (/on-tap)
-          </a>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="/hoc/bai/on-tap-den-han" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${!isMistakeMode && !isSentenceMode ? '#ea580c' : '#e7e5e4'};background:${!isMistakeMode && !isSentenceMode ? '#ea580c' : '#fff'};color:${!isMistakeMode && !isSentenceMode ? '#fff' : '#44403c'};">
-              🔄 Ôn bài đến hạn (${dueItems.length})
-            </a>
-            <a href="/hoc/bai/on-tap-loi-sai" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${isMistakeMode ? '#ea580c' : '#e7e5e4'};background:${isMistakeMode ? '#ea580c' : '#fff'};color:${isMistakeMode ? '#fff' : '#44403c'};">
-              🛠️ Ôn lỗi sai (${mistakeItems.length})
-            </a>
-            <a href="/hoc/bai/on-tap-the-cau" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${isSentenceMode ? '#ea580c' : '#e7e5e4'};background:${isSentenceMode ? '#ea580c' : '#fff'};color:${isSentenceMode ? '#fff' : '#44403c'};">
-              🃏 Luyện thẻ câu (${sentenceCards.length})
-            </a>
-          </div>
-        </div>
-
-        <!-- Header Card -->
-        <div style="background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa;border-radius:22px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-          <div style="display:flex;align-items:center;gap:16px;">
-            <img src="/images/capy/lesson/happy.webp" alt="Capy" style="width:64px;height:64px;border-radius:16px;object-fit:cover;background:#fff;border:2px solid #fdba74;" />
-            <div>
-              <div style="font-size:12px;font-weight:800;color:#ea580c;text-transform:uppercase;letter-spacing:0.05em;">PHIÊN ÔN TẬP CHỦ ĐỘNG</div>
-              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:4px 0;">${modeTitle}</h1>
-              <div style="font-size:14px;color:#57534e;">${modeSubtitle}</div>
-            </div>
-          </div>
-          <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;border:1px solid #fdba74;font-weight:800;color:#9a3412;font-size:15px;">
-            Hoàn thành: 0 / ${isMistakeMode ? mistakeItems.length : isSentenceMode ? sentenceCards.length : dueItems.length}
-          </div>
-        </div>
-
-        <!-- Dynamic Mode Body -->
-        <div id="xhz-review-body" style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);"></div>
+    const sourceCards = isMistakeMode ? mistakes : isSentenceMode ? sentences : due;
+    const title = isMistakeMode ? 'Ôn lỗi sai' : isSentenceMode ? 'Luyện thẻ câu' : 'Ôn bài đến hạn';
+    document.title = `${title} | Ôn tập XieHanzi`;
+    root.innerHTML = `<div id="xhz-review-session-root" style="max-width:920px;margin:0 auto;color:#1c1917;">
+      <a href="/on-tap" style="display:inline-block;margin-bottom:18px;color:#ea580c;font-weight:700;">← Quay lại Trung tâm Ôn tập</a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+        <a href="/hoc/bai/on-tap-den-han" style="padding:8px 14px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:700;">Ôn đến hạn (${due.length})</a>
+        <a href="/hoc/bai/on-tap-loi-sai" style="padding:8px 14px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:700;">Ôn lỗi sai (${mistakes.length})</a>
+        <a href="/hoc/bai/on-tap-the-cau" style="padding:8px 14px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:700;">Thẻ câu (${sentences.length})</a>
       </div>
-    `;
-
+      <div style="padding:20px 24px;border:1px solid #fed7aa;border-radius:22px;background:#fff7ed;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div><h1 style="font-size:24px;font-weight:800;margin:0 0 6px;">${title}</h1>
+          <p style="margin:0;color:#57534e;">${sourceCards.length} thẻ từ lịch sử học của bạn${isMistakeMode ? ' · Mỗi lỗi cần hai lượt đúng liên tiếp để khắc phục' : ''}</p></div>
+        <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;color:#9a3412;font-weight:800;">Đã luyện: 0 / ${sourceCards.length}</div>
+      </div>
+      <div id="xhz-review-status" role="status" aria-live="polite" style="margin:12px 0;color:#b91c1c;"></div>
+      <div id="xhz-review-body" style="padding:24px;border:1px solid #e7e5e4;border-radius:22px;background:#fff;">Đang tải thẻ ôn tập...</div>
+    </div>`;
     const bodyEl = root.querySelector('#xhz-review-body');
+    const statusEl = root.querySelector('#xhz-review-status');
     const badgeEl = root.querySelector('#xhz-review-progress-badge');
-
-    // ========================================================================
-    // MODE B: ÔN LỖI SAI (on-tap-loi-sai)
-    // ========================================================================
-    if (isMistakeMode) {
-      const solvedMap = {};
-      bodyEl.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
-          <div style="font-size:16px;font-weight:800;color:#1c1917;">
-            Giải quyết từng cặp từ dễ nhầm dưới đây để xoá khỏi Sổ lỗi:
-          </div>
-          <a href="/hoc/so-loi" style="font-size:13px;font-weight:700;color:#ea580c;text-decoration:underline;">Xem toàn bộ Sổ lỗi →</a>
-        </div>
-        <div id="xhz-mistake-cards" style="display:flex;flex-direction:column;gap:18px;"></div>
-      `;
-      const listWrap = bodyEl.querySelector('#xhz-mistake-cards');
-      mistakeItems.forEach((m, idx) => {
-        const card = document.createElement('div');
-        card.style.cssText = 'padding:20px;border-radius:18px;border:1px solid #fed7aa;background:#fffaf5;display:flex;flex-direction:column;gap:12px;';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-            <div>
-              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fee2e2;color:#b91c1c;">Lỗi sai #${idx + 1}</span>
-              <span style="font-size:26px;font-weight:800;color:#1c1917;margin-left:10px;">${m.hanzi}</span>
-              <span style="font-size:16px;font-weight:700;color:#ea580c;margin-left:8px;">(${m.pinyin})</span>
-              <span style="font-size:15px;font-weight:700;color:#44403c;margin-left:8px;">— ${m.meaningVi}</span>
-            </div>
-            <button class="xhz-mistake-speak" style="padding:7px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:700;cursor:pointer;font-size:13px;">
-              🔊 Nghe phát âm chuẩn
-            </button>
-          </div>
-          <div style="padding:12px 14px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:14px;line-height:1.55;">
-            <div style="color:#b91c1c;font-weight:700;">⚠️ Hay nhầm với: ${m.confusedWith}</div>
-            <div style="color:#44403c;margin-top:4px;">${m.reasonVi}</div>
-            <div style="color:#15803d;font-weight:700;margin-top:6px;">💡 Mẹo nhớ: ${m.tipVi}</div>
-          </div>
-          <div style="margin-top:4px;">
-            <div style="font-size:15px;font-weight:800;color:#1c1917;margin-bottom:10px;">🎯 Kiểm tra khắc phục: ${m.question}</div>
-            <div class="xhz-mistake-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;"></div>
-            <div class="xhz-mistake-status" style="display:none;margin-top:10px;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:700;"></div>
-          </div>
-        `;
-        card.querySelector('.xhz-mistake-speak').onclick = () => {
-          const cleanHz = m.hanzi.split('/')[0].trim();
-          playPronunciation(cleanHz, `/word_audios/${cleanHz}.mp3`);
-        };
-        const optsWrap = card.querySelector('.xhz-mistake-opts');
-        const statusEl = card.querySelector('.xhz-mistake-status');
-        m.options.forEach((optText, oIdx) => {
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:11px 14px;border-radius:12px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;text-align:left;cursor:pointer;font-size:14px;';
-          btn.textContent = `${String.fromCharCode(65 + oIdx)}. ${optText}`;
-          btn.onclick = () => {
-            const isCorrect = oIdx === m.correctIndex;
-            solvedMap[m.id] = isCorrect ? 1 : 0;
-            const solvedCount = Object.values(solvedMap).reduce((a, b) => a + b, 0);
-            if (badgeEl) badgeEl.textContent = `Hoàn thành: ${solvedCount} / ${mistakeItems.length}`;
-            Array.from(optsWrap.children).forEach(b => {
-              b.style.background = '#fff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            if (isCorrect) {
-              btn.style.background = '#dcfce7';
-              btn.style.borderColor = '#16a34a';
-              btn.style.color = '#14532d';
-              statusEl.style.display = 'block';
-              statusEl.style.background = '#dcfce7';
-              statusEl.style.color = '#14532d';
-              statusEl.textContent = '✅ Chính xác! Bạn đã khắc phục được lỗi nhầm lẫn này.';
-              const cleanHz = m.hanzi.split('/')[0].trim();
-              playPronunciation(cleanHz, `/word_audios/${cleanHz}.mp3`);
-            } else {
-              btn.style.background = '#fee2e2';
-              btn.style.borderColor = '#dc2626';
-              btn.style.color = '#7f1d1d';
-              statusEl.style.display = 'block';
-              statusEl.style.background = '#fee2e2';
-              statusEl.style.color = '#991b1b';
-              statusEl.textContent = `❌ Chưa đúng. Hãy xem lại mẹo nhớ: ${m.tipVi}`;
-            }
-          };
-          optsWrap.appendChild(btn);
-        });
-        listWrap.appendChild(card);
-      });
+    if (!sourceCards.length) {
+      bodyEl.innerHTML = `<div style="padding:24px;text-align:center;line-height:1.7;">
+        <h2 style="font-size:20px;font-weight:800;">${isMistakeMode ? 'Bạn chưa có lỗi cần ôn.' : isSentenceMode ? 'Chưa có thẻ câu đến hạn.' : 'Bạn đã ôn hết các thẻ đến hạn.'}</h2>
+        <p style="color:#57534e;">Kết quả từ các bài học và bài luyện sẽ được lưu vào lịch ôn của bạn.</p>
+        <a href="/hoc" style="display:inline-block;padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;font-weight:700;">Tiếp tục học</a>
+      </div>`;
       return;
     }
-
-    // ========================================================================
-    // MODE C: LUYỆN THẺ CÂU (on-tap-the-cau)
-    // ========================================================================
-    if (isSentenceMode) {
-      const doneSentences = {};
-      bodyEl.innerHTML = `
-        <div style="font-size:16px;font-weight:800;color:#1c1917;margin-bottom:16px;">
-          Luyện phản xạ cụm danh từ - lượng từ & mẫu câu giao tiếp HSK 1:
-        </div>
-        <div id="xhz-sentence-list" style="display:flex;flex-direction:column;gap:16px;"></div>
-      `;
-      const sList = bodyEl.querySelector('#xhz-sentence-list');
-      sentenceCards.forEach((sc, idx) => {
-        const card = document.createElement('div');
-        card.style.cssText = 'padding:20px;border-radius:18px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:12px;';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-            <div>
-              <span style="font-size:12px;font-weight:800;color:#ea580c;">THẺ CÂU #${idx + 1}</span>
-              <div style="font-size:28px;font-weight:800;color:#1c1917;margin-top:2px;">${sc.hanzi}</div>
-              <div style="font-size:15px;font-weight:700;color:#ea580c;margin-top:2px;">${hidePinyin ? '(Đã ẩn Pinyin — bấm Nghe để kiểm tra)' : sc.pinyin}</div>
-              <div style="font-size:15px;color:#44403c;margin-top:4px;font-weight:600;">${sc.meaningVi}</div>
-            </div>
-            <button class="xhz-sc-speak" style="padding:8px 16px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:700;cursor:pointer;">
-              🔊 Nghe câu
-            </button>
-          </div>
-          <div style="padding-top:10px;border-top:1px dashed #d6d3d1;">
-            <div style="font-size:14px;font-weight:800;color:#1c1917;margin-bottom:8px;">Điền từ/lượng từ đúng: ${sc.blankQuestion}</div>
-            <div class="xhz-sc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;"></div>
-          </div>
-        `;
-        card.querySelector('.xhz-sc-speak').onclick = () => playPronunciation(sc.hanzi, '');
-        const optsBox = card.querySelector('.xhz-sc-opts');
-        sc.options.forEach(opt => {
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:14px;';
-          btn.textContent = opt;
-          btn.onclick = () => {
-            const ok = opt === sc.answer;
-            doneSentences[sc.id] = ok ? 1 : 0;
-            const total = Object.values(doneSentences).reduce((a, b) => a + b, 0);
-            if (badgeEl) badgeEl.textContent = `Hoàn thành: ${total} / ${sentenceCards.length}`;
-            Array.from(optsBox.children).forEach(b => {
-              b.style.background = '#fff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            btn.style.background = ok ? '#dcfce7' : '#fee2e2';
-            btn.style.borderColor = ok ? '#16a34a' : '#dc2626';
-            btn.style.color = ok ? '#14532d' : '#7f1d1d';
-            if (ok) playPronunciation(sc.hanzi, '');
-          };
-          optsBox.appendChild(btn);
-        });
-        sList.appendChild(card);
-      });
-      return;
-    }
-
-    // ========================================================================
-    // MODE A: ÔN BÀI ĐẾN HẠN (on-tap-den-han) — Flashcard SRS + Trắc nghiệm + Tự gõ
-    // ========================================================================
-    const defaultTab = reviewFormat === 'multiple_choice' ? 'mc' : reviewFormat === 'typing' ? 'typing' : 'srs';
-    bodyEl.innerHTML = `
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;border-bottom:1px solid #f5f5f4;padding-bottom:14px;">
-        <button class="xhz-rev-tab" data-tab="srs" style="padding:10px 18px;border-radius:12px;border:2px solid #ea580c;background:#ea580c;color:#fff;font-weight:800;cursor:pointer;font-size:14px;">
-          1. 🗂️ Thẻ lật SRS (Ngắt quãng)
-        </button>
-        <button class="xhz-rev-tab" data-tab="mc" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:800;cursor:pointer;font-size:14px;">
-          2. 🎯 Trắc nghiệm nhanh (${dueItems.length} câu)
-        </button>
-        <button class="xhz-rev-tab" data-tab="typing" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:800;cursor:pointer;font-size:14px;">
-          3. ⌨️ Tự gõ chữ Hán / Pinyin
-        </button>
-      </div>
-
-      <!-- TAB 1: SRS FLASHCARD -->
-      <div id="xhz-rev-panel-srs" style="max-width:580px;margin:0 auto;text-align:center;">
-        <div id="xhz-srs-counter" style="font-size:14px;font-weight:800;color:#78716c;margin-bottom:12px;">Thẻ 1 / ${dueItems.length}</div>
-        <div id="xhz-srs-card" style="padding:36px 24px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;cursor:pointer;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(234,88,12,0.08);">
-          <div id="xhz-srs-hanzi" style="font-size:68px;font-weight:800;color:#1c1917;"></div>
-          <div id="xhz-srs-pinyin" style="font-size:22px;font-weight:700;color:#ea580c;"></div>
-          <div id="xhz-srs-back" style="display:none;margin-top:12px;padding-top:14px;border-top:1px dashed #fdba74;width:100%;">
-            <div id="xhz-srs-meaning" style="font-size:24px;font-weight:800;color:#1c1917;"></div>
-            <div id="xhz-srs-example" style="font-size:14px;color:#57534e;margin-top:8px;"></div>
-          </div>
-          <div id="xhz-srs-hint" style="font-size:12px;color:#9a3412;margin-top:8px;">(Bấm vào thẻ để lật xem đáp án & chấm mức độ nhớ)</div>
-        </div>
-        <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">
-          <button id="xhz-srs-speak" style="padding:10px 18px;border-radius:12px;border:1px solid #fdba74;background:#ffedd5;color:#9a3412;font-weight:800;cursor:pointer;">🔊 Nghe phát âm</button>
-          <button id="xhz-srs-flip" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:800;cursor:pointer;">🔄 Lật thẻ</button>
-        </div>
-        <div style="margin-top:18px;">
-          <div style="font-size:13px;font-weight:700;color:#57534e;margin-bottom:10px;">Đánh giá mức độ nhớ của bạn để lên lịch SRS tiếp theo:</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-            <button class="xhz-srs-grade" data-grade="again" style="padding:12px 8px;border-radius:12px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-weight:800;cursor:pointer;">
-              Quên<div style="font-size:11px;font-weight:600;margin-top:2px;">1 phút</div>
-            </button>
-            <button class="xhz-srs-grade" data-grade="hard" style="padding:12px 8px;border-radius:12px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-weight:800;cursor:pointer;">
-              Khó<div style="font-size:11px;font-weight:600;margin-top:2px;">10 phút</div>
-            </button>
-            <button class="xhz-srs-grade" data-grade="good" style="padding:12px 8px;border-radius:12px;border:1px solid #bbf7d0;background:#f0fdf4;color:#15803d;font-weight:800;cursor:pointer;">
-              Tốt<div style="font-size:11px;font-weight:600;margin-top:2px;">1 ngày</div>
-            </button>
-            <button class="xhz-srs-grade" data-grade="easy" style="padding:12px 8px;border-radius:12px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-weight:800;cursor:pointer;">
-              Dễ<div style="font-size:11px;font-weight:600;margin-top:2px;">4 ngày</div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 2: MULTIPLE CHOICE -->
-      <div id="xhz-rev-panel-mc" style="display:none;flex-direction:column;gap:14px;"></div>
-
-      <!-- TAB 3: TYPING -->
-      <div id="xhz-rev-panel-typing" style="display:none;flex-direction:column;gap:14px;"></div>
-    `;
-
-    let srsIdx = 0;
-    const srsReviewed = {};
-    const srsCounter = bodyEl.querySelector('#xhz-srs-counter');
-    const srsCard = bodyEl.querySelector('#xhz-srs-card');
-    const srsHanzi = bodyEl.querySelector('#xhz-srs-hanzi');
-    const srsPinyin = bodyEl.querySelector('#xhz-srs-pinyin');
-    const srsBack = bodyEl.querySelector('#xhz-srs-back');
-    const srsMeaning = bodyEl.querySelector('#xhz-srs-meaning');
-    const srsExample = bodyEl.querySelector('#xhz-srs-example');
-
-    function renderSrsCard() {
-      const item = dueItems[srsIdx % dueItems.length];
-      if (!item) return;
-      if (srsCounter) srsCounter.textContent = `Thẻ ${srsIdx + 1} / ${dueItems.length}`;
-      if (srsHanzi) srsHanzi.textContent = item.hanzi;
-      if (srsPinyin) {
-        srsPinyin.textContent = hidePinyin ? '••• (Đang ẩn Pinyin — Lật thẻ để xem)' : `${item.pinyin}${item.hanviet ? ` · ${item.hanviet.toUpperCase()}` : ''}`;
-      }
-      if (srsMeaning) srsMeaning.textContent = `${item.meaningVi} (${item.pinyin})`;
-      if (srsExample) srsExample.innerHTML = item.exampleZh ? `Ví dụ: <strong>${item.exampleZh}</strong> ${item.examplePy ? `(${item.examplePy})` : ''} — ${item.exampleVi}` : '';
-      if (srsBack) srsBack.style.display = 'none';
-    }
-    renderSrsCard();
-
-    function flipSrsCard() {
-      const item = dueItems[srsIdx % dueItems.length];
-      if (! srsBack) return;
-      const showing = srsBack.style.display !== 'none';
-      srsBack.style.display = showing ? 'none' : 'block';
-      if (!showing && item && srsPinyin) {
-        srsPinyin.textContent = `${item.pinyin}${item.hanviet ? ` · ${item.hanviet.toUpperCase()}` : ''}`;
-      }
-    }
-    if (srsCard) srsCard.onclick = flipSrsCard;
-    const flipBtn = bodyEl.querySelector('#xhz-srs-flip');
-    if (flipBtn) flipBtn.onclick = flipSrsCard;
-
-    const speakBtn = bodyEl.querySelector('#xhz-srs-speak');
-    if (speakBtn) {
-      speakBtn.onclick = () => {
-        const item = dueItems[srsIdx % dueItems.length];
-        if (item) playPronunciation(item.hanzi, item.audioUrl);
-      };
-    }
-
-    bodyEl.querySelectorAll('.xhz-srs-grade').forEach(btn => {
-      btn.onclick = () => {
-        const item = dueItems[srsIdx % dueItems.length];
-        if (item) {
-          srsReviewed[item.id] = 1;
-          const doneCount = Object.keys(srsReviewed).length;
-          if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
+    const items = await Promise.all(sourceCards.map(async card => {
+      const content = card.content || {};
+      const text = content.hanzi || content.text || card.itemKey.replace(/^[a-z]:/, '');
+      let info = null;
+      if (card.itemKey.startsWith('c:')) info = await lookupCharacter(text);
+      else if (card.itemKey.startsWith('w:')) info = await lookupWord(text);
+      let grammar = null;
+      if (card.itemKey.startsWith('g:')) {
+        const grammarId = card.itemKey.slice(2);
+        const files = ['hsk-level-1', 'hsk-level-2', 'hsk-level-3', 'hsk-level-4', 'hsk-level-5', 'hsk-level-6', 'new-hsk-level-1', 'new-hsk-level-2', 'new-hsk-level-3'];
+        for (const file of files) {
+          const data = await loadLocalJson(`/data/grammar/${file}.json`);
+          grammar = data && Array.isArray(data.items) && data.items.find(item => item.id === grammarId || item.code === grammarId);
+          if (grammar) break;
         }
-        srsIdx = (srsIdx + 1) % dueItems.length;
-        renderSrsCard();
-      };
-    });
-
-    // Populate Multiple Choice Panel
-    const mcPanel = bodyEl.querySelector('#xhz-rev-panel-mc');
-    dueItems.forEach((item, idx) => {
-      const pool = dueItems.filter((_, i) => i !== idx).map(x => x.meaningVi);
-      const opts = [item.meaningVi, pool[idx % pool.length] || 'Tạm biệt', pool[(idx + 2) % pool.length] || 'Học sinh', pool[(idx + 4) % pool.length] || 'Cảm ơn'];
-      const rot = idx % opts.length;
-      const rotated = [...opts.slice(rot), ...opts.slice(0, rot)];
-
-      const row = document.createElement('div');
-      row.style.cssText = 'padding:16px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;';
-      row.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="font-size:17px;font-weight:800;color:#1c1917;">
-            <span style="color:#ea580c;margin-right:6px;">Câu ${idx + 1}.</span>
-            <span style="font-size:24px;">${item.hanzi}</span>
-            ${hidePinyin ? '' : `<span style="color:#ea580c;margin-left:6px;">(${item.pinyin})</span>`}
-          </div>
-          <button class="xhz-mc-audio" style="padding:5px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 Nghe</button>
-        </div>
-        <div class="xhz-mc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
-      `;
-      row.querySelector('.xhz-mc-audio').onclick = () => playPronunciation(item.hanzi, item.audioUrl);
-      const optsWrap = row.querySelector('.xhz-mc-opts');
-      rotated.forEach((optText, oIdx) => {
-        const b = document.createElement('button');
-        b.style.cssText = 'padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;text-align:left;cursor:pointer;font-size:14px;';
-        b.textContent = `${String.fromCharCode(65 + oIdx)}. ${optText}`;
-        b.onclick = () => {
-          const ok = optText === item.meaningVi;
-          srsReviewed[item.id] = 1;
-          if (badgeEl) badgeEl.textContent = `Hoàn thành: ${Object.keys(srsReviewed).length} / ${dueItems.length}`;
-          Array.from(optsWrap.children).forEach(el => {
-            el.style.background = '#fff';
-            el.style.borderColor = '#d6d3d1';
-            el.style.color = '#1c1917';
-          });
-          b.style.background = ok ? '#dcfce7' : '#fee2e2';
-          b.style.borderColor = ok ? '#16a34a' : '#dc2626';
-          b.style.color = ok ? '#14532d' : '#7f1d1d';
-          if (ok) playPronunciation(item.hanzi, item.audioUrl);
-        };
-        optsWrap.appendChild(b);
-      });
-      mcPanel.appendChild(row);
-    });
-
-    // Populate Typing Panel
-    const typingPanel = bodyEl.querySelector('#xhz-rev-panel-typing');
-    dueItems.forEach((item, idx) => {
-      const row = document.createElement('div');
-      row.style.cssText = 'padding:16px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:10px;';
-      row.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:16px;font-weight:800;color:#1c1917;">
-            #${idx + 1}. Nghĩa: <span style="color:#ea580c;">“${item.meaningVi}”</span> ${hidePinyin ? '' : `<span style="color:#78716c;font-size:14px;">(Gợi ý Pinyin: ${item.pinyin})</span>`}
-          </div>
-          <button class="xhz-type-audio" style="padding:5px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 Nghe gợi ý</button>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <input type="text" class="xhz-type-input" placeholder="Gõ chữ Hán (${item.hanzi}) hoặc Pinyin..." style="flex:1;min-width:200px;padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;font-size:15px;font-weight:700;" />
-          <button class="xhz-type-check" style="padding:10px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:800;cursor:pointer;">Kiểm tra</button>
-        </div>
-        <div class="xhz-type-feedback" style="display:none;font-size:14px;font-weight:700;"></div>
-      `;
-      row.querySelector('.xhz-type-audio').onclick = () => playPronunciation(item.hanzi, item.audioUrl);
-      const inp = row.querySelector('.xhz-type-input');
-      const fb = row.querySelector('.xhz-type-feedback');
-      row.querySelector('.xhz-type-check').onclick = () => {
-        const val = (inp.value || '').trim().toLowerCase();
-        const cleanPy = item.pinyin.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const cleanVal = val.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const ok = val === item.hanzi || cleanVal === cleanPy;
-        srsReviewed[item.id] = 1;
-        if (badgeEl) badgeEl.textContent = `Hoàn thành: ${Object.keys(srsReviewed).length} / ${dueItems.length}`;
-        fb.style.display = 'block';
-        fb.style.color = ok ? '#15803d' : '#b91c1c';
-        fb.textContent = ok ? `✅ Chính xác: ${item.hanzi} (${item.pinyin})` : `💡 Đáp án chuẩn: ${item.hanzi} (${item.pinyin}) — ${item.meaningVi}`;
-        playPronunciation(item.hanzi, item.audioUrl);
-      };
-      typingPanel.appendChild(row);
-    });
-
-    // Tab switching
-    const revTabs = bodyEl.querySelectorAll('.xhz-rev-tab');
-    const panels = {
-      srs: bodyEl.querySelector('#xhz-rev-panel-srs'),
-      mc: mcPanel,
-      typing: typingPanel
-    };
-    function switchRevTab(tabKey) {
-      revTabs.forEach(b => {
-        const active = b.getAttribute('data-tab') === tabKey;
-        b.style.background = active ? '#ea580c' : '#fafaf9';
-        b.style.color = active ? '#fff' : '#1c1917';
-        b.style.borderColor = active ? '#ea580c' : '#e7e5e4';
-      });
-      if (panels.srs) panels.srs.style.display = tabKey === 'srs' ? 'block' : 'none';
-      if (panels.mc) panels.mc.style.display = tabKey === 'mc' ? 'flex' : 'none';
-      if (panels.typing) panels.typing.style.display = tabKey === 'typing' ? 'flex' : 'none';
+      }
+      const example = info && Array.isArray(info.examples) ? info.examples[0] : null;
+      const pinyin = content.pinyin || (info && (info.pinyin || info.wordPinyin || (Array.isArray(info.pinyins) && info.pinyins.join(' ')))) || '';
+      return { ...card, id: `${card.itemKey}|${card.skill}`, hanzi: (grammar && (grammar.pattern || grammar.title)) || text,
+        pinyin, meaningVi: content.meaningVi || content.translationVi || (info && (info.meaningVi || info.wordMeaningVi)) || (grammar && (grammar.explanation || grammar.summary)) || '',
+        audioUrl: content.audioUrl || (info && (info.audioUrl || (Array.isArray(info.audios) && info.audios[0]))) || '',
+        exampleZh: example && (example.hanzi || example.chinese) || '', exampleVi: example && (example.vietnamese || example.meaningVi) || '' };
+    }));
+    const index = (await loadLocalJson('/data/vocabulary/index.json')) || [];
+    const vocabulary = Array.isArray(index) ? index : [];
+    const completed = new Set();
+    const pending = new Set();
+    async function record(item, outcome, detail = {}) {
+      if (pending.has(item.id)) return false;
+      pending.add(item.id); statusEl.textContent = '';
+      const signalId = window.crypto && typeof window.crypto.randomUUID === 'function' ? window.crypto.randomUUID() : `review-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const signal = { signalId, itemKey: item.itemKey, skill: item.skill || 'meaning', outcome, ts: new Date().toISOString(), source: 'srs_review',
+        detail: { hanzi: item.hanzi, pinyin: item.pinyin, meaningVi: item.meaningVi, audioUrl: item.audioUrl, ...detail } };
+      try {
+        const url = new URL('/v2/review/signals', window.location.origin);
+        const response = await handlePersistentApi(url.pathname, url, { body: JSON.stringify({ signals: [signal] }) }, 'POST');
+        if (!response || !response.ok) throw new Error('Chưa lưu được kết quả. Hãy thử lại; thẻ vẫn đang ở đây.');
+        completed.add(item.id);
+        badgeEl.textContent = `Đã luyện: ${completed.size} / ${items.length}`;
+        return true;
+      } catch (error) { statusEl.textContent = error.message || 'Chưa lưu được kết quả. Hãy thử lại.'; return false; }
+      finally { pending.delete(item.id); }
     }
-    revTabs.forEach(b => {
-      b.onclick = () => switchRevTab(b.getAttribute('data-tab'));
-    });
-    switchRevTab(defaultTab);
+    const buttonStyle = 'padding:11px 14px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;';
+    const normalize = text => String(text || '').toLowerCase().normalize('NFD').replace(/u\u0308/g, 'v').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\u3400-\u9fff]/g, '');
+    const play = item => playPronunciation(item.hanzi, item.audioUrl);
+    function populateQuiz(container) {
+      items.forEach((item, itemIndex) => {
+        const testsSound = ['sound', 'pinyin'].includes(item.skill) && Boolean(item.pinyin);
+        const answer = testsSound ? item.pinyin : item.meaningVi || item.hanzi;
+        const pool = vocabulary.map(word => testsSound ? word.p : word.m).filter(value => value && value !== answer);
+        const options = [answer, ...new Set(pool)].slice(0, 4);
+        const rotation = itemIndex % options.length;
+        const choices = [...options.slice(rotation), ...options.slice(0, rotation)];
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
+        row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;">
+          <div><strong style="font-size:24px;">${answer === item.hanzi ? 'Nghe rồi chọn đáp án đúng' : escape(item.hanzi)}</strong>
+            ${!hidePinyin && !testsSound && answer !== item.hanzi ? `<div style="color:#ea580c;">${escape(item.pinyin)}</div>` : ''}
+            ${isMistakeMode ? `<div style="font-size:13px;color:#78716c;">${item.wrongCount} lượt sai · Đã đúng liên tiếp ${item.correctStreak}/2</div>` : ''}</div>
+          <button class="xhz-mc-audio" style="${buttonStyle}">🔊 Nghe</button></div>
+          <div class="xhz-mc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
+          <div class="xhz-mc-feedback" role="status" style="margin-top:10px;font-weight:700;"></div>`;
+        row.querySelector('.xhz-mc-audio').onclick = () => play(item);
+        const optionsEl = row.querySelector('.xhz-mc-opts');
+        const feedback = row.querySelector('.xhz-mc-feedback');
+        let answered = false;
+        choices.forEach(choice => {
+          const button = document.createElement('button'); button.style.cssText = buttonStyle; button.textContent = choice;
+          button.onclick = async () => {
+            if (answered || pending.has(item.id)) return;
+            const correct = choice === answer;
+            if (!await record(item, correct ? 'correct' : 'wrong', { mode: 'multiple_choice', given: choice, expected: answer })) return;
+            answered = true;
+            optionsEl.querySelectorAll('button').forEach(option => { option.disabled = true; option.style.opacity = '0.8'; });
+            button.style.background = correct ? '#dcfce7' : '#fee2e2'; button.style.borderColor = correct ? '#16a34a' : '#dc2626';
+            feedback.style.color = correct ? '#15803d' : '#b91c1c';
+            feedback.textContent = correct ? 'Chính xác! Đã lưu vào lịch ôn.' : `Đáp án: ${answer}. Đã lưu để bạn ôn lại.`;
+          };
+          optionsEl.appendChild(button);
+        });
+        container.appendChild(row);
+      });
+    }
+    function populateTyping(container) {
+      items.forEach(item => {
+        const row = document.createElement('div'); row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
+        row.innerHTML = `<div style="margin-bottom:12px;font-weight:700;">${escape(item.meaningVi || 'Nghe rồi gõ lại chữ/câu')}</div>
+          <button class="xhz-type-audio" style="${buttonStyle}margin-bottom:12px;">🔊 Nghe gợi ý</button>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;"><input class="xhz-type-input" aria-label="Câu trả lời" placeholder="Nhập chữ Hán hoặc pinyin..." style="flex:1;min-width:180px;padding:10px 14px;border:1px solid #d6d3d1;border-radius:10px;color:#1c1917;background:#fff;" />
+            <button class="xhz-type-check" style="${buttonStyle}background:#ea580c;color:#fff;border-color:#ea580c;">Kiểm tra</button></div>
+          <div class="xhz-type-feedback" role="status" style="margin-top:10px;font-weight:700;"></div>`;
+        row.querySelector('.xhz-type-audio').onclick = () => play(item);
+        const input = row.querySelector('.xhz-type-input'); const button = row.querySelector('.xhz-type-check');
+        button.onclick = async () => {
+          const value = normalize(input.value); if (!value || button.disabled || pending.has(item.id)) return;
+          const correct = value === normalize(item.hanzi) || Boolean(item.pinyin && value === normalize(item.pinyin));
+          if (!await record(item, correct ? 'correct' : 'wrong', { mode: 'typing', given: input.value, expected: item.hanzi })) return;
+          button.disabled = true; input.disabled = true;
+          const feedback = row.querySelector('.xhz-type-feedback'); feedback.style.color = correct ? '#15803d' : '#b91c1c';
+          feedback.textContent = `${correct ? 'Chính xác!' : 'Đáp án:'} ${item.hanzi}${item.pinyin ? ` (${item.pinyin})` : ''} — Đã lưu vào lịch ôn.`;
+        };
+        input.onkeydown = event => { if (event.key === 'Enter') button.click(); };
+        container.appendChild(row);
+      });
+    }
+    bodyEl.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;">
+      <button class="xhz-rev-tab" data-tab="srs" style="${buttonStyle}">🗂️ Thẻ lật SRS</button>
+      <button class="xhz-rev-tab" data-tab="mc" style="${buttonStyle}">🎯 Trắc nghiệm</button>
+      <button class="xhz-rev-tab" data-tab="typing" style="${buttonStyle}">⌨️ Tự gõ</button></div>
+      <div id="xhz-rev-panel-srs" style="max-width:580px;margin:auto;text-align:center;"></div>
+      <div id="xhz-rev-panel-mc" style="display:none;flex-direction:column;gap:14px;"></div>
+      <div id="xhz-rev-panel-typing" style="display:none;flex-direction:column;gap:14px;"></div>`;
+    const srsPanel = bodyEl.querySelector('#xhz-rev-panel-srs');
+    let currentIndex = 0;
+    function renderCard() {
+      const item = items[currentIndex];
+      if (!item) { srsPanel.innerHTML = '<div style="padding:30px;font-weight:700;line-height:1.8;">Đã lưu kết quả của toàn bộ thẻ trong phiên này.<br/><a href="/on-tap" style="color:#ea580c;">Xem lịch ôn mới →</a></div>'; return; }
+      let flipped = false;
+      const goodDays = [1, 3, 7, 14, 30][Math.min(4, item.correctStreak || 0)];
+      srsPanel.innerHTML = `<div style="margin-bottom:12px;color:#78716c;font-weight:700;">Thẻ ${currentIndex + 1} / ${items.length}</div>
+        <button id="xhz-srs-card" style="width:100%;padding:32px 24px;min-height:250px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;color:#1c1917;cursor:pointer;">
+          <div style="font-size:48px;font-weight:800;overflow-wrap:anywhere;">${escape(item.hanzi)}</div>
+          <div class="xhz-srs-pinyin" style="font-size:20px;color:#ea580c;margin-top:10px;">${hidePinyin ? '' : escape(item.pinyin)}</div>
+          <div id="xhz-srs-back" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed #fdba74;">
+            <div style="font-size:22px;font-weight:700;">${escape(item.meaningVi)}</div>
+            ${item.exampleZh ? `<div style="font-size:15px;margin-top:8px;">${escape(item.exampleZh)} ${escape(item.exampleVi)}</div>` : ''}
+          </div><div style="margin-top:16px;font-size:13px;color:#9a3412;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
+          ${[['again', 'Quên', '1 phút'], ['hard', 'Khó', '10 phút'], ['good', 'Tốt', `${goodDays} ngày`], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`]].map(([grade, label, interval]) => `<button class="xhz-srs-grade" data-grade="${grade}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval}</div></button>`).join('')}
+        </div>`;
+      const flip = () => {
+        flipped = !flipped; srsPanel.querySelector('#xhz-srs-back').style.display = flipped ? 'block' : 'none';
+        srsPanel.querySelector('.xhz-srs-pinyin').textContent = hidePinyin && !flipped ? '' : item.pinyin;
+        srsPanel.querySelectorAll('.xhz-srs-grade').forEach(button => { button.disabled = !flipped; button.style.opacity = flipped ? '1' : '0.5'; });
+      };
+      srsPanel.querySelector('#xhz-srs-card').onclick = flip; srsPanel.querySelector('#xhz-srs-flip').onclick = flip;
+      srsPanel.querySelector('#xhz-srs-speak').onclick = () => play(item);
+      srsPanel.querySelectorAll('.xhz-srs-grade').forEach(button => {
+        button.onclick = async () => {
+          if (!flipped || pending.has(item.id)) return;
+          const grade = button.getAttribute('data-grade');
+          const outcome = grade === 'again' ? 'wrong' : grade === 'hard' ? 'partial' : 'correct';
+          if (await record(item, outcome, { mode: 'flashcard', grade })) { currentIndex++; renderCard(); }
+        };
+      });
+    }
+    renderCard();
+    populateQuiz(bodyEl.querySelector('#xhz-rev-panel-mc'));
+    populateTyping(bodyEl.querySelector('#xhz-rev-panel-typing'));
+    function switchTab(tab) {
+      bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { const active = button.getAttribute('data-tab') === tab; button.style.background = active ? '#ea580c' : '#fff'; button.style.color = active ? '#fff' : '#1c1917'; });
+      for (const name of ['srs', 'mc', 'typing']) bodyEl.querySelector(`#xhz-rev-panel-${name}`).style.display = tab === name ? name === 'srs' ? 'block' : 'flex' : 'none';
+    }
+    bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { button.onclick = () => switchTab(button.getAttribute('data-tab')); });
+    const tab = isMistakeMode ? 'mc' : preferences.reviewFormat === 'typing' ? 'typing' : preferences.reviewFormat === 'multiple_choice' ? 'mc' : 'srs';
+    switchTab(tab);
   }
 
-  // --------------------------------------------------------------------------
+
   // 6.8c. Trang Tiến Độ & Thói Quen (/hoc/tien-do, /hoc/thoi-quen) & Tra Chữ Bộ Thủ
   // --------------------------------------------------------------------------
   async function renderProgressOrHabitPage(pathname) {
@@ -6868,41 +7374,66 @@
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
-    const browseType = parts[1]; // 'bo-thu' or 'hsk'
-    const rawVal = decodeURIComponent(parts.slice(2).join('/'));
-    const lesson1 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json');
-    const lesson2 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-2-my-name-is-li-wen.json');
-    const words = [
-      ...((lesson1 && lesson1.lesson && lesson1.lesson.words) || []),
-      ...((lesson2 && lesson2.lesson && lesson2.lesson.words) || [])
-    ];
-    document.title = `Tra chữ Hán theo ${browseType === 'bo-thu' ? `Bộ thủ ${rawVal}` : `HSK ${rawVal}`} | XieHanzi`;
-    root.innerHTML = `
-      <div style="max-width:960px;margin:0 auto;">
-        <div style="margin-bottom:16px;">
-          <a href="/tra-chu/${browseType}" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Tra chữ theo ${browseType === 'bo-thu' ? 'Bộ thủ' : 'cấp độ HSK'}</a>
-        </div>
-        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;">
-          <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 16px 0;">
-            Danh sách chữ Hán & Từ vựng (${browseType === 'bo-thu' ? `Bộ thủ: ${rawVal}` : `Cấp độ: HSK ${rawVal}`})
-          </h1>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
-            ${words.map(w => {
-              const hz = (w.hanzi || w.word || '你好').replace(/\{|\}/g, '');
-              const ch = Array.from(hz)[0] || hz;
-              return `<a href="/han-tu/${encodeURIComponent(ch)}" style="padding:16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;display:flex;flex-direction:column;gap:4px;">
-                <div style="font-size:32px;font-weight:800;color:#1c1917;">${hz}</div>
-                <div style="font-size:14px;font-weight:700;color:#ea580c;">${w.wordPinyin || w.pinyin || ''}</div>
-                <div style="font-size:14px;color:#44403c;">${w.translationVi || w.meaningVi || ''}</div>
-              </a>`;
-            }).join('')}
-          </div>
-        </div>
+    const type = parts[1];
+    let value = '';
+    try { value = decodeURIComponent(parts.slice(2).join('/')); } catch (_) {}
+    const index = await loadLocalJson('/data/characters/index.json');
+    const escape = text => String(text ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const level = /^\d+$/.test(value) ? Number(value) : null;
+    const entries = Array.isArray(index) ? index.filter(item => type === 'hsk'
+      ? level !== null && Number(item.hsk) === level
+      : type === 'bo-thu' && item.r === value) : [];
+    const title = type === 'hsk' ? `Chữ Hán HSK ${level || value} (HSK 2.0)` : `Chữ Hán bộ ${value}`;
+    document.title = `${title} | XieHanzi`;
+    root.innerHTML = `<style>
+      #xhz-character-browse { --browse-ink:#1c1917;--browse-card:#fafaf9;--browse-border:#d6d3d1;color:var(--browse-ink); }
+      html.dark #xhz-character-browse { --browse-ink:#f3ede2;--browse-card:#292420;--browse-border:#57534e; }
+      #xhz-character-browse input,#xhz-character-browse select,#xhz-character-browse button,#xhz-browse-grid a { color:var(--browse-ink)!important;background:var(--browse-card)!important;border-color:var(--browse-border)!important; }
+      #xhz-browse-grid a:hover { border-color:#b91c1c!important; }
+    </style><section id="xhz-character-browse" style="max-width:1100px;margin:auto;">
+      <a href="/tra-chu" style="color:#b91c1c;font-weight:700;">← Từ điển Hán - Việt</a>
+      <h1 style="font-size:28px;font-weight:800;margin:20px 0 8px;">${escape(title)}</h1>
+      <p id="xhz-browse-count" role="status">${entries.length} chữ Hán trong kho dữ liệu</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
+        <label style="flex:1;min-width:220px;">Tìm trong danh sách
+          <input id="xhz-browse-search" type="search" placeholder="Chữ Hán, pinyin, Hán Việt hoặc nghĩa" style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
+        </label>
+        <label>Sắp xếp
+          <select id="xhz-browse-sort" style="display:block;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;">
+            <option value="strokes">Số nét</option><option value="hanviet">Hán Việt A → Z</option><option value="frequency">Tần suất</option>
+          </select>
+        </label>
       </div>
-    `;
+      <div id="xhz-browse-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;"></div>
+      <button id="xhz-browse-more" type="button" style="margin:20px auto;padding:10px 24px;border:1px solid #d6d3d1;border-radius:999px;background:#fff;color:#1c1917;">Xem thêm</button>
+    </section>`;
+    const search = root.querySelector('#xhz-browse-search');
+    const sort = root.querySelector('#xhz-browse-sort');
+    const grid = root.querySelector('#xhz-browse-grid');
+    const count = root.querySelector('#xhz-browse-count');
+    const more = root.querySelector('#xhz-browse-more');
+    const normalize = text => String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
+    let visible = 60;
+    const render = () => {
+      const query = normalize(search.value.trim());
+      const results = entries.filter(item => !query || normalize(`${item.c} ${item.p} ${item.hv} ${item.m}`).includes(query));
+      results.sort((a, b) => sort.value === 'hanviet' ? String(a.hv || '').localeCompare(String(b.hv || ''), 'vi')
+        : sort.value === 'frequency' ? (Number(a.f) || Infinity) - (Number(b.f) || Infinity)
+        : (Number(a.s) || 0) - (Number(b.s) || 0) || (Number(a.f) || Infinity) - (Number(b.f) || Infinity));
+      count.textContent = `${results.length} / ${entries.length} chữ Hán`;
+      grid.innerHTML = results.slice(0, visible).map(item => `<a href="/han-tu/${encodeURIComponent(item.slug || item.c)}" style="display:flex;flex-direction:column;gap:5px;padding:16px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;text-decoration:none;color:#1c1917;">
+        <span style="font-size:36px;font-family:'Noto Serif SC',serif;">${escape(item.c)}</span><span style="color:#b91c1c;">${escape(item.p)}</span>
+        <strong>${escape(item.hv)}</strong><span style="font-size:13px;">${escape(item.m)}</span><small>${Number(item.s) || 0} nét · Bộ ${escape(item.r)}</small>
+      </a>`).join('') || '<p>Không tìm thấy chữ phù hợp.</p>';
+      more.hidden = visible >= results.length;
+    };
+    search.oninput = () => { visible = 60; render(); };
+    sort.onchange = () => { visible = 60; render(); };
+    more.onclick = () => { visible += 60; render(); };
+    render();
   }
 
-  // --------------------------------------------------------------------------
+
   // 6.9. Trang Chặng Học / Bài Học (/hoc/chang/:stageKey, /hoc/bai/:runId)
   //      Interactive Capybara Lesson Runner 1:1 với xiehanzi.com
   // --------------------------------------------------------------------------
@@ -8785,6 +9316,13 @@
       else await renderHanVietDetailPage(parts[1]);
       return;
     }
+    if (parts[0] === 'ngu-phap' && parts[1] === 'luyen-tap' && parts.length >= 3) {
+      lastHandledFullUrl = fullKey;
+      const pointId = decodeURIComponent(parts[2]);
+      const level = (pointId.match(/\d+/) || ['1'])[0];
+      await renderGrammarQuizRunPage(new URLSearchParams({ tracks: `${/_new_|^new-/.test(pointId) ? 'new-hsk' : 'hsk'}${level}`, grammarId: pointId, count: '20' }));
+      return;
+    }
     if (parts[0] === 'ngu-phap' && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderGrammarDetailPage(parts[1], parts[2]);
@@ -8872,14 +9410,14 @@
           'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;margin-bottom:16px;border-radius:16px;border:1px solid #e7e5e4;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.04);';
         const initial = (savedUser.displayName || savedUser.email || 'U').trim().charAt(0).toUpperCase();
         const avatarHtml = savedUser.avatar
-          ? `<img src="${savedUser.avatar}" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
-          : `<div style="width:44px;height:44px;border-radius:999px;background:#fef2f2;color:#dc2626;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:1px solid #fecaca;">${initial}</div>`;
+          ? `<img src="${escapeHtml(savedUser.avatar)}" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
+          : `<div style="width:44px;height:44px;border-radius:999px;background:#fef2f2;color:#dc2626;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:1px solid #fecaca;">${escapeHtml(initial)}</div>`;
         banner.innerHTML =
           `<div style="display:flex;align-items:center;gap:12px;min-width:0;">` +
           avatarHtml +
           `<div style="min-width:0;">` +
-          `<div style="font-weight:700;font-size:16px;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${savedUser.displayName || 'Học viên'}</div>` +
-          `<div id="xhz-cloud-sync-status" style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${savedUser.email} · Đã đồng bộ đám mây</div>` +
+          `<div style="font-weight:700;font-size:16px;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(savedUser.displayName || 'Học viên')}</div>` +
+          `<div id="xhz-cloud-sync-status" style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${escapeHtml(savedUser.email)}</div>` +
           `</div>` +
           `</div>` +
           `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
@@ -8895,12 +9433,11 @@
               ev.preventDefault();
               syncBtn.disabled = true;
               syncBtn.textContent = '⏳ Đang đồng bộ...';
-              if (window.__xhzSyncCloudProgress) {
-                await window.__xhzSyncCloudProgress();
-              }
-              syncBtn.textContent = '✅ Đã đồng bộ!';
+              let synced = false;
+              try { synced = Boolean(window.__xhzSyncCloudProgress && await window.__xhzSyncCloudProgress()); } catch (_) {}
+              syncBtn.textContent = synced ? '✅ Đã đồng bộ!' : 'Thử đồng bộ lại';
               if (statusEl) {
-                statusEl.textContent = `Đã đăng nhập: ${savedUser.email} · Vừa đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}`;
+                statusEl.textContent = synced ? `Đã đăng nhập: ${savedUser.email} · Vừa đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}` : 'Chưa đồng bộ được. Dữ liệu học trên thiết bị vẫn được giữ lại.';
               }
               setTimeout(() => {
                 syncBtn.disabled = false;
