@@ -831,9 +831,6 @@
   async function supabasePull() {
     await syncProgressFromSupabaseAuth(false);
   }
-  function supabaseFetchInitial() {
-    return supabasePull();
-  }
   supabasePull();
 
   // ==========================================================================
