@@ -16,6 +16,8 @@
 
   const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18';
+  const SUPABASE_DB_URL = 'https://xcthntcgenzfybefaphh.supabase.co';
+  const SUPABASE_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM';
   const RAW_GITHUB_REPO = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
   const DEFAULT_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLXhoei0xIiwidHlwIjoiYWNjZXNzIiwiZyI6MCwiZXhwIjo0MTAyNDQ0ODAwfQ.xhzsignature';
 
@@ -77,9 +79,8 @@
         showOnPublicFeed: over.showOnPublicFeed !== undefined ? over.showOnPublicFeed : true,
         streak: 5
       };
-      const validJwt = accessToken && accessToken.split('.').length === 3 ? accessToken : DEFAULT_JWT;
-      localStorage.setItem('xiehanzi_access_token', validJwt);
-      localStorage.setItem('sb_access_token', accessToken || validJwt);
+      localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
+      if (accessToken) localStorage.setItem('sb_access_token', accessToken);
       if (refreshToken) localStorage.setItem('sb_refresh_token', refreshToken);
       localStorage.setItem('httq_user', JSON.stringify(userObj));
       localStorage.setItem('httq_user_id', uid);
@@ -104,6 +105,7 @@
       }
       localStorage.removeItem('httq_user');
       localStorage.removeItem('httq_real_auth');
+      localStorage.removeItem('httq_oauth_return_to');
       localStorage.removeItem('sb_access_token');
       localStorage.removeItem('sb_refresh_token');
       for (let i = localStorage.length - 1; i >= 0; i--) {
@@ -128,6 +130,9 @@
         try {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         } catch (_e) {}
+        const returnTo = localStorage.getItem('httq_oauth_return_to') || '/tai-khoan';
+        localStorage.removeItem('httq_oauth_return_to');
+        const curPath = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
         originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -146,7 +151,12 @@
               });
             }
           })
-          .catch(() => {});
+          .catch(() => {})
+          .finally(() => {
+            if (curPath === '/' || curPath === '/index.html' || curPath === '/dang-nhap' || curPath === '/dang-ky') {
+              window.location.replace(returnTo);
+            }
+          });
       }
     } else {
       // Kiểm tra nếu người dùng đã đăng nhập qua tai-khoan-moi.html (sb-skxgzzdunqloxxombtuc-auth-token)
@@ -164,10 +174,7 @@
         }
       }
     }
-    const existingToken = localStorage.getItem('xiehanzi_access_token');
-    if (!existingToken || existingToken.split('.').length !== 3) {
-      localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
-    }
+    localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
   } catch (_e) {}
 
   // Đồng bộ khi Next.js gọi localStorage.removeItem('xiehanzi_access_token') lúc Đăng xuất
@@ -191,6 +198,10 @@
       const sp = new URLSearchParams(window.location.search);
       dest = sp.get('returnUrl') || '/tai-khoan';
     }
+    const cleanDest = dest.startsWith('http') ? new URL(dest).pathname : dest.startsWith('/') ? dest : '/' + dest;
+    try {
+      localStorage.setItem('httq_oauth_return_to', cleanDest || '/tai-khoan');
+    } catch (_e) {}
     const fullRedirect = dest.startsWith('http')
       ? dest
       : window.location.origin + (dest.startsWith('/') ? dest : '/' + dest);
@@ -466,11 +477,11 @@
     try {
       const userId = localStorage.getItem('httq_user_id');
       if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(userId)) return;
-      await originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles`, {
+      await originalFetch(`${SUPABASE_DB_URL}/rest/v1/study_profiles`, {
         method: 'POST',
         headers: {
-          'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+          'apikey': SUPABASE_DB_KEY,
+          'Authorization': `Bearer ${SUPABASE_DB_KEY}`,
           'Content-Type': 'application/json',
           'Prefer': 'resolution=merge-duplicates'
         },
@@ -489,11 +500,11 @@
       const userId = localStorage.getItem('httq_user_id');
       if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(userId)) return;
       const res = await originalFetch(
-        `${SUPABASE_URL}/rest/v1/study_profiles?select=state&user_id=eq.${encodeURIComponent(userId)}&workspace=eq.hoctiengtrungquoc`,
+        `${SUPABASE_DB_URL}/rest/v1/study_profiles?select=state&user_id=eq.${encodeURIComponent(userId)}&workspace=eq.hoctiengtrungquoc`,
         {
           headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            'apikey': SUPABASE_DB_KEY,
+            'Authorization': `Bearer ${SUPABASE_DB_KEY}`
           }
         }
       );
