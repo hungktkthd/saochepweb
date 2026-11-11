@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập - Học tiếng Trung</title>
+</head>
+<body>
+  <h2>Tài khoản học tập</h2>
+  <button id="login">Đăng nhập bằng Google</button>
+  <button id="logout" hidden>Đăng xuất</button>
+  <p id="status">Đang kiểm tra đăng nhập...</p>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0/dist/umd/supabase.min.js"></script>
+  <script>
+    const client = window.supabase.createClient(
+      "https://skxgzzdunqloxxombtuc.supabase.co",
+      "sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18"
+    );
+
+    const login = document.getElementById("login");
+    const logout = document.getElementById("logout");
+    const status = document.getElementById("status");
+
+    login.onclick = async () => {
+      const { error } = await client.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo:
+            "https://hoctiengtrungquoc.vercel.app/tai-khoan"
+        }
+      });
+
+      if (error) status.textContent = error.message;
+    };
+
+    logout.onclick = async () => {
+      const { error } = await client.auth.signOut();
+      if (error) status.textContent = error.message;
+    };
+
+    function updateUI(session) {
+      const user = session?.user;
+      status.textContent = user
+        ? "Đã đăng nhập: " + user.email
+        : "Chưa đăng nhập";
+      login.hidden = !!user;
+      logout.hidden = !user;
+    }
+
+    client.auth.onAuthStateChange((_event, session) => {
+      updateUI(session);
+    });
+
+    client.auth.getSession().then(({ data, error }) => {
+      if (error) {
+        status.textContent = error.message;
+        return;
+      }
+      updateUI(data.session);
+    });
+  </script>
+</body>
+</html>
