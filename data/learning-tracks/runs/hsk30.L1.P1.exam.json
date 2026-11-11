@@ -1,4 +1,4 @@
-﻿{
+{
     "runId":  "6af3efd75ef8914173f992ce",
     "kind":  "learn",
     "createdAt":  "2026-11-11T04:32:23.702Z",
@@ -42,33 +42,33 @@
                                                                         }
                                                                     ],
                                                          "audio":  {
-                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600\u0026s=-8-4hTpeoJZnWE3KRbp_8hCa9TCgEloN6k8MHNAJA0A"
+                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600"
                                                                    }
                                                      }
                                                  ],
                                       "audio":  {
-                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600\u0026s=-8-4hTpeoJZnWE3KRbp_8hCa9TCgEloN6k8MHNAJA0A"
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600"
                                                 },
                                       "options":  [
                                                       {
                                                           "id":  "A",
                                                           "text":  "",
                                                           "image":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/be24c8fe92c479c0.webp?e=1794387600\u0026s=nkEaEJb8M5NYJJwGP8SoWTGkS9qOwBz03gDO-8WhGeE"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/be24c8fe92c479c0.webp?e=1794387600"
                                                                     }
                                                       },
                                                       {
                                                           "id":  "B",
                                                           "text":  "",
                                                           "image":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/eb71b09f0893f912.webp?e=1794387600\u0026s=LsqDq5zs1wuBvQdmLgUnL_u5gP3KAOQlmVb_kFpyTr8"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/eb71b09f0893f912.webp?e=1794387600"
                                                                     }
                                                       },
                                                       {
                                                           "id":  "C",
                                                           "text":  "",
                                                           "image":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/a3deec03ddf0fa65.webp?e=1794387600\u0026s=Rj7slh2M5YWhnmrB3RlKss8CGn0ZUjrdazFuAA3pa1w"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/path-content/img/a3deec03ddf0fa65.webp?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -108,12 +108,12 @@
                                                                         }
                                                                     ],
                                                          "audio":  {
-                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600\u0026s=13XbBXRAcTASTS6yfmlkITVGgA94NyFIDEOKMqJEPG8"
+                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600"
                                                                    }
                                                      }
                                                  ],
                                       "audio":  {
-                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600\u0026s=13XbBXRAcTASTS6yfmlkITVGgA94NyFIDEOKMqJEPG8"
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600"
                                                 },
                                       "options":  [
                                                       {
@@ -168,12 +168,12 @@
                                                                         }
                                                                     ],
                                                          "audio":  {
-                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4"
+                                                                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600"
                                                                    }
                                                      }
                                                  ],
                                       "audio":  {
-                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4"
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600"
                                                 },
                                       "options":  [
                                                       {
@@ -249,27 +249,27 @@
               ],
     "assets":  [
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600\u0026s=-8-4hTpeoJZnWE3KRbp_8hCa9TCgEloN6k8MHNAJA0A",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/85a0c41812a4cc5267c91d765f792121f339634d9961f3f4f490e34dec050965.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/be24c8fe92c479c0.webp?e=1794387600\u0026s=nkEaEJb8M5NYJJwGP8SoWTGkS9qOwBz03gDO-8WhGeE",
+                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/be24c8fe92c479c0.webp?e=1794387600",
                        "kind":  "image"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/eb71b09f0893f912.webp?e=1794387600\u0026s=LsqDq5zs1wuBvQdmLgUnL_u5gP3KAOQlmVb_kFpyTr8",
+                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/eb71b09f0893f912.webp?e=1794387600",
                        "kind":  "image"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/a3deec03ddf0fa65.webp?e=1794387600\u0026s=Rj7slh2M5YWhnmrB3RlKss8CGn0ZUjrdazFuAA3pa1w",
+                       "url":  "https://api.xiehanzi.com/media-signed/path-content/img/a3deec03ddf0fa65.webp?e=1794387600",
                        "kind":  "image"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600\u0026s=13XbBXRAcTASTS6yfmlkITVGgA94NyFIDEOKMqJEPG8",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-charon/1.00/26a2649d9210ff5b5bf56615c6ce8f0e374c96c2393f55a2d2052595f8d9c4b9.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600",
                        "kind":  "audio"
                    }
                ]

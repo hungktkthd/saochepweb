@@ -349,7 +349,7 @@
     }
 
     if (url.startsWith('https://static.xiehanzi.com/')) {
-      let rel = url.slice('https://static.xiehanzi.com/'.length).split('?')[0];
+      let rel = url.slice('https://static.xiehanzi.com/'.length).split('?')[0].split('&')[0];
       try {
         rel = decodeURIComponent(rel);
       } catch (_e) {}
@@ -5929,6 +5929,39 @@
         document.head.appendChild(link);
       }
     });
+    if (!document.getElementById('xhz-lesson-runner-split-style')) {
+      const st = document.createElement('style');
+      st.id = 'xhz-lesson-runner-split-style';
+      st.textContent = `
+        @media (min-width: 768px) {
+          .lp-runner-inner.lp-split {
+            max-width: 1120px !important;
+          }
+          .xhz-lp-split-grid {
+            display: grid !important;
+            grid-template-columns: minmax(0, 5fr) minmax(0, 6fr) !important;
+            gap: 2rem !important;
+            padding-left: 2rem !important;
+            padding-right: 2rem !important;
+            min-height: 0 !important;
+            flex: 1 1 0% !important;
+          }
+          .xhz-lp-split-left {
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            padding: 1rem 0 !important;
+          }
+          .xhz-lp-split-right {
+            position: relative !important;
+            display: flex !important;
+            flex-direction: column !important;
+            min-height: 0 !important;
+            overflow: hidden !important;
+          }
+        }
+      `;
+      document.head.appendChild(st);
+    }
     if (!window.HanziWriter && !document.getElementById('xhz-hanzi-writer-cdn')) {
       const s = document.createElement('script');
       s.id = 'xhz-hanzi-writer-cdn';
@@ -7376,9 +7409,9 @@
             </div>
 
             <!-- Main 2-Column Split Grid -->
-            <div class="flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-8 lg:px-8">
+            <div class="xhz-lp-split-grid flex min-h-0 flex-1 flex-col lg:grid lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-8 lg:px-8">
               <!-- Left Column: Capybara Row + Prompt -->
-              <div class="px-5 lg:min-h-0 lg:overflow-y-auto lg:px-0 lg:py-4">
+              <div class="xhz-lp-split-left px-5 lg:min-h-0 lg:overflow-y-auto lg:px-0 lg:py-4">
                 <div class="lp-capyrow" data-testid="capy-row">
                   <img src="${getCapySprite(step)}" alt="Capy" class="lp-capy" style="width:74px;height:74px;object-fit:contain;" />
                   <div class="lp-bubble pop" aria-live="polite">
@@ -7390,7 +7423,7 @@
               </div>
 
               <!-- Right Column: Step Answer Area + Footer + Sheet -->
-              <div class="relative flex min-h-0 flex-1 flex-col lg:overflow-hidden">
+              <div class="xhz-lp-split-right relative flex min-h-0 flex-1 flex-col lg:overflow-hidden">
                 <div class="lp-step-area">
                   <div class="lp-step-body">${answerHtml}</div>
                 </div>

@@ -1,4 +1,4 @@
-﻿{
+{
     "runId":  "6af3efd75ef8914173f992c2",
     "kind":  "learn",
     "createdAt":  "2026-11-11T04:32:23.596Z",
@@ -65,7 +65,7 @@
                                                                      }
                                                                  ],
                                                       "audio":  {
-                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/981c32323b0c9958aa4103a584d122a704439024ecbca2cc0ae1d26509880d97.mp3?e=1794387600\u0026s=HaVnq9Uuy7_fP3R79ownMHnQd4EKj8X-o5L0iQrj1Mw"
+                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/981c32323b0c9958aa4103a584d122a704439024ecbca2cc0ae1d26509880d97.mp3?e=1794387600"
                                                                 }
                                                   },
                                       "choices":  [
@@ -91,7 +91,7 @@
                                                                          }
                                                                      ],
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/647e3fd6cf342ef98c2a46757b1ad0bb7feee559a03bbdccad731a011973a346.mp3?e=1794387600\u0026s=nOETBBH1IR-8X8Lbf6G4ZpdDvLDby8fOiCFKfSai1hE"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/647e3fd6cf342ef98c2a46757b1ad0bb7feee559a03bbdccad731a011973a346.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -102,7 +102,7 @@
                                                           "npcHanzi":  "你好！",
                                                           "coachVi":  "Hai thanh 3 liền nhau thì âm tiết đầu lên giọng như thanh 2: ní hǎo.",
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/b8392e78410eb4677547508840e8658230b4bdfc04ef7028d7a7f26cdf03e436.mp3?e=1794387600\u0026s=e6Sw2DMmoBexdFT8Q8FwZ_5_0mthzKlaGtvuFSzN4_w"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/b8392e78410eb4677547508840e8658230b4bdfc04ef7028d7a7f26cdf03e436.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -173,7 +173,7 @@
                                                                      }
                                                                  ],
                                                       "audio":  {
-                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0"
+                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600"
                                                                 }
                                                   },
                                       "choices":  [
@@ -213,7 +213,7 @@
                                                                          }
                                                                      ],
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/3f050cb68fde9be519b295d4c696610e3a12ca2d8aa89111ba348ef2c848fdf1.mp3?e=1794387600\u0026s=_UqKo_Ij5pVVG5uavl4TNvnKFhZEY2hetfYfBjd1xUU"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/3f050cb68fde9be519b295d4c696610e3a12ca2d8aa89111ba348ef2c848fdf1.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -224,7 +224,7 @@
                                                           "npcHanzi":  "爸。",
                                                           "coachVi":  "Thanh 4 bắt đầu cao rồi rơi mạnh xuống, không cụt như dấu nặng.",
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/e04f48a3d7a5f0438707b9f5082c1b0921072d5761704fe62363b95844b242c8.mp3?e=1794387600\u0026s=6Ij_gzSV1Q7oD99Nckejkie7qTdyXdgrJ1sI6lWgRSc"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/e04f48a3d7a5f0438707b9f5082c1b0921072d5761704fe62363b95844b242c8.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -255,7 +255,7 @@
                                                                             }
                                                                         ],
                                                              "audio":  {
-                                                                           "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/cfdf57d285367ceee312ca69a95a628350dbfa21ec37a6469e5eb370cd9c8cac.mp3?e=1794387600\u0026s=OpCIjHJ7iIhGiSgo-vey4uRYZzky7vFOqk1ortWP_GE"
+                                                                           "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/cfdf57d285367ceee312ca69a95a628350dbfa21ec37a6469e5eb370cd9c8cac.mp3?e=1794387600"
                                                                        }
                                                          }
                                                      ],
@@ -310,7 +310,7 @@
                                                                      }
                                                                  ],
                                                       "audio":  {
-                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/ae316d98a81f23b564e4b66657e8b9093e48b0f48421e8f7c0254dcd9b762a70.mp3?e=1794387600\u0026s=8OEqdFjRMtipwUGxszOzKPShBNDk5rrLon8OIpoVOjY"
+                                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/ae316d98a81f23b564e4b66657e8b9093e48b0f48421e8f7c0254dcd9b762a70.mp3?e=1794387600"
                                                                 }
                                                   },
                                       "choices":  [
@@ -336,7 +336,7 @@
                                                                          }
                                                                      ],
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600\u0026s=iPwRQY4TeQDecUi0U9qSDp1AqDTQmqPIijsqtZj--zY"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600"
                                                                     }
                                                       },
                                                       {
@@ -361,7 +361,7 @@
                                                                          }
                                                                      ],
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/24ce6666897db6a64b8aa344fae850a5edff990a56476d56d9ae7d25990b3000.mp3?e=1794387600\u0026s=KjmwBPchOojjwcqJHm7Ev_eCSvx2zjyeC8ZGAb2zt74"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/24ce6666897db6a64b8aa344fae850a5edff990a56476d56d9ae7d25990b3000.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -372,7 +372,7 @@
                                                           "npcHanzi":  "爸爸。",
                                                           "coachVi":  "Chữ sau là thanh nhẹ: bàba, đọc lướt nhẹ.",
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -425,7 +425,7 @@
                                                                          }
                                                                      ],
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1787dacb0d783d66a39a5bc9300aa97278c8d6bea3bb09d26a7a4f8bb60c7bca.mp3?e=1794387600\u0026s=oEp0AmDwnhfo19Jj0F8UDilJjno1CEzmGZkPC06QVjs"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1787dacb0d783d66a39a5bc9300aa97278c8d6bea3bb09d26a7a4f8bb60c7bca.mp3?e=1794387600"
                                                                     }
                                                       },
                                                       {
@@ -450,7 +450,7 @@
                                                                          }
                                                                      ],
                                                           "audio":  {
-                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/349091377644d3e0ffc3559aebf85bd6fa568db2bba2b68e7284dde291d6c1b4.mp3?e=1794387600\u0026s=TT4LfkPX9Fyl3O9PRPuOlFgaZfL688bEMG1Gfrl-Wu0"
+                                                                        "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/349091377644d3e0ffc3559aebf85bd6fa568db2bba2b68e7284dde291d6c1b4.mp3?e=1794387600"
                                                                     }
                                                       }
                                                   ],
@@ -473,55 +473,55 @@
               ],
     "assets":  [
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/981c32323b0c9958aa4103a584d122a704439024ecbca2cc0ae1d26509880d97.mp3?e=1794387600\u0026s=HaVnq9Uuy7_fP3R79ownMHnQd4EKj8X-o5L0iQrj1Mw",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/981c32323b0c9958aa4103a584d122a704439024ecbca2cc0ae1d26509880d97.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/647e3fd6cf342ef98c2a46757b1ad0bb7feee559a03bbdccad731a011973a346.mp3?e=1794387600\u0026s=nOETBBH1IR-8X8Lbf6G4ZpdDvLDby8fOiCFKfSai1hE",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/647e3fd6cf342ef98c2a46757b1ad0bb7feee559a03bbdccad731a011973a346.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/b8392e78410eb4677547508840e8658230b4bdfc04ef7028d7a7f26cdf03e436.mp3?e=1794387600\u0026s=e6Sw2DMmoBexdFT8Q8FwZ_5_0mthzKlaGtvuFSzN4_w",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/b8392e78410eb4677547508840e8658230b4bdfc04ef7028d7a7f26cdf03e436.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/3f050cb68fde9be519b295d4c696610e3a12ca2d8aa89111ba348ef2c848fdf1.mp3?e=1794387600\u0026s=_UqKo_Ij5pVVG5uavl4TNvnKFhZEY2hetfYfBjd1xUU",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/3f050cb68fde9be519b295d4c696610e3a12ca2d8aa89111ba348ef2c848fdf1.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/e04f48a3d7a5f0438707b9f5082c1b0921072d5761704fe62363b95844b242c8.mp3?e=1794387600\u0026s=6Ij_gzSV1Q7oD99Nckejkie7qTdyXdgrJ1sI6lWgRSc",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/e04f48a3d7a5f0438707b9f5082c1b0921072d5761704fe62363b95844b242c8.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/cfdf57d285367ceee312ca69a95a628350dbfa21ec37a6469e5eb370cd9c8cac.mp3?e=1794387600\u0026s=OpCIjHJ7iIhGiSgo-vey4uRYZzky7vFOqk1ortWP_GE",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-achernar/1.00/cfdf57d285367ceee312ca69a95a628350dbfa21ec37a6469e5eb370cd9c8cac.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/ae316d98a81f23b564e4b66657e8b9093e48b0f48421e8f7c0254dcd9b762a70.mp3?e=1794387600\u0026s=8OEqdFjRMtipwUGxszOzKPShBNDk5rrLon8OIpoVOjY",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/ae316d98a81f23b564e4b66657e8b9093e48b0f48421e8f7c0254dcd9b762a70.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600\u0026s=iPwRQY4TeQDecUi0U9qSDp1AqDTQmqPIijsqtZj--zY",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/43f962ca040b5d1156dd34eeb518ac6618c308db2afe344a80d1d95bff6eea24.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/24ce6666897db6a64b8aa344fae850a5edff990a56476d56d9ae7d25990b3000.mp3?e=1794387600\u0026s=KjmwBPchOojjwcqJHm7Ev_eCSvx2zjyeC8ZGAb2zt74",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/24ce6666897db6a64b8aa344fae850a5edff990a56476d56d9ae7d25990b3000.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600\u0026s=ZJWF61bl-5dKtUlMa_bjATSKytdq-ZyhJi7DkKNGPB4",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/5a33e11bcc0c866960aae9958a7153fb1c34c84c8e8558676b9450024673648b.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1787dacb0d783d66a39a5bc9300aa97278c8d6bea3bb09d26a7a4f8bb60c7bca.mp3?e=1794387600\u0026s=oEp0AmDwnhfo19Jj0F8UDilJjno1CEzmGZkPC06QVjs",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/1787dacb0d783d66a39a5bc9300aa97278c8d6bea3bb09d26a7a4f8bb60c7bca.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/349091377644d3e0ffc3559aebf85bd6fa568db2bba2b68e7284dde291d6c1b4.mp3?e=1794387600\u0026s=TT4LfkPX9Fyl3O9PRPuOlFgaZfL688bEMG1Gfrl-Wu0",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-iapetus/1.00/349091377644d3e0ffc3559aebf85bd6fa568db2bba2b68e7284dde291d6c1b4.mp3?e=1794387600",
                        "kind":  "audio"
                    }
                ]

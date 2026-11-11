@@ -35,14 +35,14 @@
                                                    "hanvietGloss":  "số tám, thứ tám, phân chia",
                                                    "wordClassVi":  "số từ",
                                                    "audio":  {
-                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                              },
                                                    "example":  {
                                                                    "hanzi":  "八、拔、把、爸。",
                                                                    "pinyin":  "Bā, bá, bǎ, bà.",
                                                                    "vi":  "bā, bá, bǎ, bà: bốn thanh trên âm ba.",
                                                                    "audio":  {
-                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0"
+                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600"
                                                                              }
                                                                }
                                                },
@@ -71,18 +71,18 @@
                                                       "options":  [
                                                                       {
                                                                           "id":  "o1",
-                                                                          "text":  "bǎ"
+                                                                          "text":  "bā"
                                                                       },
                                                                       {
                                                                           "id":  "o2",
-                                                                          "text":  "bá"
+                                                                          "text":  "bǎ"
                                                                       },
                                                                       {
                                                                           "id":  "o3",
-                                                                          "text":  "bā"
+                                                                          "text":  "bá"
                                                                       }
                                                                   ],
-                                                      "correctOptionId":  "o3",
+                                                      "correctOptionId":  "o1",
                                                       "revealVi":  "八 đọc là bā: thanh 1."
                                                   }
                                   }
@@ -109,14 +109,14 @@
                                                    "hanvietGloss":  "bố, cha (tiếng Việt có dùng từ ba)",
                                                    "wordClassVi":  "danh từ",
                                                    "audio":  {
-                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                              },
                                                    "example":  {
                                                                    "hanzi":  "爸爸，你好！",
                                                                    "pinyin":  "Bàba, nǐ hǎo!",
                                                                    "vi":  "Con chào bố!",
                                                                    "audio":  {
-                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600\u0026s=TL28s4uAj8EeZ20nS-xxosLJxlFX6PkAfN_bYSPcNHM"
+                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600"
                                                                              }
                                                                }
                                                },
@@ -198,37 +198,37 @@
                                                        "hanzi":  "八",
                                                        "pinyin":  "bā",
                                                        "audio":  {
-                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                                  }
                                                    },
                                       "options":  [
                                                       {
                                                           "id":  "o1",
-                                                          "text":  "cái cốc, ly"
+                                                          "text":  "tám (số)"
                                                       },
                                                       {
                                                           "id":  "o2",
-                                                          "text":  "làm gì"
+                                                          "text":  "miệng"
                                                       },
                                                       {
                                                           "id":  "o3",
-                                                          "text":  "bố, cha"
+                                                          "text":  "trợ từ cuối câu: ... thì sao?, ... nhỉ? (hỏi tiếp, hỏi lại)"
                                                       },
                                                       {
                                                           "id":  "o4",
-                                                          "text":  "tám (số)"
+                                                          "text":  "trà, chè (đồ uống)"
                                                       }
                                                   ]
                                   },
                       "explanationVi":  "八 (bā), âm Hán Việt bát.",
                       "check":  {
-                                    "correctOptionId":  "o4"
+                                    "correctOptionId":  "o1"
                                 },
                       "retryHint":  {
                                         "textVi":  "Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.",
                                         "cue":  "Hán Việt: bát",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                   }
                                     }
                   },
@@ -258,7 +258,7 @@
                                                   "pinyin":  "bā",
                                                   "hanviet":  "bát",
                                                   "audio":  {
-                                                                "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                                "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                             }
                                               }
                                   },
@@ -287,14 +287,14 @@
                                                    "wordClassVi":  "danh từ",
                                                    "traditional":  "媽媽",
                                                    "audio":  {
-                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                                 "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                              },
                                                    "example":  {
                                                                    "hanzi":  "妈妈，你好！",
                                                                    "pinyin":  "Māma, nǐ hǎo!",
                                                                    "vi":  "Con chào mẹ!",
                                                                    "audio":  {
-                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600\u0026s=m_oc4g7XzOjUQYFAFUDjTHKbr8270jT-JmYIBhSNeSQ"
+                                                                                 "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600"
                                                                              },
                                                                    "traditional":  "媽媽，你好！",
                                                                    "traditionalReviewed":  false
@@ -360,7 +360,7 @@
                                                        "hanzi":  "爸爸",
                                                        "pinyin":  "bàba",
                                                        "audio":  {
-                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                                  }
                                                    },
                                       "options":  [
@@ -390,7 +390,7 @@
                                         "textVi":  "Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.",
                                         "cue":  "Hán Việt: ba ba",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                   }
                                     }
                   },
@@ -420,7 +420,7 @@
                                                   "pinyin":  "bàba",
                                                   "hanviet":  "ba",
                                                   "audio":  {
-                                                                "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                                "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                             }
                                               }
                                   },
@@ -443,7 +443,7 @@
                                                        "hanzi":  "妈妈",
                                                        "pinyin":  "māma",
                                                        "audio":  {
-                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                                  }
                                                    },
                                       "options":  [
@@ -473,7 +473,7 @@
                                         "textVi":  "Âm Hán Việt thường gần với nghĩa. Nghe lại rồi đoán nhé.",
                                         "cue":  "Hán Việt: ma ma",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                   }
                                     }
                   },
@@ -491,7 +491,7 @@
                       "payload":  {
                                       "hanzi":  "八",
                                       "audio":  {
-                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                 },
                                       "toneRequired":  true,
                                       "meaningVi":  "tám (số)"
@@ -506,7 +506,7 @@
                                         "textVi":  "Chữ cái là thế này, nghe chậm để chọn thanh. Thanh 1 ngang cao, thanh 2 đi lên, thanh 3 xuống thấp rồi lên, thanh 4 đi xuống.",
                                         "cue":  "ba",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                   }
                                     }
                   },
@@ -529,21 +529,21 @@
                                                        "id":  "l3",
                                                        "hanzi":  "妈妈",
                                                        "audio":  {
-                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                                  }
                                                    },
                                                    {
                                                        "id":  "l1",
                                                        "hanzi":  "八",
                                                        "audio":  {
-                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                                  }
                                                    },
                                                    {
                                                        "id":  "l2",
                                                        "hanzi":  "爸爸",
                                                        "audio":  {
-                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                                     "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                                  }
                                                    }
                                                ],
@@ -594,7 +594,7 @@
                       "payload":  {
                                       "hanzi":  "爸爸",
                                       "audio":  {
-                                                    "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                 },
                                       "toneRequired":  true,
                                       "meaningVi":  "bố, cha"
@@ -609,7 +609,7 @@
                                         "textVi":  "Âm tiết đầu là thế này. Nghe chậm rồi gõ lại cả từ.",
                                         "cue":  "bà …",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                   }
                                     }
                   },
@@ -626,7 +626,7 @@
                                  },
                       "payload":  {
                                       "audio":  {
-                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                 },
                                       "target":  "word",
                                       "options":  [
@@ -655,7 +655,7 @@
                       "retryHint":  {
                                         "textVi":  "Nghe chậm một lần nữa. Thanh 1 ngang cao, thanh 2 đi lên, thanh 3 xuống thấp rồi lên, thanh 4 đi xuống.",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                   }
                                     }
                   },
@@ -673,7 +673,7 @@
                       "payload":  {
                                       "hanzi":  "妈妈",
                                       "audio":  {
-                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                 },
                                       "toneRequired":  true,
                                       "meaningVi":  "mẹ"
@@ -688,7 +688,7 @@
                                         "textVi":  "Âm tiết đầu là thế này. Nghe chậm rồi gõ lại cả từ.",
                                         "cue":  "mā …",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3"
                                                   }
                                     }
                   },
@@ -705,7 +705,7 @@
                                  },
                       "payload":  {
                                       "audio":  {
-                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                 },
                                       "target":  "word",
                                       "options":  [
@@ -735,7 +735,7 @@
                                         "textVi":  "Nghe chậm, chú ý phụ âm đầu.",
                                         "cue":  "Bắt đầu bằng b…",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3"
                                                   }
                                     }
                   },
@@ -752,7 +752,7 @@
                                  },
                       "payload":  {
                                       "audio":  {
-                                                    "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                    "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                 },
                                       "target":  "word",
                                       "options":  [
@@ -782,7 +782,7 @@
                                         "textVi":  "Nghe chậm, chú ý âm tiết đầu.",
                                         "cue":  "Âm đầu: bà…",
                                         "audio":  {
-                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A"
+                                                      "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3"
                                                   }
                                     }
                   },
@@ -812,7 +812,7 @@
                                                  ],
                                       "translationVi":  "Con chào bố!",
                                       "audio":  {
-                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600\u0026s=TL28s4uAj8EeZ20nS-xxosLJxlFX6PkAfN_bYSPcNHM"
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600"
                                                 }
                                   },
                       "explanationVi":  "Nghĩa của câu: Con chào bố!",
@@ -900,7 +900,7 @@
                                                  ],
                                       "translationVi":  "Con chào mẹ!",
                                       "audio":  {
-                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600\u0026s=m_oc4g7XzOjUQYFAFUDjTHKbr8270jT-JmYIBhSNeSQ"
+                                                    "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600"
                                                 }
                                   },
                       "explanationVi":  "Nghĩa của câu: Con chào mẹ!",
@@ -980,7 +980,7 @@
                                                        "pinyin":  "Bā, bá, bǎ, bà.",
                                                        "vi":  "bā, bá, bǎ, bà: bốn thanh trên âm ba.",
                                                        "audio":  {
-                                                                     "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0"
+                                                                     "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600"
                                                                  }
                                                    },
                                       "maxSeconds":  11,
@@ -1001,19 +1001,19 @@
               ],
     "assets":  [
                    {
-                       "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3\u0026s=deMWGPToIQTwsXyoua_uU8Wfm58NwyhQ6dB2fbWxUI8",
+                       "url":  "https://static.xiehanzi.com/word_audios/%E5%85%AB.mp3",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600\u0026s=Z1C7SUe94wloM433thBGq8EVcFWTpt2SE2RraOCYgG0",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/gemini-kore/1.00/9417fa5ac34008e2c446b4f887515f46328bbdd6e2925f2b0ee56158f2e42e37.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3\u0026s=dCAgCo0jcdW1WIWlod1fmI_DRFgOsBjhUkkSgQp2I6A",
+                       "url":  "https://static.xiehanzi.com/word_audios/%E7%88%B8%E7%88%B8.mp3",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600\u0026s=TL28s4uAj8EeZ20nS-xxosLJxlFX6PkAfN_bYSPcNHM",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/e9a7aeeb6cbd150306a4836bdab86d532f31beba791320fb48e757596f00bbf4.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
@@ -1021,11 +1021,11 @@
                        "kind":  "strokes"
                    },
                    {
-                       "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3\u0026s=b5hg4gmbFjzQkmcKh4tVMqNTSsMzEwSDxOXBvnBkkq4",
+                       "url":  "https://static.xiehanzi.com/word_audios/%E5%A6%88%E5%A6%88.mp3",
                        "kind":  "audio"
                    },
                    {
-                       "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600\u0026s=m_oc4g7XzOjUQYFAFUDjTHKbr8270jT-JmYIBhSNeSQ",
+                       "url":  "https://api.xiehanzi.com/media-signed/tts/chirp-kore/1.00/25175a0610fbaf520f43d5fce15c5460aa9e9df38ece2223d65f629bfb0391ef.mp3?e=1794387600",
                        "kind":  "audio"
                    },
                    {
