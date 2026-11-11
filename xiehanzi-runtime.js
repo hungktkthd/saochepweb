@@ -2683,29 +2683,29 @@
       const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
       return jsonResponse({
         ok: true,
-        currentPlan: 'pro',
-        tier: 'pro',
-        plan: 'pro',
+        currentPlan: 'free',
+        tier: 'free',
+        plan: 'free',
         grading: { used: sum.gradingUsed, limit: 100, resetsAt: nextMonth },
         speaking: { used: sum.gradingUsed, limit: 100, resetsAt: nextMonth },
         companionTurns: { used: sum.voiceUsed, limit: 50, resetsAt: nextMonth },
         plans: [
           {
-            plan: 'pro',
-            titleVi: 'Gói Pro (Trọn đời)',
-            badge: 'Đang kích hoạt',
+            plan: 'free',
+            titleVi: 'Miễn phí',
+            badge: 'Bản web',
             price: 0,
-            features: ['Học không giới hạn', 'Lộ trình đầy đủ', 'Chấm phát âm AI']
+            features: ['Tra cứu và học từ vựng', 'Lộ trình học', 'Đồng bộ tiến độ']
           }
         ]
       });
     }
     if (p === '/v2/me/entitlements') {
       return jsonResponse({
-        plan: 'pro',
-        tier: 'pro',
-        isPro: true,
-        features: ['smart_error_review', 'learning_path', 'speaking_practice', 'unlimited_ai', 'voice_call', 'exam_prep'],
+        plan: 'free',
+        tier: 'free',
+        isPro: false,
+        features: ['smart_error_review', 'learning_path', 'speaking_practice', 'voice_call', 'exam_prep'],
         limits: { aiExplainPerDay: 999, speakingPerDay: 999 }
       });
     }

@@ -11,6 +11,7 @@ Bản nền là `58e9a9e` trên `main`, đã đồng bộ 10 commit mới của 
 | Khu vực | Lỗi tái hiện / bằng chứng | Hành vi sau sửa |
 | --- | --- | --- |
 | Tài khoản | Login email tạo user cục bộ khi chưa xác thực; callback tin dữ liệu chưa kiểm chứng; thiếu refresh; logout xóa tiến độ | Dùng Supabase Auth thật, xác minh user, refresh token có kiểm tra chủ phiên, đăng ký chờ email xác nhận, giữ dữ liệu khi logout |
+| Gói tài khoản | Runtime gán mọi user vào “Pro trọn đời” không có giao dịch tương ứng | Hiển thị gói miễn phí của bản web; bỏ quyền `unlimited_ai` giả |
 | Đồng bộ | JWT nội bộ không dùng được với RLS; lỗi lưu vẫn được báo thành công; phản hồi cũ có thể đến sau khi đổi tài khoản | Dùng JWT Supabase đã kiểm chứng/làm mới; bảng và metadata đều cần thành công; từ chối phản hồi sai chủ; lỗi mạng vẫn giữ bản local |
 | Dữ liệu học | Các kho cố định dùng chung giữa khách và tài khoản | Namespace theo chủ tài khoản cho tiến độ, chat, hàng đợi ôn, sổ tay, lịch sử pinyin và dictation; dữ liệu khách cũ vẫn giữ trong phạm vi khách |
 | Hán tự theo cấp/bộ | Trang chi tiết dùng renderer giáo trình, không phải bộ lọc chữ Hán | Lọc đúng chỉ mục; tìm kiếm, sắp xếp và phân trang; HSK 1–6 lần lượt 174/173/270/447/621/977 chữ, bộ 一 28 chữ |
@@ -58,13 +59,20 @@ node scripts/audit-routes.mjs docs/parity-route-inventory.json
 
 Các bài Auth/cloud dùng transport giả lập để kiểm tra hết hạn phiên, đổi chủ giữa request, thất bại mạng/RLS/quota và merge; không tạo user hay thay đổi dữ liệu thật. Trình duyệt dùng để kiểm tra giao diện và luồng thao tác. AI trả phí và quyền microphone không được gọi trong bộ kiểm tra này.
 
+## Xác minh production sau triển khai
+
+- Commit chức năng `d6e99b49ea6492e54e188d9d818d7111623b2b6b` được Vercel triển khai READY, deployment `dpl_7XjkWkmxBa9ypRFAEAhpDAurnuT9`, alias tên miền chính xác nhận thành công.
+- Chrome trên production hiển thị bộ lọc HSK 1 mới với 174 chữ.
+- Google đăng nhập bằng tài khoản đã có quyền truy cập, quay về `/tai-khoan` thành công; lần thử này không có `redirect_uri_mismatch` và không yêu cầu cấp thêm quyền.
+- Bấm “Đồng bộ ngay” nhận xác nhận thành công; truy vấn Supabase read-only thấy 1 profile của workspace, `updated_at = 2026-11-11 12:59:30.902+00`. Không ghi email hay token vào repo.
+- Bộ kiểm tra trước triển khai: 79/79 (Auth 19, cloud 9, persistence 23, Storage 10, dictation 8, content 10); kiểm kê tuyến không có tham chiếu tĩnh/JSON thiếu hoặc lỗi API probe.
+
 ## Phần chưa đủ bằng chứng hoặc thiếu dữ liệu
 
 - Kho 66 đề / 4.334 câu chưa có trường đáp án chuẩn. Bản sửa ngăn chấm sai nhưng chưa bổ sung đáp án. Cần nhập answer key có nguồn và kiểm định trước khi bật chấm điểm.
 - Chỉ mục bộ 丨 có 7 chữ trong khi web gốc hiển thị 8. Cần đối chiếu bản ghi thiếu; không tăng bộ đếm bằng dữ liệu giả.
 - Chưa xác nhận toàn bộ thao tác AI chat/voice, điểm phát âm, SSE và màn bên trong Thầy Đồ theo tài khoản thật. Những fallback mô phỏng còn trong runtime cần được rà riêng trước khi công bố ngang đầy đủ chức năng với web gốc.
-- Chưa kiểm chứng đăng nhập Google và đồng bộ trên hai thiết bị thật. Kiểm tra mock thành công không thay thế xác nhận OAuth/provider trên production.
+- Đăng nhập Google và đồng bộ trên production đã được kiểm chứng như trên. Chưa kiểm chứng trên hai thiết bị thật độc lập.
 - Dữ liệu khách cũ giữ riêng trên thiết bị; chưa tự nhập toàn bộ lịch sử khách vào tài khoản mới. Không gộp âm thầm vào tài khoản khác trên máy dùng chung.
 - Form đặt mật khẩu cho user chỉ dùng Google chưa có luồng recovery/set-password hoàn chỉnh; không báo thành công nếu chưa được Supabase chấp nhận.
 - Không coi số lượng file media hoặc việc URL trả 200 là bằng chứng mọi chức năng hoạt động 1:1. Kiểm kê JSON: 9.931 chữ, 11.534 từ, 6.704 mục Hán Việt, 91 video, 66 đề, 1.132 JSON giáo trình.
-
