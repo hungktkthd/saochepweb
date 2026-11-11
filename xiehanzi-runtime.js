@@ -77,7 +77,7 @@
         hasPassword: Boolean(over.hasPassword),
         showPinyinByDefault: over.showPinyinByDefault !== undefined ? over.showPinyinByDefault : true,
         showOnPublicFeed: over.showOnPublicFeed !== undefined ? over.showOnPublicFeed : true,
-        streak: 5
+        streak: 0
       };
       localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
       if (accessToken) localStorage.setItem('sb_access_token', accessToken);
@@ -108,6 +108,12 @@
       localStorage.removeItem('httq_oauth_return_to');
       localStorage.removeItem('sb_access_token');
       localStorage.removeItem('sb_refresh_token');
+      localStorage.removeItem('httq_progress_v2');
+      localStorage.removeItem('httq_done_stages');
+      localStorage.removeItem('httq_done_activities');
+      localStorage.removeItem('httq_curr_learned_words');
+      localStorage.removeItem('httq_state');
+      localStorage.removeItem('httq_companion_chat_turns');
       for (let i = localStorage.length - 1; i >= 0; i--) {
         const k = localStorage.key(i);
         if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
@@ -468,8 +474,341 @@
   });
 
   // ==========================================================================
-  // 2. ĐỒNG BỘ SUPABASE & LOCAL STORAGE
+  // 2. ĐỒNG BỘ SUPABASE AUTH (user_metadata.xhz_progress) & LOCAL STORAGE
   // ==========================================================================
+  function getIsoWeekKey(dateObj) {
+    const d = new Date(Date.UTC(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+    const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+    const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+    return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
+  }
+
+  function getRealProgress() {
+    let prog = {
+      doneStages: [],
+      doneActivities: {},
+      learnedWords: [],
+      activeDates: [],
+      minutesByDate: {},
+      sessionsByDate: {},
+      gradingUsed: 0,
+      voiceUsed: 0,
+      longestStreak: 0,
+      currentStageKey: 'hsk30.L1.P1',
+      currentLessonId: 'hsk30.L1.P1.learn.1',
+      updatedAt: 0
+    };
+    try {
+      const raw = localStorage.getItem('httq_progress_v2');
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+          prog = { ...prog, ...parsed };
+        }
+      }
+      // Đồng bộ ngược các khóa localStorage hiện có vào prog
+      const ds = JSON.parse(localStorage.getItem('httq_done_stages') || '[]');
+      if (Array.isArray(ds)) {
+        prog.doneStages = [...new Set([...(prog.doneStages || []), ...ds])];
+      }
+      const da = JSON.parse(localStorage.getItem('httq_done_activities') || '{}');
+      if (da && typeof da === 'object') {
+        prog.doneActivities = prog.doneActivities || {};
+        for (const k of Object.keys(da)) {
+          const merged = new Set([...(prog.doneActivities[k] || []), ...(Array.isArray(da[k]) ? da[k] : [])]);
+          prog.doneActivities[k] = [...merged];
+        }
+      }
+      const st = JSON.parse(localStorage.getItem('httq_state') || '{}');
+      const savedWordKeys = [
+        ...Object.keys((st && st.masteredChars) || {}),
+        ...Object.keys((st && st.savedWords) || {})
+      ];
+      const currWords = JSON.parse(localStorage.getItem('httq_curr_learned_words') || '[]');
+      prog.learnedWords = [
+        ...new Set([
+          ...(Array.isArray(prog.learnedWords) ? prog.learnedWords : []),
+          ...savedWordKeys,
+          ...(Array.isArray(currWords) ? currWords : [])
+        ])
+      ].filter(Boolean);
+      const savedStg = localStorage.getItem('httq_current_stage_key');
+      if (savedStg) prog.currentStageKey = savedStg;
+      const savedLes = localStorage.getItem('httq_current_lesson_id');
+      if (savedLes) prog.currentLessonId = savedLes;
+    } catch (_e) {}
+    return prog;
+  }
+
+  function saveRealProgress(prog) {
+    try {
+      prog.updatedAt = Date.now();
+      localStorage.setItem('httq_progress_v2', JSON.stringify(prog));
+      localStorage.setItem('httq_done_stages', JSON.stringify(prog.doneStages || []));
+      localStorage.setItem('httq_done_activities', JSON.stringify(prog.doneActivities || {}));
+      localStorage.setItem('httq_curr_learned_words', JSON.stringify(prog.learnedWords || []));
+      if (prog.currentStageKey) localStorage.setItem('httq_current_stage_key', prog.currentStageKey);
+      if (prog.currentLessonId) localStorage.setItem('httq_current_lesson_id', prog.currentLessonId);
+    } catch (_e) {}
+  }
+
+  function mergeProgressObjects(localP, remoteP) {
+    if (!remoteP || typeof remoteP !== 'object') return localP;
+    const mergedActs = { ...(remoteP.doneActivities || {}) };
+    for (const [k, arr] of Object.entries(localP.doneActivities || {})) {
+      mergedActs[k] = [...new Set([...(mergedActs[k] || []), ...(Array.isArray(arr) ? arr : [])])];
+    }
+    const mergedMins = { ...(remoteP.minutesByDate || {}) };
+    for (const [d, m] of Object.entries(localP.minutesByDate || {})) {
+      mergedMins[d] = Math.max(Number(mergedMins[d]) || 0, Number(m) || 0);
+    }
+    const mergedSess = { ...(remoteP.sessionsByDate || {}) };
+    for (const [d, s] of Object.entries(localP.sessionsByDate || {})) {
+      mergedSess[d] = Math.max(Number(mergedSess[d]) || 0, Number(s) || 0);
+    }
+    const activeDates = [
+      ...new Set([
+        ...(Array.isArray(remoteP.activeDates) ? remoteP.activeDates : []),
+        ...(Array.isArray(localP.activeDates) ? localP.activeDates : []),
+        ...Object.keys(mergedMins).filter(d => mergedMins[d] > 0)
+      ])
+    ].sort();
+    const newer = (Number(remoteP.updatedAt) || 0) > (Number(localP.updatedAt) || 0) ? remoteP : localP;
+    return {
+      doneStages: [...new Set([...(remoteP.doneStages || []), ...(localP.doneStages || [])])],
+      doneActivities: mergedActs,
+      learnedWords: [...new Set([...(remoteP.learnedWords || []), ...(localP.learnedWords || [])])].filter(Boolean),
+      activeDates,
+      minutesByDate: mergedMins,
+      sessionsByDate: mergedSess,
+      gradingUsed: Math.max(Number(remoteP.gradingUsed) || 0, Number(localP.gradingUsed) || 0),
+      voiceUsed: Math.max(Number(remoteP.voiceUsed) || 0, Number(localP.voiceUsed) || 0),
+      longestStreak: Math.max(Number(remoteP.longestStreak) || 0, Number(localP.longestStreak) || 0),
+      currentStageKey: newer.currentStageKey || localP.currentStageKey || 'hsk30.L1.P1',
+      currentLessonId: newer.currentLessonId || localP.currentLessonId || 'hsk30.L1.P1.learn.1',
+      updatedAt: Math.max(Number(remoteP.updatedAt) || 0, Number(localP.updatedAt) || 0, Date.now())
+    };
+  }
+
+  function getRealProgressSummary() {
+    const prog = getRealProgress();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    const activeSet = new Set(Array.isArray(prog.activeDates) ? prog.activeDates : []);
+    // Tính chuỗi ngày học liên tiếp (streak)
+    let streakDays = 0;
+    const cursor = new Date();
+    const todayIso = cursor.toISOString().slice(0, 10);
+    const yesterday = new Date(cursor.getTime() - 86400000).toISOString().slice(0, 10);
+    if (activeSet.has(todayIso) || activeSet.has(yesterday)) {
+      let checkDate = activeSet.has(todayIso) ? new Date(cursor) : new Date(cursor.getTime() - 86400000);
+      while (true) {
+        const iso = checkDate.toISOString().slice(0, 10);
+        if (activeSet.has(iso)) {
+          streakDays++;
+          checkDate = new Date(checkDate.getTime() - 86400000);
+        } else {
+          break;
+        }
+      }
+    }
+    const longestStreak = Math.max(Number(prog.longestStreak) || 0, streakDays);
+    const todayDone = activeSet.has(todayStr);
+
+    // Tính số buổi học & ngày học trong tuần hiện tại
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7; // 0 = Thứ Hai .. 6 = Chủ Nhật
+    const monday = new Date(now.getTime() - dayOfWeek * 86400000);
+    const weekDays = [];
+    let weeklySessionsDone = 0;
+    for (let i = 0; i <= dayOfWeek; i++) {
+      const dStr = new Date(monday.getTime() + i * 86400000).toISOString().slice(0, 10);
+      const sess = Number((prog.sessionsByDate && prog.sessionsByDate[dStr]) || (activeSet.has(dStr) ? 1 : 0));
+      if (sess > 0) {
+        weeklySessionsDone += sess;
+        weekDays.push({ day: dStr, done: true, sessions: sess });
+      }
+    }
+
+    // Tính lịch sử 12 tuần gần nhất
+    const activity12Weeks = [];
+    for (let w = 11; w >= 0; w--) {
+      const wStart = new Date(monday.getTime() - w * 7 * 86400000);
+      const isoWeek = getIsoWeekKey(wStart);
+      let mins = 0;
+      let actDays = 0;
+      for (let d = 0; d < 7; d++) {
+        const dStr = new Date(wStart.getTime() + d * 86400000).toISOString().slice(0, 10);
+        const m = Number((prog.minutesByDate && prog.minutesByDate[dStr]) || 0);
+        if (m > 0 || activeSet.has(dStr)) {
+          actDays++;
+          mins += m || 6;
+        }
+      }
+      activity12Weeks.push({ isoWeek, minutes: mins, activeDays: actDays });
+    }
+
+    const totalMinutes = Object.values(prog.minutesByDate || {}).reduce((a, b) => a + (Number(b) || 0), 0);
+    const lessonsDone = Object.values(prog.doneActivities || {}).reduce(
+      (sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0),
+      0
+    );
+    const wordsMastered = (prog.learnedWords || []).length;
+    const dueTotal = wordsMastered > 0 ? Math.min(wordsMastered, Math.max(1, Math.ceil(wordsMastered * 0.4))) : 0;
+    const dueMeaning = Math.ceil(dueTotal * 0.65);
+    const duePinyin = Math.max(0, dueTotal - dueMeaning);
+
+    prog.wordsLearned = prog.learnedWords || [];
+    const todayMinutes = Number((prog.minutesByDate && prog.minutesByDate[todayStr]) || 0);
+    let dismissedMistakes = [];
+    try {
+      dismissedMistakes = JSON.parse(localStorage.getItem('httq_dismissed_mistakes') || '[]') || [];
+    } catch (_) {}
+    const mistakesCount = lessonsDone > 0 ? Math.max(0, 3 - dismissedMistakes.length) : 0;
+
+    return {
+      prog,
+      streakDays,
+      longestStreak,
+      todayDone,
+      activeDates: prog.activeDates || [],
+      weeklySessionsDone,
+      sessionsThisWeek: weeklySessionsDone,
+      goalSessions: 5,
+      weekDays,
+      activity12Weeks,
+      activity: activity12Weeks,
+      totalMinutes,
+      todayMinutes,
+      lessonsDone,
+      stagesDone: (prog.doneStages || []).length,
+      wordsMastered,
+      wordsLearning: wordsMastered > 0 ? Math.max(1, Math.ceil(wordsMastered * 0.3)) : 0,
+      wordsSeen: wordsMastered,
+      dueTotal,
+      dueMeaning,
+      duePinyin,
+      totalCards: wordsMastered,
+      mistakesCount,
+      gradingUsed: Number(prog.gradingUsed) || 0,
+      voiceUsed: Number(prog.voiceUsed) || 0
+    };
+  }
+
+  async function syncProgressToSupabaseAuth(progOverride) {
+    const prog = progOverride || getRealProgress();
+    saveRealProgress(prog);
+    try {
+      const sbToken = localStorage.getItem('sb_access_token');
+      if (!sbToken || sbToken === DEFAULT_JWT) return false;
+      const res = await originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
+        method: 'PUT',
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${sbToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          data: {
+            xhz_progress: prog,
+            xhz_synced_at: new Date().toISOString()
+          }
+        })
+      });
+      return res.ok;
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  async function syncProgressFromSupabaseAuth(forceReloadUi = false) {
+    try {
+      const sbToken = localStorage.getItem('sb_access_token');
+      if (!sbToken || sbToken === DEFAULT_JWT) return null;
+      const res = await originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
+        headers: {
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${sbToken}`
+        }
+      });
+      if (!res.ok) return null;
+      const u = await res.json();
+      if (!u || !u.id) return null;
+      const meta = u.user_metadata || {};
+      saveAuthSession(sbToken, localStorage.getItem('sb_refresh_token') || '', {
+        id: u.id,
+        email: u.email,
+        displayName: meta.full_name || meta.name || (u.email || '').split('@')[0],
+        avatar: meta.avatar_url || meta.picture || ''
+      });
+      const localP = getRealProgress();
+      const remoteP = meta.xhz_progress || null;
+      const merged = mergeProgressObjects(localP, remoteP);
+      saveRealProgress(merged);
+      if (!remoteP || (Number(localP.updatedAt) || 0) > (Number(remoteP.updatedAt) || 0)) {
+        await syncProgressToSupabaseAuth(merged);
+      }
+      if (forceReloadUi) {
+        window.location.reload();
+      }
+      return merged;
+    } catch (_e) {
+      return null;
+    }
+  }
+
+  function recordStudyProgress(delta = {}) {
+    const prog = getRealProgress();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    if (!Array.isArray(prog.activeDates)) prog.activeDates = [];
+    if (!prog.activeDates.includes(todayStr)) prog.activeDates.push(todayStr);
+
+    if (delta.minutes && delta.minutes > 0) {
+      prog.minutesByDate = prog.minutesByDate || {};
+      prog.minutesByDate[todayStr] = (Number(prog.minutesByDate[todayStr]) || 0) + Number(delta.minutes);
+    }
+    if (delta.sessionInc) {
+      prog.sessionsByDate = prog.sessionsByDate || {};
+      prog.sessionsByDate[todayStr] = (Number(prog.sessionsByDate[todayStr]) || 0) + Number(delta.sessionInc);
+    }
+    if (delta.stageKey && delta.activityKey) {
+      prog.doneActivities = prog.doneActivities || {};
+      const list = Array.isArray(prog.doneActivities[delta.stageKey]) ? prog.doneActivities[delta.stageKey] : [];
+      if (!list.includes(delta.activityKey)) list.push(delta.activityKey);
+      prog.doneActivities[delta.stageKey] = list;
+      if (list.length >= 4 && !prog.doneStages.includes(delta.stageKey)) {
+        prog.doneStages.push(delta.stageKey);
+      }
+    }
+    if (Array.isArray(delta.words) && delta.words.length > 0) {
+      const cleanWords = delta.words
+        .map(w => String(w || '').replace(/^w:|^c:/, '').replace(/\{|\}/g, '').trim())
+        .filter(Boolean);
+      prog.learnedWords = [...new Set([...(prog.learnedWords || []), ...cleanWords])];
+    }
+    if (delta.removeWord) {
+      const rw = String(delta.removeWord).trim();
+      prog.learnedWords = (prog.learnedWords || []).filter(w => w !== rw);
+    }
+    if (delta.gradingInc) {
+      prog.gradingUsed = (Number(prog.gradingUsed) || 0) + Number(delta.gradingInc);
+    }
+    if (delta.voiceInc) {
+      prog.voiceUsed = (Number(prog.voiceUsed) || 0) + Number(delta.voiceInc);
+    }
+    saveRealProgress(prog);
+    const summary = getRealProgressSummary();
+    if (summary.streakDays > (prog.longestStreak || 0)) {
+      prog.longestStreak = summary.streakDays;
+      saveRealProgress(prog);
+    }
+    syncProgressToSupabaseAuth(prog);
+    return prog;
+  }
+
+  window.__xhzSyncCloudProgress = () => syncProgressFromSupabaseAuth(true);
+  window.__xhzRecordProgress = recordStudyProgress;
+
   function getLocalState() {
     try {
       return JSON.parse(localStorage.getItem('httq_state') || '{"masteredChars":{},"savedWords":{},"examCount":0,"history":[]}');
@@ -486,52 +825,14 @@
 
   async function supabaseUpsert(state) {
     saveLocalState(state);
-    try {
-      const userId = localStorage.getItem('httq_user_id');
-      if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(userId)) return;
-      await originalFetch(`${SUPABASE_DB_URL}/rest/v1/study_profiles`, {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_DB_KEY,
-          'Authorization': `Bearer ${SUPABASE_DB_KEY}`,
-          'Content-Type': 'application/json',
-          'Prefer': 'resolution=merge-duplicates'
-        },
-        body: JSON.stringify({
-          user_id: userId,
-          workspace: 'hoctiengtrungquoc',
-          state: state,
-          updated_at: new Date().toISOString()
-        })
-      });
-    } catch (_e) {}
+    await syncProgressToSupabaseAuth();
   }
 
   async function supabasePull() {
-    try {
-      const userId = localStorage.getItem('httq_user_id');
-      if (!userId || !/^[0-9a-f]{8}-[0-9a-f]{4}-/i.test(userId)) return;
-      const res = await originalFetch(
-        `${SUPABASE_DB_URL}/rest/v1/study_profiles?select=state&user_id=eq.${encodeURIComponent(userId)}&workspace=eq.hoctiengtrungquoc`,
-        {
-          headers: {
-            'apikey': SUPABASE_DB_KEY,
-            'Authorization': `Bearer ${SUPABASE_DB_KEY}`
-          }
-        }
-      );
-      if (res.ok) {
-        const rows = await res.json();
-        if (rows && rows[0] && rows[0].state) {
-          const cur = getLocalState();
-          const remote = rows[0].state;
-          cur.masteredChars = { ...remote.masteredChars, ...cur.masteredChars };
-          cur.savedWords = { ...remote.savedWords, ...cur.savedWords };
-          cur.examCount = Math.max(cur.examCount || 0, remote.examCount || 0);
-          saveLocalState(cur);
-        }
-      }
-    } catch (_e) {}
+    await syncProgressFromSupabaseAuth(false);
+  }
+  function supabaseFetchInitial() {
+    return supabasePull();
   }
   supabasePull();
 
@@ -600,11 +901,12 @@
     if (found && entry && !found.hanvietReading && entry.hv) {
       found.hanvietReading = entry.hv;
     }
-    return found || chunk[0] || null;
+    return found || null;
   }
 
   async function lookupWord(slugOrWord) {
-    const rawDecoded = decodeURIComponent(slugOrWord).trim();
+    const rawDecoded = decodeURIComponent(slugOrWord || '').trim();
+    if (!rawDecoded) return null;
     const word = extractHanziWord(rawDecoded);
     const index = (await loadLocalJson('/data/vocabulary/index.json')) || [];
     let entry = null;
@@ -614,23 +916,84 @@
         entry = index.find(x => (x.w || '').replace(/\{|\}/g, '') === word);
       }
     }
-    const targetWord = entry ? (entry.w || entry.word || entry.hanzi) : word;
-    const chunkId = entry && entry.chunk ? entry.chunk : 1;
-    const chunkNum = String(chunkId).padStart(2, '0');
-    const chunk = (await loadLocalJson(`/data/vocabulary/vocabulary-${chunkNum}.json`)) || [];
-    let found = Array.isArray(chunk)
-      ? chunk.find(w => (w.hanzi || w.word || w.w) === targetWord || (w.hanzi || '').replace(/\{|\}/g, '') === word)
-      : null;
-    if (!found && entry) {
-      found = {
-        hanzi: entry.w,
-        pinyin: entry.p,
-        hanviet: entry.hv,
-        translationVi: entry.m,
-        wordMeaningVi: entry.m
+    if (entry) {
+      const targetWord = entry.w || entry.word || entry.hanzi || word;
+      const chunkId = entry.chunk || 1;
+      const chunkNum = String(chunkId).padStart(2, '0');
+      const chunk = (await loadLocalJson(`/data/vocabulary/vocabulary-${chunkNum}.json`)) || [];
+      let found = Array.isArray(chunk)
+        ? chunk.find(w => (w.hanzi || w.word || w.w) === targetWord || (w.hanzi || '').replace(/\{|\}/g, '') === word)
+        : null;
+      if (!found) {
+        found = {
+          hanzi: (entry.w || word).replace(/\{|\}/g, ''),
+          word: (entry.w || word).replace(/\{|\}/g, ''),
+          pinyin: entry.p || '',
+          hanviet: entry.hv || '',
+          meaningVi: entry.m || '',
+          translationVi: entry.m || '',
+          wordMeaningVi: entry.m || ''
+        };
+      } else {
+        const cleanHz = (found.hanzi || found.word || found.w || word).replace(/\{|\}/g, '');
+        const mean =
+          found.meaningVi ||
+          found.wordMeaningVi ||
+          found.translationVi ||
+          (Array.isArray(found.meanings) && found.meanings.join('; ')) ||
+          entry.m ||
+          '';
+        found = {
+          ...found,
+          hanzi: cleanHz,
+          word: cleanHz,
+          pinyin: found.pinyin || found.wordPinyin || entry.p || '',
+          hanviet: found.hanviet || entry.hv || '',
+          meaningVi: mean,
+          translationVi: found.translationVi || mean,
+          wordMeaningVi: found.wordMeaningVi || mean
+        };
+      }
+      return found;
+    }
+
+    // Fallback cho từ đơn âm tiết (1 chữ Hán như 的, 八, 好, 我, 你, 们, 您, v.v.) từ kho Chữ Hán & Giáo trình
+    const charData = await lookupCharacter(word || rawDecoded);
+    if (charData) {
+      const ch = charData.character || charData.c || word;
+      const py = (Array.isArray(charData.pinyins) && charData.pinyins[0]) || charData.pinyin || charData.p || '';
+      const hv = charData.hanvietReading || charData.hv || '';
+      const mean = charData.meaningVi || charData.m || '';
+      const commonWords = Array.isArray(charData.commonWords) ? charData.commonWords : [];
+      const rawExamples = Array.isArray(charData.examples) ? charData.examples : [];
+      const builtExamples =
+        rawExamples.length > 0
+          ? rawExamples
+          : commonWords.slice(0, 5).map(cw => ({
+              hanzi: cw.word || cw.hanzi || cw.characters || ch,
+              pinyin: cw.pinyin || py,
+              vietnamese: cw.meaningVi || cw.meaning || mean
+            }));
+      return {
+        hanzi: ch,
+        word: ch,
+        pinyin: py,
+        pinyins: charData.pinyins || [py].filter(Boolean),
+        hanviet: hv,
+        meaningVi: mean,
+        translationVi: mean,
+        wordMeaningVi: mean,
+        hskLevel: charData.hskLevel || charData.hsk || 1,
+        radical: charData.radical || charData.r || '',
+        strokeCount: charData.strokeCount || charData.s || '',
+        usageNote: (charData.etymology && (charData.etymology.hintVi || charData.etymology.hint)) || charData.mnemonic || '',
+        commonWords,
+        examples: builtExamples,
+        audios: [`https://static.xiehanzi.com/word_audios/${encodeURIComponent(ch)}.mp3`]
       };
     }
-    return found || chunk[0] || null;
+
+    return null;
   }
 
   async function lookupHanViet(slug) {
@@ -1080,17 +1443,19 @@
       return jsonResponse({ ok: true });
     }
     if (p.includes('/v1/auth/') || p.includes('/v2/auth/') || p.includes('/v1/users/me') || p.includes('/v1/profile')) {
+      const realSum = getRealProgressSummary();
       const savedUser = getSavedUser();
       if (savedUser) {
         const tok = localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT;
+        const mergedUser = { ...savedUser, streak: realSum.streakDays };
         return jsonResponse({
           ok: true,
           isAuthenticated: true,
           isGuest: false,
           accessToken: tok,
           token: tok,
-          ...savedUser,
-          user: savedUser
+          ...mergedUser,
+          user: mergedUser
         });
       }
       return jsonResponse({
@@ -1107,7 +1472,7 @@
         displayName: 'Khách',
         avatar: '',
         role: 'guest',
-        streak: 5,
+        streak: realSum.streakDays,
         user: {
           id: 'guest-xhz',
           _id: 'guest-xhz',
@@ -1118,7 +1483,7 @@
           avatar: '',
           role: 'guest',
           isGuest: true,
-          streak: 5
+          streak: realSum.streakDays
         }
       });
     }
@@ -1287,14 +1652,14 @@
             id: 'turn-welcome-1',
             role: 'assistant',
             characterId,
-            text: '你好 (Nǐ hǎo)! Mình luôn sẵn sàng đồng hành cùng bạn. Bạn có thể nhắn tin hỏi từ vựng, ngữ pháp hoặc bấm nút Gọi thoại 🎙️ để luyện nói tiếng Trung trực tiếp với mình nhé!',
+            text: '你好 (Nǐ hǎo)! Mình luôn sẵn sàng đồng hành cùng bạn. Bạn có thể nhắn tin hỏi từ vựng, ngữ pháp hoặc bấm nút Nói 🎙️ để luyện nói tiếng Trung trực tiếp với mình nhé!',
             createdAt: new Date(Date.now() - 60000).toISOString()
           }
         ];
       }
       if (method === 'POST') {
         const body = await parseRequestBody(init);
-        const msg = (body.message || '').trim();
+        const msg = (body.message || body.text || body.prompt || '').trim();
         const reqCharId = body.characterId || characterId;
         if (msg) {
           savedTurns.push({
@@ -1305,17 +1670,92 @@
             createdAt: new Date().toISOString()
           });
         }
-        let replyText = '太棒了 (Tài bàng le)! Mình đã nhận được câu của bạn. Hãy thử đọc to câu này nhé: “我每天都练习汉语” (Wǒ měitiān dōu liànxí Hànyǔ — Mỗi ngày tôi đều luyện tiếng Trung)! 💪';
-        const lower = msg.toLowerCase();
-        if (lower.includes('3 câu') || lower.includes('giao tiếp')) {
-          replyText = 'Đây là 3 mẫu câu HSK 1 cực kỳ thông dụng:\n1. 你好，认识你很高兴！(Nǐ hǎo, rènshi nǐ hěn gāoxìng!) — Xin chào, rất vui được làm quen với bạn!\n2. 请问，你叫什么名字？(Qǐngwèn, nǐ jiào shénme míngzi?) — Xin hỏi, bạn tên là gì?\n3. 谢谢你！不客气！(Xièxie nǐ! Bú kèqi!) — Cảm ơn bạn! Đừng khách sáo!';
-        } else if (lower.includes('不客气') || lower.includes('没关系') || lower.includes('phân biệt')) {
-          replyText = 'Mẹo nhớ cực nhanh nhé:\n• 不客气 (bú kèqi — đừng khách sáo): dùng để đáp lại lời CẢM ƠN (谢谢 xièxie).\n• 没关系 (méi guānxi — không sao đâu): dùng để đáp lại lời XIN LỖI (对不起 duìbuqǐ).';
-        } else if (lower.includes('phản xạ') || lower.includes('1 câu')) {
-          replyText = 'Thử dịch và đọc to câu này sang tiếng Trung nhé:\n👉 “Hôm nay tôi học tiếng Trung rất vui!”\nĐáp án gợi ý: 今天我学汉语很开心！(Jīntiān wǒ xué Hànyǔ hěn kāixīn!)';
-        } else if (msg) {
-          replyText = `Mình nhận được tin nhắn "${msg}" của bạn rồi! Câu tương ứng trong tiếng Trung là: “你好，我们一起加油学中文吧！” (Nǐ hǎo, wǒmen yìqǐ jiāyóu xué Zhōngwén ba! — Xin chào, chúng mình cùng cố gắng học tiếng Trung nhé!).`;
+        let pageWord = null;
+        try {
+          const curPath = decodeURIComponent(window.location.pathname || '');
+          const mVocab = curPath.match(/^\/(tu-vung|han-tu)\/([^/?#]+)/);
+          if (mVocab && mVocab[2]) {
+            pageWord = mVocab[1] === 'han-tu' ? await lookupCharacter(mVocab[2]) : await lookupWord(mVocab[2]);
+          }
+        } catch (_) {}
+
+        let dictMatches = [];
+        try {
+          const hzTokens = msg.match(/[\u4e00-\u9fff]+/g) || [];
+          for (const hz of hzTokens.slice(0, 3)) {
+            const w = await lookupWord(hz);
+            if (w && w.hanzi) {
+              dictMatches.push({
+                hanzi: w.hanzi,
+                pinyin: w.wordPinyin || w.pinyin || '',
+                hanViet: w.hanViet || '',
+                meaningVi: w.wordMeaningVi || w.meaningVi || w.translationVi || '',
+                usageNote: w.usageNote || '',
+                examples: (w.examples || []).slice(0, 2)
+              });
+            }
+          }
+          if (dictMatches.length === 0 && msg.length >= 2) {
+            const qClean = msg
+              .toLowerCase()
+              .replace(/^(tiếng trung|từ|chữ|dịch|nghĩa của|cho mình hỏi|hỏi|cách nói)\s+/i, '')
+              .replace(/\s+(trong tiếng trung|là gì|nói sao|như thế nào|nghĩa là gì)\??$/i, '')
+              .trim();
+            if (qClean.length >= 2) {
+              const vIdx = await loadLocalJson('/data/vocabulary/index.json');
+              if (Array.isArray(vIdx)) {
+                const found = vIdx.filter(item => {
+                  const m = String(item.m || '').toLowerCase();
+                  return m === qClean || m.startsWith(qClean + ',') || m.startsWith(qClean + ';') || m.includes(', ' + qClean);
+                }).slice(0, 3);
+                dictMatches = found.map(f => ({
+                  hanzi: f.h,
+                  pinyin: f.p,
+                  hanViet: f.hv || '',
+                  meaningVi: f.m || ''
+                }));
+              }
+            }
+          }
+        } catch (_) {}
+
+        let replyText = '';
+        try {
+          const aiRes = await callAiEndpoint('companion-chat', {
+            message: msg,
+            characterId: reqCharId,
+            characterName: reqCharId === 'duong-duong' ? 'Dương Dương 洋洋' : 'Bạn đồng hành AI',
+            pagePath: window.location.pathname,
+            pageTitle: document.title,
+            pageWord: pageWord
+              ? {
+                  hanzi: pageWord.hanzi,
+                  pinyin: pageWord.wordPinyin || pageWord.pinyin || '',
+                  hanViet: pageWord.hanViet || '',
+                  meaningVi: pageWord.wordMeaningVi || pageWord.meaningVi || pageWord.translationVi || '',
+                  usageNote: pageWord.usageNote || ''
+                }
+              : null,
+            dictMatches
+          });
+          if (aiRes && aiRes.reply) {
+            replyText = String(aiRes.reply).trim();
+          }
+        } catch (_) {}
+
+        if (!replyText) {
+          if (dictMatches.length > 0) {
+            const d0 = dictMatches[0];
+            replyText = `Trong tiếng Trung:\n• **${d0.hanzi}** (${d0.pinyin}${d0.hanViet ? ' — Hán Việt: ' + d0.hanViet.toUpperCase() : ''}): **${d0.meaningVi}**`;
+          } else if (pageWord && pageWord.hanzi) {
+            replyText = `Bạn đang xem từ **${pageWord.hanzi}** (${pageWord.wordPinyin || pageWord.pinyin || ''}) có nghĩa là **${pageWord.wordMeaningVi || pageWord.meaningVi || ''}**. Bạn muốn mình đặt câu ví dụ hay giải thích thêm cách dùng từ này không?`;
+          } else {
+            replyText = 'Mình đang lắng nghe bạn đây! Bạn có thể hỏi mình nghĩa từ vựng, cách dùng ngữ pháp hoặc nhờ mình dịch bất kỳ câu tiếng Việt / tiếng Trung nào nhé!';
+          }
         }
+
+        recordStudyProgress({ voiceInc: 1 });
+
         const assistantTurn = {
           id: `turn-a-${Date.now() + 1}`,
           role: 'assistant',
@@ -1330,6 +1770,8 @@
         return jsonResponse({
           ok: true,
           reply: assistantTurn,
+          text: replyText,
+          message: replyText,
           suggestions: defaultSuggestions
         });
       }
@@ -1380,32 +1822,21 @@
       });
     }
     if (p === '/v2/me/progress' || p === '/v1/me/progress') {
+      const sum = getRealProgressSummary();
       return jsonResponse({
-        streakDays: 5,
-        totalMinutes: 145,
-        wordsMastered: 64,
-        wordsLearning: 22,
-        lessonsDone: 4,
-        stagesDone: 1,
-        accuracyPct: 91,
-        activity: [
-          { isoWeek: '2026-W34', minutes: 25, activeDays: 2 },
-          { isoWeek: '2026-W35', minutes: 40, activeDays: 3 },
-          { isoWeek: '2026-W36', minutes: 35, activeDays: 3 },
-          { isoWeek: '2026-W37', minutes: 50, activeDays: 4 },
-          { isoWeek: '2026-W38', minutes: 45, activeDays: 4 },
-          { isoWeek: '2026-W39', minutes: 60, activeDays: 5 },
-          { isoWeek: '2026-W40', minutes: 55, activeDays: 4 },
-          { isoWeek: '2026-W41', minutes: 70, activeDays: 5 },
-          { isoWeek: '2026-W42', minutes: 65, activeDays: 5 },
-          { isoWeek: '2026-W43', minutes: 80, activeDays: 6 },
-          { isoWeek: '2026-W44', minutes: 75, activeDays: 5 },
-          { isoWeek: '2026-W45', minutes: 90, activeDays: 6 }
-        ]
+        streakDays: sum.streakDays,
+        totalMinutes: sum.totalMinutes,
+        wordsMastered: sum.wordsMastered,
+        wordsLearning: sum.wordsLearning,
+        lessonsDone: sum.lessonsDone,
+        stagesDone: sum.stagesDone,
+        accuracyPct: sum.lessonsDone > 0 ? 92 : 0,
+        activity: sum.activity
       });
     }
     if (p === '/v2/me/habit' || p === '/v2/me/habit/weekly-goal') {
-      let savedHabit = { dailyMinutes: 15, reminderTime: '20:00', reminderEnabled: true, goalSessions: 5 };
+      const sum = getRealProgressSummary();
+      let savedHabit = { dailyMinutes: 15, reminderTime: '20:00', reminderEnabled: true, goalSessions: sum.goalSessions || 5 };
       try {
         const raw = JSON.parse(localStorage.getItem('httq_habit_settings') || '{}');
         savedHabit = { ...savedHabit, ...raw };
@@ -1417,41 +1848,41 @@
         }
         savedHabit = { ...savedHabit, ...(body || {}) };
         try { localStorage.setItem('httq_habit_settings', JSON.stringify(savedHabit)); } catch (_) {}
+        syncProgressToSupabaseAuth();
       }
       const goalSessions = Number(savedHabit.goalSessions) || 5;
-      const sessionsDone = 4;
+      const sessionsDone = sum.sessionsThisWeek;
       return jsonResponse({
         ok: true,
-        streakDays: 5,
-        masteredWords: 64,
+        streakDays: sum.streakDays,
+        masteredWords: sum.wordsMastered,
         ...savedHabit,
         streak: {
-          count: 5,
-          longest: 14,
-          todayDone: true,
-          activeDates: ['2026-11-07', '2026-11-08', '2026-11-09', '2026-11-10', '2026-11-11']
+          count: sum.streakDays,
+          longest: sum.longestStreak,
+          todayDone: sum.todayDone,
+          activeDates: sum.activeDates
         },
         week: {
           goalSessions,
           sessionsDone,
           reached: sessionsDone >= goalSessions,
-          days: [
-            { day: '2026-11-09', done: true, sessions: 1 },
-            { day: '2026-11-10', done: true, sessions: 2 },
-            { day: '2026-11-11', done: true, sessions: 1 }
-          ]
+          days: sum.weekDays
         }
       });
     }
     if (p === '/v2/me/plans' || p === '/v2/plans' || p === '/plans' || p === '/v2/me/plans/interest') {
+      const sum = getRealProgressSummary();
+      const now = new Date();
+      const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
       return jsonResponse({
         ok: true,
         currentPlan: 'pro',
         tier: 'pro',
         plan: 'pro',
-        grading: { used: 12, limit: 100, resetsAt: '2026-12-01T00:00:00Z' },
-        speaking: { used: 12, limit: 100, resetsAt: '2026-12-01T00:00:00Z' },
-        companionTurns: { used: 5, limit: 50, resetsAt: '2026-12-01T00:00:00Z' },
+        grading: { used: sum.gradingUsed, limit: 100, resetsAt: nextMonth },
+        speaking: { used: sum.gradingUsed, limit: 100, resetsAt: nextMonth },
+        companionTurns: { used: sum.voiceUsed, limit: 50, resetsAt: nextMonth },
         plans: [
           {
             plan: 'pro',
@@ -1476,24 +1907,38 @@
       return jsonResponse({ status: 'none', plan: null });
     }
     if (p === '/v2/me/skill-map') {
+      const sum = getRealProgressSummary();
+      const baseScore = sum.lessonsDone > 0 ? Math.min(95, 50 + sum.lessonsDone * 5) : 0;
       return jsonResponse({
         level: 'HSK 1',
-        wordsSeen: 64,
+        wordsSeen: sum.wordsSeen,
         wordsTotal: 300,
         skills: [
-          { skill: 'listening', labelVi: 'Nghe hiểu', score: 78 },
-          { skill: 'reading', labelVi: 'Đọc hiểu', score: 85 },
-          { skill: 'writing', labelVi: 'Chữ Hán & Viết', score: 74 },
-          { skill: 'speaking', labelVi: 'Phát âm & Nói', score: 80 },
-          { skill: 'grammar', labelVi: 'Ngữ pháp', score: 82 }
+          { skill: 'listening', labelVi: 'Nghe hiểu', score: baseScore ? Math.min(100, baseScore + 3) : 0 },
+          { skill: 'reading', labelVi: 'Đọc hiểu', score: baseScore ? Math.min(100, baseScore + 6) : 0 },
+          { skill: 'writing', labelVi: 'Chữ Hán & Viết', score: baseScore },
+          { skill: 'speaking', labelVi: 'Phát âm & Nói', score: baseScore ? Math.min(100, baseScore + 2) : 0 },
+          { skill: 'grammar', labelVi: 'Ngữ pháp', score: baseScore ? Math.min(100, baseScore + 4) : 0 }
         ]
       });
     }
     if (p === '/v2/me/score-prediction') {
-      return jsonResponse({ level: 'HSK 2', predictedScore: 175, maxScore: 200, passScore: 120 });
+      const sum = getRealProgressSummary();
+      return jsonResponse({
+        level: 'HSK 1',
+        predictedScore: sum.lessonsDone > 0 ? Math.min(200, 100 + sum.lessonsDone * 10) : 0,
+        maxScore: 200,
+        passScore: 120
+      });
     }
     if (p === '/v2/me/reports/weekly') {
-      return jsonResponse({ streakDays: 5, minutesStudied: 68, wordsLearned: 34, lessonsCompleted: 4 });
+      const sum = getRealProgressSummary();
+      return jsonResponse({
+        streakDays: sum.streakDays,
+        minutesStudied: sum.totalMinutes,
+        wordsLearned: sum.wordsMastered,
+        lessonsCompleted: sum.lessonsDone
+      });
     }
     if (p === '/v2/me/consents') {
       return jsonResponse({ ok: true, consents: {} });
@@ -1835,6 +2280,7 @@
       return jsonResponse({ enabled: false, todayCard: false, checkpoint: { due: false } });
     }
     if (p === '/v2/today' || p === '/v2/today/session' || p.startsWith('/v2/today/session/steps/')) {
+      const sum = getRealProgressSummary();
       let savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
       if (savedLessonId === 'bai-1-hello-ai-xiaoyu') savedLessonId = 'hsk30.L1.P1.learn.1';
       const todayStr = new Date().toISOString().slice(0, 10);
@@ -1859,6 +2305,7 @@
         if (body && body.minutes) reqMin = Number(body.minutes) || 15;
         sessionStatus = 'in_progress';
       }
+      const dueCount = Math.max(0, sum.dueTotal || 0);
       const steps = [
         {
           id: 'step-lesson-1',
@@ -1876,13 +2323,13 @@
           id: 'step-review-1',
           kind: 'review',
           status: stepStatuses['step-review-1'] || 'pending',
-          titleVi: 'Ôn 12 từ vựng đến hạn',
+          titleVi: dueCount > 0 ? `Ôn ${dueCount} từ vựng đến hạn` : 'Ôn từ vựng đã học',
           detailVi: 'Củng cố trí nhớ ngắt quãng SRS',
           reasonVi: 'Đến hạn ôn tập hôm nay',
           estMinutes: 4,
           review: {
             minutes: 4,
-            limit: 12
+            limit: Math.max(6, dueCount)
           }
         },
         {
@@ -1911,44 +2358,47 @@
         minutesOptions: [5, 10, 15, 20],
         nextStepId: nextPending ? nextPending.id : steps[0].id,
         steps,
-        completion: sessionStatus === 'completed' ? { streak: { count: 5, todayDone: true } } : null,
-        streak: { count: 5, todayDone: true },
-        streakDays: 5,
-        minutesDone: 10,
+        completion: sessionStatus === 'completed' ? { streak: { count: sum.streakDays, todayDone: sum.todayDone } } : null,
+        streak: { count: sum.streakDays, todayDone: sum.todayDone },
+        streakDays: sum.streakDays,
+        minutesDone: sum.todayMinutes,
         minutesGoal: reqMin,
         dailyGoalMinutes: reqMin,
-        completedMinutes: 10,
+        completedMinutes: sum.todayMinutes,
         continue: { kind: 'lesson', lessonId: savedLessonId },
         items: [
           { kind: 'lesson', lessonId: savedLessonId, titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)', dueCount: 1, estMinutes: 6, locked: false },
-          { kind: 'review', titleVi: 'Ôn từ đến hạn', dueCount: 12, estMinutes: 4, locked: false },
-          { kind: 'errors', titleVi: 'Sửa lỗi hay sai', dueCount: 3, estMinutes: 2, locked: false }
+          { kind: 'review', titleVi: 'Ôn từ đến hạn', dueCount: dueCount, estMinutes: 4, locked: false },
+          { kind: 'errors', titleVi: 'Sửa lỗi hay sai', dueCount: sum.mistakesCount, estMinutes: 2, locked: false }
         ]
       });
     }
     if (p === '/v2/review/summary') {
+      const sum = getRealProgressSummary();
       const today = Date.now();
-      const forecast = [12, 8, 15, 6, 10, 5, 9].map((due, idx) => ({
+      const baseDue = sum.dueTotal || 0;
+      const forecast = [baseDue, Math.max(0, Math.round(baseDue * 0.7)), Math.max(0, Math.round(baseDue * 0.9)), Math.max(0, Math.round(baseDue * 0.5)), Math.max(0, Math.round(baseDue * 0.8)), Math.max(0, Math.round(baseDue * 0.4)), Math.max(0, Math.round(baseDue * 0.6))].map((due, idx) => ({
         day: new Date(today + idx * 86400000).toISOString().slice(0, 10),
         due,
-        minutes: Math.max(2, Math.round(due / 3)),
+        minutes: due > 0 ? Math.max(1, Math.round(due / 3)) : 0,
         heavy: due >= 15
       }));
       return jsonResponse({
-        dueNow: { meaning: 8, pinyin: 4 },
-        dueToday: { meaning: 8, pinyin: 4 },
-        errorsQueue: 3,
-        totalCards: 86,
+        dueNow: { meaning: sum.dueMeaning, pinyin: sum.duePinyin },
+        dueToday: { meaning: sum.dueMeaning, pinyin: sum.duePinyin },
+        errorsQueue: sum.mistakesCount,
+        totalCards: sum.totalCards,
         openRun: null,
         forecast
       });
     }
     if (p === '/v2/review/sentence-cards') {
+      const sum = getRealProgressSummary();
       return jsonResponse({
-        dueToday: 5,
-        total: 24,
-        upcoming: 8,
-        measureWords: 10,
+        dueToday: sum.lessonsDone > 0 ? Math.min(5, sum.lessonsDone * 2) : 0,
+        total: sum.lessonsDone * 4,
+        upcoming: sum.lessonsDone > 0 ? 3 : 0,
+        measureWords: sum.lessonsDone > 0 ? 4 : 0,
         newPerDay: 5
       });
     }
@@ -2064,27 +2514,55 @@
     if (p === '/v2/review/words') {
       const q = (urlObj.searchParams.get('q') || '').trim().toLowerCase();
       const status = urlObj.searchParams.get('status') || 'all';
-      const defaultWords = [
-        { itemKey: '你好', word: '你好', hanzi: '你好', pinyin: 'nǐ hǎo', meaningVi: 'xin chào', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '谢谢', word: '谢谢', hanzi: '谢谢', pinyin: 'xièxie', meaningVi: 'cảm ơn', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '不客气', word: '不客气', hanzi: '不客气', pinyin: 'bú kèqi', meaningVi: 'đừng khách sáo', state: 'learning', dueAt: new Date().toISOString() },
-        { itemKey: '对不起', word: '对不起', hanzi: '对不起', pinyin: 'duìbuqǐ', meaningVi: 'xin lỗi', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '没关系', word: '没关系', hanzi: '没关系', pinyin: 'méi guānxi', meaningVi: 'không sao đâu', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '再见', word: '再见', hanzi: '再见', pinyin: 'zàijiàn', meaningVi: 'tạm biệt', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '老师', word: '老师', hanzi: '老师', pinyin: 'lǎoshī', meaningVi: 'giáo viên', state: 'learning', dueAt: new Date().toISOString() },
-        { itemKey: '学生', word: '学生', hanzi: '学生', pinyin: 'xuésheng', meaningVi: 'học sinh, sinh viên', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '朋友', word: '朋友', hanzi: '朋友', pinyin: 'péngyou', meaningVi: 'bạn bè', state: 'learning', dueAt: new Date().toISOString() },
-        { itemKey: '中国', word: '中国', hanzi: '中国', pinyin: 'Zhōngguó', meaningVi: 'Trung Quốc', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '越南', word: '越南', hanzi: '越南', pinyin: 'Yuènán', meaningVi: 'Việt Nam', state: 'review', dueAt: new Date().toISOString() },
-        { itemKey: '喜欢', word: '喜欢', hanzi: '喜欢', pinyin: 'xǐhuan', meaningVi: 'thích, yêu thích', state: 'learning', dueAt: new Date().toISOString() }
-      ];
-      let items = defaultWords;
+      const sum = getRealProgressSummary();
+      const vocabMap = {
+        '八': { pinyin: 'bā', meaningVi: 'tám (số)' },
+        '爸爸': { pinyin: 'bàba', meaningVi: 'bố, ba' },
+        '妈妈': { pinyin: 'māma', meaningVi: 'mẹ, má' },
+        '你好': { pinyin: 'nǐ hǎo', meaningVi: 'xin chào' },
+        '谢谢': { pinyin: 'xièxie', meaningVi: 'cảm ơn' },
+        '不客气': { pinyin: 'bú kèqi', meaningVi: 'đừng khách sáo' },
+        '对不起': { pinyin: 'duìbuqǐ', meaningVi: 'xin lỗi' },
+        '没关系': { pinyin: 'méi guānxi', meaningVi: 'không sao đâu' },
+        '再见': { pinyin: 'zàijiàn', meaningVi: 'tạm biệt' },
+        '老师': { pinyin: 'lǎoshī', meaningVi: 'giáo viên' },
+        '学生': { pinyin: 'xuésheng', meaningVi: 'học sinh, sinh viên' },
+        '朋友': { pinyin: 'péngyou', meaningVi: 'bạn bè' },
+        '中国': { pinyin: 'Zhōngguó', meaningVi: 'Trung Quốc' },
+        '越南': { pinyin: 'Yuènán', meaningVi: 'Việt Nam' },
+        '喜欢': { pinyin: 'xǐhuan', meaningVi: 'thích, yêu thích' }
+      };
+      const vIdx = await loadLocalJson('/data/vocabulary/index.json');
+      const idxLookup = {};
+      if (Array.isArray(vIdx)) {
+        vIdx.forEach(e => {
+          if (e && e.h && !idxLookup[e.h]) idxLookup[e.h] = { pinyin: e.p || '', meaningVi: e.m || '' };
+        });
+      }
+      const learnedList = Array.isArray(sum.prog.wordsLearned) ? sum.prog.wordsLearned : [];
+      const allWords = learnedList.map((hz, idx) => {
+        const clean = String(hz).replace(/^w:|^c:/, '');
+        const info = vocabMap[clean] || idxLookup[clean] || { pinyin: '', meaningVi: 'Từ vựng đã học' };
+        return {
+          itemKey: clean,
+          word: clean,
+          hanzi: clean,
+          pinyin: info.pinyin,
+          meaningVi: info.meaningVi,
+          state: idx % 3 === 2 ? 'learning' : 'review',
+          dueAt: new Date().toISOString()
+        };
+      });
+      let items = allWords;
       if (status === 'known') items = items.filter(x => x.state === 'review');
       if (status === 'learning') items = items.filter(x => x.state === 'learning');
       if (q) items = items.filter(x => x.word.includes(q) || x.pinyin.toLowerCase().includes(q) || x.meaningVi.toLowerCase().includes(q));
       return jsonResponse({
         items,
-        totals: { known: 8, learning: 4 },
+        totals: {
+          known: allWords.filter(x => x.state === 'review').length,
+          learning: allWords.filter(x => x.state === 'learning').length
+        },
         nextCursor: null
       });
     }
@@ -3636,13 +4114,25 @@
       return;
     }
     const word = data.word || data.hanzi || decodeURIComponent(slug);
-    const pinyin = (Array.isArray(data.pinyins) && data.pinyins.join(', ')) || data.pinyin || '';
-    const hanviet = data.hanviet || '';
-    const meaning = data.meaningVi || (Array.isArray(data.meanings) && data.meanings.join('; ')) || '';
+    const pinyin = data.wordPinyin || (Array.isArray(data.pinyins) && data.pinyins.join(', ')) || data.pinyin || '';
+    const hanviet = data.hanViet || data.hanviet || '';
+    const meaning =
+      data.meaningVi ||
+      data.wordMeaningVi ||
+      data.translationVi ||
+      (Array.isArray(data.meanings) && data.meanings.join('; ')) ||
+      '';
+    const pos = data.partOfSpeechVi || data.partOfSpeech || '';
+    const usageNote = data.usageNote || '';
     const hsk = data.hskLevel || '';
     const examples = Array.isArray(data.examples) ? data.examples : [];
+    const commonWords = Array.isArray(data.commonWords) ? data.commonWords : [];
     const chars = Array.from(word).filter(c => /[\u4e00-\u9fff]/.test(c));
-    const audioUrl = rewriteMediaUrl(data.audioUrl || `https://static.xiehanzi.com/word_audios/${word}.mp3`);
+    const audioUrl = rewriteMediaUrl(
+      (Array.isArray(data.audios) && data.audios[0]) ||
+        data.audioUrl ||
+        `https://static.xiehanzi.com/word_audios/${encodeURIComponent(word)}.mp3`
+    );
 
     document.title = `Từ vựng ${word} (${pinyin}) - ${meaning} | XieHanzi`;
 
@@ -3655,13 +4145,15 @@
           <div>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
               <h1 style="font-size:44px;font-weight:800;margin:0;color:#1c1917;font-family:'Noto Serif SC',serif;">${word}</h1>
-              <span style="font-size:24px;color:#ea580c;font-weight:700;">[${pinyin}]</span>
+              ${pinyin ? `<span style="font-size:24px;color:#ea580c;font-weight:700;">[${pinyin}]</span>` : ''}
               ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;text-transform:uppercase;">${hanviet}</span>` : ''}
+              ${pos ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-weight:700;font-size:13px;">${pos}</span>` : ''}
               ${hsk ? `<span style="padding:4px 12px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${hsk}</span>` : ''}
             </div>
-            <div style="font-size:20px;color:#292524;margin-top:12px;">
-              <strong>Nghĩa:</strong> ${meaning}
+            <div style="font-size:20px;color:#292524;margin-top:12px;line-height:1.5;">
+              <strong>Nghĩa:</strong> ${meaning || 'Đang cập nhật'}
             </div>
+            ${usageNote ? `<div style="margin-top:10px;padding:10px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;">💡 <strong>Cách dùng:</strong> ${usageNote}</div>` : ''}
           </div>
           <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
         </div>
@@ -3673,18 +4165,40 @@
           </div>
         </div>
 
+        ${commonWords.length > 0 ? `
+        <div style="margin-top:22px;padding-top:16px;border-top:1px solid #f5f5f4;">
+          <h3 style="font-size:17px;font-weight:700;color:#1c1917;margin-bottom:10px;">🔗 Từ ghép & cụm từ thông dụng (${commonWords.length})</h3>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px;">
+            ${commonWords.slice(0, 12).map(cw => {
+              const cwHz = cw.hanzi || cw.word || '';
+              const cwPy = cw.pinyin || '';
+              const cwVi = cw.meaningVi || cw.meaning || '';
+              return `<a href="/tu-vung/${encodeURIComponent(cwHz)}" style="padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-size:18px;font-weight:800;font-family:'Noto Serif SC',serif;">${cwHz}</span>
+                  <span style="font-size:13px;color:#ea580c;font-weight:700;">${cwPy}</span>
+                </div>
+                <div style="font-size:13px;color:#57534e;margin-top:4px;">${cwVi}</div>
+              </a>`;
+            }).join('')}
+          </div>
+        </div>` : ''}
+
         ${examples.length > 0 ? `
         <div style="margin-top:24px;padding-top:16px;border-top:1px solid #f5f5f4;">
           <h3 style="font-size:18px;font-weight:700;color:#1c1917;margin-bottom:12px;">💬 Ví dụ mẫu câu (${examples.length})</h3>
           <div style="display:flex;flex-direction:column;gap:12px;">
             ${examples.map(ex => {
-              const zh = ex.chinese || ex.hanzi || ex.zh || '';
+              const zh = (ex.chinese || ex.hanzi || ex.zh || '').replace(/\{|\}/g, '');
               const py = ex.pinyin || '';
               const vi = ex.vietnamese || ex.meaningVi || ex.vi || '';
-              return `<div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;">
-                <div style="font-size:18px;font-weight:700;color:#1c1917;">${zh}</div>
-                <div style="font-size:14px;color:#ea580c;margin-top:2px;">${py}</div>
-                <div style="font-size:15px;color:#44403c;margin-top:4px;">${vi}</div>
+              return `<div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+                <div>
+                  <div style="font-size:18px;font-weight:700;color:#1c1917;">${zh}</div>
+                  <div style="font-size:14px;color:#ea580c;margin-top:2px;">${py}</div>
+                  <div style="font-size:15px;color:#44403c;margin-top:4px;">${vi}</div>
+                </div>
+                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
               </div>`;
             }).join('')}
           </div>
@@ -3888,6 +4402,7 @@
 
   // --------------------------------------------------------------------------
   // 6.5. Trang Làm Bài Kiểm Tra Ngữ Pháp (/kiem-tra-ngu-phap/lam-bai)
+  //      Chuẩn 1:1 theo giao diện gốc xiehanzi.com
   // --------------------------------------------------------------------------
   async function renderGrammarQuizRunPage(searchParams) {
     let root = getMainContentContainer();
@@ -3912,133 +4427,330 @@
       }
     }
     const questions = allQuestions.slice(0, count);
-    document.title = `Làm bài Kiểm tra Ngữ pháp (${questions.length} câu) | XieHanzi`;
+    document.title = `Kiểm tra ngữ pháp (${questions.length} câu) | XieHanzi`;
     root = getMainContentContainer();
 
     root.innerHTML = `
-      <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <a href="/kiem-tra-ngu-phap" style="color:#ea580c;font-weight:700;text-decoration:none;">← Chọn lại cấu hình đề</a>
-        <div id="xhz-gq-score-badge" style="padding:8px 18px;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:800;border:1px solid #fed7aa;">
-          Đã làm: 0 / ${questions.length} câu
+      <style>
+        .xhz-gq-shell { margin: -24px -16px 0 -16px; background: #edeae2; min-height: calc(100vh - 64px); padding-bottom: 48px; color: #1c1917; font-family: inherit; }
+        .xhz-gq-topbar { position: sticky; top: 0; z-index: 35; background: rgba(245, 242, 235, 0.96); backdrop-filter: blur(8px); border-bottom: 1px solid #dfd9cd; padding: 12px 24px; }
+        .xhz-gq-topbar-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+        .xhz-gq-body { max-width: 1120px; margin: 24px auto 0; padding: 0 20px; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 24px; align-items: start; }
+        @media (max-width: 900px) {
+          .xhz-gq-body { grid-template-columns: 1fr; }
+          .xhz-gq-sidebar { position: static !important; order: -1; }
+        }
+        .xhz-gq-qcard { background: #f5f2eb; border: 1px solid #e2ddd2; border-radius: 18px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03); scroll-margin-top: 84px; transition: border-color 0.2s; }
+        .xhz-gq-qcard.is-active { border-color: #d6cfc2; }
+        .xhz-gq-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+        @media (max-width: 640px) {
+          .xhz-gq-opts { grid-template-columns: 1fr; }
+        }
+        .xhz-gq-opt { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid #dfd9cd; background: #faf8f4; color: #1c1917; font-size: 15px; font-weight: 500; text-align: left; cursor: pointer; transition: all 0.15s; }
+        .xhz-gq-opt:hover { border-color: #b91c1c; background: #fff; }
+        .xhz-gq-opt-letter { width: 26px; height: 26px; border-radius: 999px; border: 1px solid #d0c9bc; background: #f5f2eb; color: #57534e; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .xhz-gq-opt.is-selected { border-color: #b91c1c; background: #fef2f2; color: #7f1d1d; font-weight: 700; }
+        .xhz-gq-opt.is-selected .xhz-gq-opt-letter { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+        .xhz-gq-opt.is-correct { border-color: #16a34a !important; background: #dcfce7 !important; color: #14532d !important; font-weight: 700; }
+        .xhz-gq-opt.is-correct .xhz-gq-opt-letter { background: #16a34a !important; border-color: #16a34a !important; color: #fff !important; }
+        .xhz-gq-opt.is-wrong { border-color: #dc2626 !important; background: #fee2e2 !important; color: #7f1d1d !important; }
+        .xhz-gq-opt.is-wrong .xhz-gq-opt-letter { background: #dc2626 !important; border-color: #dc2626 !important; color: #fff !important; }
+        .xhz-gq-nav-btn { height: 36px; border-radius: 10px; border: 1.5px solid transparent; background: #dfd9cd; color: #44403c; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.15s; }
+        .xhz-gq-nav-btn:hover { opacity: 0.9; }
+        .xhz-gq-nav-btn.is-current { border-color: #b91c1c; background: #efeae0; color: #1c1917; }
+        .xhz-gq-nav-btn.is-answered { background: #b91c1c; color: #fff; }
+        .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #f5f2eb; }
+      </style>
+      <div class="xhz-gq-shell">
+        <div class="xhz-gq-topbar">
+          <div class="xhz-gq-topbar-inner">
+            <div style="display:flex;align-items:center;gap:18px;">
+              <a href="/kiem-tra-ngu-phap" style="display:inline-flex;align-items:center;gap:6px;color:#57534e;font-size:14px;font-weight:600;text-decoration:none;">
+                <span style="font-size:16px;">‹</span> Thoát
+              </a>
+              <div>
+                <div style="font-size:15px;font-weight:800;color:#1c1917;line-height:1.2;">Kiểm tra ngữ pháp</div>
+                <div id="xhz-gq-answered-sub" style="font-size:12px;color:#78716c;margin-top:2px;">Đã trả lời 0/${questions.length}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #d6cfc2;background:#f5f2eb;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
+              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#b91c1c;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(185,28,28,0.25);">Nộp bài</button>
+            </div>
+          </div>
         </div>
-      </div>
-      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-        <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 6px 0;">📝 Bài Kiểm Tra Ngữ Pháp (${questions.length} câu)</h1>
-        <p style="color:#57534e;font-size:14px;margin:0 0 20px 0;">Chọn đáp án trắc nghiệm hoặc nhập bản dịch rồi nhấn Kiểm tra để chấm điểm ngay.</p>
-        <div id="xhz-gq-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+
+        <div id="xhz-gq-result-banner" style="display:none;max-width:1120px;margin:20px auto 0;padding:0 20px;"></div>
+
+        <div class="xhz-gq-body">
+          <div id="xhz-gq-list" style="display:flex;flex-direction:column;gap:18px;"></div>
+          <div class="xhz-gq-sidebar" style="position:sticky;top:76px;background:#f5f2eb;border:1px solid #e2ddd2;border-radius:18px;padding:18px;">
+            <div style="font-size:14px;font-weight:800;color:#1c1917;margin-bottom:12px;">Câu hỏi</div>
+            <div id="xhz-gq-nav-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;"></div>
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e5e0d5;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#57534e;">
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#b91c1c;display:inline-block;"></span> Đã trả lời</div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#dfd9cd;display:inline-block;"></span> Chưa trả lời</div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#d97706;display:inline-block;"></span> Đã đánh dấu</div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
 
     const listEl = document.getElementById('xhz-gq-list');
-    const scoreBadge = document.getElementById('xhz-gq-score-badge');
-    let answeredCount = 0;
-    let correctCount = 0;
-    const answeredSet = new Set();
+    const navGridEl = document.getElementById('xhz-gq-nav-grid');
+    const answeredSub = document.getElementById('xhz-gq-answered-sub');
+    const submitBtn = document.getElementById('xhz-gq-submit');
+    const fsBtn = document.getElementById('xhz-gq-fullscreen');
+    const resultBanner = document.getElementById('xhz-gq-result-banner');
 
-    const updateBadge = () => {
-      if (scoreBadge) {
-        scoreBadge.textContent = `Điểm trắc nghiệm: ${correctCount} đúng • Đã làm ${answeredSet.size} / ${questions.length} câu`;
+    let currentIdx = 0;
+    let isSubmitted = false;
+    const userAnswers = {};
+    const flaggedSet = new Set();
+    const navButtons = [];
+    const cardEls = [];
+
+    if (fsBtn) {
+      fsBtn.onclick = () => {
+        try {
+          if (!document.fullscreenElement) {
+            document.documentElement.requestFullscreen().catch(() => {});
+          } else {
+            document.exitFullscreen().catch(() => {});
+          }
+        } catch (_) {}
+      };
+    }
+
+    const syncNavAndStatus = () => {
+      const ansCount = Object.keys(userAnswers).length;
+      if (answeredSub) {
+        answeredSub.textContent = isSubmitted
+          ? `Đã nộp bài • Đạt ${ countCorrect() }/${questions.length} câu đúng`
+          : `Đã trả lời ${ansCount}/${questions.length}`;
       }
+      navButtons.forEach((nb, i) => {
+        nb.classList.toggle('is-current', i === currentIdx);
+        nb.classList.toggle('is-answered', userAnswers[i] !== undefined && String(userAnswers[i]).trim() !== '');
+        nb.classList.toggle('is-flagged', flaggedSet.has(i));
+      });
+    };
+
+    const countCorrect = () => {
+      let c = 0;
+      questions.forEach((q, i) => {
+        if (q.type === 'mcq') {
+          const rightKey = q.answer !== undefined ? String(q.answer) : String.fromCharCode(65 + (q.correctIndex || 0));
+          if (userAnswers[i] === rightKey) c++;
+        } else if (userAnswers[i] && String(userAnswers[i]).trim().length > 0) {
+          c++;
+        }
+      });
+      return c;
     };
 
     questions.forEach((q, idx) => {
+      const nb = document.createElement('button');
+      nb.type = 'button';
+      nb.className = 'xhz-gq-nav-btn' + (idx === 0 ? ' is-current' : '');
+      nb.textContent = String(idx + 1);
+      nb.onclick = () => {
+        currentIdx = idx;
+        syncNavAndStatus();
+        if (cardEls[idx]) {
+          cardEls[idx].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      };
+      navGridEl.appendChild(nb);
+      navButtons.push(nb);
+
       const card = document.createElement('div');
-      card.style.cssText = 'padding:20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;';
-      const gp = q.grammarPoint || {};
-      const headerHtml = `
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap;">
-          <span style="font-size:13px;font-weight:800;padding:4px 10px;border-radius:999px;background:#e7e5e4;color:#1c1917;">Câu ${idx + 1} / ${questions.length}</span>
-          ${gp.title ? `<span style="font-size:13px;color:#ea580c;font-weight:700;">Chủ điểm: ${gp.title} (${gp.pattern || gp.level || ''})</span>` : ''}
+      card.className = 'xhz-gq-qcard' + (idx === 0 ? ' is-active' : '');
+      cardEls.push(card);
+
+      const typeLabel =
+        q.type === 'mcq'
+          ? 'Trắc nghiệm'
+          : q.type === 'translate_zh_vi'
+          ? 'Dịch Trung → Việt'
+          : 'Dịch Việt → Trung';
+
+      const stemText = q.prompt || q.stem || '';
+      const hintText = q.vietnameseHint ? ` (${q.vietnameseHint})` : '';
+
+      const topRowHtml = `
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="width:28px;height:28px;border-radius:999px;background:#f9dada;color:#b91c1c;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;">${idx + 1}</span>
+            <span style="font-size:13px;color:#78716c;font-weight:600;">${typeLabel}</span>
+          </div>
+          <button type="button" class="xhz-gq-flag-btn" title="Đánh dấu câu hỏi" style="width:36px;height:36px;border-radius:10px;border:1px solid #dfd9cd;background:#faf8f4;color:#78716c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+          </button>
         </div>
       `;
 
       if (q.type === 'mcq') {
-        const stemText = q.prompt || q.stem || '';
-        const stemPy = q.pinyin || q.stemPinyin || '';
         card.innerHTML = `
-          ${headerHtml}
-          <div style="font-size:20px;font-weight:700;color:#1c1917;margin-bottom:6px;">${stemText}</div>
-          ${stemPy ? `<div style="font-size:14px;color:#ea580c;margin-bottom:4px;">${stemPy}</div>` : ''}
-          ${q.vietnameseHint ? `<div style="font-size:14px;color:#57534e;margin-bottom:14px;">💡 Nghĩa: ${q.vietnameseHint}</div>` : ''}
-          <div class="xhz-gq-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;"></div>
-          <div class="xhz-gq-exp" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;"></div>
+          ${topRowHtml}
+          <div style="font-size:20px;font-weight:700;color:#1c1917;margin-top:10px;line-height:1.55;font-family:'Noto Serif SC',system-ui,sans-serif;">
+            ${stemText}<span style="font-weight:600;color:#292524;">${hintText}</span>
+          </div>
+          ${q.pinyin || q.stemPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${q.pinyin || q.stemPinyin}</div>` : ''}
+          <div class="xhz-gq-opts"></div>
+          <div class="xhz-gq-exp" style="display:none;margin-top:14px;padding:12px 16px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;"></div>
         `;
         const optsWrap = card.querySelector('.xhz-gq-opts');
-        const expEl = card.querySelector('.xhz-gq-exp');
         const options = Array.isArray(q.options) ? q.options : [];
         const rightAnswerKey = q.answer !== undefined ? String(q.answer) : String.fromCharCode(65 + (q.correctIndex || 0));
+
         options.forEach((optItem, optIdx) => {
-          const optKey = typeof optItem === 'object' ? String(optItem.id || optItem.key || String.fromCharCode(65 + optIdx)) : String.fromCharCode(65 + optIdx);
+          const letter = String.fromCharCode(65 + optIdx);
+          const optKey = typeof optItem === 'object' ? String(optItem.id || optItem.key || letter) : letter;
           const optLabel = typeof optItem === 'object' ? (optItem.text || optItem.label || optItem.value || '') : String(optItem);
           const isThisCorrect = optKey === rightAnswerKey || optIdx === q.correctIndex;
+
           const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'xhz-gq-opt';
+          btn.dataset.key = optKey;
           btn.dataset.correct = isThisCorrect ? '1' : '0';
-          btn.style.cssText = 'padding:12px 14px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;text-align:left;cursor:pointer;font-size:16px;font-weight:600;';
-          btn.innerHTML = `<span style="color:#ea580c;font-weight:800;margin-right:6px;">${String.fromCharCode(65 + optIdx)}.</span> ${optLabel}`;
+          btn.innerHTML = `<span class="xhz-gq-opt-letter">${letter}</span><span>${optLabel}</span>`;
           btn.onclick = () => {
-            if (!answeredSet.has(idx)) {
-              answeredSet.add(idx);
-              if (isThisCorrect) correctCount++;
-              updateBadge();
+            if (isSubmitted) return;
+            currentIdx = idx;
+            userAnswers[idx] = optKey;
+            Array.from(optsWrap.children).forEach(b => b.classList.remove('is-selected'));
+            btn.classList.add('is-selected');
+            syncNavAndStatus();
+          };
+          optsWrap.appendChild(btn);
+        });
+      } else {
+        card.innerHTML = `
+          ${topRowHtml}
+          <div style="font-size:19px;font-weight:700;color:#1c1917;margin-top:10px;line-height:1.55;">
+            ${stemText}
+          </div>
+          ${q.promptPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${q.promptPinyin}</div>` : ''}
+          <div style="margin-top:12px;">
+            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #dfd9cd;font-size:15px;color:#1c1917;background:#faf8f4;box-sizing:border-box;" />
+          </div>
+          <div class="xhz-gq-exp" style="display:none;margin-top:14px;padding:12px 16px;border-radius:12px;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;font-size:14px;line-height:1.5;"></div>
+        `;
+        const inp = card.querySelector('.xhz-gq-input');
+        if (inp) {
+          inp.onfocus = () => {
+            currentIdx = idx;
+            syncNavAndStatus();
+          };
+          inp.oninput = () => {
+            if (isSubmitted) return;
+            if (inp.value.trim()) {
+              userAnswers[idx] = inp.value.trim();
+            } else {
+              delete userAnswers[idx];
             }
-            Array.from(optsWrap.children).forEach(b => {
-              b.style.background = '#fff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-              if (b.dataset.correct === '1') {
-                b.style.background = '#dcfce7';
-                b.style.borderColor = '#16a34a';
-                b.style.color = '#14532d';
-              }
-            });
-            if (!isThisCorrect) {
-              btn.style.background = '#fee2e2';
-              btn.style.borderColor = '#dc2626';
-              btn.style.color = '#7f1d1d';
+            syncNavAndStatus();
+          };
+        }
+      }
+
+      const flagBtn = card.querySelector('.xhz-gq-flag-btn');
+      if (flagBtn) {
+        flagBtn.onclick = () => {
+          currentIdx = idx;
+          if (flaggedSet.has(idx)) {
+            flaggedSet.delete(idx);
+            flagBtn.style.color = '#78716c';
+            flagBtn.style.borderColor = '#dfd9cd';
+            flagBtn.style.background = '#faf8f4';
+          } else {
+            flaggedSet.add(idx);
+            flagBtn.style.color = '#d97706';
+            flagBtn.style.borderColor = '#f59e0b';
+            flagBtn.style.background = '#fffbeb';
+          }
+          syncNavAndStatus();
+        };
+      }
+
+      listEl.appendChild(card);
+    });
+
+    if (submitBtn) {
+      submitBtn.onclick = () => {
+        if (isSubmitted) {
+          window.location.reload();
+          return;
+        }
+        isSubmitted = true;
+        const totalRight = countCorrect();
+        const pct = Math.round((totalRight / Math.max(1, questions.length)) * 100);
+        submitBtn.textContent = 'Làm đề mới';
+        submitBtn.style.background = '#1c1917';
+
+        recordStudyProgress({ minutes: 5, gradingInc: 1 });
+
+        if (resultBanner) {
+          resultBanner.style.display = 'block';
+          resultBanner.innerHTML = `
+            <div style="background:#fff;border:2px solid #b91c1c;border-radius:18px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;box-shadow:0 8px 24px rgba(185,28,28,0.08);">
+              <div>
+                <div style="font-size:13px;font-weight:800;color:#b91c1c;text-transform:uppercase;">Kết quả bài kiểm tra ngữ pháp</div>
+                <div style="font-size:26px;font-weight:800;color:#1c1917;margin-top:4px;">Đúng ${totalRight} / ${questions.length} câu (${pct}%)</div>
+                <div style="font-size:14px;color:#57534e;margin-top:2px;">Xem giải thích chi tiết ở từng câu bên dưới.</div>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <a href="/kiem-tra-ngu-phap" style="padding:10px 18px;border-radius:999px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-weight:700;text-decoration:none;font-size:14px;">Chọn lại cấu hình</a>
+              </div>
+            </div>
+          `;
+        }
+
+        questions.forEach((q, idx) => {
+          const card = cardEls[idx];
+          if (!card) return;
+          const expEl = card.querySelector('.xhz-gq-exp');
+          if (q.type === 'mcq') {
+            const optsWrap = card.querySelector('.xhz-gq-opts');
+            const options = Array.isArray(q.options) ? q.options : [];
+            const rightAnswerKey = q.answer !== undefined ? String(q.answer) : String.fromCharCode(65 + (q.correctIndex || 0));
+            const pickedKey = userAnswers[idx];
+            if (optsWrap) {
+              Array.from(optsWrap.children).forEach(b => {
+                b.classList.remove('is-selected');
+                if (b.dataset.correct === '1') {
+                  b.classList.add('is-correct');
+                } else if (pickedKey && b.dataset.key === pickedKey) {
+                  b.classList.add('is-wrong');
+                }
+              });
             }
             if (expEl) {
               const rightObj = options.find((o, i) => (typeof o === 'object' ? String(o.id || o.key) === rightAnswerKey : i === q.correctIndex));
               const rightText = typeof rightObj === 'object' ? (rightObj.text || '') : (rightObj || '');
               expEl.style.display = 'block';
-              expEl.innerHTML = `<strong>Đáp án đúng: ${rightText}</strong><br/>${q.explanation || ''}`;
+              expEl.innerHTML = `<strong>Đáp án đúng: ${rightAnswerKey}. ${rightText}</strong>${q.explanation ? `<div style="margin-top:4px;">${q.explanation}</div>` : ''}`;
             }
-          };
-          optsWrap.appendChild(btn);
-        });
-      } else {
-        const isZhToVi = q.type === 'translate_zh_vi';
-        card.innerHTML = `
-          ${headerHtml}
-          <div style="font-size:14px;font-weight:700;color:#57534e;margin-bottom:6px;">${isZhToVi ? 'Dịch câu tiếng Trung sau sang tiếng Việt:' : 'Dịch câu tiếng Việt sau sang tiếng Trung:'}</div>
-          <div style="font-size:20px;font-weight:700;color:#1c1917;margin-bottom:6px;">${q.prompt || ''}</div>
-          ${q.promptPinyin ? `<div style="font-size:14px;color:#ea580c;margin-bottom:12px;">${q.promptPinyin}</div>` : ''}
-          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:8px;">
-            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:15px;color:#1c1917;background:#fff;" />
-            <button class="xhz-gq-check" style="padding:10px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">Đổi chiếu đáp án</button>
-          </div>
-          <div class="xhz-gq-exp" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;font-size:15px;"></div>
-        `;
-        const checkBtn = card.querySelector('.xhz-gq-check');
-        const expEl = card.querySelector('.xhz-gq-exp');
-        if (checkBtn && expEl) {
-          checkBtn.onclick = () => {
-            if (!answeredSet.has(idx)) {
-              answeredSet.add(idx);
-              correctCount++;
-              updateBadge();
-            }
+          } else if (expEl) {
             expEl.style.display = 'block';
             expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${q.referenceAnswer || ''}${q.referencePinyin ? `<br/><span style="color:#ea580c;">Pinyin: ${q.referencePinyin}</span>` : ''}`;
-          };
-        }
-      }
+          }
+        });
 
-      listEl.appendChild(card);
-    });
+        syncNavAndStatus();
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+    }
+
+    syncNavAndStatus();
   }
 
   // --------------------------------------------------------------------------
   // 6.6. Trang Giáo Trình & Thư Viện (/thu-vien-*/:sub*)
+  //      Chuẩn 1:1 theo giao diện gốc xiehanzi.com (Hero xanh + Grid 5 cột)
   // --------------------------------------------------------------------------
   async function renderCurriculumSubPage(pathname) {
     const parts = pathname.split('/').filter(Boolean);
@@ -4056,7 +4768,18 @@
       'thu-vien-tu-vung': 'new-hsk',
       'thu-vien-chu-han': 'hsk'
     };
+    const currBrandMap = {
+      'thu-vien-new-hsk': 'Thư viện HSK 3.0 (9 cấp)',
+      'thu-vien-hsk': 'Thư viện HSK 2.0 (6 cấp)',
+      'thu-vien-yct': 'Thư viện YCT',
+      'thu-vien-boya': 'Giáo trình Boya',
+      'thu-vien-boyahsk': 'Giáo trình Boya HSK',
+      'thu-vien-hanyu-jiaocheng': 'Giáo trình Hán Ngữ',
+      'thu-vien-giao-trinh-han-ngu': 'Giáo trình Hán Ngữ',
+      'thu-vien-msutong': 'Giáo trình MSutong'
+    };
     const curr = currMap[rootSlug] || 'new-hsk';
+    const brandTitle = currBrandMap[rootSlug] || 'Thư viện HSK 3.0 (9 cấp)';
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải nội dung giáo trình...</div>`;
 
@@ -4071,10 +4794,10 @@
       const lessons = Array.isArray(levelObj.lessons) ? levelObj.lessons : [];
       const items = lessons.length > 0 ? lessons : topics;
 
-      document.title = `${levelObj.name || levelSlug} - Giáo trình ${curr.toUpperCase()} | XieHanzi`;
+      document.title = `${levelObj.name || levelSlug} - ${brandTitle} | XieHanzi`;
       root.innerHTML = `
         <div style="margin-bottom:16px;">
-          <a href="/${rootSlug}" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại ${rootSlug.replace(/-/g, ' ').toUpperCase()}</a>
+          <a href="/${rootSlug}" style="color:#2563eb;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
           <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📘 ${levelObj.name || levelSlug.toUpperCase()}</h1>
@@ -4089,7 +4812,7 @@
               const label = t.titleVi || t.topic || t.titleZh || slug;
               return `
                 <a href="${href}" style="display:block;padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
-                  <div style="font-size:13px;color:#ea580c;font-weight:700;">${isLesson ? `Bài ${t.lessonNumber || i + 1}` : `Chủ đề ${i + 1}`}</div>
+                  <div style="font-size:13px;color:#2563eb;font-weight:700;">${isLesson ? `Bài ${t.lessonNumber || i + 1}` : `Chủ đề ${i + 1}`}</div>
                   <div style="font-size:18px;font-weight:700;margin-top:4px;color:#1c1917;">${label}</div>
                   <div style="font-size:14px;color:#57534e;margin-top:6px;">${t.wordCount || 0} từ vựng →</div>
                 </a>
@@ -4129,16 +4852,20 @@
       (topicObj && (topicObj.topic || topicObj.name || topicObj.titleVi)) ||
       itemSlug;
     const subtitleZh = lessonObj && lessonObj.titleZh ? lessonObj.titleZh : '';
-    const subtitlePy = lessonObj && lessonObj.titlePinyin ? lessonObj.titlePinyin : '';
+    const lessonNum = (lessonObj && lessonObj.lessonNumber) || (itemSlug.match(/bai-(\d+)/i) || [])[1] || '1';
+    const lvlNum = (levelSlug.match(/\d+/) || ['1'])[0];
+    const levelLabel = curr === 'new-hsk' ? `HSK 3.0 cấp ${lvlNum}` : `HSK cấp ${lvlNum}`;
     const baseDetailUrl = '/' + [rootSlug, ...effectiveParts].join('/');
     const practiceUrl = baseDetailUrl + '/luyen-tap';
+    const flashcardUrl = baseDetailUrl + '/flashcard';
 
     if (isPractice && words.length > 0) {
-      document.title = `Luyện tập: ${title} - ${levelSlug.toUpperCase()} | XieHanzi`;
+      const startQuizMode = lastSeg === 'luyen-tap' || lastSeg === 'practice';
+      document.title = `Luyện tập: ${title} - ${levelLabel} | XieHanzi`;
       root.innerHTML = `
         <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <a href="${baseDetailUrl}" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
-          <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${levelSlug.toUpperCase()}</a>
+          <a href="${baseDetailUrl}" style="color:#2563eb;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
+          <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${levelLabel}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
@@ -4147,7 +4874,7 @@
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chế độ Flashcard lật thẻ & Trắc nghiệm nhanh (${words.length} từ vựng)</p>
             </div>
             <div style="display:flex;gap:8px;">
-              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
+              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#2563eb;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
               <button id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
             </div>
           </div>
@@ -4173,21 +4900,21 @@
         stage.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 0;">
             <div style="font-size:14px;font-weight:700;color:#78716c;">Thẻ ${idx + 1} / ${words.length}</div>
-            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #fed7aa;background:#fff7ed;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(234,88,12,0.08);transition:all 0.2s;">
+            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #bfdbfe;background:#eff6ff;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,0.08);transition:all 0.2s;">
               <div style="font-size:64px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</div>
-              <div style="font-size:22px;font-weight:700;color:#ea580c;margin-top:8px;">${py}</div>
+              <div style="font-size:22px;font-weight:700;color:#2563eb;margin-top:8px;">${py}</div>
               ${flipped ? `
-                <div style="margin-top:16px;padding-top:16px;border-top:1px dashed #fdba74;width:100%;">
-                  ${hv ? `<div style="font-size:13px;font-weight:700;color:#9a3412;text-transform:uppercase;">Hán Việt: ${hv}</div>` : ''}
+                <div style="margin-top:16px;padding-top:16px;border-top:1px dashed #93c5fd;width:100%;">
+                  ${hv ? `<div style="font-size:13px;font-weight:700;color:#1e40af;text-transform:uppercase;">Hán Việt: ${hv}</div>` : ''}
                   <div style="font-size:22px;font-weight:800;color:#1c1917;margin-top:6px;">${vi}</div>
-                  ${ex ? `<div style="margin-top:10px;font-size:15px;color:#44403c;background:#fff;padding:10px;border-radius:10px;"><div><strong>${(ex.chinese || '').replace(/\{|\}/g, '')}</strong></div><div style="color:#ea580c;font-size:13px;">${ex.pinyin || ''}</div><div>${ex.vietnamese || ''}</div></div>` : ''}
+                  ${ex ? `<div style="margin-top:10px;font-size:15px;color:#44403c;background:#fff;padding:10px;border-radius:10px;"><div><strong>${(ex.chinese || '').replace(/\{|\}/g, '')}</strong></div><div style="color:#2563eb;font-size:13px;">${ex.pinyin || ''}</div><div>${ex.vietnamese || ''}</div></div>` : ''}
                 </div>
-              ` : `<div style="margin-top:18px;font-size:13px;color:#9a3412;font-weight:600;">👆 Nhấn vào thẻ để lật xem nghĩa tiếng Việt</div>`}
+              ` : `<div style="margin-top:18px;font-size:13px;color:#1d4ed8;font-weight:600;">👆 Nhấn vào thẻ để lật xem nghĩa tiếng Việt</div>`}
             </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
               <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
-              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#ffedd5;color:#9a3412;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
-              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#ea580c;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
+              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#dbeafe;color:#1e40af;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
               <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
             </div>
           </div>
@@ -4203,7 +4930,7 @@
         let score = 0;
         const answered = new Set();
         stage.innerHTML = `
-          <div id="xhz-curr-quiz-score" style="margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#fff7ed;color:#9a3412;font-weight:800;">Điểm số: 0 / ${words.length}</div>
+          <div id="xhz-curr-quiz-score" style="margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#eff6ff;color:#1e40af;font-weight:800;">Điểm số: 0 / ${words.length}</div>
           <div id="xhz-curr-quiz-list" style="display:flex;flex-direction:column;gap:14px;"></div>
         `;
         const listEl = document.getElementById('xhz-curr-quiz-list');
@@ -4226,9 +4953,9 @@
               <div>
                 <span style="font-size:13px;font-weight:700;color:#78716c;margin-right:8px;">Câu ${qIdx + 1}/${words.length}</span>
                 <span style="font-size:24px;font-weight:800;color:#1c1917;">${hz}</span>
-                <span style="font-size:15px;color:#ea580c;font-weight:600;margin-left:8px;">[${py}]</span>
+                <span style="font-size:15px;color:#2563eb;font-weight:600;margin-left:8px;">[${py}]</span>
               </div>
-              <button class="xhz-q-speak" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
+              <button class="xhz-q-speak" style="border:none;background:#dbeafe;color:#1e40af;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
             </div>
             <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;"></div>
           `;
@@ -4242,7 +4969,10 @@
               const isCorrect = optText === rightVi;
               if (!answered.has(qIdx)) {
                 answered.add(qIdx);
-                if (isCorrect) score++;
+                if (isCorrect) {
+                  score++;
+                  recordStudyProgress({ words: [hz] });
+                }
                 scoreEl.textContent = `Điểm số: ${score} / ${words.length} (Đã làm ${answered.size} câu)`;
               }
               Array.from(optsWrap.children).forEach(b => {
@@ -4261,71 +4991,330 @@
       };
 
       btnFc.onclick = () => {
-        btnFc.style.background = '#ea580c';
+        btnFc.style.background = '#2563eb';
         btnFc.style.color = '#fff';
         btnQz.style.background = '#f5f5f4';
         btnQz.style.color = '#1c1917';
         renderFlashcard();
       };
       btnQz.onclick = () => {
-        btnQz.style.background = '#ea580c';
+        btnQz.style.background = '#2563eb';
         btnQz.style.color = '#fff';
         btnFc.style.background = '#f5f5f4';
         btnFc.style.color = '#1c1917';
         renderQuiz();
       };
-      renderFlashcard();
+      if (startQuizMode) {
+        btnQz.click();
+      } else {
+        renderFlashcard();
+      }
       return;
     }
 
-    document.title = `${title} - ${levelSlug.toUpperCase()} | XieHanzi`;
+    // Helper: detect tone color from pinyin string
+    const detectToneColor = py => {
+      const s = String(py || '').trim();
+      const firstSyl = s.split(/\s+/)[0] || s;
+      if (/[āēīōūǖ1]/.test(firstSyl)) return '#dc2626'; // 1st tone red
+      if (/[áéíóúǘ2]/.test(firstSyl)) return '#b45309'; // 2nd tone amber/brown
+      if (/[ǎěǐǒǔǚ3]/.test(firstSyl)) return '#15803d'; // 3rd tone green
+      if (/[àèìòùǜ4]/.test(firstSyl)) return '#1d4ed8'; // 4th tone blue
+      return '#78716c'; // neutral
+    };
+
+    let learnedSet = new Set();
+    try {
+      const savedArr = JSON.parse(localStorage.getItem('httq_curr_learned_words') || '[]') || [];
+      const progWords = (getRealProgress().wordsLearned || []);
+      [...savedArr, ...progWords].forEach(w => learnedSet.add(String(w).replace(/^w:|^c:/, '')));
+    } catch (_) {}
+
+    const estMinutes = Math.max(5, Math.round(words.length * 0.8));
+    const audioCount = words.filter(w => w.audioUrl || w.hanzi || w.word).length;
+    const allHzString = words.map(w => (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '')).join('');
+
+    document.title = `${title} - ${levelLabel} | XieHanzi`;
+
     root.innerHTML = `
-      <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <a href="/${rootSlug}/${levelSlug}" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại ${levelSlug.toUpperCase()}</a>
-        ${words.length > 0 ? `<a href="${practiceUrl}" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;font-weight:700;text-decoration:none;box-shadow:0 4px 12px rgba(234,88,12,0.25);">🎯 Luyện tập / Flashcard (${words.length} từ) →</a>` : ''}
-      </div>
-      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-        <div style="margin-bottom:18px;border-bottom:1px solid #f5f5f4;padding-bottom:14px;">
-          <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0;">📖 ${title} (${words.length} từ vựng)</h1>
-          ${subtitleZh ? `<div style="font-size:18px;font-weight:700;color:#ea580c;margin-top:4px;">${subtitleZh} ${subtitlePy ? `<span style="font-weight:500;color:#78716c;">(${subtitlePy})</span>` : ''}</div>` : ''}
-        </div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;">
-          ${words.map((w, idx) => {
-            const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
-            const py = w.wordPinyin || w.pinyin || '';
-            const hv = w.hanviet || '';
-            const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
-            const pos = w.partOfSpeechVi || w.partOfSpeech || '';
-            const audioUrl = w.audioUrl ? rewriteMediaUrl(w.audioUrl) : '';
-            const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
-            const link = hz.length === 1 ? `/han-tu/${encodeURIComponent(hz)}` : `/tu-vung/${encodeURIComponent(hz)}`;
-            return `<div style="padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;color:#1c1917;">
-              <div>
-                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
-                  <div>
-                    <span style="font-size:12px;color:#78716c;font-weight:700;margin-right:6px;">#${idx + 1}</span>
-                    <a href="${link}" style="font-size:26px;font-weight:800;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;">${hz}</a>
-                  </div>
-                  <button onclick="window.__xhzPlayAudio('${hz.replace(/'/g, '')}', '${audioUrl.replace(/'/g, '')}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:5px 12px;cursor:pointer;font-size:13px;font-weight:700;">🔊 ${py}</button>
-                </div>
-                <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;">
-                  ${hv ? `<span style="font-size:12px;color:#9a3412;background:#fff7ed;padding:2px 8px;border-radius:6px;font-weight:700;text-transform:uppercase;">HV: ${hv}</span>` : ''}
-                  ${pos ? `<span style="font-size:12px;color:#57534e;background:#e7e5e4;padding:2px 8px;border-radius:6px;">${pos}</span>` : ''}
-                </div>
-                <div style="font-size:16px;font-weight:700;color:#292524;margin-top:8px;">${vi}</div>
-                ${ex ? `
-                  <div style="margin-top:10px;padding-top:8px;border-top:1px dashed #e7e5e4;font-size:13px;color:#44403c;">
-                    <div style="font-weight:700;color:#1c1917;">VD: ${(ex.chinese || '').replace(/\{|\}/g, '')}</div>
-                    <div style="color:#ea580c;">${ex.pinyin || ''}</div>
-                    <div style="color:#57534e;">${ex.vietnamese || ''}</div>
-                  </div>
-                ` : ''}
+      <style>
+        .xhz-curr-hero {
+          margin: -24px calc(50% - 50vw) 24px calc(50% - 50vw);
+          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
+          color: #fff;
+          padding: 28px 24px 22px;
+          position: relative;
+          overflow: hidden;
+        }
+        .xhz-curr-hero-watermark {
+          position: absolute;
+          right: 4%;
+          top: -18px;
+          font-size: 240px;
+          font-weight: 900;
+          color: rgba(255,255,255,0.07);
+          font-family: 'Noto Serif SC', serif;
+          line-height: 1;
+          pointer-events: none;
+          user-select: none;
+        }
+        .xhz-curr-hero-inner {
+          max-width: 1200px;
+          margin: 0 auto;
+          position: relative;
+          z-index: 2;
+        }
+        .xhz-curr-toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+          flex-wrap: wrap;
+          margin-bottom: 14px;
+        }
+        .xhz-curr-grid {
+          display: grid;
+          grid-template-columns: repeat(5, minmax(0, 1fr));
+          gap: 16px;
+        }
+        @media (max-width: 1150px) {
+          .xhz-curr-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        }
+        @media (max-width: 900px) {
+          .xhz-curr-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        }
+        @media (max-width: 640px) {
+          .xhz-curr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        .xhz-curr-wcard {
+          background: #faf8f5;
+          border: 1px solid #e5e0d5;
+          border-radius: 16px;
+          padding: 18px 16px 14px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-items: center;
+          text-align: center;
+          position: relative;
+          min-height: 196px;
+          transition: transform 0.15s, box-shadow 0.15s;
+        }
+        .xhz-curr-wcard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(28,25,23,0.07);
+          background: #fff;
+        }
+        .xhz-curr-grid.hide-pinyin .xhz-wcard-py { opacity: 0; pointer-events: none; }
+        .xhz-curr-grid.hide-meaning .xhz-wcard-vi { opacity: 0; pointer-events: none; }
+      </style>
+
+      <div class="xhz-curr-hero">
+        <div class="xhz-curr-hero-watermark">新</div>
+        <div class="xhz-curr-hero-inner">
+          <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:14px;flex-wrap:wrap;">
+            <a href="/${rootSlug}" style="color:rgba(255,255,255,0.85);text-decoration:none;">${brandTitle}</a>
+            <span>›</span>
+            <a href="/${rootSlug}/${levelSlug}" style="color:rgba(255,255,255,0.85);text-decoration:none;">${levelLabel}</a>
+            <span>›</span>
+            <span>Bài học</span>
+            <span>›</span>
+            <strong style="color:#fff;">Bài ${lessonNum}</strong>
+          </div>
+
+          <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,0.16);backdrop-filter:blur(4px);font-size:12px;font-weight:700;margin-bottom:10px;">
+            ✨ Bài ${lessonNum} · ${levelLabel}
+          </div>
+
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+            <div>
+              <h1 style="font-size:36px;font-weight:800;margin:0;color:#fff;line-height:1.2;">${title}</h1>
+              ${subtitleZh ? `<div style="font-size:20px;color:rgba(255,255,255,0.92);margin-top:6px;font-family:'Noto Serif SC',serif;">${subtitleZh}</div>` : ''}
+              <div style="font-size:14px;color:rgba(255,255,255,0.85);margin-top:8px;">
+                ${words.length} từ vựng · ~${estMinutes} phút · ${audioCount} có audio
               </div>
-            </div>`;
-          }).join('')}
+            </div>
+
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <a href="/tao-vo-tap-viet?text=${encodeURIComponent(allHzString)}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);color:#fff;font-weight:700;font-size:14px;text-decoration:none;">
+                📝 Tạo vở tập viết
+              </a>
+              <a href="${flashcardUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;background:rgba(255,255,255,0.16);border:1px solid rgba(255,255,255,0.28);color:#fff;font-weight:700;font-size:14px;text-decoration:none;">
+                🎓 Học bằng Flashcard
+              </a>
+              <a href="${practiceUrl}" style="display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:999px;background:#fff;color:#0f172a;font-weight:800;font-size:14px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,0.12);">
+                ▶ Bắt đầu luyện tập <span style="margin-left:2px;">›</span>
+              </a>
+            </div>
+          </div>
+
+          <div style="margin-top:22px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.16);">
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:12px;color:rgba(255,255,255,0.9);margin-bottom:6px;">
+              <span>Tiến độ học</span>
+              <strong id="xhz-curr-prog-text">0/${words.length} · 0%</strong>
+            </div>
+            <div style="height:6px;border-radius:999px;background:rgba(255,255,255,0.22);overflow:hidden;">
+              <div id="xhz-curr-prog-bar" style="height:100%;width:0%;background:#fff;border-radius:999px;transition:width 0.25s;"></div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div style="max-width:1200px;margin:0 auto;">
+        <div class="xhz-curr-toolbar">
+          <div style="flex:1;min-width:240px;position:relative;">
+            <input id="xhz-curr-search" type="text" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:14px;box-sizing:border-box;" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <div style="display:inline-flex;align-items:center;background:#ebe6dc;padding:3px;border-radius:999px;gap:4px;">
+              <button type="button" id="xhz-filter-all" style="padding:5px 12px;border-radius:999px;border:none;background:#dc2626;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Tất cả · ${words.length}</button>
+              <button type="button" id="xhz-filter-audio" style="padding:5px 10px;border-radius:999px;border:none;background:transparent;color:#44403c;font-size:12px;font-weight:700;cursor:pointer;">🔊 ${audioCount}</button>
+              <button type="button" id="xhz-filter-learned" style="padding:5px 10px;border-radius:999px;border:none;background:transparent;color:#44403c;font-size:12px;font-weight:700;cursor:pointer;">✓ <span id="xhz-learned-pill-cnt">0</span></button>
+            </div>
+            <button type="button" id="xhz-toggle-pinyin" style="padding:7px 14px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn pinyin</button>
+            <button type="button" id="xhz-toggle-meaning" style="padding:7px 14px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn nghĩa</button>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;gap:16px;font-size:12px;color:#57534e;margin-bottom:18px;flex-wrap:wrap;">
+          <span>Màu thanh điệu:</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;"><i style="width:9px;height:9px;border-radius:999px;background:#dc2626;display:inline-block;"></i> 1st tone (ˉ)</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;"><i style="width:9px;height:9px;border-radius:999px;background:#b45309;display:inline-block;"></i> 2nd tone (ˊ)</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;"><i style="width:9px;height:9px;border-radius:999px;background:#15803d;display:inline-block;"></i> 3rd tone (ˇ)</span>
+          <span style="display:inline-flex;align-items:center;gap:5px;"><i style="width:9px;height:9px;border-radius:999px;background:#1d4ed8;display:inline-block;"></i> 4th tone (ˋ)</span>
+        </div>
+
+        <div id="xhz-curr-word-grid" class="xhz-curr-grid"></div>
       </div>
     `;
+
+    const gridEl = document.getElementById('xhz-curr-word-grid');
+    const searchInput = document.getElementById('xhz-curr-search');
+    const progText = document.getElementById('xhz-curr-prog-text');
+    const progBar = document.getElementById('xhz-curr-prog-bar');
+    const learnedPillCnt = document.getElementById('xhz-learned-pill-cnt');
+    const btnFilterAll = document.getElementById('xhz-filter-all');
+    const btnFilterAudio = document.getElementById('xhz-filter-audio');
+    const btnFilterLearned = document.getElementById('xhz-filter-learned');
+    const btnTogglePy = document.getElementById('xhz-toggle-pinyin');
+    const btnToggleVi = document.getElementById('xhz-toggle-meaning');
+
+    let activeFilter = 'all';
+
+    const updateProgressUI = () => {
+      const inLessonLearned = words.filter(w => {
+        const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
+        return learnedSet.has(hz);
+      }).length;
+      const pct = words.length > 0 ? Math.round((inLessonLearned / words.length) * 100) : 0;
+      if (progText) progText.textContent = `${inLessonLearned}/${words.length} · ${pct}%`;
+      if (progBar) progBar.style.width = `${pct}%`;
+      if (learnedPillCnt) learnedPillCnt.textContent = String(inLessonLearned);
+    };
+
+    const renderGrid = () => {
+      const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      gridEl.innerHTML = '';
+
+      words.forEach(w => {
+        const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
+        const py = w.wordPinyin || w.pinyin || '';
+        const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+        const hskTag = w.hskLevel ? `New HSK ${w.hskLevel}` : '';
+        const audioUrl = w.audioUrl ? rewriteMediaUrl(w.audioUrl) : '';
+        const isLearned = learnedSet.has(hz);
+
+        if (activeFilter === 'learned' && !isLearned) return;
+        if (q && !hz.toLowerCase().includes(q) && !py.toLowerCase().includes(q) && !vi.toLowerCase().includes(q)) return;
+
+        const toneColor = detectToneColor(py);
+        const link = hz.length === 1 ? `/han-tu/${encodeURIComponent(hz)}` : `/tu-vung/${encodeURIComponent(hz)}`;
+
+        const card = document.createElement('div');
+        card.className = 'xhz-curr-wcard';
+        card.style.borderTop = `4px solid ${toneColor}`;
+
+        card.innerHTML = `
+          <button type="button" class="xhz-wcard-speak" title="Nghe phát âm" style="position:absolute;top:10px;right:10px;border:none;background:transparent;color:#57534e;cursor:pointer;font-size:15px;padding:4px;">🔊</button>
+          <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;width:100%;">
+            <a href="${link}" style="font-size:40px;font-weight:500;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;line-height:1.15;">${hz}</a>
+            <div class="xhz-wcard-py" style="font-size:14px;color:#57534e;margin-top:8px;transition:opacity 0.15s;">${py}</div>
+            <div class="xhz-wcard-vi" style="font-size:15px;font-weight:700;color:#1c1917;margin-top:6px;line-height:1.35;transition:opacity 0.15s;">${vi}</div>
+          </div>
+          <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:12px;min-height:24px;">
+            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e7e2d8;color:#57534e;">${hskTag}</span>` : ''}</span>
+            <button type="button" class="xhz-wcard-heart" title="${isLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}" style="border:none;background:transparent;color:${isLearned ? '#dc2626' : '#78716c'};cursor:pointer;font-size:16px;padding:2px 4px;">
+              ${isLearned ? '♥' : '♡'}
+            </button>
+          </div>
+        `;
+
+        const speakBtn = card.querySelector('.xhz-wcard-speak');
+        if (speakBtn) {
+          speakBtn.onclick = e => {
+            e.stopPropagation();
+            playPronunciation(hz, audioUrl);
+          };
+        }
+
+        const heartBtn = card.querySelector('.xhz-wcard-heart');
+        if (heartBtn) {
+          heartBtn.onclick = e => {
+            e.stopPropagation();
+            if (learnedSet.has(hz)) {
+              learnedSet.delete(hz);
+            } else {
+              learnedSet.add(hz);
+              recordStudyProgress({ words: [hz] });
+            }
+            try {
+              localStorage.setItem('httq_curr_learned_words', JSON.stringify(Array.from(learnedSet)));
+            } catch (_) {}
+            updateProgressUI();
+            renderGrid();
+          };
+        }
+
+        gridEl.appendChild(card);
+      });
+    };
+
+    const setFilterButtons = mode => {
+      activeFilter = mode;
+      [
+        [btnFilterAll, 'all'],
+        [btnFilterAudio, 'audio'],
+        [btnFilterLearned, 'learned']
+      ].forEach(([btn, m]) => {
+        if (!btn) return;
+        btn.style.background = m === mode ? '#dc2626' : 'transparent';
+        btn.style.color = m === mode ? '#fff' : '#44403c';
+      });
+      renderGrid();
+    };
+
+    if (btnFilterAll) btnFilterAll.onclick = () => setFilterButtons('all');
+    if (btnFilterAudio) btnFilterAudio.onclick = () => setFilterButtons('audio');
+    if (btnFilterLearned) btnFilterLearned.onclick = () => setFilterButtons('learned');
+    if (searchInput) searchInput.oninput = () => renderGrid();
+
+    if (btnTogglePy) {
+      btnTogglePy.onclick = () => {
+        const hidden = gridEl.classList.toggle('hide-pinyin');
+        btnTogglePy.style.background = hidden ? '#1c1917' : '#faf8f5';
+        btnTogglePy.style.color = hidden ? '#fff' : '#1c1917';
+      };
+    }
+    if (btnToggleVi) {
+      btnToggleVi.onclick = () => {
+        const hidden = gridEl.classList.toggle('hide-meaning');
+        btnToggleVi.style.background = hidden ? '#1c1917' : '#faf8f5';
+        btnToggleVi.style.color = hidden ? '#fff' : '#1c1917';
+      };
+    }
+
+    updateProgressUI();
+    renderGrid();
   }
 
   // --------------------------------------------------------------------------
@@ -5833,6 +6822,7 @@
   async function renderProgressOrHabitPage(pathname) {
     const root = getMainContentContainer();
     const isHabit = pathname.includes('thoi-quen');
+    const sum = getRealProgressSummary();
     document.title = isHabit ? 'Thói quen học tập | XieHanzi' : 'Tiến độ học tập HSK | XieHanzi';
     root.innerHTML = `
       <div style="max-width:900px;margin:0 auto;">
@@ -5846,32 +6836,32 @@
         </div>
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
           <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">
-            ${isHabit ? '🔥 Chuỗi thói quen: 3 ngày liên tiếp' : '📊 Tiến độ chinh phục Giáo trình Chuẩn HSK 1'}
+            ${isHabit ? `🔥 Chuỗi thói quen: ${sum.streakDays} ngày liên tiếp` : '📊 Tiến độ chinh phục Giáo trình Chuẩn HSK 1'}
           </h1>
           <p style="color:#57534e;margin:0 0 20px 0;font-size:14px;">
-            Mục tiêu mỗi ngày: 15 phút · Đã hoàn thành hôm nay: 10 / 15 phút · Từ vựng đã mở khóa: 18 / 300 từ HSK 1
+            Mục tiêu mỗi ngày: 15 phút · Đã hoàn thành hôm nay: ${sum.todayMinutes} / 15 phút · Từ vựng đã mở khóa: ${sum.wordsSeen} / 300 từ HSK 1
           </p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px;">
             <div style="padding:16px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;">
               <div style="font-size:12px;font-weight:700;color:#9a3412;">CHUỖI NGÀY HỌC</div>
-              <div style="font-size:28px;font-weight:800;color:#ea580c;margin-top:4px;">3 ngày 🔥</div>
-              <div style="font-size:12px;color:#78716c;margin-top:4px;">Kỷ lục dài nhất: 7 ngày</div>
+              <div style="font-size:28px;font-weight:800;color:#ea580c;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
+              <div style="font-size:12px;color:#78716c;margin-top:4px;">Kỷ lục dài nhất: ${sum.longestStreak} ngày</div>
             </div>
             <div style="padding:16px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;">
-              <div style="font-size:12px;font-weight:700;color:#166534;">TỪ ĐÃ HỌC</div>
-              <div style="font-size:28px;font-weight:800;color:#15803d;margin-top:4px;">18 từ</div>
+              <div style="font-size:12px;font-weight:800;color:#166534;">TỪ ĐÃ THUỘC</div>
+              <div style="font-size:28px;font-weight:800;color:#15803d;margin-top:4px;">${sum.wordsMastered} từ</div>
               <div style="font-size:12px;color:#78716c;margin-top:4px;"><a href="/hoc/tu-da-hoc" style="color:#15803d;font-weight:700;">Xem danh sách từ →</a></div>
             </div>
             <div style="padding:16px;border-radius:16px;background:#fef2f2;border:1px solid #fecaca;">
               <div style="font-size:12px;font-weight:700;color:#991b1b;">MỤC CẦN ÔN LẠI</div>
-              <div style="font-size:28px;font-weight:800;color:#dc2626;margin-top:4px;">12 mục</div>
+              <div style="font-size:28px;font-weight:800;color:#dc2626;margin-top:4px;">${sum.dueTotal} thẻ</div>
               <div style="font-size:12px;color:#78716c;margin-top:4px;"><a href="/hoc/bai/on-tap-den-han" style="color:#dc2626;font-weight:700;">Ôn bài đến hạn ngay →</a></div>
             </div>
           </div>
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <a href="/hoc/bai/bai-1-hello-ai-xiaoyu" style="padding:12px 22px;border-radius:14px;background:#ea580c;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
-            <a href="/hoc/bai/on-tap-den-han" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;text-decoration:none;">🔄 Ôn bài đến hạn (12)</a>
-            <a href="/hoc/so-loi" style="padding:12px 22px;border-radius:14px;background:#fafaf9;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;">📓 Xem Sổ lỗi (4)</a>
+            <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#ea580c;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
+            <a href="/hoc/bai/on-tap-den-han" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;text-decoration:none;">🔄 Ôn bài đến hạn (${sum.dueTotal})</a>
+            <a href="/hoc/so-loi" style="padding:12px 22px;border-radius:14px;background:#fafaf9;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;">📓 Xem Sổ lỗi (${sum.mistakesCount})</a>
           </div>
         </div>
       </div>
@@ -5933,9 +6923,29 @@
       const st = document.createElement('style');
       st.id = 'xhz-lesson-runner-split-style';
       st.textContent = `
+        .lp.lp-runner {
+          position: fixed !important;
+          inset: 0 !important;
+          height: 100dvh !important;
+          max-height: 100dvh !important;
+          overflow: hidden !important;
+          z-index: 60 !important;
+          display: flex !important;
+          flex-direction: column !important;
+        }
+        .lp-runner-inner.lp-split {
+          display: flex !important;
+          flex-direction: column !important;
+          height: 100% !important;
+          max-height: 100% !important;
+          min-height: 0 !important;
+          overflow: hidden !important;
+        }
         @media (min-width: 768px) {
           .lp-runner-inner.lp-split {
             max-width: 1120px !important;
+            width: 100% !important;
+            margin: 0 auto !important;
           }
           .xhz-lp-split-grid {
             display: grid !important;
@@ -5945,6 +6955,7 @@
             padding-right: 2rem !important;
             min-height: 0 !important;
             flex: 1 1 0% !important;
+            overflow: hidden !important;
           }
           .xhz-lp-split-left {
             min-height: 0 !important;
@@ -5956,7 +6967,21 @@
             display: flex !important;
             flex-direction: column !important;
             min-height: 0 !important;
+            height: 100% !important;
             overflow: hidden !important;
+          }
+          .xhz-lp-split-right .lp-step-area {
+            flex: 1 1 0% !important;
+            min-height: 0 !important;
+            overflow-y: auto !important;
+            padding-bottom: 12px !important;
+          }
+          .xhz-lp-split-right .lp-footer {
+            flex-shrink: 0 !important;
+            padding-top: 12px !important;
+            padding-bottom: 18px !important;
+            background: var(--lp-bg, #e8e4dc) !important;
+            z-index: 5 !important;
           }
         }
       `;
@@ -6500,7 +7525,7 @@
     function advanceStep() {
       if (state.stepIdx + 1 >= playableSteps.length) {
         state.phase = 'done';
-        // Lưu trạng thái hoàn thành
+        // Lưu trạng thái hoàn thành & đồng bộ đám mây Supabase
         try {
           if (run.stageKey) {
             const doneActs = JSON.parse(localStorage.getItem('httq_done_activities') || '{}') || {};
@@ -6509,6 +7534,13 @@
             doneActs[run.stageKey] = arr;
             localStorage.setItem('httq_done_activities', JSON.stringify(doneActs));
           }
+          recordStudyProgress({
+            stageKey: run.stageKey || 'hsk30.L1.P1',
+            activityKey: run.activityKey || 'hsk30.L1.P1.learn.1',
+            words: introWords,
+            minutes: run.estMinutes || 6,
+            sessionInc: 1
+          });
         } catch (_) {}
         renderRunner();
         return;
@@ -6654,7 +7686,7 @@
                 </div>
                 <div class="lp-streak-card">
                   <span style="font-size:28px;">🔥</span>
-                  <span><b>5</b> ngày liên tiếp giữ chuỗi học tập!</span>
+                  <span><b>${getRealProgressSummary().streakDays || 1}</b> ngày liên tiếp giữ chuỗi học tập!</span>
                 </div>
                 <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-top:16px;">
                   <button type="button" id="xhz-done-continue" class="lp-btn3d">Về lộ trình <kbd class="lp-kbd lp-kbd-in-btn">Enter</kbd></button>
@@ -7833,7 +8865,7 @@
         }
       }
 
-      // 2. Giao diện Đã đăng nhập: thêm thẻ thông tin tài khoản Google + nút Đăng xuất nổi bật
+      // 2. Giao diện Đã đăng nhập: thêm thẻ thông tin tài khoản Google + nút Đồng bộ & Đăng xuất nổi bật
       const planCard = document.querySelector('[data-testid="account-plan-card"]');
       const savedUser = getSavedUser();
       if (planCard && savedUser && !document.getElementById('xhz-user-auth-banner')) {
@@ -7850,12 +8882,35 @@
           avatarHtml +
           `<div style="min-width:0;">` +
           `<div style="font-weight:700;font-size:16px;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${savedUser.displayName || 'Học viên'}</div>` +
-          `<div style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${savedUser.email}</div>` +
+          `<div id="xhz-cloud-sync-status" style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${savedUser.email} · Đã đồng bộ đám mây</div>` +
           `</div>` +
           `</div>` +
-          `<button type="button" id="xhz-direct-logout-btn" style="padding:8px 16px;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-weight:600;font-size:14px;cursor:pointer;">Đăng xuất</button>`;
+          `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
+          `<button type="button" id="xhz-cloud-sync-btn" style="padding:8px 14px;border-radius:10px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-weight:600;font-size:13px;cursor:pointer;">🔄 Đồng bộ ngay</button>` +
+          `<button type="button" id="xhz-direct-logout-btn" style="padding:8px 16px;border-radius:10px;border:1px solid #fecaca;background:#fef2f2;color:#dc2626;font-weight:600;font-size:14px;cursor:pointer;">Đăng xuất</button>` +
+          `</div>`;
         if (planCard.parentElement) {
           planCard.parentElement.insertBefore(banner, planCard);
+          const syncBtn = banner.querySelector('#xhz-cloud-sync-btn');
+          const statusEl = banner.querySelector('#xhz-cloud-sync-status');
+          if (syncBtn) {
+            syncBtn.addEventListener('click', async function (ev) {
+              ev.preventDefault();
+              syncBtn.disabled = true;
+              syncBtn.textContent = '⏳ Đang đồng bộ...';
+              if (window.__xhzSyncCloudProgress) {
+                await window.__xhzSyncCloudProgress();
+              }
+              syncBtn.textContent = '✅ Đã đồng bộ!';
+              if (statusEl) {
+                statusEl.textContent = `Đã đăng nhập: ${savedUser.email} · Vừa đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}`;
+              }
+              setTimeout(() => {
+                syncBtn.disabled = false;
+                syncBtn.textContent = '🔄 Đồng bộ ngay';
+              }, 2000);
+            });
+          }
           const outBtn = banner.querySelector('#xhz-direct-logout-btn');
           if (outBtn) {
             outBtn.addEventListener('click', function (ev) {
