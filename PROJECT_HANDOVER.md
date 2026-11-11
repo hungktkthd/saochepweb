@@ -1,6 +1,6 @@
 # 📋 TÀI LIỆU BÀN GIAO, TIẾN ĐỘ & CÂU LỆNH TIẾP TỤC TRÊN TRÌNH DUYỆT / MÁY MỚI (`PROJECT_HANDOVER.md`)
 
-> **Cập nhật lần cuối**: Phiên bản **v9.0** (Đã tích hợp Đăng nhập Google OAuth qua Supabase `skxgzzdunqloxxombtuc` vào giao diện gốc `/tai-khoan`, `/dang-nhap`, `/dang-ky`, sửa triệt để lỗi tải trang `/tai-khoan`, đồng bộ lên nhánh `main` của GitHub và triển khai trực tiếp trên **`https://hoctiengtrungquoc.vercel.app`**).
+> **Cập nhật lần cuối**: Phiên bản **v10.0** (Đã tích hợp Lesson Runner Capybara 1:1 `/hoc/bai/*`, giao diện bài học giáo trình 1:1 `/thu-vien-*`, giao diện làm đề ngữ pháp 1:1 `/kiem-tra-ngu-phap/lam-bai`, sửa tra cứu từ đơn `/tu-vung/的`, nâng cấp AI Chatbox Dương Dương `/api/ai`, và đồng bộ tiến độ thực 2 chiều với Supabase Auth `user_metadata.xhz_progress` trên **`https://hoctiengtrungquoc.vercel.app`**).
 
 ---
 
@@ -121,10 +121,13 @@ Toàn bộ dữ liệu và media của `https://xiehanzi.com/` đã được t�
    - Hiển thị đầy đủ tất cả các cấp độ, chủ đề và bài học trong `/thu-vien-new-hsk`, `/thu-vien-hsk`, `/thu-vien-yct`, `/thu-vien-boya`, `/thu-vien-hanyu-jiaocheng`.
    - Hiển thị đầy đủ trang chi tiết Chữ Hán (`/han-tu/:char`), Từ vựng (`/tu-vung/:word`), Âm Hán Việt (`/han-viet/:slug`), Ngữ pháp (`/ngu-phap/:level/:pointId`), Tiến độ (`/hoc/tien-do`) và Thói quen (`/hoc/thoi-quen`).
 
-5. **Tài Khoản Người Dùng (`/tai-khoan`, `/dang-nhap`, `/dang-ky`) & Đăng Nhập Google qua Supabase (`v9.0`)**:
+5. **Tài Khoản Người Dùng (`/tai-khoan`, `/dang-nhap`, `/dang-ky`) & Đồng Bộ Tiến Độ Thực Qua Supabase (`v10.0`)**:
    - Tích hợp trực tiếp **Supabase Google OAuth** (`https://skxgzzdunqloxxombtuc.supabase.co`) vào giao diện gốc của `tai-khoan.html`, `dang-nhap.html`, `dang-ky.html` và thanh Header toàn trang mà **giữ nguyên 100% thiết kế gốc**.
-   - Khắc phục triệt để lỗi *"Trang tạm thời không tải được"* trên `/tai-khoan` do thiếu trường `activity` (12 tuần học) trong `/v2/me/progress` và cấu trúc `streak`/`week` trong `/v2/me/habit`.
-   - Tự động bắt `#access_token` khi Google chuyển hướng về `/tai-khoan`, giải mã JWT & đồng bộ hồ sơ Google (ảnh đại diện, họ tên, email) vào Header và trang Tài khoản, hỗ trợ đổi tên hiển thị, ảnh đại diện và Đăng xuất sạch sẽ.
+   - **Đồng bộ tiến độ thực 2 chiều (`getRealProgressSummary` & `syncProgressToSupabaseAuth` / `syncProgressFromSupabaseAuth`)**: Loại bỏ toàn bộ con số giả cố định (`5 ngày`, `4/5 buổi`, `64 từ`, `12/100`), thay bằng thống kê thực tế theo hoạt động học tập của người dùng và lưu trực tiếp lên `user_metadata.xhz_progress` của tài khoản Supabase Auth (kèm nút **🔄 Đồng bộ ngay** trên `/tai-khoan`).
+   - **Capybara Lesson Runner 1:1 (`/hoc/bai/*`)**: Đầy đủ màn hình Intro Capybara, chuỗi bài tập tương tác liên hoàn (`intro_word` → `choose_meaning` → `write_character` với HanziWriter → `type_pinyin` → `match_pairs` → `listen_choose` → `order_sentence` → `fill_blank` → `read_sentence`), không bị che khuất nút `Kiểm tra` / `Tiếp tục` ở chân trang.
+   - **Giao diện Chi tiết Bài học Giáo trình 1:1 (`/thu-vien-new-hsk/...`)**: Banner Hero xanh dương (`AI Tiểu Ngữ, xin chào!`), 3 nút hành động (`Tạo vở tập viết`, `Học bằng Flashcard`, `Bắt đầu luyện tập`), thanh công cụ lọc/ẩn Pinyin/ẩn nghĩa, chú thích màu 4 thanh điệu và lưới thẻ từ vựng 5 cột.
+   - **Giao diện Làm bài Kiểm tra Ngữ pháp 1:1 (`/kiem-tra-ngu-phap/lam-bai`)**: Thanh điều hướng dính trên cùng (`‹ Thoát`, `Kiểm tra ngữ pháp`, `Đã trả lời X/20`, toàn màn hình, `Nộp bài`), bố cục 2 cột với thẻ câu hỏi đánh số, nút gắn cờ đánh dấu và bảng lưới `Câu hỏi 1..20` ở cột phải.
+   - **Tra cứu từ đơn (`/tu-vung/的`) & AI Chatbox Dương Dương (`/api/ai`)**: Tự động liên kết dữ liệu chữ Hán đơn trong `/data/characters/` khi tra cứu tại `/tu-vung/:slug`, và kết nối khung chat Dương Dương với `/api/ai` (`action: 'companion-chat'`) để giải thích từ vựng, ngữ pháp và dịch câu thông minh.
 
 ---
 
