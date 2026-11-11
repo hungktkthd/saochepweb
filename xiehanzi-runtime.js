@@ -1838,15 +1838,94 @@
         ]
       });
     }
-    if (p === '/v2/today' || p === '/v2/today/session') {
+    if (p === '/v2/companion/unlocks/celebrated') {
+      return jsonResponse({ ok: true });
+    }
+    if (p === '/v2/me/shadowing/summary') {
+      return jsonResponse({ enabled: false, todayCard: false, checkpoint: { due: false } });
+    }
+    if (p === '/v2/today' || p === '/v2/today/session' || p.startsWith('/v2/today/session/steps/')) {
       const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'bai-1-hello-ai-xiaoyu';
+      const todayStr = new Date().toISOString().slice(0, 10);
+      let reqMin = Number(urlObj.searchParams.get('minutes')) || 15;
+      let sessionStatus = method === 'POST' ? 'in_progress' : 'preview';
+      let stepStatuses = {};
+      try {
+        stepStatuses = JSON.parse(localStorage.getItem('httq_daily_steps_' + todayStr) || '{}') || {};
+      } catch (_) {}
+      if (p.startsWith('/v2/today/session/steps/') && method === 'POST') {
+        const stepId = decodeURIComponent(p.replace('/v2/today/session/steps/', ''));
+        const body = await parseRequestBody(init);
+        if (stepId && body && body.status) {
+          stepStatuses[stepId] = body.status;
+          try {
+            localStorage.setItem('httq_daily_steps_' + todayStr, JSON.stringify(stepStatuses));
+          } catch (_) {}
+        }
+        sessionStatus = 'in_progress';
+      } else if (p === '/v2/today/session' && method === 'POST') {
+        const body = await parseRequestBody(init);
+        if (body && body.minutes) reqMin = Number(body.minutes) || 15;
+        sessionStatus = 'in_progress';
+      }
+      const steps = [
+        {
+          id: 'step-lesson-1',
+          kind: 'lesson',
+          status: stepStatuses['step-lesson-1'] || 'pending',
+          titleVi: 'Bài 1: AI Tiểu Ngữ, xin chào! (AI小语，你好！)',
+          detailVi: 'Học 12 từ mới và câu giao tiếp chào hỏi cơ bản',
+          reasonVi: 'Bài tiếp theo trong lộ trình HSK 1',
+          estMinutes: 6,
+          lesson: {
+            lessonId: savedLessonId
+          }
+        },
+        {
+          id: 'step-review-1',
+          kind: 'review',
+          status: stepStatuses['step-review-1'] || 'pending',
+          titleVi: 'Ôn 12 từ vựng đến hạn',
+          detailVi: 'Củng cố trí nhớ ngắt quãng SRS',
+          reasonVi: 'Đến hạn ôn tập hôm nay',
+          estMinutes: 4,
+          review: {
+            minutes: 4,
+            limit: 12
+          }
+        },
+        {
+          id: 'step-talk-1',
+          kind: 'talk',
+          status: stepStatuses['step-talk-1'] || 'pending',
+          titleVi: 'Luyện nói cùng Bạn đồng hành AI',
+          detailVi: 'Thực hành phản xạ nghe nói tiếng Trung',
+          reasonVi: 'Luyện giao tiếp hằng ngày',
+          estMinutes: 2,
+          talk: {
+            stageKey: 'hsk30.L1.C1.S1'
+          }
+        }
+      ];
+      if (Object.keys(stepStatuses).length > 0) {
+        sessionStatus = steps.every(s => s.status === 'done') ? 'completed' : 'in_progress';
+      }
+      const nextPending = steps.find(s => s.status === 'pending');
       return jsonResponse({
-        date: new Date().toISOString().slice(0, 10),
+        status: sessionStatus,
+        localDay: todayStr,
+        date: todayStr,
+        minutes: reqMin,
+        estMinutes: 12,
+        minutesOptions: [5, 10, 15, 20],
+        nextStepId: nextPending ? nextPending.id : steps[0].id,
+        steps,
+        completion: sessionStatus === 'completed' ? { streak: { count: 5, todayDone: true } } : null,
         streak: { count: 5, todayDone: true },
         streakDays: 5,
         minutesDone: 10,
-        minutesGoal: 15,
-        dailyGoalMinutes: 15,
+        minutesGoal: reqMin,
+        dailyGoalMinutes: reqMin,
         completedMinutes: 10,
         continue: { kind: 'lesson', lessonId: savedLessonId },
         items: [
