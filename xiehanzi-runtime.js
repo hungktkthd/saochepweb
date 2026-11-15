@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * RUNTIME ENGINE (v8.1 — BENTO GLASS IMPERIAL JADE v3 + ZERO-FLASH SCRUB + FULL SUBPAGES + GAMES)
+ * RUNTIME ENGINE (v9.0 — HANZI STUDIO v4 SIDEBAR + BENTO WORKSPACE + CACHE BUST htq5)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
@@ -21,11 +21,14 @@
       if (!root) return;
       var oldV2 = document.getElementById('htq-v2-master-css');
       if (oldV2 && oldV2.parentNode) oldV2.parentNode.removeChild(oldV2);
-      if (document.getElementById('htq-v3-master-css')) return;
-      var st = document.createElement('style');
-      st.id = 'htq-v3-master-css';
-      st.textContent = "/* === HTQ UI REDESIGN v3 (BENTO GLASS & IMPERIAL JADE) === */\n:root{\n  --brand:175 84% 32% !important;\n  --brand-ink:175 86% 24% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:215 90% 48% !important;\n  --interactive-bg:215 92% 96% !important;\n  --ring:175 84% 34% !important;\n  --primary:175 84% 32% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:172 78% 45% !important;\n  --brand-ink:172 82% 72% !important;\n  --brand-foreground:185 60% 7% !important;\n  --interactive:199 95% 58% !important;\n  --interactive-bg:202 65% 15% !important;\n  --ring:172 78% 48% !important;\n  --primary:172 78% 44% !important;\n  --primary-foreground:185 60% 7% !important;\n}\n/* Luminous mesh canvas */\nbody{\n  background-color:#f3faf9 !important;\n  background-image:\n    radial-gradient(62% 48% at 8% -6%, rgba(13,148,136,.13), transparent 70%),\n    radial-gradient(54% 46% at 94% 4%, rgba(37,99,235,.10), transparent 68%),\n    radial-gradient(45% 40% at 50% 96%, rgba(245,158,11,.06), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#07111a !important;\n  background-image:\n    radial-gradient(62% 48% at 10% -6%, rgba(20,184,166,.16), transparent 70%),\n    radial-gradient(54% 46% at 92% 6%, rgba(56,189,248,.12), transparent 68%),\n    radial-gradient(45% 42% at 50% 96%, rgba(16,185,129,.07), transparent 72%) !important;\n}\n/* Zero old logos & zero third-party app store / QR badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n/* Frosted Bento Glass Navbar */\nheader[data-site-header=\"true\"]{\n  background:rgba(255,255,255,.78) !important;\n  backdrop-filter:blur(20px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(20px) saturate(165%) !important;\n  border-bottom:1px solid rgba(13,148,136,.15) !important;\n  box-shadow:0 6px 28px -12px rgba(15,23,42,.08) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(8,19,29,.80) !important;\n  border-bottom-color:rgba(45,212,191,.16) !important;\n  box-shadow:0 8px 30px -12px rgba(0,0,0,.55) !important;\n}\n/* Jade Glass Home Pill replacing old logo */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(13,148,136,.15), rgba(37,99,235,.10)) !important;\n  border:1px solid rgba(13,148,136,.32) !important;\n  color:#0f766e !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(13,148,136,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(13,148,136,.24), rgba(37,99,235,.16)) !important;\n  box-shadow:0 6px 16px -4px rgba(13,148,136,.26) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(20,184,166,.22), rgba(56,189,248,.16)) !important;\n  border-color:rgba(45,212,191,.34) !important;\n  color:#5eead4 !important;\n  box-shadow:0 4px 14px -4px rgba(0,0,0,.50) !important;\n}\n/* Pill nav items */\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n  transition:background-color .18s ease, color .18s ease !important;\n}\n/* Home Hero Bento Glass Container */\nmain#noi-dung-chinh > div.overflow-x-clip > section.relative.overflow-x-clip{\n  background-color:transparent !important;\n  background-image:none !important;\n}\nmain#noi-dung-chinh section.relative.overflow-x-clip > div.mx-auto.grid.max-w-6xl{\n  padding:1.35rem 1.25rem !important;\n  border-radius:26px !important;\n  background:linear-gradient(145deg, rgba(255,255,255,.86), rgba(240,253,250,.76) 56%, rgba(239,246,255,.78)) !important;\n  border:1px solid rgba(13,148,136,.18) !important;\n  box-shadow:0 24px 60px -24px rgba(13,148,136,.22), inset 0 1px 0 rgba(255,255,255,.92) !important;\n  backdrop-filter:blur(16px) saturate(145%) !important;\n}\n@media (min-width:768px){\n  main#noi-dung-chinh section.relative.overflow-x-clip > div.mx-auto.grid.max-w-6xl{\n    padding:2.5rem 2.75rem !important;\n    border-radius:30px !important;\n  }\n}\n.dark main#noi-dung-chinh section.relative.overflow-x-clip > div.mx-auto.grid.max-w-6xl{\n  background:linear-gradient(145deg, rgba(13,28,42,.86), rgba(9,35,41,.76) 56%, rgba(15,27,46,.80)) !important;\n  border-color:rgba(45,212,191,.22) !important;\n  box-shadow:0 28px 68px -20px rgba(0,0,0,.68), inset 0 1px 0 rgba(255,255,255,.08) !important;\n}\n/* Hero primary CTA button */\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau/\"],\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau\"]{\n  background:linear-gradient(135deg, #0d9488, #2563eb) !important;\n  color:#ffffff !important;\n  border:none !important;\n  border-radius:14px !important;\n  padding:0 1.75rem !important;\n  box-shadow:0 12px 26px -8px rgba(13,148,136,.44) !important;\n  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease !important;\n}\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau/\"]:hover,\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau\"]:hover{\n  transform:translateY(-2px) !important;\n  filter:brightness(1.06) !important;\n  box-shadow:0 16px 32px -8px rgba(13,148,136,.52) !important;\n}\n/* Bento Cards & Interactive Surface Elevation */\n.rounded-card,\nmain .rounded-2xl.border,\nmain .rounded-xl.border{\n  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease, border-color .2s ease;\n}\nmain a.rounded-card:hover,\nmain a.rounded-2xl.border:hover,\nmain button.rounded-2xl.border:hover{\n  transform:translateY(-2px);\n  border-color:rgba(13,148,136,.36) !important;\n  box-shadow:0 14px 32px -12px rgba(13,148,136,.20) !important;\n}\n.dark main a.rounded-card:hover,\n.dark main a.rounded-2xl.border:hover,\n.dark main button.rounded-2xl.border:hover{\n  border-color:rgba(45,212,191,.38) !important;\n  box-shadow:0 16px 36px -12px rgba(0,0,0,.55) !important;\n}\n/* Glowing Search Input */\ninput[type=\"search\"],\nform:has(input[type=\"search\"]){\n  border-radius:16px !important;\n}\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(13,148,136,.15), 0 10px 24px -8px rgba(13,148,136,.22) !important;\n  border-color:#0d9488 !important;\n}\n.dark input[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(45,212,191,.18), 0 10px 26px -8px rgba(0,0,0,.55) !important;\n  border-color:#2dd4bf !important;\n}\n/* Section & Footer Glass */\nsection.bg-surface{\n  background:rgba(248,252,251,.72) !important;\n}\n.dark section.bg-surface{\n  background:rgba(11,24,36,.72) !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(241,249,248,.82) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(13,148,136,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(8,18,28,.86) !important;\n  border-top-color:rgba(45,212,191,.16) !important;\n}\n/* Scrollbar */\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(13,148,136,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(13,148,136,.48)}\n\n/* === HTQ LP REDESIGN v3 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.88), rgba(240,253,250,.80) 58%, rgba(239,246,255,.82)) !important;\n  border:1px solid rgba(13,148,136,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(13,148,136,.22), inset 0 1px 0 rgba(255,255,255,.9) !important;\n  backdrop-filter:blur(16px) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(13,28,42,.88), rgba(9,35,41,.80) 58%, rgba(16,28,48,.84)) !important;\n  border-color:rgba(45,212,191,.24) !important;\n  box-shadow:0 20px 46px -18px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.08) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.82) !important;\n  border:1px solid rgba(13,148,136,.16) !important;\n  border-radius:18px !important;\n  backdrop-filter:blur(12px) !important;\n  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease, border-color .2s ease !important;\n}\n.dark .lp .lp-card{\n  background:rgba(13,28,42,.80) !important;\n  border-color:rgba(45,212,191,.18) !important;\n}\n.lp .lp-card:hover{\n  transform:translateY(-2px) !important;\n  border-color:rgba(13,148,136,.36) !important;\n  box-shadow:0 16px 32px -14px rgba(13,148,136,.24) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #0d9488, #2563eb) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 6px 18px -6px rgba(13,148,136,.45) !important;\n}\n.lp .lp-btn:hover{\n  filter:brightness(1.06) !important;\n  transform:translateY(-1px) !important;\n}\n\n/* === HTQ THAY DO REDESIGN v3 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(7,17,26,.60), rgba(7,17,26,.18) 38%, rgba(7,17,26,.40) 62%, rgba(7,17,26,.94)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#5eead4 !important;\n  text-shadow:0 2px 16px rgba(20,184,166,.35) !important;\n}\n";
-      root.appendChild(st);
+      var st = document.getElementById('htq-v3-master-css');
+      if (!st) {
+        st = document.createElement('style');
+        st.id = 'htq-v3-master-css';
+        root.appendChild(st);
+      }
+      var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:45;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n";
+      if (st.textContent !== cssText) st.textContent = cssText;
     } catch (_e) {}
   }
   injectMasterV3Styles();
@@ -9743,11 +9746,241 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } catch (_e) {}
   }
 
+
+
+
+
+
+  function isImmersiveRoute(p) {
+    return /^\/(thay-do|truong-thay-do|kho-du-lieu)/.test(p || '/');
+  }
+
+  function toggleStudioTheme() {
+    const hdrBtn = document.querySelector('header[data-site-header="true"] button[aria-label*="giao diện"]');
+    if (hdrBtn) {
+      hdrBtn.click();
+      return;
+    }
+    const isDark = !document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark', isDark);
+    try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (_e) {}
+  }
+
+  function buildStudioSidebar(curPath) {
+    if (isImmersiveRoute(curPath) || !document.querySelector('header[data-site-header="true"]')) {
+      document.body.setAttribute('data-htq-immersive', '1');
+      const existing = document.getElementById('htq-studio-sidebar');
+      if (existing) existing.remove();
+      return;
+    }
+    document.body.removeAttribute('data-htq-immersive');
+    let sb = document.getElementById('htq-studio-sidebar');
+    if (!sb) {
+      sb = document.createElement('aside');
+      sb.id = 'htq-studio-sidebar';
+      sb.setAttribute('aria-label', 'Thanh điều hướng Hán Ngữ Studio');
+      document.body.appendChild(sb);
+    }
+
+    const groups = [
+      {
+        label: 'Bàn làm việc',
+        items: [
+          ['🏠', 'Trang chủ Studio', '/'],
+          ['🗺️', 'Lộ trình HSK 3.0', '/lo-trinh/'],
+          ['📖', 'Bài học hôm nay', '/hoc/'],
+          ['🔁', 'Ôn tập thông minh', '/on-tap/']
+        ]
+      },
+      {
+        label: 'Từ điển & Tra cứu',
+        items: [
+          ['🔍', 'Từ điển Chữ Hán', '/tra-chu/'],
+          ['🌐', 'Dịch Trung - Việt AI', '/dich-tieng-trung/'],
+          ['📚', 'Kho từ vựng HSK', '/thu-vien-new-hsk/']
+        ]
+      },
+      {
+        label: 'Luyện 4 kỹ năng AI',
+        items: [
+          ['🎧', 'Luyện nghe phản xạ', '/luyen-nghe/'],
+          ['🎙️', 'Luyện nói AI', '/luyen-noi/'],
+          ['⌨️', 'Luyện gõ Pinyin', '/luyen-go/'],
+          ['✍️', 'Chép chính tả Video', '/luyen-chep-chinh-ta/']
+        ]
+      },
+      {
+        label: 'Phòng thi & Công cụ',
+        items: [
+          ['📝', 'Thi thử HSK', '/kiem-tra-hsk/'],
+          ['📋', 'Đề kiểm tra', '/de-kiem-tra/'],
+          ['⚖️', 'Kiểm tra Ngữ pháp', '/kiem-tra-ngu-phap/'],
+          ['🖨️', 'Tạo vở tập viết PDF', '/tao-vo-tap-viet/'],
+          ['🎮', 'Trò chơi Chữ Hán', '/tro-choi/'],
+          ['🏮', 'Trường Thầy Đồ', '/thay-do/']
+        ]
+      }
+    ];
+
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const isDark = document.documentElement.classList.contains('dark');
+    const sbKey = norm + '|' + (isDark ? '1' : '0');
+    if (sb.getAttribute('data-htq-key') === sbKey) return;
+    sb.setAttribute('data-htq-key', sbKey);
+
+    const navHtml = groups.map(g => {
+      const links = g.items.map(([ico, text, href]) => {
+        const hrefNorm = href.replace(/\/+$/, '') || '/';
+        const active = hrefNorm === '/' ? norm === '/' : (norm === hrefNorm || norm.startsWith(hrefNorm + '/'));
+        return '<a href="' + href + '" class="htq-sb-link' + (active ? ' is-active' : '') + '"><span>' + ico + '</span><span>' + text + '</span></a>';
+      }).join('');
+      return '<div class="htq-sb-group"><div class="htq-sb-label">' + g.label + '</div>' + links + '</div>';
+    }).join('');
+    sb.innerHTML =
+      '<a href="/" class="htq-sb-brand">' +
+        '<div class="htq-sb-emblem">汉</div>' +
+        '<div><div class="htq-sb-title">Hán Ngữ Studio</div><div class="htq-sb-sub">Học Tiếng Trung v4</div></div>' +
+      '</a>' +
+      navHtml +
+      '<div class="htq-sb-footer">' +
+        '<button type="button" id="htq-sb-theme-btn" class="htq-sb-btn"><span>' + (isDark ? '🌙 Giao diện Tối' : '☀️ Giao diện Sáng') + '</span><span>Đổi</span></button>' +
+        '<a href="/tai-khoan/" class="htq-sb-link" style="margin-bottom:0"><span>👤</span><span>Tài khoản &amp; Đồng bộ</span></a>' +
+      '</div>';
+
+    const themeBtn = document.getElementById('htq-sb-theme-btn');
+    if (themeBtn) {
+      themeBtn.onclick = () => {
+        toggleStudioTheme();
+        setTimeout(() => buildStudioSidebar(window.location.pathname), 60);
+      };
+    }
+  }
+
+  function buildHomeWorkspace(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-studio-workspace');
+    if (norm !== '/') {
+      if (existing) existing.remove();
+      return;
+    }
+    const traCuu = document.getElementById('tra-cuu');
+    if (!traCuu || !traCuu.parentElement) return;
+    if (existing) return;
+
+    let summary = { streakDays: 0, wordsMastered: 0, stagesDone: 0 };
+    try {
+      if (typeof getRealProgressSummary === 'function') {
+        summary = getRealProgressSummary() || summary;
+      }
+    } catch (_e) {}
+
+    const skills = [
+      ['🎧', 'Luyện Nghe Phản Xạ', 'Bài nghe hội thoại & đề thi HSK theo tốc độ tự chọn.', '/luyen-nghe/'],
+      ['🎙️', 'Luyện Nói AI Thanh Điệu', 'Chấm điểm phát âm từng âm tiết và thanh 1-4.', '/luyen-noi/'],
+      ['⌨️', 'Luyện Gõ Pinyin', 'Rèn phản xạ bàn phím chữ Hán nhanh và chuẩn xác.', '/luyen-go/'],
+      ['✍️', 'Chép Chính Tả Video', 'Nghe câu thật từ video và gõ lại toàn bộ chữ Hán.', '/luyen-chep-chinh-ta/'],
+      ['📝', 'Phòng Thi HSK 1–6 & 3.0', 'Kho đề chính thức và đề luyện tự chấm điểm tức thì.', '/kiem-tra-hsk/'],
+      ['⚖️', 'Kiểm Tra Ngữ Pháp', 'Hơn 480 điểm ngữ pháp từ HSK 1 đến HSK 3.0.', '/kiem-tra-ngu-phap/']
+    ];
+    const curriculums = [
+      ['HSK 3.0 Mới', '/thu-vien-new-hsk/'],
+      ['HSK 2.0', '/thu-vien-hsk/'],
+      ['Giáo trình Boya', '/thu-vien-boya/'],
+      ['Giáo trình Hán Ngữ', '/thu-vien-hanyu-jiaocheng/'],
+      ['YCT Thiếu nhi', '/thu-vien-yct/'],
+      ['Tất cả lộ trình →', '/lo-trinh/']
+    ];
+
+    const sec = document.createElement('section');
+    sec.id = 'htq-studio-workspace';
+    sec.setAttribute('aria-label', 'Bảng điều khiển học tập Hán Ngữ Studio');
+    sec.innerHTML =
+      '<div class="htq-ws-grid">' +
+        '<div class="htq-ws-panel">' +
+          '<div class="htq-ws-head"><h2 class="htq-ws-title">Trung Tâm Luyện Tập 6 Kỹ Năng &amp; Khảo Thí HSK</h2><span class="htq-ws-badge">Mở miễn phí 100%</span></div>' +
+          '<div class="htq-skill-grid">' +
+            skills.map(([ico, title, desc, href]) =>
+              '<a href="' + href + '" class="htq-skill-card">' +
+                '<div class="htq-skill-top"><span>' + ico + '</span><span>' + title + '</span></div>' +
+                '<p class="htq-skill-desc">' + desc + '</p>' +
+              '</a>'
+            ).join('') +
+          '</div>' +
+          '<div class="htq-curr-row">' +
+            curriculums.map(([lbl, href]) => '<a href="' + href + '" class="htq-curr-pill">' + lbl + '</a>').join('') +
+          '</div>' +
+        '</div>' +
+        '<div class="htq-ws-panel">' +
+          '<div class="htq-ws-head"><h2 class="htq-ws-title">Tiến Độ &amp; Tiện Ích Nhanh</h2><span class="htq-ws-badge">Studio v4</span></div>' +
+          '<div class="htq-stat-row">' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.streakDays || 0) + '</div><div class="htq-stat-lbl">Ngày liên tiếp</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.wordsMastered || 0) + '</div><div class="htq-stat-lbl">Từ đã học</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.stagesDone || 0) + '</div><div class="htq-stat-lbl">Chặng xong</div></div>' +
+          '</div>' +
+          '<a href="/hoc/" class="htq-cta-btn">▶ Vào bài học hôm nay</a>' +
+          '<div class="htq-quick-grid">' +
+            '<a href="/tro-choi/ghep-chu/" class="htq-quick-item"><span>🧩</span><span>Ghép Chữ Hán</span></a>' +
+            '<a href="/tro-choi/tim-chu-trong-chu/" class="htq-quick-item"><span>🔎</span><span>Tìm Chữ Trong Chữ</span></a>' +
+            '<a href="/tao-vo-tap-viet/" class="htq-quick-item"><span>🖨️</span><span>Vở Tập Viết PDF</span></a>' +
+            '<a href="/flashcard-pdf/" class="htq-quick-item"><span>📇</span><span>Flashcard PDF</span></a>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    traCuu.parentElement.insertBefore(sec, traCuu.nextSibling);
+  }
+
+  function buildSubpageRibbon(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-subpage-ribbon');
+    if (norm === '/' || isImmersiveRoute(norm) || !document.querySelector('header[data-site-header="true"]')) {
+      if (existing) existing.remove();
+      return;
+    }
+    const main = document.getElementById('noi-dung-chinh');
+    if (!main) return;
+    if (existing && existing.getAttribute('data-htq-path') === norm) return;
+    if (existing) existing.remove();
+
+    const chips = [
+      ['Từ điển', '/tra-chu/'],
+      ['Lộ trình', '/lo-trinh/'],
+      ['Nghe', '/luyen-nghe/'],
+      ['Nói AI', '/luyen-noi/'],
+      ['Gõ Pinyin', '/luyen-go/'],
+      ['Thi HSK', '/kiem-tra-hsk/'],
+      ['Ngữ pháp', '/kiem-tra-ngu-phap/'],
+      ['Trò chơi', '/tro-choi/'],
+      ['Thầy Đồ', '/thay-do/']
+    ];
+    const ribbon = document.createElement('div');
+    ribbon.id = 'htq-subpage-ribbon';
+    ribbon.setAttribute('data-htq-path', norm);
+    ribbon.innerHTML = '<div class="htq-ribbon-inner">' +
+      chips.map(([t, h]) => {
+        const hn = h.replace(/\/+$/, '');
+        const act = norm === hn || norm.startsWith(hn + '/');
+        return '<a href="' + h + '" class="htq-ribbon-chip' + (act ? ' is-active' : '') + '">' + t + '</a>';
+      }).join('') + '</div>';
+    main.insertBefore(ribbon, main.firstChild);
+  }
+
+  function mountStudioLayout() {
+    if (!htqHydrationSettled) return;
+    try {
+      const p = window.location.pathname || '/';
+      buildStudioSidebar(p);
+      buildHomeWorkspace(p);
+      buildSubpageRibbon(p);
+    } catch (_e) {}
+  }
+
   function scheduleScrubPasses() {
-    [850, 1250, 2000].forEach(ms => {
+    [750, 1150, 1900].forEach(ms => {
       setTimeout(() => {
         htqHydrationSettled = true;
         scrubBrandingAndLogos(document.body);
+        mountStudioLayout();
       }, ms);
     });
   }
@@ -9758,27 +9991,28 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     origPushState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
-    setTimeout(() => scrubBrandingAndLogos(document.body), 120);
-    setTimeout(() => scrubBrandingAndLogos(document.body), 500);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 500);
   };
   history.replaceState = function (...args) {
     origReplaceState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
-    setTimeout(() => scrubBrandingAndLogos(document.body), 120);
-    setTimeout(() => scrubBrandingAndLogos(document.body), 500);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 500);
   };
   window.addEventListener('popstate', () => {
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
-    setTimeout(() => scrubBrandingAndLogos(document.body), 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 120);
   });
 
   window.addEventListener('load', () => {
     setTimeout(() => {
       htqHydrationSettled = true;
       scrubBrandingAndLogos(document.body);
-    }, 650);
+      mountStudioLayout();
+    }, 380);
   });
 
   function boot() {
