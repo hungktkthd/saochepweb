@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * XIEHANZI 1:1 CLONE RUNTIME ENGINE (v7.3 — FULL SUBPAGES + GAMES + HYDRATION)
+ * RUNTIME ENGINE (v7.4 — CLEAN UI REDESIGN + NO BRANDING + FULL SUBPAGES + GAMES)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
@@ -21,6 +21,64 @@
 
   const originalFetch = window.fetch.bind(window);
   const jsonCache = new Map();
+
+  // Scrub brand strings from shared images / worksheets rendered on HTML5 Canvas
+  function scrubBrandText(input) {
+    if (typeof input !== 'string' || !/xiehanzi/i.test(input)) return input;
+    return input
+      .replace(/©\s*2026\s*xiehanzi\.com\s*·\s*Made in 🇻🇳 Vietnam/gi, '© 2026 Học Tiếng Trung · Made in 🇻🇳 Vietnam')
+      .replace(/Trong app XieHanzi/gi, 'Tính năng nổi bật')
+      .replace(/Dùng app XieHanzi cho tiện hơn/gi, 'Học mọi lúc mọi nơi')
+      .replace(/Học tiếp trên app XieHanzi/gi, 'Học tiếp mỗi ngày')
+      .replace(/App XieHanzi có miễn phí không\??/gi, 'Nền tảng có miễn phí không?')
+      .replace(/Những gì bạn vẫn dùng ở XieHanzi vẫn ở đây/gi, 'Mọi công cụ học tập đều có sẵn ở đây')
+      .replace(/Cộng đồng học viên XieHanzi/gi, 'Cộng đồng học viên')
+      .replace(/Đề luyện XieHanzi/g, 'Đề luyện HSK')
+      .replace(/đề luyện XieHanzi/g, 'đề luyện HSK')
+      .replace(/Từ điển XieHanzi/gi, 'Từ điển chữ Hán')
+      .replace(/Góp ý cho XieHanzi/gi, 'Góp ý cải thiện')
+      .replace(/Tài khoản XieHanzi/gi, 'Tài khoản học tập')
+      .replace(/Đăng nhập XieHanzi/gi, 'Đăng nhập tài khoản')
+      .replace(/Đăng ký XieHanzi/gi, 'Đăng ký tài khoản')
+      .replace(/Đội XieHanzi/gi, 'Đội ngũ hỗ trợ')
+      .replace(/Học chữ Hán miễn phí cùng XieHanzi/gi, 'Học chữ Hán miễn phí')
+      .replace(/mở app XieHanzi trên điện thoại/gi, 'mở ứng dụng trên điện thoại')
+      .replace(/Tải app XieHanzi/gi, 'Tải ứng dụng học')
+      .replace(/Mời tải app XieHanzi/gi, 'Tải ứng dụng')
+      .replace(/Mã QR tải app XieHanzi/gi, 'Mã QR tải ứng dụng')
+      .replace(/Vở tập viết PDF của XieHanzi/gi, 'Vở tập viết PDF')
+      .replace(/tại XieHanzi/gi, 'tại đây')
+      .replace(/trên XieHanzi/gi, 'trực tuyến')
+      .replace(/của XieHanzi/gi, 'của hệ thống')
+      .replace(/cho XieHanzi/gi, 'cho hệ thống')
+      .replace(/cùng XieHanzi/gi, '')
+      .replace(/XieHanzi\s*trang\s*chủ/gi, 'Trang chủ')
+      .replace(/Logo\s*XieHanzi/gi, 'Trang chủ')
+      .replace(/Facebook\s*XieHanzi/gi, 'Facebook')
+      .replace(/YouTube\s*XieHanzi/gi, 'YouTube')
+      .replace(/https?:\/\/(?:www\.)?xiehanzi\.com\/thay-do/gi, 'Trường Thầy Đồ')
+      .replace(/xiehanzi\.com\/thay-do/gi, 'Trường Thầy Đồ')
+      .replace(/xiehanzi\.com\/luyen-go/gi, 'Luyện gõ tiếng Trung')
+      .replace(/xiehanzi\.com\/them-pinyin/gi, 'Thêm Pinyin')
+      .replace(/https?:\/\/(?:www\.)?xiehanzi\.com/gi, 'Học Tiếng Trung')
+      .replace(/xiehanzi\.com/gi, 'Học Tiếng Trung')
+      .replace(/XieHanzi\s*🌱/gi, 'Học Tiếng Trung 🌱')
+      .replace(/XieHanzi/gi, 'Học Tiếng Trung');
+  }
+
+  try {
+    if (window.CanvasRenderingContext2D && !CanvasRenderingContext2D.prototype.__htqWrapped) {
+      const origFill = CanvasRenderingContext2D.prototype.fillText;
+      const origStroke = CanvasRenderingContext2D.prototype.strokeText;
+      CanvasRenderingContext2D.prototype.fillText = function (text, ...rest) {
+        return origFill.call(this, scrubBrandText(String(text)), ...rest);
+      };
+      CanvasRenderingContext2D.prototype.strokeText = function (text, ...rest) {
+        return origStroke.call(this, scrubBrandText(String(text)), ...rest);
+      };
+      CanvasRenderingContext2D.prototype.__htqWrapped = true;
+    }
+  } catch (_e) {}
 
   function decodeJwtPayload(token) {
     try {
@@ -4810,7 +4868,7 @@
     const components = Array.isArray(data.components) ? data.components : [];
     const audioSrc = rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${ch}.mp3`);
 
-    document.title = `Chữ ${ch} (${pinyin} - ${hanviet}) | XieHanzi`;
+    document.title = `Chữ ${ch} (${pinyin} - ${hanviet}) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
@@ -4953,7 +5011,7 @@
         `https://static.xiehanzi.com/word_audios/${encodeURIComponent(word)}.mp3`
     );
 
-    document.title = `Từ vựng ${word} (${pinyin}) - ${meaning} | XieHanzi`;
+    document.title = `Từ vựng ${word} (${pinyin}) - ${meaning} | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
@@ -5035,7 +5093,7 @@
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải danh mục âm Hán Việt...</div>`;
     const index = (await loadLocalJson('/data/han-viet/index.json')) || [];
-    document.title = `Từ điển Âm Hán Việt (${index.length} âm đọc) | XieHanzi`;
+    document.title = `Từ điển Âm Hán Việt (${index.length} âm đọc) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
@@ -5078,7 +5136,7 @@
     const flatChars = groups.length > 0
       ? groups.flatMap(g => Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []))
       : (Array.isArray(data.characters) ? data.characters : (data.sampleChars || []));
-    document.title = `Âm Hán Việt "${reading.toUpperCase()}" (${flatChars.length} chữ) | XieHanzi`;
+    document.title = `Âm Hán Việt "${reading.toUpperCase()}" (${flatChars.length} chữ) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
@@ -5165,7 +5223,7 @@
     const tips = Array.isArray(item.grammar_tips) ? item.grammar_tips : [];
     const attentions = Array.isArray(item.grammar_attentions) ? item.grammar_attentions : [];
     const keywords = Array.isArray(item.keywords) ? item.keywords : [];
-    document.title = `${title} - Ngữ pháp ${item.level || levelSlug.toUpperCase()} | XieHanzi`;
+    document.title = `${title} - Ngữ pháp ${item.level || levelSlug.toUpperCase()} | Học Tiếng Trung`;
     const examples = Array.isArray(item.example) ? item.example : (Array.isArray(item.examples) ? item.examples : []);
 
     root.innerHTML = `
@@ -5270,7 +5328,7 @@
       }
     }
     const questions = allQuestions.slice(0, count);
-    document.title = `${grammarPoint ? `Luyện tập: ${grammarPoint.topic}` : 'Kiểm tra ngữ pháp'} (${questions.length} câu) | XieHanzi`;
+    document.title = `${grammarPoint ? `Luyện tập: ${grammarPoint.topic}` : 'Kiểm tra ngữ pháp'} (${questions.length} câu) | Học Tiếng Trung`;
     root = getMainContentContainer();
 
     root.innerHTML = `
@@ -5638,7 +5696,7 @@
       const lessons = Array.isArray(levelObj.lessons) ? levelObj.lessons : [];
       const items = lessons.length > 0 ? lessons : topics;
 
-      document.title = `${levelObj.name || levelSlug} - ${brandTitle} | XieHanzi`;
+      document.title = `${levelObj.name || levelSlug} - ${brandTitle} | Học Tiếng Trung`;
       root.innerHTML = `
         <div style="margin-bottom:16px;">
           <a href="/${rootSlug}" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
@@ -5705,7 +5763,7 @@
 
     if (isPractice && words.length > 0) {
       const startQuizMode = lastSeg === 'luyen-tap' || lastSeg === 'practice';
-      document.title = `Luyện tập: ${title} - ${levelLabel} | XieHanzi`;
+      document.title = `Luyện tập: ${title} - ${levelLabel} | Học Tiếng Trung`;
       root.innerHTML = `
         <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
           <a href="${baseDetailUrl}" style="color:#0d9488;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
@@ -5878,7 +5936,7 @@
     const audioCount = words.filter(w => w.audioUrl || w.hanzi || w.word).length;
     const allHzString = words.map(w => (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '')).join('');
 
-    document.title = `${title} - ${levelLabel} | XieHanzi`;
+    document.title = `${title} - ${levelLabel} | Học Tiếng Trung`;
 
     root.innerHTML = `
       <style>
@@ -6276,7 +6334,7 @@
     };
     const hskBadgeStyle = hskColors[video.hskLevel] || hskColors[1];
 
-    document.title = `${video.seoTitle || video.title || 'Luyện chép chính tả'} | XieHanzi`;
+    document.title = `${video.seoTitle || video.title || 'Luyện chép chính tả'} | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div class="mx-auto max-w-6xl" style="color:#1c1917;">
@@ -7132,7 +7190,7 @@
     const isSentenceMode = slug.includes('the-cau');
     const sourceCards = isMistakeMode ? mistakes : isSentenceMode ? sentences : due;
     const title = isMistakeMode ? 'Ôn lỗi sai' : isSentenceMode ? 'Luyện thẻ câu' : 'Ôn bài đến hạn';
-    document.title = `${title} | Ôn tập XieHanzi`;
+    document.title = `${title} | Ôn tập Hán ngữ`;
     root.innerHTML = `<div id="xhz-review-session-root" style="max-width:920px;margin:0 auto;color:#1c1917;">
       <a href="/on-tap" style="display:inline-block;margin-bottom:18px;color:#0d9488;font-weight:700;">← Quay lại Trung tâm Ôn tập</a>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
@@ -7326,7 +7384,7 @@
     const root = getMainContentContainer();
     const isHabit = pathname.includes('thoi-quen');
     const sum = getRealProgressSummary();
-    document.title = isHabit ? 'Thói quen học tập | XieHanzi' : 'Tiến độ học tập HSK | XieHanzi';
+    document.title = isHabit ? 'Thói quen học tập | Học Tiếng Trung' : 'Tiến độ học tập HSK | Học Tiếng Trung';
     root.innerHTML = `
       <div style="max-width:900px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
@@ -7384,7 +7442,7 @@
       ? level !== null && Number(item.hsk) === level
       : type === 'bo-thu' && item.r === value) : [];
     const title = type === 'hsk' ? `Chữ Hán HSK ${level || value} (HSK 2.0)` : `Chữ Hán bộ ${value}`;
-    document.title = `${title} | XieHanzi`;
+    document.title = `${title} | Học Tiếng Trung`;
     root.innerHTML = `<style>
       #xhz-character-browse { --browse-ink:#1c1917;--browse-card:#fafaf9;--browse-border:#d6d3d1;color:var(--browse-ink); }
       html.dark #xhz-character-browse { --browse-ink:#e2e8f0;--browse-card:#0f172a;--browse-border:#57534e; }
@@ -7894,7 +7952,7 @@
       }
     });
 
-    document.title = `${run.titleVi || 'Bài học'} | XieHanzi`;
+    document.title = `${run.titleVi || 'Bài học'} | Học Tiếng Trung`;
 
     // Ẩn main tĩnh và tạo full-screen overlay lp-runner
     const main = document.querySelector('main');
@@ -9510,38 +9568,162 @@
   // ============================================================================
   // 7. KHỞI CHẠY & THEO DÕI SPA NAVIGATION
   // ============================================================================
+  let htqHydrationSettled = false;
+
+  function cleanDocumentTitle() {
+    try {
+      if (/xiehanzi/i.test(document.title)) {
+        document.title = scrubBrandText(document.title)
+          .replace(/\s*-\s*học chữ Hán online/gi, ' - Học chữ Hán online')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+      }
+    } catch (_e) {}
+  }
+
+  function scrubBrandingAndLogos(root) {
+    cleanDocumentTitle();
+    const target = root && root.nodeType === 1 ? root : document.body;
+    if (!target) return;
+
+    try {
+      // Hide any XieHanzi logo images & transform brand anchors into clean text pills
+      target.querySelectorAll('img').forEach(img => {
+        const s = (img.getAttribute('src') || '') + ' ' + (img.getAttribute('alt') || '');
+        if (/XieHanzi_480x150|Logo XieHanzi|^XieHanzi$/i.test(s) || /xiehanzi/i.test(img.getAttribute('alt') || '')) {
+          if (/XieHanzi_480x150/i.test(img.getAttribute('src') || '')) {
+            img.style.setProperty('display', 'none', 'important');
+            const anchor = img.closest('a');
+            if (anchor) {
+              if (anchor.closest('header') || anchor.closest('nav')) {
+                anchor.setAttribute('data-htq-home-pill', '1');
+                anchor.setAttribute('aria-label', 'Trang chủ');
+                anchor.classList.remove('dark:bg-foreground');
+              } else if (anchor.closest('footer')) {
+                anchor.style.setProperty('display', 'none', 'important');
+              }
+            }
+          } else {
+            img.setAttribute('alt', scrubBrandText(img.getAttribute('alt') || ''));
+          }
+        }
+      });
+
+      // Replace Thay Do landing top-left brand text cleanly
+      target.querySelectorAll('[class*="thay-do-landing_brand"]').forEach(el => {
+        if (/xiehanzi/i.test(el.textContent || '')) {
+          el.textContent = 'Trang chủ';
+        }
+      });
+
+      // Scrub attributes with brand strings
+      target.querySelectorAll('[aria-label*="ieHanzi" i],[title*="ieHanzi" i],[placeholder*="ieHanzi" i]').forEach(el => {
+        ['aria-label', 'title', 'placeholder'].forEach(attr => {
+          const val = el.getAttribute(attr);
+          if (val && /xiehanzi/i.test(val)) {
+            el.setAttribute(attr, scrubBrandText(val));
+          }
+        });
+      });
+
+      // Hide old XieHanzi external social brand links in footer/menus
+      target.querySelectorAll('a[href*="facebook.com/xiehanzi"], a[href*="m.me/xiehanzi"], a[href*="youtube.com/@xiehanzi"], a[href*="status.xiehanzi.com"]').forEach(a => {
+        const li = a.closest('li');
+        if (li) li.style.setProperty('display', 'none', 'important');
+        else a.style.setProperty('display', 'none', 'important');
+      });
+
+      // Walk all visible Text nodes (skip script/style/textarea)
+      const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          const tag = parent.tagName;
+          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (!node.nodeValue || !/xiehanzi/i.test(node.nodeValue)) {
+            return NodeFilter.FILTER_SKIP;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const toUpdate = [];
+      let n;
+      while ((n = walker.nextNode())) toUpdate.push(n);
+      for (const textNode of toUpdate) {
+        const cleaned = scrubBrandText(textNode.nodeValue);
+        if (cleaned !== textNode.nodeValue) {
+          textNode.nodeValue = cleaned;
+        }
+      }
+    } catch (_e) {}
+  }
+
+  function scheduleScrubPasses() {
+    cleanDocumentTitle();
+    [250, 600, 1200, 2200].forEach(ms => {
+      setTimeout(() => {
+        htqHydrationSettled = true;
+        scrubBrandingAndLogos(document.body);
+      }, ms);
+    });
+  }
+
   const origPushState = history.pushState;
   const origReplaceState = history.replaceState;
   history.pushState = function (...args) {
     origPushState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
+    setTimeout(() => scrubBrandingAndLogos(document.body), 120);
+    setTimeout(() => scrubBrandingAndLogos(document.body), 500);
   };
   history.replaceState = function (...args) {
     origReplaceState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
+    setTimeout(() => scrubBrandingAndLogos(document.body), 120);
+    setTimeout(() => scrubBrandingAndLogos(document.body), 500);
   };
   window.addEventListener('popstate', () => {
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
+    setTimeout(() => scrubBrandingAndLogos(document.body), 120);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      htqHydrationSettled = true;
+      scrubBrandingAndLogos(document.body);
+    }, 60);
   });
 
   function boot() {
     rewriteDomMedia(document);
     enhanceAccountPageAuthUI();
     supabaseFetchInitial();
+    cleanDocumentTitle();
+    scheduleScrubPasses();
     if (isDynamicSpaRoute(window.location.pathname)) {
       setTimeout(checkAndRenderDynamicPage, 450);
     }
 
+    let scrubRaf = 0;
     const obs = new MutationObserver(mutations => {
+      cleanDocumentTitle();
       for (const m of mutations) {
         m.addedNodes.forEach(node => {
           if (node.nodeType === 1) rewriteDomMedia(node);
         });
       }
       enhanceAccountPageAuthUI();
+      if (htqHydrationSettled && !scrubRaf) {
+        scrubRaf = requestAnimationFrame(() => {
+          scrubRaf = 0;
+          scrubBrandingAndLogos(document.body);
+        });
+      }
     });
     if (document.documentElement) {
       obs.observe(document.documentElement, { childList: true, subtree: true });
