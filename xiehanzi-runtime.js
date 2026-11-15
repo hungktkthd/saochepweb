@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * RUNTIME ENGINE (v7.5 — CLEAN UI REDESIGN + POST-HYDRATION SCRUB + FULL SUBPAGES + GAMES)
+ * RUNTIME ENGINE (v8.0 — BENTO GLASS IMPERIAL JADE v3 + ZERO-FLASH SCRUB + FULL SUBPAGES + GAMES)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
@@ -14,7 +14,23 @@
 (function () {
   'use strict';
 
-  const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
+  function injectMasterV3Styles() {
+    try {
+      if (typeof document === 'undefined') return;
+      var root = document.head || document.documentElement;
+      if (!root) return;
+      var oldV2 = document.getElementById('htq-v2-master-css');
+      if (oldV2 && oldV2.parentNode) oldV2.parentNode.removeChild(oldV2);
+      if (document.getElementById('htq-v3-master-css')) return;
+      var st = document.createElement('style');
+      st.id = 'htq-v3-master-css';
+      st.textContent = "/* === HTQ UI REDESIGN v3 (BENTO GLASS & IMPERIAL JADE) === */\n:root{\n  --brand:175 84% 32% !important;\n  --brand-ink:175 86% 24% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:215 90% 48% !important;\n  --interactive-bg:215 92% 96% !important;\n  --ring:175 84% 34% !important;\n  --primary:175 84% 32% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:172 78% 45% !important;\n  --brand-ink:172 82% 72% !important;\n  --brand-foreground:185 60% 7% !important;\n  --interactive:199 95% 58% !important;\n  --interactive-bg:202 65% 15% !important;\n  --ring:172 78% 48% !important;\n  --primary:172 78% 44% !important;\n  --primary-foreground:185 60% 7% !important;\n}\n/* Luminous mesh canvas */\nbody{\n  background-color:#f3faf9 !important;\n  background-image:\n    radial-gradient(62% 48% at 8% -6%, rgba(13,148,136,.13), transparent 70%),\n    radial-gradient(54% 46% at 94% 4%, rgba(37,99,235,.10), transparent 68%),\n    radial-gradient(45% 40% at 50% 96%, rgba(245,158,11,.06), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#07111a !important;\n  background-image:\n    radial-gradient(62% 48% at 10% -6%, rgba(20,184,166,.16), transparent 70%),\n    radial-gradient(54% 46% at 92% 6%, rgba(56,189,248,.12), transparent 68%),\n    radial-gradient(45% 42% at 50% 96%, rgba(16,185,129,.07), transparent 72%) !important;\n}\n/* Zero old logos & zero third-party app store / QR badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n/* Frosted Bento Glass Navbar */\nheader[data-site-header=\"true\"]{\n  background:rgba(255,255,255,.78) !important;\n  backdrop-filter:blur(20px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(20px) saturate(165%) !important;\n  border-bottom:1px solid rgba(13,148,136,.15) !important;\n  box-shadow:0 6px 28px -12px rgba(15,23,42,.08) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(8,19,29,.80) !important;\n  border-bottom-color:rgba(45,212,191,.16) !important;\n  box-shadow:0 8px 30px -12px rgba(0,0,0,.55) !important;\n}\n/* Jade Glass Home Pill replacing old logo */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(13,148,136,.15), rgba(37,99,235,.10)) !important;\n  border:1px solid rgba(13,148,136,.32) !important;\n  color:#0f766e !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(13,148,136,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(13,148,136,.24), rgba(37,99,235,.16)) !important;\n  box-shadow:0 6px 16px -4px rgba(13,148,136,.26) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(20,184,166,.22), rgba(56,189,248,.16)) !important;\n  border-color:rgba(45,212,191,.34) !important;\n  color:#5eead4 !important;\n  box-shadow:0 4px 14px -4px rgba(0,0,0,.50) !important;\n}\n/* Pill nav items */\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n  transition:background-color .18s ease, color .18s ease !important;\n}\n/* Home Hero Bento Glass Container */\nmain#noi-dung-chinh > div.overflow-x-clip > section.relative.overflow-x-clip{\n  background-color:transparent !important;\n  background-image:none !important;\n}\nmain#noi-dung-chinh section.relative.overflow-x-clip > div.mx-auto.grid.max-w-6xl{\n  padding:1.35rem 1.25rem !important;\n  border-radius:26px !important;\n  background:linear-gradient(145deg, rgba(255,255,255,.86), rgba(240,253,250,.76) 56%, rgba(239,246,255,.78)) !important;\n  border:1px solid rgba(13,148,136,.18) !important;\n  box-shadow:0 24px 60px -24px rgba(13,148,136,.22), inset 0 1px 0 rgba(255,255,255,.92) !important;\n  backdrop-filter:blur(16px) saturate(145%) !important;\n}\n@media (min-width:768px){\n  main#noi-dung-chinh section.relative.overflow-x-clip > div.mx-auto.grid.max-w-6xl{\n    padding:2.5rem 2.75rem !important;\n    border-radius:30px !important;\n  }\n}\n.dark main#noi-dung-chinh section.relative.overflow-x-clip > div.mx-auto.grid.max-w-6xl{\n  background:linear-gradient(145deg, rgba(13,28,42,.86), rgba(9,35,41,.76) 56%, rgba(15,27,46,.80)) !important;\n  border-color:rgba(45,212,191,.22) !important;\n  box-shadow:0 28px 68px -20px rgba(0,0,0,.68), inset 0 1px 0 rgba(255,255,255,.08) !important;\n}\n/* Hero primary CTA button */\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau/\"],\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau\"]{\n  background:linear-gradient(135deg, #0d9488, #2563eb) !important;\n  color:#ffffff !important;\n  border:none !important;\n  border-radius:14px !important;\n  padding:0 1.75rem !important;\n  box-shadow:0 12px 26px -8px rgba(13,148,136,.44) !important;\n  transition:transform .2s ease, box-shadow .2s ease, filter .2s ease !important;\n}\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau/\"]:hover,\nmain#noi-dung-chinh section.relative.overflow-x-clip a[href=\"/bat-dau\"]:hover{\n  transform:translateY(-2px) !important;\n  filter:brightness(1.06) !important;\n  box-shadow:0 16px 32px -8px rgba(13,148,136,.52) !important;\n}\n/* Bento Cards & Interactive Surface Elevation */\n.rounded-card,\nmain .rounded-2xl.border,\nmain .rounded-xl.border{\n  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease, border-color .2s ease;\n}\nmain a.rounded-card:hover,\nmain a.rounded-2xl.border:hover,\nmain button.rounded-2xl.border:hover{\n  transform:translateY(-2px);\n  border-color:rgba(13,148,136,.36) !important;\n  box-shadow:0 14px 32px -12px rgba(13,148,136,.20) !important;\n}\n.dark main a.rounded-card:hover,\n.dark main a.rounded-2xl.border:hover,\n.dark main button.rounded-2xl.border:hover{\n  border-color:rgba(45,212,191,.38) !important;\n  box-shadow:0 16px 36px -12px rgba(0,0,0,.55) !important;\n}\n/* Glowing Search Input */\ninput[type=\"search\"],\nform:has(input[type=\"search\"]){\n  border-radius:16px !important;\n}\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(13,148,136,.15), 0 10px 24px -8px rgba(13,148,136,.22) !important;\n  border-color:#0d9488 !important;\n}\n.dark input[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(45,212,191,.18), 0 10px 26px -8px rgba(0,0,0,.55) !important;\n  border-color:#2dd4bf !important;\n}\n/* Section & Footer Glass */\nsection.bg-surface{\n  background:rgba(248,252,251,.72) !important;\n}\n.dark section.bg-surface{\n  background:rgba(11,24,36,.72) !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(241,249,248,.82) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(13,148,136,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(8,18,28,.86) !important;\n  border-top-color:rgba(45,212,191,.16) !important;\n}\n/* Scrollbar */\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(13,148,136,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(13,148,136,.48)}\n\n/* === HTQ LP REDESIGN v3 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.88), rgba(240,253,250,.80) 58%, rgba(239,246,255,.82)) !important;\n  border:1px solid rgba(13,148,136,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(13,148,136,.22), inset 0 1px 0 rgba(255,255,255,.9) !important;\n  backdrop-filter:blur(16px) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(13,28,42,.88), rgba(9,35,41,.80) 58%, rgba(16,28,48,.84)) !important;\n  border-color:rgba(45,212,191,.24) !important;\n  box-shadow:0 20px 46px -18px rgba(0,0,0,.62), inset 0 1px 0 rgba(255,255,255,.08) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.82) !important;\n  border:1px solid rgba(13,148,136,.16) !important;\n  border-radius:18px !important;\n  backdrop-filter:blur(12px) !important;\n  transition:transform .2s cubic-bezier(.22,1,.36,1), box-shadow .2s ease, border-color .2s ease !important;\n}\n.dark .lp .lp-card{\n  background:rgba(13,28,42,.80) !important;\n  border-color:rgba(45,212,191,.18) !important;\n}\n.lp .lp-card:hover{\n  transform:translateY(-2px) !important;\n  border-color:rgba(13,148,136,.36) !important;\n  box-shadow:0 16px 32px -14px rgba(13,148,136,.24) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #0d9488, #2563eb) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 6px 18px -6px rgba(13,148,136,.45) !important;\n}\n.lp .lp-btn:hover{\n  filter:brightness(1.06) !important;\n  transform:translateY(-1px) !important;\n}\n\n/* === HTQ THAY DO REDESIGN v3 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(7,17,26,.60), rgba(7,17,26,.18) 38%, rgba(7,17,26,.40) 62%, rgba(7,17,26,.94)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#5eead4 !important;\n  text-shadow:0 2px 16px rgba(20,184,166,.35) !important;\n}\n";
+      root.appendChild(st);
+    } catch (_e) {}
+  }
+  injectMasterV3Styles();
+
+const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18';
   const RAW_GITHUB_REPO = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
   const DEFAULT_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLXhoei0xIiwidHlwIjoiYWNjZXNzIiwiZyI6MCwiZXhwIjo0MTAyNDQ0ODAwfQ.xhzsignature';
@@ -9585,29 +9601,43 @@
   function scrubBrandingAndLogos(root) {
     if (!htqHydrationSettled) return;
     cleanDocumentTitle();
+    injectMasterV3Styles();
     const target = root && root.nodeType === 1 ? root : document.body;
     if (!target) return;
 
     try {
-      // Hide any XieHanzi logo images & transform brand anchors into clean text pills
+      // Tag primary header home link as Jade Glass pill and hide logo image cleanly
+      target.querySelectorAll('header[data-site-header="true"] > div > a[href="/"]').forEach(anchor => {
+        anchor.setAttribute('data-htq-home-pill', '1');
+        anchor.setAttribute('aria-label', 'Trang chủ');
+        anchor.classList.remove('dark:bg-foreground', 'dark:px-2');
+        anchor.querySelectorAll('img').forEach(img => {
+          img.setAttribute('data-htq-logo', '1');
+          img.style.setProperty('display', 'none', 'important');
+        });
+      });
+
+      // Hide any XieHanzi / placeholder logo images in headers or footers
       target.querySelectorAll('img').forEach(img => {
-        const s = (img.getAttribute('src') || '') + ' ' + (img.getAttribute('alt') || '');
-        if (/XieHanzi_480x150|Logo XieHanzi|^XieHanzi$/i.test(s) || /xiehanzi/i.test(img.getAttribute('alt') || '')) {
-          if (/XieHanzi_480x150/i.test(img.getAttribute('src') || '')) {
-            img.style.setProperty('display', 'none', 'important');
-            const anchor = img.closest('a');
-            if (anchor) {
-              if (anchor.closest('header') || anchor.closest('nav')) {
-                anchor.setAttribute('data-htq-home-pill', '1');
-                anchor.setAttribute('aria-label', 'Trang chủ');
-                anchor.classList.remove('dark:bg-foreground');
-              } else if (anchor.closest('footer')) {
-                anchor.style.setProperty('display', 'none', 'important');
-              }
+        const src = img.getAttribute('src') || '';
+        const alt = img.getAttribute('alt') || '';
+        const isBlank = src.indexOf('R0lGODlhAQABAIAAAAAAAP') !== -1;
+        const isOldLogo = /XieHanzi_480x150/i.test(src) || /Logo XieHanzi|^XieHanzi$/i.test(alt);
+        if (isOldLogo || (isBlank && (img.closest('header') || img.closest('footer')))) {
+          img.setAttribute('data-htq-logo', '1');
+          img.style.setProperty('display', 'none', 'important');
+          const anchor = img.closest('a');
+          if (anchor) {
+            if (anchor.closest('header') || anchor.closest('nav')) {
+              anchor.setAttribute('data-htq-home-pill', '1');
+              anchor.setAttribute('aria-label', 'Trang chủ');
+              anchor.classList.remove('dark:bg-foreground', 'dark:px-2');
+            } else if (anchor.closest('footer')) {
+              anchor.style.setProperty('display', 'none', 'important');
             }
-          } else {
-            img.setAttribute('alt', scrubBrandText(img.getAttribute('alt') || ''));
           }
+        } else if (/xiehanzi/i.test(alt)) {
+          img.setAttribute('alt', scrubBrandText(alt));
         }
       });
 
@@ -9628,11 +9658,26 @@
         });
       });
 
-      // Hide old XieHanzi external social brand links in footer/menus
-      target.querySelectorAll('a[href*="facebook.com/xiehanzi"], a[href*="m.me/xiehanzi"], a[href*="youtube.com/@xiehanzi"], a[href*="status.xiehanzi.com"]').forEach(a => {
-        const li = a.closest('li');
-        if (li) li.style.setProperty('display', 'none', 'important');
-        else a.style.setProperty('display', 'none', 'important');
+      // Hide old third-party app badges, QR boxes, and XieHanzi external brand social links
+      target.querySelectorAll(
+        'a[href*="facebook.com/xiehanzi"], a[href*="m.me/xiehanzi"], a[href*="youtube.com/@xiehanzi"], a[href*="status.xiehanzi.com"], ' +
+        '[data-phone-float="invite"], a[href*="apps.apple.com"], [data-platform="android"], [data-platform="ios"], img[src*="tai-app-qr"]'
+      ).forEach(el => {
+        if (el.tagName === 'IMG') {
+          const card = el.closest('.rounded-2xl');
+          if (card) card.style.setProperty('display', 'none', 'important');
+          else el.style.setProperty('display', 'none', 'important');
+        } else if (el.matches('a[href*="apps.apple.com"], [data-platform="android"], [data-platform="ios"]')) {
+          const row = el.parentElement;
+          if (row && row.tagName === 'DIV' && row.querySelectorAll('a[href*="apps.apple.com"], [data-platform]').length >= 1) {
+            row.style.setProperty('display', 'none', 'important');
+          }
+          el.style.setProperty('display', 'none', 'important');
+        } else {
+          const li = el.closest('li');
+          if (li) li.style.setProperty('display', 'none', 'important');
+          else el.style.setProperty('display', 'none', 'important');
+        }
       });
 
       // Walk all visible Text nodes (skip script/style/textarea)
