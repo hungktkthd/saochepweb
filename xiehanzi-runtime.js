@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * XIEHANZI 1:1 CLONE RUNTIME ENGINE (v7.0 — FULL SUBPAGES + GAMES + HYDRATION)
+ * XIEHANZI 1:1 CLONE RUNTIME ENGINE (v7.3 — FULL SUBPAGES + GAMES + HYDRATION)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
@@ -4814,7 +4814,7 @@
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/tra-chu" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
+        <a href="/tra-chu" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #f5f5f4;padding:16px;">
@@ -4822,7 +4822,7 @@
             ${ch}
           </div>
           <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center;">
-            <button id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
+            <button id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
             <button id="xhz-btn-animate" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">✍️ Xem thứ tự nét</button>
             <button id="xhz-btn-quiz-stroke" style="padding:8px 16px;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:600;cursor:pointer;">🎯 Tập viết chữ</button>
           </div>
@@ -4830,8 +4830,8 @@
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
             <span style="font-size:36px;font-weight:800;color:#1c1917;">${ch}</span>
-            <span style="font-size:22px;color:#ea580c;font-weight:700;">[${pinyin}]</span>
-            ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;text-transform:uppercase;">Hán Việt: ${hanviet}</span>` : ''}
+            <span style="font-size:22px;color:#0d9488;font-weight:700;">[${pinyin}]</span>
+            ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">Hán Việt: ${hanviet}</span>` : ''}
             ${hsk ? `<span style="padding:4px 10px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:600;font-size:13px;">HSK ${hsk}</span>` : ''}
           </div>
           <div style="font-size:18px;color:#292524;line-height:1.6;">
@@ -4878,7 +4878,7 @@
             return `<a href="/tu-vung/${encodeURIComponent(wHz)}" style="display:block;padding:12px 16px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span style="font-size:20px;font-weight:700;color:#1c1917;">${wHz}</span>
-                <span style="font-size:14px;color:#ea580c;font-weight:600;">${wPy}</span>
+                <span style="font-size:14px;color:#0d9488;font-weight:600;">${wPy}</span>
               </div>
               <div style="font-size:14px;color:#57534e;margin-top:4px;">${wMean}</div>
             </a>`;
@@ -4903,7 +4903,7 @@
         strokeAnimationSpeed: 1.2,
         delayBetweenStrokes: 180,
         strokeColor: '#1c1917',
-        radicalColor: '#ea580c'
+        radicalColor: '#0d9488'
       });
       const animBtn = document.getElementById('xhz-btn-animate');
       if (animBtn) animBtn.onclick = () => writer.animateCharacter();
@@ -4957,15 +4957,15 @@
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/tra-chu" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
+        <a href="/tra-chu" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
           <div>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
               <h1 style="font-size:44px;font-weight:800;margin:0;color:#1c1917;font-family:'Noto Serif SC',serif;">${word}</h1>
-              ${pinyin ? `<span style="font-size:24px;color:#ea580c;font-weight:700;">[${pinyin}]</span>` : ''}
-              ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;text-transform:uppercase;">${hanviet}</span>` : ''}
+              ${pinyin ? `<span style="font-size:24px;color:#0d9488;font-weight:700;">[${pinyin}]</span>` : ''}
+              ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">${hanviet}</span>` : ''}
               ${pos ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-weight:700;font-size:13px;">${pos}</span>` : ''}
               ${hsk ? `<span style="padding:4px 12px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${hsk}</span>` : ''}
             </div>
@@ -4974,7 +4974,7 @@
             </div>
             ${usageNote ? `<div style="margin-top:10px;padding:10px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;">💡 <strong>Cách dùng:</strong> ${usageNote}</div>` : ''}
           </div>
-          <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
+          <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
         </div>
 
         <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f5f5f4;">
@@ -4995,7 +4995,7 @@
               return `<a href="/tu-vung/${encodeURIComponent(cwHz)}" style="padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span style="font-size:18px;font-weight:800;font-family:'Noto Serif SC',serif;">${cwHz}</span>
-                  <span style="font-size:13px;color:#ea580c;font-weight:700;">${cwPy}</span>
+                  <span style="font-size:13px;color:#0d9488;font-weight:700;">${cwPy}</span>
                 </div>
                 <div style="font-size:13px;color:#57534e;margin-top:4px;">${cwVi}</div>
               </a>`;
@@ -5014,10 +5014,10 @@
               return `<div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
                   <div style="font-size:18px;font-weight:700;color:#1c1917;">${zh}</div>
-                  <div style="font-size:14px;color:#ea580c;margin-top:2px;">${py}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:2px;">${py}</div>
                   <div style="font-size:15px;color:#44403c;margin-top:4px;">${vi}</div>
                 </div>
-                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
+                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
               </div>`;
             }).join('')}
           </div>
@@ -5057,7 +5057,7 @@
       grid.innerHTML = filtered.map(item => `
         <a href="/han-viet/${encodeURIComponent(item.slug)}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-weight:700;">
           <span style="text-transform:capitalize;">${item.reading}</span>
-          <span style="font-size:12px;color:#ea580c;">→</span>
+          <span style="font-size:12px;color:#0d9488;">→</span>
         </a>
       `).join('');
     };
@@ -5082,17 +5082,17 @@
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/han-viet" style="color:#ea580c;font-weight:600;text-decoration:none;">← Danh sách Âm Hán Việt</a>
+        <a href="/han-viet" style="color:#0d9488;font-weight:600;text-decoration:none;">← Danh sách Âm Hán Việt</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#ea580c;text-transform:uppercase;">${reading}</span> (${flatChars.length} chữ Hán)</h1>
+        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#0d9488;text-transform:uppercase;">${reading}</span> (${flatChars.length} chữ Hán)</h1>
         <p style="color:#57534e;margin:0 0 20px 0;">Nhấn vào bất kỳ chữ Hán nào bên dưới để xem thứ tự nét viết, chiết tự và từ ghép thông dụng.</p>
         ${groups.length > 0 ? groups.map(g => {
           const gChars = Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []);
           const gWords = Array.isArray(g.words) ? g.words : [];
           return `
           <div style="margin-bottom:24px;">
-            <div style="font-size:15px;font-weight:800;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;display:inline-block;padding:5px 14px;border-radius:999px;margin-bottom:12px;">
+            <div style="font-size:15px;font-weight:800;color:#115e59;background:#f0fdfa;border:1px solid #99f6e4;display:inline-block;padding:5px 14px;border-radius:999px;margin-bottom:12px;">
               Âm đọc: ${(g.reading || g.pinyin || reading).toUpperCase()} (${gChars.length} chữ Hán${gWords.length ? ` · ${gWords.length} từ ghép` : ''})
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">
@@ -5104,7 +5104,7 @@
                   <div style="display:flex;justify-content:space-between;align-items:center;">
                     <span style="font-size:34px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</span>
                     <div style="text-align:right;">
-                      <div style="color:#ea580c;font-weight:800;font-size:15px;">${c.pinyin || g.pinyin || ''}</div>
+                      <div style="color:#0d9488;font-weight:800;font-size:15px;">${c.pinyin || g.pinyin || ''}</div>
                       ${c.hskLevel ? `<span style="font-size:11px;padding:1px 6px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${c.hskLevel}</span>` : ''}
                     </div>
                   </div>
@@ -5125,7 +5125,7 @@
               return `<a href="/han-tu/${encodeURIComponent(c.character || c.c)}" style="padding:14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span style="font-size:28px;font-weight:800;color:#1c1917;">${c.character || c.c}</span>
-                  <span style="color:#ea580c;font-weight:700;">${c.pinyin || c.p || ''}</span>
+                  <span style="color:#0d9488;font-weight:700;">${c.pinyin || c.p || ''}</span>
                 </div>
                 <div style="font-size:14px;color:#57534e;margin-top:6px;">${c.meaningVi || c.m || ''}</div>
               </a>`;
@@ -5170,16 +5170,16 @@
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/ngu-phap" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Thư viện Ngữ pháp</a>
+        <a href="/ngu-phap" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Thư viện Ngữ pháp</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;">
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-          <span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;font-size:13px;">${(item.level || levelSlug).toUpperCase()}</span>
+          <span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;font-size:13px;">${(item.level || levelSlug).toUpperCase()}</span>
           ${item.type || item.category ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-size:13px;font-weight:600;">${item.type || item.category}</span>` : ''}
           ${keywords.map(kw => `<span style="padding:4px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:700;font-size:13px;">Từ khoá: ${kw}</span>`).join('')}
         </div>
         <h1 style="font-size:30px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">${title}</h1>
-        ${syntax ? `<div style="padding:14px 18px;background:#fff7ed;border-left:4px solid #ea580c;border-radius:10px;font-size:17px;font-weight:700;color:#9a3412;margin-bottom:16px;white-space:pre-line;">📐 Cấu trúc:\n${syntax}</div>` : ''}
+        ${syntax ? `<div style="padding:14px 18px;background:#f0fdfa;border-left:4px solid #0d9488;border-radius:10px;font-size:17px;font-weight:700;color:#115e59;margin-bottom:16px;white-space:pre-line;">📐 Cấu trúc:\n${syntax}</div>` : ''}
         <div style="font-size:16px;line-height:1.75;color:#292524;margin-bottom:20px;white-space:pre-line;">
           ${explanation}
         </div>
@@ -5207,10 +5207,10 @@
               <div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
                   <div style="font-size:19px;font-weight:700;color:#1c1917;">${zh}</div>
-                  <div style="font-size:14px;color:#ea580c;margin-top:3px;">${ex.pinyin || ''}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:3px;">${ex.pinyin || ''}</div>
                   <div style="font-size:15px;color:#44403c;margin-top:4px;">${ex.vietnamese || ex.meaningVi || ''}</div>
                 </div>
-                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
+                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
               </div>
             `;
           }).join('')}
@@ -5275,34 +5275,34 @@
 
     root.innerHTML = `
       <style>
-        .xhz-gq-shell { margin: -24px -16px 0 -16px; background: #edeae2; min-height: calc(100vh - 64px); padding-bottom: 48px; color: #1c1917; font-family: inherit; }
-        .xhz-gq-topbar { position: sticky; top: 0; z-index: 35; background: rgba(245, 242, 235, 0.96); backdrop-filter: blur(8px); border-bottom: 1px solid #dfd9cd; padding: 12px 24px; }
+        .xhz-gq-shell { margin: -24px -16px 0 -16px; background: #edf6f5; min-height: calc(100vh - 64px); padding-bottom: 48px; color: #1c1917; font-family: inherit; }
+        .xhz-gq-topbar { position: sticky; top: 0; z-index: 35; background: rgba(240, 250, 249, 0.96); backdrop-filter: blur(8px); border-bottom: 1px solid #d3eae7; padding: 12px 24px; }
         .xhz-gq-topbar-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .xhz-gq-body { max-width: 1120px; margin: 24px auto 0; padding: 0 20px; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 24px; align-items: start; }
         @media (max-width: 900px) {
           .xhz-gq-body { grid-template-columns: 1fr; }
           .xhz-gq-sidebar { position: static !important; order: -1; }
         }
-        .xhz-gq-qcard { background: #f5f2eb; border: 1px solid #e2ddd2; border-radius: 18px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03); scroll-margin-top: 84px; transition: border-color 0.2s; }
-        .xhz-gq-qcard.is-active { border-color: #d6cfc2; }
+        .xhz-gq-qcard { background: #ffffff; border: 1px solid #cde5e2; border-radius: 18px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03); scroll-margin-top: 84px; transition: border-color 0.2s; }
+        .xhz-gq-qcard.is-active { border-color: #bde0dc; }
         .xhz-gq-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
         @media (max-width: 640px) {
           .xhz-gq-opts { grid-template-columns: 1fr; }
         }
-        .xhz-gq-opt { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid #dfd9cd; background: #faf8f4; color: #1c1917; font-size: 15px; font-weight: 500; text-align: left; cursor: pointer; transition: all 0.15s; }
-        .xhz-gq-opt:hover { border-color: #b91c1c; background: #fff; }
-        .xhz-gq-opt-letter { width: 26px; height: 26px; border-radius: 999px; border: 1px solid #d0c9bc; background: #f5f2eb; color: #57534e; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .xhz-gq-opt.is-selected { border-color: #b91c1c; background: #fef2f2; color: #7f1d1d; font-weight: 700; }
-        .xhz-gq-opt.is-selected .xhz-gq-opt-letter { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+        .xhz-gq-opt { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid #d3eae7; background: #f2fbfa; color: #1c1917; font-size: 15px; font-weight: 500; text-align: left; cursor: pointer; transition: all 0.15s; }
+        .xhz-gq-opt:hover { border-color: #0d9488; background: #fff; }
+        .xhz-gq-opt-letter { width: 26px; height: 26px; border-radius: 999px; border: 1px solid #99d5ce; background: #ffffff; color: #57534e; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .xhz-gq-opt.is-selected { border-color: #0d9488; background: #f0fdfa; color: #115e59; font-weight: 700; }
+        .xhz-gq-opt.is-selected .xhz-gq-opt-letter { background: #0d9488; border-color: #0d9488; color: #fff; }
         .xhz-gq-opt.is-correct { border-color: #16a34a !important; background: #dcfce7 !important; color: #14532d !important; font-weight: 700; }
         .xhz-gq-opt.is-correct .xhz-gq-opt-letter { background: #16a34a !important; border-color: #16a34a !important; color: #fff !important; }
         .xhz-gq-opt.is-wrong { border-color: #dc2626 !important; background: #fee2e2 !important; color: #7f1d1d !important; }
         .xhz-gq-opt.is-wrong .xhz-gq-opt-letter { background: #dc2626 !important; border-color: #dc2626 !important; color: #fff !important; }
-        .xhz-gq-nav-btn { height: 36px; border-radius: 10px; border: 1.5px solid transparent; background: #dfd9cd; color: #44403c; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.15s; }
+        .xhz-gq-nav-btn { height: 36px; border-radius: 10px; border: 1.5px solid transparent; background: #d3eae7; color: #44403c; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.15s; }
         .xhz-gq-nav-btn:hover { opacity: 0.9; }
-        .xhz-gq-nav-btn.is-current { border-color: #b91c1c; background: #efeae0; color: #1c1917; }
-        .xhz-gq-nav-btn.is-answered { background: #b91c1c; color: #fff; }
-        .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #f5f2eb; }
+        .xhz-gq-nav-btn.is-current { border-color: #0d9488; background: #d9f2ef; color: #1c1917; }
+        .xhz-gq-nav-btn.is-answered { background: #0d9488; color: #fff; }
+        .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #ffffff; }
       </style>
       <div class="xhz-gq-shell">
         ${grammarPoint ? `<div style="max-width:1120px;margin:auto;padding:20px;"><a href="/ngu-phap/${/_new_|^new-/.test(grammarId) ? 'new-hsk-' : ''}${(grammarId.match(/\d+/) || ['1'])[0]}/${encodeURIComponent(grammarId)}">← Xem lý thuyết</a><h1 style="font-size:24px;font-weight:800;margin:12px 0;">Luyện tập: ${escapeHtml(grammarPoint.topic)}</h1><p>${questions.length} câu hỏi từ chủ điểm này và các ví dụ có trong dữ liệu.</p></div>` : ''}
@@ -5318,8 +5318,8 @@
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #d6cfc2;background:#f5f2eb;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
-              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#b91c1c;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(185,28,28,0.25);">Nộp bài</button>
+              <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #bde0dc;background:#ffffff;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
+              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(185,28,28,0.25);">Nộp bài</button>
             </div>
           </div>
         </div>
@@ -5328,12 +5328,12 @@
 
         <div class="xhz-gq-body">
           <div id="xhz-gq-list" style="display:flex;flex-direction:column;gap:18px;"></div>
-          <div class="xhz-gq-sidebar" style="position:sticky;top:76px;background:#f5f2eb;border:1px solid #e2ddd2;border-radius:18px;padding:18px;">
+          <div class="xhz-gq-sidebar" style="position:sticky;top:76px;background:#ffffff;border:1px solid #cde5e2;border-radius:18px;padding:18px;">
             <div style="font-size:14px;font-weight:800;color:#1c1917;margin-bottom:12px;">Câu hỏi</div>
             <div id="xhz-gq-nav-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;"></div>
-            <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e5e0d5;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#57534e;">
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid #d3eae7;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#57534e;">
               <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#b91c1c;display:inline-block;"></span> Đã trả lời</div>
-              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#dfd9cd;display:inline-block;"></span> Chưa trả lời</div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#d3eae7;display:inline-block;"></span> Chưa trả lời</div>
               <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#d97706;display:inline-block;"></span> Đã đánh dấu</div>
             </div>
           </div>
@@ -5426,10 +5426,10 @@
       const topRowHtml = `
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="width:28px;height:28px;border-radius:999px;background:#f9dada;color:#b91c1c;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;">${idx + 1}</span>
+            <span style="width:28px;height:28px;border-radius:999px;background:#ccfbf1;color:#0d9488;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;">${idx + 1}</span>
             <span style="font-size:13px;color:#78716c;font-weight:600;">${typeLabel}</span>
           </div>
-          <button type="button" class="xhz-gq-flag-btn" title="Đánh dấu câu hỏi" style="width:36px;height:36px;border-radius:10px;border:1px solid #dfd9cd;background:#faf8f4;color:#78716c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+          <button type="button" class="xhz-gq-flag-btn" title="Đánh dấu câu hỏi" style="width:36px;height:36px;border-radius:10px;border:1px solid #d3eae7;background:#f2fbfa;color:#78716c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
           </button>
         </div>
@@ -5479,7 +5479,7 @@
           </div>
           ${q.promptPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${q.promptPinyin}</div>` : ''}
           <div style="margin-top:12px;">
-            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #dfd9cd;font-size:15px;color:#1c1917;background:#faf8f4;box-sizing:border-box;" />
+            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #d3eae7;font-size:15px;color:#1c1917;background:#f2fbfa;box-sizing:border-box;" />
           </div>
           <div class="xhz-gq-exp" style="display:none;margin-top:14px;padding:12px 16px;border-radius:12px;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;font-size:14px;line-height:1.5;"></div>
         `;
@@ -5508,8 +5508,8 @@
           if (flaggedSet.has(idx)) {
             flaggedSet.delete(idx);
             flagBtn.style.color = '#78716c';
-            flagBtn.style.borderColor = '#dfd9cd';
-            flagBtn.style.background = '#faf8f4';
+            flagBtn.style.borderColor = '#d3eae7';
+            flagBtn.style.background = '#f2fbfa';
           } else {
             flaggedSet.add(idx);
             flagBtn.style.color = '#d97706';
@@ -5542,7 +5542,7 @@
           resultBanner.innerHTML = `
             <div style="background:#fff;border:2px solid #b91c1c;border-radius:18px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;box-shadow:0 8px 24px rgba(185,28,28,0.08);">
               <div>
-                <div style="font-size:13px;font-weight:800;color:#b91c1c;text-transform:uppercase;">Kết quả bài kiểm tra ngữ pháp</div>
+                <div style="font-size:13px;font-weight:800;color:#0d9488;text-transform:uppercase;">Kết quả bài kiểm tra ngữ pháp</div>
                 <div style="font-size:26px;font-weight:800;color:#1c1917;margin-top:4px;">Đúng ${totalRight} / ${questions.length} câu (${pct}%)</div>
                 <div style="font-size:14px;color:#57534e;margin-top:2px;">Xem giải thích chi tiết ở từng câu bên dưới.</div>
               </div>
@@ -5580,7 +5580,7 @@
             }
           } else if (expEl) {
             expEl.style.display = 'block';
-            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${q.referenceAnswer || ''}${q.referencePinyin ? `<br/><span style="color:#ea580c;">Pinyin: ${q.referencePinyin}</span>` : ''}`;
+            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${q.referenceAnswer || ''}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${q.referencePinyin}</span>` : ''}`;
           }
         });
 
@@ -5641,7 +5641,7 @@
       document.title = `${levelObj.name || levelSlug} - ${brandTitle} | XieHanzi`;
       root.innerHTML = `
         <div style="margin-bottom:16px;">
-          <a href="/${rootSlug}" style="color:#2563eb;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
+          <a href="/${rootSlug}" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
           <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📘 ${levelObj.name || levelSlug.toUpperCase()}</h1>
@@ -5708,7 +5708,7 @@
       document.title = `Luyện tập: ${title} - ${levelLabel} | XieHanzi`;
       root.innerHTML = `
         <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <a href="${baseDetailUrl}" style="color:#2563eb;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
+          <a href="${baseDetailUrl}" style="color:#0d9488;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
           <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${levelLabel}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
@@ -5718,7 +5718,7 @@
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chế độ Flashcard lật thẻ & Trắc nghiệm nhanh (${words.length} từ vựng)</p>
             </div>
             <div style="display:flex;gap:8px;">
-              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#2563eb;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
+              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
               <button id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
             </div>
           </div>
@@ -5744,7 +5744,7 @@
         stage.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 0;">
             <div style="font-size:14px;font-weight:700;color:#78716c;">Thẻ ${idx + 1} / ${words.length}</div>
-            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #bfdbfe;background:#eff6ff;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,0.08);transition:all 0.2s;">
+            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #99f6e4;background:#f0fdfa;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,0.08);transition:all 0.2s;">
               <div style="font-size:64px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</div>
               <div style="font-size:22px;font-weight:700;color:#2563eb;margin-top:8px;">${py}</div>
               ${flipped ? `
@@ -5757,8 +5757,8 @@
             </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
               <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
-              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#dbeafe;color:#1e40af;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
-              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
+              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
               <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
             </div>
           </div>
@@ -5774,7 +5774,7 @@
         let score = 0;
         const answered = new Set();
         stage.innerHTML = `
-          <div id="xhz-curr-quiz-score" style="margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#eff6ff;color:#1e40af;font-weight:800;">Điểm số: 0 / ${words.length}</div>
+          <div id="xhz-curr-quiz-score" style="margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#f0fdfa;color:#115e59;font-weight:800;">Điểm số: 0 / ${words.length}</div>
           <div id="xhz-curr-quiz-list" style="display:flex;flex-direction:column;gap:14px;"></div>
         `;
         const listEl = document.getElementById('xhz-curr-quiz-list');
@@ -5799,7 +5799,7 @@
                 <span style="font-size:24px;font-weight:800;color:#1c1917;">${hz}</span>
                 <span style="font-size:15px;color:#2563eb;font-weight:600;margin-left:8px;">[${py}]</span>
               </div>
-              <button class="xhz-q-speak" style="border:none;background:#dbeafe;color:#1e40af;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
+              <button class="xhz-q-speak" style="border:none;background:#ccfbf1;color:#115e59;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
             </div>
             <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;"></div>
           `;
@@ -5835,14 +5835,14 @@
       };
 
       btnFc.onclick = () => {
-        btnFc.style.background = '#2563eb';
+        btnFc.style.background = '#0d9488';
         btnFc.style.color = '#fff';
         btnQz.style.background = '#f5f5f4';
         btnQz.style.color = '#1c1917';
         renderFlashcard();
       };
       btnQz.onclick = () => {
-        btnQz.style.background = '#2563eb';
+        btnQz.style.background = '#0d9488';
         btnQz.style.color = '#fff';
         btnFc.style.background = '#f5f5f4';
         btnFc.style.color = '#1c1917';
@@ -5884,7 +5884,7 @@
       <style>
         .xhz-curr-hero {
           margin: -24px calc(50% - 50vw) 24px calc(50% - 50vw);
-          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
+          background: linear-gradient(135deg, #0d9488 0%, #0f766e 52%, #312e81 100%);
           color: #fff;
           padding: 28px 24px 22px;
           position: relative;
@@ -5931,8 +5931,8 @@
           .xhz-curr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         .xhz-curr-wcard {
-          background: #faf8f5;
-          border: 1px solid #e5e0d5;
+          background: #f2fbfa;
+          border: 1px solid #d3eae7;
           border-radius: 16px;
           padding: 18px 16px 14px;
           display: flex;
@@ -6007,16 +6007,16 @@
       <div style="max-width:1200px;margin:0 auto;">
         <div class="xhz-curr-toolbar">
           <div style="flex:1;min-width:240px;position:relative;">
-            <input id="xhz-curr-search" type="text" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:14px;box-sizing:border-box;" />
+            <input id="xhz-curr-search" type="text" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:14px;box-sizing:border-box;" />
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div style="display:inline-flex;align-items:center;background:#ebe6dc;padding:3px;border-radius:999px;gap:4px;">
-              <button type="button" id="xhz-filter-all" style="padding:5px 12px;border-radius:999px;border:none;background:#dc2626;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Tất cả · ${words.length}</button>
+            <div style="display:inline-flex;align-items:center;background:#dcf0ee;padding:3px;border-radius:999px;gap:4px;">
+              <button type="button" id="xhz-filter-all" style="padding:5px 12px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Tất cả · ${words.length}</button>
               <button type="button" id="xhz-filter-audio" style="padding:5px 10px;border-radius:999px;border:none;background:transparent;color:#44403c;font-size:12px;font-weight:700;cursor:pointer;">🔊 ${audioCount}</button>
               <button type="button" id="xhz-filter-learned" style="padding:5px 10px;border-radius:999px;border:none;background:transparent;color:#44403c;font-size:12px;font-weight:700;cursor:pointer;">✓ <span id="xhz-learned-pill-cnt">0</span></button>
             </div>
-            <button type="button" id="xhz-toggle-pinyin" style="padding:7px 14px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn pinyin</button>
-            <button type="button" id="xhz-toggle-meaning" style="padding:7px 14px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn nghĩa</button>
+            <button type="button" id="xhz-toggle-pinyin" style="padding:7px 14px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn pinyin</button>
+            <button type="button" id="xhz-toggle-meaning" style="padding:7px 14px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn nghĩa</button>
           </div>
         </div>
 
@@ -6086,8 +6086,8 @@
             <div class="xhz-wcard-vi" style="font-size:15px;font-weight:700;color:#1c1917;margin-top:6px;line-height:1.35;transition:opacity 0.15s;">${vi}</div>
           </div>
           <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:12px;min-height:24px;">
-            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e7e2d8;color:#57534e;">${hskTag}</span>` : ''}</span>
-            <button type="button" class="xhz-wcard-heart" title="${isLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}" style="border:none;background:transparent;color:${isLearned ? '#dc2626' : '#78716c'};cursor:pointer;font-size:16px;padding:2px 4px;">
+            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#d7ebe9;color:#57534e;">${hskTag}</span>` : ''}</span>
+            <button type="button" class="xhz-wcard-heart" title="${isLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}" style="border:none;background:transparent;color:${isLearned ? '#0d9488' : '#78716c'};cursor:pointer;font-size:16px;padding:2px 4px;">
               ${isLearned ? '♥' : '♡'}
             </button>
           </div>
@@ -6131,7 +6131,7 @@
         [btnFilterLearned, 'learned']
       ].forEach(([btn, m]) => {
         if (!btn) return;
-        btn.style.background = m === mode ? '#dc2626' : 'transparent';
+        btn.style.background = m === mode ? '#0d9488' : 'transparent';
         btn.style.color = m === mode ? '#fff' : '#44403c';
       });
       renderGrid();
@@ -6145,14 +6145,14 @@
     if (btnTogglePy) {
       btnTogglePy.onclick = () => {
         const hidden = gridEl.classList.toggle('hide-pinyin');
-        btnTogglePy.style.background = hidden ? '#1c1917' : '#faf8f5';
+        btnTogglePy.style.background = hidden ? '#1c1917' : '#f2fbfa';
         btnTogglePy.style.color = hidden ? '#fff' : '#1c1917';
       };
     }
     if (btnToggleVi) {
       btnToggleVi.onclick = () => {
         const hidden = gridEl.classList.toggle('hide-meaning');
-        btnToggleVi.style.background = hidden ? '#1c1917' : '#faf8f5';
+        btnToggleVi.style.background = hidden ? '#1c1917' : '#f2fbfa';
         btnToggleVi.style.color = hidden ? '#fff' : '#1c1917';
       };
     }
@@ -6268,7 +6268,7 @@
 
     const hskColors = {
       1: 'background:#fef3c7;color:#92400e;',
-      2: 'background:#ffedd5;color:#9a3412;',
+      2: 'background:#ccfbf1;color:#115e59;',
       3: 'background:#ffe4e6;color:#9f1239;',
       4: 'background:#ede9fe;color:#5b21b6;',
       5: 'background:#e0f2fe;color:#075985;',
@@ -6299,7 +6299,7 @@
           <div style="grid-column:span 1;min-width:0;display:flex;flex-direction:column;gap:16px;" id="xhz-dict-left-col">
             <!-- Video Container -->
             <div>
-              <div id="xhz-dict-listen-banner" style="display:none;align-items:center;justify-content:center;gap:12px;border-radius:16px;border:1px solid #fde68a;background:#fffbeb;padding:28px 16px;text-align:center;">
+              <div id="xhz-dict-listen-banner" style="display:none;align-items:center;justify-content:center;gap:12px;border-radius:16px;border:1px solid #99f6e4;background:#f0fdfa;padding:28px 16px;text-align:center;">
                 <span style="font-size:28px;">🎧</span>
                 <div style="text-align:left;">
                   <p style="margin:0;font-size:14px;font-weight:700;color:#78350f;">Đang ở chế độ chỉ nghe</p>
@@ -6319,15 +6319,15 @@
                   <button type="button" id="xhz-dict-btn-play-seg" style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;background:#1c1917;color:#fff;border:none;padding:6px 12px;font-weight:700;cursor:pointer;font-size:12px;">
                     ▶ Phát câu này
                   </button>
-                  <button type="button" id="xhz-dict-btn-tts-seg" style="display:inline-flex;align-items:center;gap:4px;border-radius:8px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px;" title="Đọc phát âm mẫu câu này">
+                  <button type="button" id="xhz-dict-btn-tts-seg" style="display:inline-flex;align-items:center;gap:4px;border-radius:8px;background:#f0fdfa;color:#115e59;border:1px solid #99f6e4;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px;" title="Đọc phát âm mẫu câu này">
                     🔊 Đọc mẫu
                   </button>
                   <label style="display:inline-flex;align-items:center;gap:4px;color:#44403c;cursor:pointer;font-weight:600;">
-                    <input type="checkbox" id="xhz-dict-chk-loop" style="accent-color:#d97706;" />
+                    <input type="checkbox" id="xhz-dict-chk-loop" style="accent-color:#0d9488;" />
                     Lặp câu
                   </label>
                   <label style="display:inline-flex;align-items:center;gap:4px;color:#44403c;cursor:pointer;font-weight:600;">
-                    <input type="checkbox" id="xhz-dict-chk-mask" style="accent-color:#d97706;" />
+                    <input type="checkbox" id="xhz-dict-chk-mask" style="accent-color:#0d9488;" />
                     Ẩn phụ đề
                   </label>
                 </div>
@@ -6347,7 +6347,7 @@
                 <span id="xhz-dict-done-label">0/${segments.length} đã xong</span>
               </div>
               <div style="height:6px;width:100%;overflow:hidden;border-radius:999px;background:#e7e5e4;">
-                <div id="xhz-dict-prog-bar" style="height:100%;background:#d97706;width:0%;transition:width 0.25s;"></div>
+                <div id="xhz-dict-prog-bar" style="height:100%;background:#0d9488;width:0%;transition:width 0.25s;"></div>
               </div>
             </div>
 
@@ -6361,7 +6361,7 @@
                   <button type="button" class="xhz-dict-mode-btn" data-mode="listen" style="border-radius:8px;padding:6px 12px;font-weight:700;border:none;cursor:pointer;">Chỉ nghe</button>
                 </div>
                 <label id="xhz-dict-pinyin-wrap" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#44403c;cursor:pointer;font-weight:600;">
-                  <input type="checkbox" id="xhz-dict-chk-pinyin" style="accent-color:#d97706;" />
+                  <input type="checkbox" id="xhz-dict-chk-pinyin" style="accent-color:#0d9488;" />
                   Gõ pinyin
                 </label>
               </div>
@@ -6382,7 +6382,7 @@
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:10px;">
-              <button type="button" id="xhz-dict-next-unattempted" style="flex:1;border-radius:8px;border:1px solid #fde68a;background:#fffbeb;padding:6px 10px;font-size:12px;font-weight:700;color:#92400e;cursor:pointer;">
+              <button type="button" id="xhz-dict-next-unattempted" style="flex:1;border-radius:8px;border:1px solid #99f6e4;background:#f0fdfa;padding:6px 10px;font-size:12px;font-weight:700;color:#115e59;cursor:pointer;">
                 Tới câu chưa làm tiếp theo →
               </button>
               <button type="button" id="xhz-dict-toggle-list-sub" style="border-radius:8px;border:1px solid #e7e5e4;background:#fafaf9;padding:6px 10px;font-size:11px;font-weight:700;color:#44403c;cursor:pointer;" title="Ẩn/Hiện chữ Hán trong danh sách câu">
@@ -6535,7 +6535,7 @@
         playbackRate = Number(btn.getAttribute('data-rate')) || 1;
         root.querySelectorAll('.xhz-rate-btn').forEach(b => {
           const active = Number(b.getAttribute('data-rate')) === playbackRate;
-          b.style.background = active ? '#d97706' : '#f5f5f4';
+          b.style.background = active ? '#0d9488' : '#f5f5f4';
           b.style.color = active ? '#fff' : '#57534e';
         });
         if (ytPlayer && ytReady && typeof ytPlayer.setPlaybackRate === 'function') {
@@ -6659,7 +6659,7 @@
         const diffLabel = seg.difficulty === 1 ? 'Dễ' : seg.difficulty === 2 ? 'Vừa' : 'Khó';
         const diffStyle = seg.difficulty === 1 ? 'background:#ecfdf5;color:#047857;' : seg.difficulty === 2 ? 'background:#fffbeb;color:#b45309;' : 'background:#fff1f2;color:#be123c;';
         return `
-          <button type="button" class="xhz-dict-seg-btn" data-idx="${idx}" style="display:flex;width:100%;align-items:center;gap:10px;border-radius:10px;padding:9px 10px;text-align:left;font-size:12px;cursor:pointer;border:${isCurrent ? '2px solid #d97706' : '1px solid #f5f5f4'};background:${isCurrent ? '#fffbeb' : '#fafaf9'};transition:all 0.15s;">
+          <button type="button" class="xhz-dict-seg-btn" data-idx="${idx}" style="display:flex;width:100%;align-items:center;gap:10px;border-radius:10px;padding:9px 10px;text-align:left;font-size:12px;cursor:pointer;border:${isCurrent ? '2px solid #0d9488' : '1px solid #f5f5f4'};background:${isCurrent ? '#f0fdfa' : '#fafaf9'};transition:all 0.15s;">
             <span style="display:flex;height:24px;width:24px;flex-shrink:0;align-items:center;justify-content:center;border-radius:999px;font-size:11px;font-weight:800;${badgeBg}">${badgeIcon}</span>
             <div style="min-width:0;flex:1;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
@@ -6695,7 +6695,7 @@
       // Update mode buttons & video visibility for listen mode
       root.querySelectorAll('.xhz-dict-mode-btn').forEach(b => {
         const active = b.getAttribute('data-mode') === mode;
-        b.style.background = active ? '#d97706' : '#f5f5f4';
+        b.style.background = active ? '#0d9488' : '#f5f5f4';
         b.style.color = active ? '#fff' : '#44403c';
       });
       const pyWrap = document.getElementById('xhz-dict-pinyin-wrap');
@@ -6737,7 +6737,7 @@
             <p style="margin:0;font-size:14px;color:#57534e;">Nghe câu thoại và tự nhẩm trong đầu, sau đó bấm <strong>Hiện đáp án</strong> để đối chiếu chữ Hán, Pinyin và nghĩa tiếng Việt.</p>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button type="button" id="xhz-dict-btn-reveal" style="border-radius:10px;border:none;background:#d97706;padding:10px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Hiện đáp án</button>
+                <button type="button" id="xhz-dict-btn-reveal" style="border-radius:10px;border:none;background:#0d9488;padding:10px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Hiện đáp án</button>
                 <button type="button" id="xhz-dict-btn-replay2" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
                 <button type="button" id="xhz-dict-btn-slow" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">🐢 Chậm (0.75×)</button>
               </div>
@@ -6758,7 +6758,7 @@
             if (targetByIndex.has(hCounter)) {
               const first = hCounter === targets[0].index;
               const value = blankValues[hCounter] !== undefined ? blankValues[hCounter] : targets.length === 1 ? curState.input || '' : '';
-              return `<input type="text" id="xhz-dict-blank-input${first ? '' : '-' + hCounter}" class="xhz-dict-blank-input" data-blank-index="${hCounter}" aria-label="Điền chữ Hán thứ ${hCounter + 1}${pinyinMode ? ' hoặc phiên âm tương ứng' : ''}" value="${escapeInput(value)}" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'pinyin' : '?'}" style="width:${pinyinMode ? '96px' : '56px'};margin:0 6px;border:none;border-bottom:2px solid #d97706;background:#fffbeb;padding:2px 6px;text-align:center;font-size:22px;font-weight:800;color:#1c1917;outline:none;" />`;
+              return `<input type="text" id="xhz-dict-blank-input${first ? '' : '-' + hCounter}" class="xhz-dict-blank-input" data-blank-index="${hCounter}" aria-label="Điền chữ Hán thứ ${hCounter + 1}${pinyinMode ? ' hoặc phiên âm tương ứng' : ''}" value="${escapeInput(value)}" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'pinyin' : '?'}" style="width:${pinyinMode ? '96px' : '56px'};margin:0 6px;border:none;border-bottom:2px solid #0d9488;background:#f0fdfa;padding:2px 6px;text-align:center;font-size:22px;font-weight:800;color:#1c1917;outline:none;" />`;
             }
           }
           return `<span>${ch}</span>`;
@@ -6772,7 +6772,7 @@
             </div>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#d97706;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
+                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#0d9488;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
                 <button type="button" id="xhz-dict-btn-replay2" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
                 <button type="button" id="xhz-dict-btn-slow" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">🐢 Chậm (0.75×)</button>
                 <button type="button" id="xhz-dict-btn-skip" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#78716c;cursor:pointer;">Bỏ qua</button>
@@ -6839,10 +6839,10 @@
             </div>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#d97706;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
+                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#0d9488;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
                 <button type="button" id="xhz-dict-btn-replay2" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
                 <button type="button" id="xhz-dict-btn-slow" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">🐢 Chậm (0.75×)</button>
-                <button type="button" id="xhz-dict-btn-hint" style="border-radius:10px;border:1px solid #fde68a;background:#fffbeb;padding:9px 14px;font-size:14px;font-weight:700;color:#92400e;cursor:pointer;">💡 Gợi ý (${hintRevealedCount}/${hanziChars.length})</button>
+                <button type="button" id="xhz-dict-btn-hint" style="border-radius:10px;border:1px solid #99f6e4;background:#f0fdfa;padding:9px 14px;font-size:14px;font-weight:700;color:#115e59;cursor:pointer;">💡 Gợi ý (${hintRevealedCount}/${hanziChars.length})</button>
                 <button type="button" id="xhz-dict-btn-skip" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#78716c;cursor:pointer;">Bỏ qua</button>
               </div>
             ` : ''}
@@ -6986,8 +6986,8 @@
       return !storageFailed;
     };
     const stylesheet = `<style>
-      .xhz-exam{--exam-bg:#fff;--exam-alt:#fafaf9;--exam-text:#292524;--exam-muted:#78716c;--exam-border:#e7e5e4;color:var(--exam-text);max-width:1000px;margin:0 auto}.dark .xhz-exam{--exam-bg:#211d18;--exam-alt:#29241e;--exam-text:#f5f5f4;--exam-muted:#a8a29e;--exam-border:#57534e}
-      .xhz-exam h1{font-size:28px;font-weight:800;margin:14px 0}.xhz-exam h2{font-weight:800;font-size:19px;margin:0 0 12px}.xhz-exam p{margin:10px 0}.xhz-exam .exam-panel{padding:22px;border:1px solid var(--exam-border);border-radius:18px;background:var(--exam-bg);margin:18px 0}.xhz-exam .exam-note{padding:15px 18px;border:1px solid #fbbf24;border-radius:12px;background:#fffbeb;color:#78350f;margin:18px 0;line-height:1.6}.xhz-exam .exam-muted{color:var(--exam-muted);font-size:14px}.xhz-exam .exam-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}.xhz-exam button{padding:11px 16px;border:1px solid var(--exam-border);border-radius:11px;background:var(--exam-bg);color:var(--exam-text);font-weight:700;cursor:pointer}.xhz-exam button:disabled{opacity:.65;cursor:default}.xhz-exam .exam-primary{background:#ea580c;border-color:#ea580c;color:#fff}.xhz-exam .exam-option{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--exam-border);border-radius:12px;background:var(--exam-alt);padding:13px;cursor:pointer}.xhz-exam .exam-option:has(input:checked){border-color:#ea580c;box-shadow:inset 0 0 0 1px #ea580c}.xhz-exam input[type=radio]{accent-color:#ea580c;margin-top:6px}.xhz-exam .exam-options,.xhz-exam .exam-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}.xhz-exam img{max-height:160px;max-width:100%;object-fit:contain;display:block;background:#fff;border-radius:8px}.xhz-exam textarea,.xhz-exam input[type=text]{width:100%;padding:12px;border:1px solid var(--exam-border);border-radius:10px;background:var(--exam-bg);color:var(--exam-text);font-size:17px}.xhz-exam .exam-feedback{font-size:14px;margin-top:12px}.xhz-exam :focus-visible{outline:3px solid #ea580c;outline-offset:3px}@media(max-width:480px){.xhz-exam .exam-panel{padding:16px}.xhz-exam h1{font-size:24px}}
+      .xhz-exam{--exam-bg:#fff;--exam-alt:#fafaf9;--exam-text:#292524;--exam-muted:#78716c;--exam-border:#e7e5e4;color:var(--exam-text);max-width:1000px;margin:0 auto}.dark .xhz-exam{--exam-bg:#0f172a;--exam-alt:#1e293b;--exam-text:#f5f5f4;--exam-muted:#a8a29e;--exam-border:#57534e}
+      .xhz-exam h1{font-size:28px;font-weight:800;margin:14px 0}.xhz-exam h2{font-weight:800;font-size:19px;margin:0 0 12px}.xhz-exam p{margin:10px 0}.xhz-exam .exam-panel{padding:22px;border:1px solid var(--exam-border);border-radius:18px;background:var(--exam-bg);margin:18px 0}.xhz-exam .exam-note{padding:15px 18px;border:1px solid #fbbf24;border-radius:12px;background:#fffbeb;color:#78350f;margin:18px 0;line-height:1.6}.xhz-exam .exam-muted{color:var(--exam-muted);font-size:14px}.xhz-exam .exam-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}.xhz-exam button{padding:11px 16px;border:1px solid var(--exam-border);border-radius:11px;background:var(--exam-bg);color:var(--exam-text);font-weight:700;cursor:pointer}.xhz-exam button:disabled{opacity:.65;cursor:default}.xhz-exam .exam-primary{background:#0d9488;border-color:#0d9488;color:#fff}.xhz-exam .exam-option{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--exam-border);border-radius:12px;background:var(--exam-alt);padding:13px;cursor:pointer}.xhz-exam .exam-option:has(input:checked){border-color:#0d9488;box-shadow:inset 0 0 0 1px #0d9488}.xhz-exam input[type=radio]{accent-color:#0d9488;margin-top:6px}.xhz-exam .exam-options,.xhz-exam .exam-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}.xhz-exam img{max-height:160px;max-width:100%;object-fit:contain;display:block;background:#fff;border-radius:8px}.xhz-exam textarea,.xhz-exam input[type=text]{width:100%;padding:12px;border:1px solid var(--exam-border);border-radius:10px;background:var(--exam-bg);color:var(--exam-text);font-size:17px}.xhz-exam .exam-feedback{font-size:14px;margin-top:12px}.xhz-exam :focus-visible{outline:3px solid #0d9488;outline-offset:3px}@media(max-width:480px){.xhz-exam .exam-panel{padding:16px}.xhz-exam h1{font-size:24px}}
     </style>`;
     const warning = gradableCount === 0
       ? 'Chưa có đáp án chuẩn cho đề này. Bạn có thể làm và lưu lựa chọn; bài chưa được chấm điểm.'
@@ -7134,18 +7134,18 @@
     const title = isMistakeMode ? 'Ôn lỗi sai' : isSentenceMode ? 'Luyện thẻ câu' : 'Ôn bài đến hạn';
     document.title = `${title} | Ôn tập XieHanzi`;
     root.innerHTML = `<div id="xhz-review-session-root" style="max-width:920px;margin:0 auto;color:#1c1917;">
-      <a href="/on-tap" style="display:inline-block;margin-bottom:18px;color:#ea580c;font-weight:700;">← Quay lại Trung tâm Ôn tập</a>
+      <a href="/on-tap" style="display:inline-block;margin-bottom:18px;color:#0d9488;font-weight:700;">← Quay lại Trung tâm Ôn tập</a>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-        <a href="/hoc/bai/on-tap-den-han" style="padding:8px 14px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:700;">Ôn đến hạn (${due.length})</a>
-        <a href="/hoc/bai/on-tap-loi-sai" style="padding:8px 14px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:700;">Ôn lỗi sai (${mistakes.length})</a>
-        <a href="/hoc/bai/on-tap-the-cau" style="padding:8px 14px;border:1px solid #fed7aa;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:700;">Thẻ câu (${sentences.length})</a>
+        <a href="/hoc/bai/on-tap-den-han" style="padding:8px 14px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-weight:700;">Ôn đến hạn (${due.length})</a>
+        <a href="/hoc/bai/on-tap-loi-sai" style="padding:8px 14px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-weight:700;">Ôn lỗi sai (${mistakes.length})</a>
+        <a href="/hoc/bai/on-tap-the-cau" style="padding:8px 14px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-weight:700;">Thẻ câu (${sentences.length})</a>
       </div>
-      <div style="padding:20px 24px;border:1px solid #fed7aa;border-radius:22px;background:#fff7ed;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+      <div style="padding:20px 24px;border:1px solid #99f6e4;border-radius:22px;background:#f0fdfa;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
         <div><h1 style="font-size:24px;font-weight:800;margin:0 0 6px;">${title}</h1>
           <p style="margin:0;color:#57534e;">${sourceCards.length} thẻ từ lịch sử học của bạn${isMistakeMode ? ' · Mỗi lỗi cần hai lượt đúng liên tiếp để khắc phục' : ''}</p></div>
-        <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;color:#9a3412;font-weight:800;">Đã luyện: 0 / ${sourceCards.length}</div>
+        <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;color:#115e59;font-weight:800;">Đã luyện: 0 / ${sourceCards.length}</div>
       </div>
-      <div id="xhz-review-status" role="status" aria-live="polite" style="margin:12px 0;color:#b91c1c;"></div>
+      <div id="xhz-review-status" role="status" aria-live="polite" style="margin:12px 0;color:#0d9488;"></div>
       <div id="xhz-review-body" style="padding:24px;border:1px solid #e7e5e4;border-radius:22px;background:#fff;">Đang tải thẻ ôn tập...</div>
     </div>`;
     const bodyEl = root.querySelector('#xhz-review-body');
@@ -7155,7 +7155,7 @@
       bodyEl.innerHTML = `<div style="padding:24px;text-align:center;line-height:1.7;">
         <h2 style="font-size:20px;font-weight:800;">${isMistakeMode ? 'Bạn chưa có lỗi cần ôn.' : isSentenceMode ? 'Chưa có thẻ câu đến hạn.' : 'Bạn đã ôn hết các thẻ đến hạn.'}</h2>
         <p style="color:#57534e;">Kết quả từ các bài học và bài luyện sẽ được lưu vào lịch ôn của bạn.</p>
-        <a href="/hoc" style="display:inline-block;padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;font-weight:700;">Tiếp tục học</a>
+        <a href="/hoc" style="display:inline-block;padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;">Tiếp tục học</a>
       </div>`;
       return;
     }
@@ -7217,7 +7217,7 @@
         row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
         row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;">
           <div><strong style="font-size:24px;">${answer === item.hanzi ? 'Nghe rồi chọn đáp án đúng' : escape(item.hanzi)}</strong>
-            ${!hidePinyin && !testsSound && answer !== item.hanzi ? `<div style="color:#ea580c;">${escape(item.pinyin)}</div>` : ''}
+            ${!hidePinyin && !testsSound && answer !== item.hanzi ? `<div style="color:#0d9488;">${escape(item.pinyin)}</div>` : ''}
             ${isMistakeMode ? `<div style="font-size:13px;color:#78716c;">${item.wrongCount} lượt sai · Đã đúng liên tiếp ${item.correctStreak}/2</div>` : ''}</div>
           <button class="xhz-mc-audio" style="${buttonStyle}">🔊 Nghe</button></div>
           <div class="xhz-mc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
@@ -7249,7 +7249,7 @@
         row.innerHTML = `<div style="margin-bottom:12px;font-weight:700;">${escape(item.meaningVi || 'Nghe rồi gõ lại chữ/câu')}</div>
           <button class="xhz-type-audio" style="${buttonStyle}margin-bottom:12px;">🔊 Nghe gợi ý</button>
           <div style="display:flex;flex-wrap:wrap;gap:10px;"><input class="xhz-type-input" aria-label="Câu trả lời" placeholder="Nhập chữ Hán hoặc pinyin..." style="flex:1;min-width:180px;padding:10px 14px;border:1px solid #d6d3d1;border-radius:10px;color:#1c1917;background:#fff;" />
-            <button class="xhz-type-check" style="${buttonStyle}background:#ea580c;color:#fff;border-color:#ea580c;">Kiểm tra</button></div>
+            <button class="xhz-type-check" style="${buttonStyle}background:#0d9488;color:#fff;border-color:#0d9488;">Kiểm tra</button></div>
           <div class="xhz-type-feedback" role="status" style="margin-top:10px;font-weight:700;"></div>`;
         row.querySelector('.xhz-type-audio').onclick = () => play(item);
         const input = row.querySelector('.xhz-type-input'); const button = row.querySelector('.xhz-type-check');
@@ -7276,17 +7276,17 @@
     let currentIndex = 0;
     function renderCard() {
       const item = items[currentIndex];
-      if (!item) { srsPanel.innerHTML = '<div style="padding:30px;font-weight:700;line-height:1.8;">Đã lưu kết quả của toàn bộ thẻ trong phiên này.<br/><a href="/on-tap" style="color:#ea580c;">Xem lịch ôn mới →</a></div>'; return; }
+      if (!item) { srsPanel.innerHTML = '<div style="padding:30px;font-weight:700;line-height:1.8;">Đã lưu kết quả của toàn bộ thẻ trong phiên này.<br/><a href="/on-tap" style="color:#0d9488;">Xem lịch ôn mới →</a></div>'; return; }
       let flipped = false;
       const goodDays = [1, 3, 7, 14, 30][Math.min(4, item.correctStreak || 0)];
       srsPanel.innerHTML = `<div style="margin-bottom:12px;color:#78716c;font-weight:700;">Thẻ ${currentIndex + 1} / ${items.length}</div>
-        <button id="xhz-srs-card" style="width:100%;padding:32px 24px;min-height:250px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;color:#1c1917;cursor:pointer;">
+        <button id="xhz-srs-card" style="width:100%;padding:32px 24px;min-height:250px;border-radius:22px;border:2px solid #5eead4;background:#f0fdfa;color:#1c1917;cursor:pointer;">
           <div style="font-size:48px;font-weight:800;overflow-wrap:anywhere;">${escape(item.hanzi)}</div>
-          <div class="xhz-srs-pinyin" style="font-size:20px;color:#ea580c;margin-top:10px;">${hidePinyin ? '' : escape(item.pinyin)}</div>
-          <div id="xhz-srs-back" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed #fdba74;">
+          <div class="xhz-srs-pinyin" style="font-size:20px;color:#0d9488;margin-top:10px;">${hidePinyin ? '' : escape(item.pinyin)}</div>
+          <div id="xhz-srs-back" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed #5eead4;">
             <div style="font-size:22px;font-weight:700;">${escape(item.meaningVi)}</div>
             ${item.exampleZh ? `<div style="font-size:15px;margin-top:8px;">${escape(item.exampleZh)} ${escape(item.exampleVi)}</div>` : ''}
-          </div><div style="margin-top:16px;font-size:13px;color:#9a3412;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
+          </div><div style="margin-top:16px;font-size:13px;color:#115e59;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button></div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
           ${[['again', 'Quên', '1 phút'], ['hard', 'Khó', '10 phút'], ['good', 'Tốt', `${goodDays} ngày`], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`]].map(([grade, label, interval]) => `<button class="xhz-srs-grade" data-grade="${grade}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval}</div></button>`).join('')}
@@ -7311,7 +7311,7 @@
     populateQuiz(bodyEl.querySelector('#xhz-rev-panel-mc'));
     populateTyping(bodyEl.querySelector('#xhz-rev-panel-typing'));
     function switchTab(tab) {
-      bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { const active = button.getAttribute('data-tab') === tab; button.style.background = active ? '#ea580c' : '#fff'; button.style.color = active ? '#fff' : '#1c1917'; });
+      bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { const active = button.getAttribute('data-tab') === tab; button.style.background = active ? '#0d9488' : '#fff'; button.style.color = active ? '#fff' : '#1c1917'; });
       for (const name of ['srs', 'mc', 'typing']) bodyEl.querySelector(`#xhz-rev-panel-${name}`).style.display = tab === name ? name === 'srs' ? 'block' : 'flex' : 'none';
     }
     bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { button.onclick = () => switchTab(button.getAttribute('data-tab')); });
@@ -7330,11 +7330,11 @@
     root.innerHTML = `
       <div style="max-width:900px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
-          <a href="/hoc" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Trang Học (/hoc)</a>
+          <a href="/hoc" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trang Học (/hoc)</a>
           <div style="display:flex;gap:8px;">
-            <a href="/hoc/tien-do" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${!isHabit ? '#ea580c' : '#fff'};color:${!isHabit ? '#fff' : '#44403c'};border:1px solid ${!isHabit ? '#ea580c' : '#e7e5e4'};">📊 Tiến độ HSK</a>
-            <a href="/hoc/thoi-quen" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${isHabit ? '#ea580c' : '#fff'};color:${isHabit ? '#fff' : '#44403c'};border:1px solid ${isHabit ? '#ea580c' : '#e7e5e4'};">🔥 Chuỗi ngày học</a>
-            <a href="/on-tap" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">🔄 Ôn tập</a>
+            <a href="/hoc/tien-do" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${!isHabit ? '#0d9488' : '#fff'};color:${!isHabit ? '#fff' : '#44403c'};border:1px solid ${!isHabit ? '#0d9488' : '#e7e5e4'};">📊 Tiến độ HSK</a>
+            <a href="/hoc/thoi-quen" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${isHabit ? '#0d9488' : '#fff'};color:${isHabit ? '#fff' : '#44403c'};border:1px solid ${isHabit ? '#0d9488' : '#e7e5e4'};">🔥 Chuỗi ngày học</a>
+            <a href="/on-tap" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">🔄 Ôn tập</a>
           </div>
         </div>
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
@@ -7345,9 +7345,9 @@
             Mục tiêu mỗi ngày: 15 phút · Đã hoàn thành hôm nay: ${sum.todayMinutes} / 15 phút · Từ vựng đã mở khóa: ${sum.wordsSeen} / 300 từ HSK 1
           </p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px;">
-            <div style="padding:16px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;">
-              <div style="font-size:12px;font-weight:700;color:#9a3412;">CHUỖI NGÀY HỌC</div>
-              <div style="font-size:28px;font-weight:800;color:#ea580c;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
+            <div style="padding:16px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;">
+              <div style="font-size:12px;font-weight:700;color:#115e59;">CHUỖI NGÀY HỌC</div>
+              <div style="font-size:28px;font-weight:800;color:#0d9488;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
               <div style="font-size:12px;color:#78716c;margin-top:4px;">Kỷ lục dài nhất: ${sum.longestStreak} ngày</div>
             </div>
             <div style="padding:16px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;">
@@ -7362,7 +7362,7 @@
             </div>
           </div>
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#ea580c;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
+            <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
             <a href="/hoc/bai/on-tap-den-han" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;text-decoration:none;">🔄 Ôn bài đến hạn (${sum.dueTotal})</a>
             <a href="/hoc/so-loi" style="padding:12px 22px;border-radius:14px;background:#fafaf9;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;">📓 Xem Sổ lỗi (${sum.mistakesCount})</a>
           </div>
@@ -7387,11 +7387,11 @@
     document.title = `${title} | XieHanzi`;
     root.innerHTML = `<style>
       #xhz-character-browse { --browse-ink:#1c1917;--browse-card:#fafaf9;--browse-border:#d6d3d1;color:var(--browse-ink); }
-      html.dark #xhz-character-browse { --browse-ink:#f3ede2;--browse-card:#292420;--browse-border:#57534e; }
+      html.dark #xhz-character-browse { --browse-ink:#e2e8f0;--browse-card:#0f172a;--browse-border:#57534e; }
       #xhz-character-browse input,#xhz-character-browse select,#xhz-character-browse button,#xhz-browse-grid a { color:var(--browse-ink)!important;background:var(--browse-card)!important;border-color:var(--browse-border)!important; }
-      #xhz-browse-grid a:hover { border-color:#b91c1c!important; }
+      #xhz-browse-grid a:hover { border-color:#0d9488!important; }
     </style><section id="xhz-character-browse" style="max-width:1100px;margin:auto;">
-      <a href="/tra-chu" style="color:#b91c1c;font-weight:700;">← Từ điển Hán - Việt</a>
+      <a href="/tra-chu" style="color:#0d9488;font-weight:700;">← Từ điển Hán - Việt</a>
       <h1 style="font-size:28px;font-weight:800;margin:20px 0 8px;">${escape(title)}</h1>
       <p id="xhz-browse-count" role="status">${entries.length} chữ Hán trong kho dữ liệu</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
@@ -7508,7 +7508,7 @@
             flex-shrink: 0 !important;
             padding-top: 12px !important;
             padding-bottom: 18px !important;
-            background: var(--lp-bg, #e8e4dc) !important;
+            background: var(--lp-bg, #eef8f7) !important;
             z-index: 5 !important;
           }
         }
@@ -8134,10 +8134,10 @@
             showOutline: phase !== 'recall',
             strokeAnimationSpeed: 1.1,
             delayBetweenStrokes: 220,
-            strokeColor: '#191715',
-            outlineColor: '#D8D2C4',
-            drawingColor: '#C8251D',
-            highlightColor: '#2563EB',
+            strokeColor: '#0f172a',
+            outlineColor: '#cbd5e1',
+            drawingColor: '#0d9488',
+            highlightColor: '#4f46e5',
             drawingWidth: 22,
             charDataLoader: function (char, onComplete) {
               originalFetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/${encodeURIComponent(char)}.json`)
@@ -8465,10 +8465,10 @@
             </div>
             <div class="lp-write-box lp-write-grid" style="position:relative;">
               <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" aria-hidden="true">
-                <line x1="0" y1="50" x2="100" y2="50" stroke="#E4DEC9" stroke-width="0.7" stroke-dasharray="3,3"/>
-                <line x1="50" y1="0" x2="50" y2="100" stroke="#E4DEC9" stroke-width="0.7" stroke-dasharray="3,3"/>
-                <line x1="0" y1="0" x2="100" y2="100" stroke="#EDE8D8" stroke-width="0.5" stroke-dasharray="3,3"/>
-                <line x1="100" y1="0" x2="0" y2="100" stroke="#EDE8D8" stroke-width="0.5" stroke-dasharray="3,3"/>
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#cbd5e1" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <line x1="50" y1="0" x2="50" y2="100" stroke="#cbd5e1" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <line x1="0" y1="0" x2="100" y2="100" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+                <line x1="100" y1="0" x2="0" y2="100" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
               </svg>
               <div id="xhz-hw-canvas" style="position:relative;z-index:2;width:256px;height:256px;display:flex;align-items:center;justify-content:center;cursor:pointer;"></div>
             </div>
