@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * RUNTIME ENGINE (v7.4 — CLEAN UI REDESIGN + NO BRANDING + FULL SUBPAGES + GAMES)
+ * RUNTIME ENGINE (v7.5 — CLEAN UI REDESIGN + POST-HYDRATION SCRUB + FULL SUBPAGES + GAMES)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
@@ -9571,6 +9571,7 @@
   let htqHydrationSettled = false;
 
   function cleanDocumentTitle() {
+    if (!htqHydrationSettled) return;
     try {
       if (/xiehanzi/i.test(document.title)) {
         document.title = scrubBrandText(document.title)
@@ -9582,6 +9583,7 @@
   }
 
   function scrubBrandingAndLogos(root) {
+    if (!htqHydrationSettled) return;
     cleanDocumentTitle();
     const target = root && root.nodeType === 1 ? root : document.body;
     if (!target) return;
@@ -9661,8 +9663,7 @@
   }
 
   function scheduleScrubPasses() {
-    cleanDocumentTitle();
-    [250, 600, 1200, 2200].forEach(ms => {
+    [850, 1250, 2000].forEach(ms => {
       setTimeout(() => {
         htqHydrationSettled = true;
         scrubBrandingAndLogos(document.body);
@@ -9696,7 +9697,7 @@
     setTimeout(() => {
       htqHydrationSettled = true;
       scrubBrandingAndLogos(document.body);
-    }, 60);
+    }, 650);
   });
 
   function boot() {
