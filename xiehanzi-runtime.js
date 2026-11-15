@@ -1,6 +1,6 @@
 /**
  * ============================================================================
- * RUNTIME ENGINE (v8.0 — BENTO GLASS IMPERIAL JADE v3 + ZERO-FLASH SCRUB + FULL SUBPAGES + GAMES)
+ * RUNTIME ENGINE (v8.1 — BENTO GLASS IMPERIAL JADE v3 + ZERO-FLASH SCRUB + FULL SUBPAGES + GAMES)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
@@ -1220,6 +1220,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (!entry) {
         const cleanSlug = decodeURIComponent(slugOrChar).toLowerCase().trim();
         entry = index.find(x => x.slug === cleanSlug || (x.hv && `${x.hv}-${x.c}` === cleanSlug));
+        if (!entry) {
+          const baseSlug = toSlugVi(cleanSlug.replace(/-\d+$/, ''));
+          if (baseSlug) {
+            const cands = index.filter(x =>
+              (x.slug && toSlugVi(x.slug.replace(/-[\u4e00-\u9fff]+$/, '')) === baseSlug) ||
+              (x.hv && toSlugVi(x.hv) === baseSlug)
+            );
+            if (cands.length) {
+              const numM = cleanSlug.match(/-(\d+)$/);
+              entry = (numM && cands.find(x => String(x.m || '').includes(numM[1]))) || cands[0];
+            }
+          }
+        }
       }
     }
     const targetChar = entry ? (entry.c || entry.character) : char;
@@ -1254,6 +1267,29 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       entry = index.find(x => (x.w || x.word || x.hanzi) === word || (x.w || x.word || x.hanzi) === rawDecoded);
       if (!entry) {
         entry = index.find(x => (x.w || '').replace(/\{|\}/g, '') === word);
+      }
+      if (!entry) {
+        const cleanSlug = decodeURIComponent(rawDecoded).toLowerCase().trim();
+        const stripped = toSlugVi(cleanSlug.replace(/-\d+$/, ''));
+        if (stripped) {
+          const parts = stripped.split('-').filter(Boolean);
+          const hvPart = parts[0];
+          const meaningParts = parts.slice(1);
+          entry =
+            index.find(x => {
+              const hvSlug = toSlugVi(x.hv || '');
+              const pSlug = toSlugVi(x.p || '').replace(/-/g, '');
+              if (hvSlug !== hvPart && pSlug !== hvPart) return false;
+              if (!meaningParts.length) return true;
+              const mSlug = toSlugVi(x.m || '');
+              return meaningParts.every(t => mSlug.includes(t));
+            }) ||
+            index.find(x => {
+              const hvSlug = toSlugVi(x.hv || '');
+              const pSlug = toSlugVi(x.p || '').replace(/-/g, '');
+              return hvSlug === stripped || pSlug === stripped;
+            });
+        }
       }
     }
     if (entry) {
@@ -9752,7 +9788,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     cleanDocumentTitle();
     scheduleScrubPasses();
     if (isDynamicSpaRoute(window.location.pathname)) {
-      setTimeout(checkAndRenderDynamicPage, 450);
+      if (document.readyState === 'complete') {
+        setTimeout(checkAndRenderDynamicPage, 350);
+      } else {
+        window.addEventListener('load', () => setTimeout(checkAndRenderDynamicPage, 350), { once: true });
+      }
     }
 
     let scrubRaf = 0;
