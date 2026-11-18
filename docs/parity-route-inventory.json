@@ -1,0 +1,765 @@
+{
+  "method": "Offline static route/link inventory and isolated runtime GET probes; no network access or real account state.",
+  "limitations": "Endpoint literals can be concatenated prefixes and the GET probe may differ from the client method. A generic fallback here is a candidate for contract inspection, not proof of a broken user flow. Browser behavior and live origin parity require separate validation.",
+  "htmlFileCount": 192,
+  "canonicalRouteCount": 98,
+  "routes": [
+    {
+      "route": "/",
+      "file": "index.html",
+      "title": "App học tiếng Trung cho người Việt, tra chữ Hán miễn phí | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/404",
+      "file": "404.html",
+      "title": "App học tiếng Trung cho người Việt, tra chữ Hán miễn phí | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/bat-dau",
+      "file": "bat-dau.html",
+      "title": "Bắt đầu học",
+      "runtime": true
+    },
+    {
+      "route": "/cach-hoc-spaced-repetition",
+      "file": "cach-hoc-spaced-repetition.html",
+      "title": "Cách XieHanzi lên lịch ôn tập: lặp lại giãn cách với FSRS | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/chinh-sach-bao-mat",
+      "file": "chinh-sach-bao-mat.html",
+      "title": "Chính sách bảo mật | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/cong-cu",
+      "file": "cong-cu.html",
+      "title": "Tất cả công cụ học tiếng Trung | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/dang-ky",
+      "file": "dang-ky.html",
+      "title": "Đăng ký | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/dang-nhap",
+      "file": "dang-nhap.html",
+      "title": "Đăng nhập | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/de-kiem-tra",
+      "file": "de-kiem-tra.html",
+      "title": "Đề kiểm tra tiếng Trung HSK | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/dich-tieng-trung",
+      "file": "dich-tieng-trung.html",
+      "title": "Dịch Việt - Trung, Trung - Việt | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/dieu-khoan-su-dung",
+      "file": "dieu-khoan-su-dung.html",
+      "title": "Điều khoản sử dụng | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/flashcard-pdf",
+      "file": "flashcard-pdf.html",
+      "title": "Flashcard PDF chữ Hán HSK in 2 mặt | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/han-tu",
+      "file": "han-tu.html",
+      "title": "Chữ 好 (Hảo): nghĩa, cách viết, từ ghép | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/han-viet",
+      "file": "han-viet.html",
+      "title": "Hảo tiếng Trung là gì - 好 (hǎo) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/hoc",
+      "file": "hoc.html",
+      "title": "Học tiếng Trung theo lộ trình | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/hoc/bat-dau",
+      "file": "hoc/bat-dau.html",
+      "title": "Bắt đầu học",
+      "runtime": true
+    },
+    {
+      "route": "/hoc/on-tap",
+      "file": "hoc/on-tap.html",
+      "title": "Phiên ôn hôm nay",
+      "runtime": true
+    },
+    {
+      "route": "/hoc/so-loi",
+      "file": "hoc/so-loi.html",
+      "title": "Sổ lỗi",
+      "runtime": true
+    },
+    {
+      "route": "/hoc/tu-da-hoc",
+      "file": "hoc/tu-da-hoc.html",
+      "title": "Từ đã học",
+      "runtime": true
+    },
+    {
+      "route": "/kho-du-lieu",
+      "file": "kho-du-lieu.html",
+      "title": "Học Tiếng Trung Quốc Toàn Diện — hoctiengtrungquoc.vercel.app",
+      "runtime": true
+    },
+    {
+      "route": "/kiem-tra-hsk",
+      "file": "kiem-tra-hsk.html",
+      "title": "Thi thử HSK 3.0: đề mẫu chính thức và đề luyện thêm | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/kiem-tra-ngu-phap",
+      "file": "kiem-tra-ngu-phap.html",
+      "title": "Kiểm tra ngữ pháp HSK | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/lien-he",
+      "file": "lien-he.html",
+      "title": "Liên hệ và hỗ trợ | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/luyen-chep-chinh-ta",
+      "file": "luyen-chep-chinh-ta.html",
+      "title": "Luyện chép chính tả tiếng Trung qua video | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/luyen-go",
+      "file": "luyen-go.html",
+      "title": "Luyện gõ pinyin ra chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/luyen-go-han-tu",
+      "file": "luyen-go-han-tu.html",
+      "title": "Luyện gõ pinyin ra chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/luyen-nghe",
+      "file": "luyen-nghe.html",
+      "title": "Luyện nghe tiếng Trung theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/luyen-noi",
+      "file": "luyen-noi.html",
+      "title": "Luyện nói tiếng Trung, chấm phát âm từng chữ | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/luyen-viet",
+      "file": "luyen-viet.html",
+      "title": "Tạo vở tập viết chữ Hán miễn phí | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/ngu-phap",
+      "file": "ngu-phap.html",
+      "title": "Học ngữ pháp tiếng Trung theo HSK | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/nguon-am-thanh",
+      "file": "nguon-am-thanh.html",
+      "title": "Nguồn âm thanh | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/on-tap",
+      "file": "on-tap.html",
+      "title": "Phiên ôn hôm nay",
+      "runtime": true
+    },
+    {
+      "route": "/so-tay",
+      "file": "so-tay.html",
+      "title": "Bộ sưu tập của tôi | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tai-gif-but-thuan",
+      "file": "tai-gif-but-thuan.html",
+      "title": "Bút thuận chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tai-khoan",
+      "file": "tai-khoan.html",
+      "title": "Thống kê và tài khoản | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tai-khoan-moi",
+      "file": "tai-khoan-moi.html",
+      "title": "Đăng nhập - Học tiếng Trung",
+      "runtime": false
+    },
+    {
+      "route": "/tao-vo-tap-viet",
+      "file": "tao-vo-tap-viet.html",
+      "title": "Tạo vở tập viết chữ Hán miễn phí | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thay-do",
+      "file": "thay-do.html",
+      "title": "Trường Thầy Đồ: 8 giờ tối, cả trường ngồi chiếu học chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/them-pinyin",
+      "file": "them-pinyin.html",
+      "title": "Thêm pinyin vào văn bản tiếng Trung | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien",
+      "file": "thu-vien.html",
+      "title": "Thư viện lộ trình học tiếng Trung | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya",
+      "file": "thu-vien-boya.html",
+      "title": "Thư viện Boya Chinese 8 quyển | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-advanced-1",
+      "file": "thu-vien-boya/boya-advanced-1.html",
+      "title": "Từ vựng Boya Cao cấp 1 (飞翔篇Ⅰ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-advanced-2",
+      "file": "thu-vien-boya/boya-advanced-2.html",
+      "title": "Từ vựng Boya Cao cấp 2 (飞翔篇Ⅱ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-elementary-1",
+      "file": "thu-vien-boya/boya-elementary-1.html",
+      "title": "Từ vựng Boya Sơ cấp 1 (起步篇Ⅰ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-elementary-2",
+      "file": "thu-vien-boya/boya-elementary-2.html",
+      "title": "Từ vựng Boya Sơ cấp 2 (起步篇Ⅱ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-intermediate-1",
+      "file": "thu-vien-boya/boya-intermediate-1.html",
+      "title": "Từ vựng Boya Trung cấp 1 (冲刺篇Ⅰ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-intermediate-2",
+      "file": "thu-vien-boya/boya-intermediate-2.html",
+      "title": "Từ vựng Boya Trung cấp 2 (冲刺篇Ⅱ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-quasi-intermediate-1",
+      "file": "thu-vien-boya/boya-quasi-intermediate-1.html",
+      "title": "Từ vựng Boya Cận trung cấp 1 (加速篇Ⅰ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-boya/boya-quasi-intermediate-2",
+      "file": "thu-vien-boya/boya-quasi-intermediate-2.html",
+      "title": "Từ vựng Boya Cận trung cấp 2 (加速篇Ⅱ) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng",
+      "file": "thu-vien-hanyu-jiaocheng.html",
+      "title": "Thư viện Giáo trình Hán ngữ 6 quyển | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-1",
+      "file": "thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-1.html",
+      "title": "Từ vựng Hán ngữ 1 (第一册上) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-2",
+      "file": "thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-2.html",
+      "title": "Từ vựng Hán ngữ 2 (第一册下) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-3",
+      "file": "thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-3.html",
+      "title": "Từ vựng Hán ngữ 3 (第二册上) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-4",
+      "file": "thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-4.html",
+      "title": "Từ vựng Hán ngữ 4 (第二册下) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-5",
+      "file": "thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-5.html",
+      "title": "Từ vựng Hán ngữ 5 (第三册上) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-6",
+      "file": "thu-vien-hanyu-jiaocheng/hanyu-jiaocheng-6.html",
+      "title": "Từ vựng Hán ngữ 6 (第三册下) theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk",
+      "file": "thu-vien-hsk.html",
+      "title": "Thư viện HSK 2.0 (6 cấp) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk/hsk-1",
+      "file": "thu-vien-hsk/hsk-1.html",
+      "title": "Từ vựng HSK 2.0 cấp 1 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk/hsk-2",
+      "file": "thu-vien-hsk/hsk-2.html",
+      "title": "Từ vựng HSK 2.0 cấp 2 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk/hsk-3",
+      "file": "thu-vien-hsk/hsk-3.html",
+      "title": "Từ vựng HSK 2.0 cấp 3 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk/hsk-4",
+      "file": "thu-vien-hsk/hsk-4.html",
+      "title": "Từ vựng HSK 2.0 cấp 4 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk/hsk-5",
+      "file": "thu-vien-hsk/hsk-5.html",
+      "title": "Từ vựng HSK 2.0 cấp 5 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-hsk/hsk-6",
+      "file": "thu-vien-hsk/hsk-6.html",
+      "title": "Từ vựng HSK 2.0 cấp 6 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk",
+      "file": "thu-vien-new-hsk.html",
+      "title": "Thư viện HSK 3.0 (9 cấp) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-1",
+      "file": "thu-vien-new-hsk/new-hsk-1.html",
+      "title": "Từ vựng HSK 3.0 cấp 1 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-2",
+      "file": "thu-vien-new-hsk/new-hsk-2.html",
+      "title": "Từ vựng HSK 3.0 cấp 2 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-3",
+      "file": "thu-vien-new-hsk/new-hsk-3.html",
+      "title": "Từ vựng HSK 3.0 cấp 3 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-4",
+      "file": "thu-vien-new-hsk/new-hsk-4.html",
+      "title": "Từ vựng HSK 3.0 cấp 4 theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-5",
+      "file": "thu-vien-new-hsk/new-hsk-5.html",
+      "title": "Từ vựng HSK 3.0 cấp 5 theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-6",
+      "file": "thu-vien-new-hsk/new-hsk-6.html",
+      "title": "Từ vựng HSK 3.0 cấp 6 theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-new-hsk/new-hsk-7-9",
+      "file": "thu-vien-new-hsk/new-hsk-7-9.html",
+      "title": "Từ vựng HSK 3.0 cấp 7-9 theo chủ đề | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct",
+      "file": "thu-vien-yct.html",
+      "title": "Thư viện YCT 6 cấp độ | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct/yct-1",
+      "file": "thu-vien-yct/yct-1.html",
+      "title": "Từ vựng YCT 1 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct/yct-2",
+      "file": "thu-vien-yct/yct-2.html",
+      "title": "Từ vựng YCT 2 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct/yct-3",
+      "file": "thu-vien-yct/yct-3.html",
+      "title": "Từ vựng YCT 3 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct/yct-4",
+      "file": "thu-vien-yct/yct-4.html",
+      "title": "Từ vựng YCT 4 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct/yct-5",
+      "file": "thu-vien-yct/yct-5.html",
+      "title": "Từ vựng YCT 5 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/thu-vien-yct/yct-6",
+      "file": "thu-vien-yct/yct-6.html",
+      "title": "Từ vựng YCT 6 theo bài học | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu",
+      "file": "tra-chu.html",
+      "title": "Từ điển chữ Hán - tra theo bộ thủ, HSK và pinyin | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu/hsk/1",
+      "file": "tra-chu/hsk/1.html",
+      "title": "Chữ Hán HSK 1 (HSK 2.0) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu/hsk/2",
+      "file": "tra-chu/hsk/2.html",
+      "title": "Chữ Hán HSK 2 (HSK 2.0) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu/hsk/3",
+      "file": "tra-chu/hsk/3.html",
+      "title": "Chữ Hán HSK 3 (HSK 2.0) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu/hsk/4",
+      "file": "tra-chu/hsk/4.html",
+      "title": "Chữ Hán HSK 4 (HSK 2.0) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu/hsk/5",
+      "file": "tra-chu/hsk/5.html",
+      "title": "Chữ Hán HSK 5 (HSK 2.0) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tra-chu/hsk/6",
+      "file": "tra-chu/hsk/6.html",
+      "title": "Chữ Hán HSK 6 (HSK 2.0) | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi",
+      "file": "tro-choi.html",
+      "title": "Trò chơi học chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/ban-phao-hoa",
+      "file": "tro-choi/ban-phao-hoa.html",
+      "title": "Ghép thành ngữ (汉字消消乐), game chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/bang-xep-hang",
+      "file": "tro-choi/bang-xep-hang.html",
+      "title": "Bảng xếp hạng trò chơi chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/doan-han-tu",
+      "file": "tro-choi/doan-han-tu.html",
+      "title": "Tìm chữ trong chữ (字中找字), game đố chữ | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/ghep-cap-han-tu",
+      "file": "tro-choi/ghep-cap-han-tu.html",
+      "title": "Ghép thành ngữ (汉字消消乐), game chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/ghep-chu",
+      "file": "tro-choi/ghep-chu.html",
+      "title": "Ghép thành ngữ (汉字消消乐), game chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/tim-chu-trong-chu",
+      "file": "tro-choi/tim-chu-trong-chu.html",
+      "title": "Tìm chữ trong chữ (字中找字), game đố chữ | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tro-choi/xep-thanh-ngu",
+      "file": "tro-choi/xep-thanh-ngu.html",
+      "title": "Ghép thành ngữ (汉字消消乐), game chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/truong-thay-do",
+      "file": "truong-thay-do.html",
+      "title": "Trường Thầy Đồ: 8 giờ tối, cả trường ngồi chiếu học chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/truong-thay-do/hi-vien",
+      "file": "truong-thay-do/hi-vien.html",
+      "title": "Trường Thầy Đồ: 8 giờ tối, cả trường ngồi chiếu học chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/truong-thay-do/lop",
+      "file": "truong-thay-do/lop.html",
+      "title": "Trường Thầy Đồ: 8 giờ tối, cả trường ngồi chiếu học chữ Hán | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/tu-vung",
+      "file": "tu-vung.html",
+      "title": "你好 nghĩa là gì? Pinyin nǐhǎo, cách viết | XieHanzi",
+      "runtime": true
+    },
+    {
+      "route": "/xoa-tai-khoan",
+      "file": "xoa-tai-khoan.html",
+      "title": "Xoá tài khoản | XieHanzi",
+      "runtime": true
+    }
+  ],
+  "dataSummary": {
+    "characters": 9931,
+    "vocabulary": 11534,
+    "hanViet": 6704,
+    "dictationVideos": 91,
+    "examPapers": 66,
+    "curriculums": [
+      "boya",
+      "hanyu-jiaocheng",
+      "hsk",
+      "new-hsk",
+      "yct"
+    ],
+    "curriculumJsonFiles": 1132
+  },
+  "missingStaticReferences": [],
+  "missingRuntimeLinks": [],
+  "missingJsonLiterals": [],
+  "literalEndpointCount": 87,
+  "genericFallbacks": [
+    {
+      "endpoint": "/v1/admin/settings",
+      "candidateKind": "literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/5718-75d0a0df062ade3b.js",
+        "_next/static/chunks/5846-1487b123d40d8e75.js",
+        "_next/static/chunks/763-50a63b64c2e592e2.js",
+        "_next/static/chunks/8691-5d66f9984795cf1c.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/games/",
+      "candidateKind": "prefix_or_partial_literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/5504-5b4f0543127f709b.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/generated-tests",
+      "candidateKind": "literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/3815-cb17538a50293888.js",
+        "_next/static/chunks/8560.1dbc54106111b030.js",
+        "_next/static/chunks/app/(primary-layout)/de-kiem-tra/page-8791a505a77531ff.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/hanzi-curriculums/",
+      "candidateKind": "prefix_or_partial_literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/5846-1487b123d40d8e75.js",
+        "_next/static/chunks/7673-2d258a2489608bc6.js",
+        "_next/static/chunks/app/(primary-layout)/flashcard-pdf/page-c8a58ac5323863e7.js",
+        "_next/static/chunks/app/(primary-layout)/hanzi-curriculum/%5Bcurriculum%5D/%5Bhanzi_level%5D/page-4bfeffb57dfeec52.js",
+        "_next/static/chunks/app/(primary-layout)/hanzi-curriculum/%5Bcurriculum%5D/page-82d8b481522d2c4b.js",
+        "_next/static/chunks/app/(primary-layout)/hanzi-curriculum/[curriculum]/page-82d8b481522d2c4b.js",
+        "_next/static/chunks/app/(primary-layout)/hanzi-curriculum/[curriculum]/[hanzi_level]/page-4bfeffb57dfeec52.js",
+        "_next/static/chunks/app/(primary-layout)/tai-khoan/page-5e0a49c1e03b2eb4.js",
+        "_next/static/chunks/app/(primary-layout)/thu-vien/page-4ded95db79797287.js",
+        "_next/static/chunks/app/(primary-layout)/worksheet-generator/page-9e8cf5b6b35c6bb4.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/hsk-tests/",
+      "candidateKind": "prefix_or_partial_literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/1908.5d2f44aec8bafc7b.js",
+        "_next/static/chunks/3815-cb17538a50293888.js",
+        "_next/static/chunks/7353.88b3bf993bfbcd74.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/metrics/event",
+      "candidateKind": "literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/202-2e33f9908297c24b.js",
+        "_next/static/chunks/9178-c82982df720fd757.js",
+        "_next/static/chunks/app/(primary-layout)/luyen-go/page-1d5047dd9d0fcdc1.js",
+        "_next/static/chunks/app/(primary-layout)/worksheet-generator/page-9e8cf5b6b35c6bb4.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/speaking/dialogues/",
+      "candidateKind": "prefix_or_partial_literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/app/(primary-layout)/luyen-noi/page-5f08c0b65fef7b59.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/thay-do",
+      "candidateKind": "literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/514.e04a19d4f6e38d27.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/ugc/",
+      "candidateKind": "prefix_or_partial_literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/4236-c731a3f15c4df12a.js"
+      ]
+    },
+    {
+      "endpoint": "/v1/ugc/mnemonic/",
+      "candidateKind": "prefix_or_partial_literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/4236-c731a3f15c4df12a.js"
+      ]
+    },
+    {
+      "endpoint": "/v2/auth",
+      "candidateKind": "literal",
+      "probeMethod": "GET",
+      "sources": [
+        "_next/static/chunks/2560.3ed620e3790cfdfa.js",
+        "_next/static/chunks/2623-453aec3b37e7b577.js",
+        "_next/static/chunks/2753-3bc8325bec7a2852.js",
+        "_next/static/chunks/2952.84482202f96c8904.js",
+        "_next/static/chunks/3070.7701a66973cad203.js",
+        "_next/static/chunks/4020.b21e1686a37822de.js",
+        "_next/static/chunks/4189.271614d8b4271a5e.js",
+        "_next/static/chunks/4705.ffe2949e104f150f.js",
+        "_next/static/chunks/5039-c8858e8098a980f1.js",
+        "_next/static/chunks/5277-1d506a79997cdaba.js",
+        "_next/static/chunks/5504-5b4f0543127f709b.js",
+        "_next/static/chunks/7058-9f215b8ffa3481f4.js",
+        "_next/static/chunks/7673-2d258a2489608bc6.js",
+        "_next/static/chunks/7705.9379a6b722cffa07.js",
+        "_next/static/chunks/8289-4cee954bfbeed1ed.js",
+        "_next/static/chunks/937-25ec5a60a6ca681e.js",
+        "_next/static/chunks/app/(primary-layout)/dich-tieng-trung/page-b1c9332dece1d397.js",
+        "_next/static/chunks/app/(primary-layout)/hoc/tu-da-hoc/page-4b247f15734064c6.js",
+        "_next/static/chunks/app/(primary-layout)/kiem-tra-hsk/page-750bfb5881fbb72a.js",
+        "_next/static/chunks/app/(primary-layout)/kiem-tra-ngu-phap/page-b349fbad146f0221.js",
+        "_next/static/chunks/app/(primary-layout)/thu-vien/page-4ded95db79797287.js",
+        "_next/static/chunks/app/(primary-layout)/worksheet-generator/page-9e8cf5b6b35c6bb4.js",
+        "_next/static/chunks/app/layout-ea11f9baecd2adf2.js"
+      ]
+    }
+  ],
+  "apiErrors": [],
+  "blockedFetches": [
+    {
+      "path": "/api/ai",
+      "method": "POST"
+    },
+    {
+      "path": "/api/ai",
+      "method": "POST"
+    },
+    {
+      "path": "/api/ai",
+      "method": "POST"
+    },
+    {
+      "path": "/api/ai",
+      "method": "POST"
+    }
+  ]
+}

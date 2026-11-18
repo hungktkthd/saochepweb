@@ -1,28 +1,103 @@
 /**
  * ============================================================================
- * XIEHANZI 1:1 CLONE RUNTIME ENGINE (v7.0 — FULL SUBPAGES + GAMES + HYDRATION)
+ * RUNTIME ENGINE (v9.0 — HANZI STUDIO v4 SIDEBAR + BENTO WORKSPACE + CACHE BUST htq5)
  * ============================================================================
  * Phục vụ toàn bộ 280+ trang HTML tĩnh và mọi đường dẫn động (slug routes)
  * của https://hoctiengtrungquoc.vercel.app
  * Kết nối trực tiếp tới:
  *   1) Kho dữ liệu JSON cục bộ (/data/*)
  *   2) Kho 94,655 file Media trên GitHub hungktkthd/saochepweb
- *   3) Cơ sở dữ liệu đám mây Supabase (xcthntcgenzfybefaphh)
+ *   3) Cơ sở dữ liệu đám mây Supabase (skxgzzdunqloxxombtuc)
  *   4) Serverless AI Endpoint (/api/ai)
  * ============================================================================
  */
 (function () {
   'use strict';
 
-  const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
+  function injectMasterV3Styles() {
+    try {
+      if (typeof document === 'undefined') return;
+      var root = document.head || document.documentElement;
+      if (!root) return;
+      var oldV2 = document.getElementById('htq-v2-master-css');
+      if (oldV2 && oldV2.parentNode) oldV2.parentNode.removeChild(oldV2);
+      var st = document.getElementById('htq-v3-master-css');
+      if (!st) {
+        st = document.createElement('style');
+        st.id = 'htq-v3-master-css';
+        root.appendChild(st);
+      }
+      var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:45;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n";
+      if (st.textContent !== cssText) st.textContent = cssText;
+    } catch (_e) {}
+  }
+  injectMasterV3Styles();
+
+const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   const SUPABASE_ANON_KEY = 'sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18';
-  const SUPABASE_DB_URL = 'https://xcthntcgenzfybefaphh.supabase.co';
-  const SUPABASE_DB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhjdGhudGNnZW56ZnliZWZhcGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM2NDE0NjQsImV4cCI6MjEwOTIxNzQ2NH0.0L3BZslXqmIkiH3kuKSL0HJeo_gmZ15E614xqnxhbdM';
   const RAW_GITHUB_REPO = 'https://raw.githubusercontent.com/hungktkthd/saochepweb';
   const DEFAULT_JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyLXhoei0xIiwidHlwIjoiYWNjZXNzIiwiZyI6MCwiZXhwIjo0MTAyNDQ0ODAwfQ.xhzsignature';
 
   const originalFetch = window.fetch.bind(window);
   const jsonCache = new Map();
+
+  // Scrub brand strings from shared images / worksheets rendered on HTML5 Canvas
+  function scrubBrandText(input) {
+    if (typeof input !== 'string' || !/xiehanzi/i.test(input)) return input;
+    return input
+      .replace(/©\s*2026\s*xiehanzi\.com\s*·\s*Made in 🇻🇳 Vietnam/gi, '© 2026 Học Tiếng Trung · Made in 🇻🇳 Vietnam')
+      .replace(/Trong app XieHanzi/gi, 'Tính năng nổi bật')
+      .replace(/Dùng app XieHanzi cho tiện hơn/gi, 'Học mọi lúc mọi nơi')
+      .replace(/Học tiếp trên app XieHanzi/gi, 'Học tiếp mỗi ngày')
+      .replace(/App XieHanzi có miễn phí không\??/gi, 'Nền tảng có miễn phí không?')
+      .replace(/Những gì bạn vẫn dùng ở XieHanzi vẫn ở đây/gi, 'Mọi công cụ học tập đều có sẵn ở đây')
+      .replace(/Cộng đồng học viên XieHanzi/gi, 'Cộng đồng học viên')
+      .replace(/Đề luyện XieHanzi/g, 'Đề luyện HSK')
+      .replace(/đề luyện XieHanzi/g, 'đề luyện HSK')
+      .replace(/Từ điển XieHanzi/gi, 'Từ điển chữ Hán')
+      .replace(/Góp ý cho XieHanzi/gi, 'Góp ý cải thiện')
+      .replace(/Tài khoản XieHanzi/gi, 'Tài khoản học tập')
+      .replace(/Đăng nhập XieHanzi/gi, 'Đăng nhập tài khoản')
+      .replace(/Đăng ký XieHanzi/gi, 'Đăng ký tài khoản')
+      .replace(/Đội XieHanzi/gi, 'Đội ngũ hỗ trợ')
+      .replace(/Học chữ Hán miễn phí cùng XieHanzi/gi, 'Học chữ Hán miễn phí')
+      .replace(/mở app XieHanzi trên điện thoại/gi, 'mở ứng dụng trên điện thoại')
+      .replace(/Tải app XieHanzi/gi, 'Tải ứng dụng học')
+      .replace(/Mời tải app XieHanzi/gi, 'Tải ứng dụng')
+      .replace(/Mã QR tải app XieHanzi/gi, 'Mã QR tải ứng dụng')
+      .replace(/Vở tập viết PDF của XieHanzi/gi, 'Vở tập viết PDF')
+      .replace(/tại XieHanzi/gi, 'tại đây')
+      .replace(/trên XieHanzi/gi, 'trực tuyến')
+      .replace(/của XieHanzi/gi, 'của hệ thống')
+      .replace(/cho XieHanzi/gi, 'cho hệ thống')
+      .replace(/cùng XieHanzi/gi, '')
+      .replace(/XieHanzi\s*trang\s*chủ/gi, 'Trang chủ')
+      .replace(/Logo\s*XieHanzi/gi, 'Trang chủ')
+      .replace(/Facebook\s*XieHanzi/gi, 'Facebook')
+      .replace(/YouTube\s*XieHanzi/gi, 'YouTube')
+      .replace(/https?:\/\/(?:www\.)?xiehanzi\.com\/thay-do/gi, 'Trường Thầy Đồ')
+      .replace(/xiehanzi\.com\/thay-do/gi, 'Trường Thầy Đồ')
+      .replace(/xiehanzi\.com\/luyen-go/gi, 'Luyện gõ tiếng Trung')
+      .replace(/xiehanzi\.com\/them-pinyin/gi, 'Thêm Pinyin')
+      .replace(/https?:\/\/(?:www\.)?xiehanzi\.com/gi, 'Học Tiếng Trung')
+      .replace(/xiehanzi\.com/gi, 'Học Tiếng Trung')
+      .replace(/XieHanzi\s*🌱/gi, 'Học Tiếng Trung 🌱')
+      .replace(/XieHanzi/gi, 'Học Tiếng Trung');
+  }
+
+  try {
+    if (window.CanvasRenderingContext2D && !CanvasRenderingContext2D.prototype.__htqWrapped) {
+      const origFill = CanvasRenderingContext2D.prototype.fillText;
+      const origStroke = CanvasRenderingContext2D.prototype.strokeText;
+      CanvasRenderingContext2D.prototype.fillText = function (text, ...rest) {
+        return origFill.call(this, scrubBrandText(String(text)), ...rest);
+      };
+      CanvasRenderingContext2D.prototype.strokeText = function (text, ...rest) {
+        return origStroke.call(this, scrubBrandText(String(text)), ...rest);
+      };
+      CanvasRenderingContext2D.prototype.__htqWrapped = true;
+    }
+  } catch (_e) {}
 
   function decodeJwtPayload(token) {
     try {
@@ -44,26 +119,38 @@
       const raw = localStorage.getItem('httq_user');
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      return parsed && parsed.email ? parsed : null;
+      const token = localStorage.getItem('sb_access_token');
+      const payload = decodeJwtPayload(token);
+      return parsed && parsed.email && token !== DEFAULT_JWT && payload && payload.sub === parsed.id &&
+        payload.iss === `${SUPABASE_URL}/auth/v1` && payload.role === 'authenticated' ? parsed : null;
     } catch (_e) {
       return null;
     }
   }
 
-  function saveAuthSession(accessToken, refreshToken, profileOverride) {
+  let authSessionRequest = null;
+  let authCallbackRequest = null;
+  let authSessionRevision = 0;
+  let validatedAuthToken = '';
+
+  // Only call this with a user returned by Supabase Auth, never decoded JWT metadata.
+  function saveAuthSession(accessToken, refreshToken, verifiedUser) {
     try {
-      const payload = decodeJwtPayload(accessToken) || {};
-      const meta = payload.user_metadata || {};
-      const over = profileOverride || {};
-      const email = over.email || payload.email || meta.email || 'hocvien@gmail.com';
+      const payload = decodeJwtPayload(accessToken);
+      if (!payload || accessToken === DEFAULT_JWT || !verifiedUser || !verifiedUser.id || !verifiedUser.email ||
+          payload.sub !== verifiedUser.id || payload.iss !== `${SUPABASE_URL}/auth/v1` ||
+          payload.role !== 'authenticated' || !Number.isFinite(Number(payload.exp)) || Number(payload.exp) <= Date.now() / 1000) return null;
+      const meta = verifiedUser.user_metadata || {};
+      const preferences = meta.xhz_preferences || {};
+      const email = verifiedUser.email;
       const displayName =
-        over.displayName ||
-        over.name ||
+        meta.displayName || meta.display_name ||
         meta.full_name ||
         meta.name ||
-        (email ? email.split('@')[0] : 'Học viên XieHanzi');
-      const avatar = over.avatar || meta.avatar_url || meta.picture || '';
-      const uid = over.id || payload.sub || 'user-' + Date.now();
+        email.split('@')[0];
+      const avatar = Object.prototype.hasOwnProperty.call(meta, 'avatar_url') ? meta.avatar_url : meta.picture || '';
+      const uid = verifiedUser.id;
+      const providers = (verifiedUser.app_metadata || {}).providers || [];
       const userObj = {
         id: uid,
         _id: uid,
@@ -74,9 +161,9 @@
         avatar: avatar,
         role: 'user',
         isGuest: false,
-        hasPassword: Boolean(over.hasPassword),
-        showPinyinByDefault: over.showPinyinByDefault !== undefined ? over.showPinyinByDefault : true,
-        showOnPublicFeed: over.showOnPublicFeed !== undefined ? over.showOnPublicFeed : true,
+        hasPassword: providers.includes('email') || (verifiedUser.app_metadata || {}).provider === 'email' || meta.xhz_has_password === true,
+        showPinyinByDefault: preferences.showPinyinByDefault !== undefined ? preferences.showPinyinByDefault : true,
+        showOnPublicFeed: preferences.showOnPublicFeed !== undefined ? preferences.showOnPublicFeed : true,
         streak: 0
       };
       localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
@@ -85,17 +172,20 @@
       localStorage.setItem('httq_user', JSON.stringify(userObj));
       localStorage.setItem('httq_user_id', uid);
       localStorage.setItem('httq_real_auth', '1');
+      validatedAuthToken = accessToken;
       return userObj;
     } catch (_e) {
       return null;
     }
   }
 
-  function clearAuthSession() {
+  function clearAuthSession(notifyServer = true) {
     try {
+      authSessionRevision++;
+      validatedAuthToken = '';
       const sbToken = localStorage.getItem('sb_access_token');
-      if (sbToken && sbToken !== DEFAULT_JWT) {
-        originalFetch(`${SUPABASE_URL}/auth/v1/logout`, {
+      if (notifyServer && sbToken && sbToken !== DEFAULT_JWT) {
+        originalFetch(`${SUPABASE_URL}/auth/v1/logout?scope=local`, {
           method: 'POST',
           headers: {
             'apikey': SUPABASE_ANON_KEY,
@@ -104,24 +194,137 @@
         }).catch(() => {});
       }
       localStorage.removeItem('httq_user');
+      localStorage.removeItem('httq_user_id');
       localStorage.removeItem('httq_real_auth');
       localStorage.removeItem('httq_oauth_return_to');
       localStorage.removeItem('sb_access_token');
       localStorage.removeItem('sb_refresh_token');
-      localStorage.removeItem('httq_progress_v2');
-      localStorage.removeItem('httq_done_stages');
-      localStorage.removeItem('httq_done_activities');
-      localStorage.removeItem('httq_curr_learned_words');
-      localStorage.removeItem('httq_state');
-      localStorage.removeItem('httq_companion_chat_turns');
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('sb-') && k.endsWith('-auth-token')) {
-          localStorage.removeItem(k);
-        }
-      }
+      localStorage.removeItem('sb-skxgzzdunqloxxombtuc-auth-token');
       localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
     } catch (_e) {}
+  }
+
+  async function requestSupabaseAuth(path, options = {}) {
+    const response = await originalFetch(`${SUPABASE_URL}/auth/v1/${path}`, {
+      ...options,
+      headers: { apikey: SUPABASE_ANON_KEY, 'Content-Type': 'application/json', ...(options.headers || {}) }
+    });
+    let data = {};
+    try { data = await response.json(); } catch (_) {}
+    if (!response.ok) {
+      const error = new Error(data.msg || data.message || data.error_description || 'Không thể kết nối dịch vụ tài khoản.');
+      error.status = response.status;
+      error.code = data.error_code || data.code || data.error || 'auth_request_failed';
+      throw error;
+    }
+    return data;
+  }
+
+  async function getSupabaseSession() {
+    if (authCallbackRequest) await authCallbackRequest;
+    if (authSessionRequest) return authSessionRequest;
+    const token = localStorage.getItem('sb_access_token');
+    const refresh = localStorage.getItem('sb_refresh_token') || '';
+    if (!token || token === DEFAULT_JWT) {
+      if (token === DEFAULT_JWT || localStorage.getItem('httq_real_auth') === '1' || localStorage.getItem('httq_user')) clearAuthSession(false);
+      return null;
+    }
+    const revision = authSessionRevision;
+    const owner = getSavedUser();
+    const stillCurrent = () => revision === authSessionRevision && localStorage.getItem('sb_access_token') === token;
+    const operation = (async () => {
+      try {
+        let accessToken = token;
+        let refreshToken = refresh;
+        let payload = decodeJwtPayload(token);
+        let user;
+        if (!payload || Number(payload.exp) <= Date.now() / 1000 + 60) {
+          if (!refresh) { if (stillCurrent()) clearAuthSession(false); return null; }
+          const next = await requestSupabaseAuth('token?grant_type=refresh_token', {
+            method: 'POST', body: JSON.stringify({ refresh_token: refresh })
+          });
+          if (!stillCurrent()) return null;
+          accessToken = next.access_token;
+          refreshToken = next.refresh_token;
+          user = next.user;
+          payload = decodeJwtPayload(accessToken);
+        }
+        if (!user && (validatedAuthToken !== accessToken || !owner)) {
+          user = await requestSupabaseAuth('user', { headers: { Authorization: `Bearer ${accessToken}` } });
+        }
+        if (!stillCurrent()) return null;
+        if (user) {
+          if (owner && user.id !== owner.id) { clearAuthSession(false); return null; }
+          if (!saveAuthSession(accessToken, refreshToken, user)) { clearAuthSession(false); return null; }
+        }
+        const currentUser = getSavedUser();
+        if (!currentUser || !payload || payload.sub !== currentUser.id || validatedAuthToken !== accessToken) return null;
+        return { access_token: accessToken, refresh_token: refreshToken, user: currentUser, expires_at: Number(payload.exp) };
+      } catch (error) {
+        if (stillCurrent() && (error.status === 400 || error.status === 401 || error.status === 403)) clearAuthSession(false);
+        return null;
+      }
+    })();
+    authSessionRequest = operation;
+    try { return await operation; } finally { if (authSessionRequest === operation) authSessionRequest = null; }
+  }
+  window.getSupabaseSession = getSupabaseSession;
+
+  function authErrorResponse(error) {
+    const code = error.code || 'auth_request_failed';
+    const messages = {
+      invalid_credentials: 'Email hoặc mật khẩu không đúng.',
+      email_not_confirmed: 'Vui lòng xác nhận email trước khi đăng nhập.',
+      over_email_send_rate_limit: 'Đã gửi quá nhiều email. Vui lòng chờ rồi thử lại.',
+      over_request_rate_limit: 'Bạn thao tác quá nhanh. Vui lòng chờ rồi thử lại.',
+      signup_disabled: 'Đăng ký email hiện chưa được bật. Bạn có thể đăng nhập bằng Google.'
+    };
+    const message = messages[code] || error.message || 'Không thể kết nối dịch vụ tài khoản.';
+    return jsonResponse({ ok: false, code, message, error: { code, message } }, error.status || 503);
+  }
+
+  async function updateSupabaseProfile(body, kind, method) {
+    const revision = authSessionRevision;
+    const session = await getSupabaseSession();
+    if (!session) return authErrorResponse({ status: 401, code: 'unauthorized', message: 'Vui lòng đăng nhập để cập nhật tài khoản.' });
+    const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === session.user.id;
+    if (!stillCurrent()) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+    if (method === 'GET') return jsonResponse({ ok: true, ...session.user, user: session.user });
+    try {
+      const data = {};
+      if (kind === 'profile') {
+        const name = String(body.displayName || body.name || '').trim();
+        if (name.length < 2 || name.length > 40) return authErrorResponse({ status: 400, code: 'invalid_name', message: 'Tên hiển thị phải từ 2 đến 40 ký tự.' });
+        data.displayName = name;
+        data.full_name = name;
+        data.name = name;
+      } else if (kind === 'preferences') {
+        data.xhz_preferences = {
+          showPinyinByDefault: session.user.showPinyinByDefault,
+          showOnPublicFeed: session.user.showOnPublicFeed
+        };
+        for (const key of ['showPinyinByDefault', 'showOnPublicFeed']) {
+          if (body[key] !== undefined) {
+            if (typeof body[key] !== 'boolean') return authErrorResponse({ status: 400, code: 'invalid_preference', message: 'Tùy chọn tài khoản không hợp lệ.' });
+            data.xhz_preferences[key] = body[key];
+          }
+        }
+      } else {
+        const avatar = method === 'DELETE' ? '' : body.image || body.avatar;
+        if (typeof avatar !== 'string' || avatar.length > 512000 || (avatar && !/^https:\/\/[^\s"'<>]+$/.test(avatar) && !/^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(avatar))) {
+          return authErrorResponse({ status: 400, code: 'invalid_avatar', message: 'Vui lòng chọn ảnh JPG, PNG hoặc WebP có dung lượng nhỏ hơn 500KB.' });
+        }
+        data.avatar_url = avatar;
+        data.picture = avatar;
+      }
+      const user = await requestSupabaseAuth('user', {
+        method: 'PUT', headers: { Authorization: `Bearer ${session.access_token}` }, body: JSON.stringify({ data })
+      });
+      if (!stillCurrent() || user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+      const updated = saveAuthSession(session.access_token, session.refresh_token, user);
+      if (!updated) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.' });
+      return jsonResponse({ ok: true, ...updated, user: updated });
+    } catch (error) { return authErrorResponse(error); }
   }
 
   // Xử lý OAuth callback từ Supabase Google Login (#access_token=... hoặc token lưu bởi @supabase/supabase-js)
@@ -132,34 +335,28 @@
       const accessToken = params.get('access_token');
       const refreshToken = params.get('refresh_token');
       if (accessToken) {
-        saveAuthSession(accessToken, refreshToken);
+        const callbackRevision = ++authSessionRevision;
         try {
           window.history.replaceState(null, '', window.location.pathname + window.location.search);
         } catch (_e) {}
-        const returnTo = localStorage.getItem('httq_oauth_return_to') || '/tai-khoan';
+        let returnTo = '/tai-khoan';
+        try {
+          const target = new URL(localStorage.getItem('httq_oauth_return_to') || returnTo, window.location.origin);
+          if (target.origin === window.location.origin) returnTo = target.pathname + target.search;
+        } catch (_) {}
         localStorage.removeItem('httq_oauth_return_to');
-        const curPath = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
-        originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
-          headers: {
-            'apikey': SUPABASE_ANON_KEY,
-            'Authorization': `Bearer ${accessToken}`
-          }
-        })
-          .then(r => (r.ok ? r.json() : null))
+        let callbackValidated = false;
+        authCallbackRequest = requestSupabaseAuth('user', { headers: { Authorization: `Bearer ${accessToken}` } })
           .then(u => {
-            if (u && u.email) {
-              const m = u.user_metadata || {};
-              saveAuthSession(accessToken, refreshToken, {
-                id: u.id,
-                email: u.email,
-                displayName: m.full_name || m.name || u.email.split('@')[0],
-                avatar: m.avatar_url || m.picture || ''
-              });
+            if (callbackRevision === authSessionRevision && u && u.email) {
+              if (!saveAuthSession(accessToken, refreshToken, u)) throw new Error('invalid_session');
+              callbackValidated = true;
             }
           })
-          .catch(() => {})
+          .catch(() => { if (callbackRevision === authSessionRevision) clearAuthSession(false); })
           .finally(() => {
-            if (curPath === '/' || curPath === '/index.html' || curPath === '/dang-nhap' || curPath === '/dang-ky') {
+            authCallbackRequest = null;
+            if (callbackValidated && callbackRevision === authSessionRevision) {
               window.location.replace(returnTo);
             }
           });
@@ -169,14 +366,10 @@
       const sbRaw = localStorage.getItem('sb-skxgzzdunqloxxombtuc-auth-token');
       if (sbRaw && localStorage.getItem('httq_real_auth') !== '1') {
         const sbSession = JSON.parse(sbRaw);
-        if (sbSession && sbSession.access_token && sbSession.user) {
-          const m = sbSession.user.user_metadata || {};
-          saveAuthSession(sbSession.access_token, sbSession.refresh_token, {
-            id: sbSession.user.id,
-            email: sbSession.user.email,
-            displayName: m.full_name || m.name || (sbSession.user.email || '').split('@')[0],
-            avatar: m.avatar_url || m.picture || ''
-          });
+        if (sbSession && sbSession.access_token) {
+          localStorage.setItem('sb_access_token', sbSession.access_token);
+          if (sbSession.refresh_token) localStorage.setItem('sb_refresh_token', sbSession.refresh_token);
+          getSupabaseSession();
         }
       }
     }
@@ -188,12 +381,8 @@
     const origRemoveItem = Storage.prototype.removeItem;
     Storage.prototype.removeItem = function (key) {
       origRemoveItem.apply(this, arguments);
-      if (key === 'xiehanzi_access_token') {
-        origRemoveItem.call(localStorage, 'httq_user');
-        origRemoveItem.call(localStorage, 'httq_real_auth');
-        origRemoveItem.call(localStorage, 'sb_access_token');
-        origRemoveItem.call(localStorage, 'sb_refresh_token');
-        localStorage.setItem('xiehanzi_access_token', DEFAULT_JWT);
+      if (this === localStorage && key === 'xiehanzi_access_token') {
+        clearAuthSession();
       }
     };
   } catch (_e) {}
@@ -204,13 +393,12 @@
       const sp = new URLSearchParams(window.location.search);
       dest = sp.get('returnUrl') || '/tai-khoan';
     }
-    const cleanDest = dest.startsWith('http') ? new URL(dest).pathname : dest.startsWith('/') ? dest : '/' + dest;
+    let cleanDest = '/tai-khoan';
+    try { const target = new URL(dest, window.location.origin); if (target.origin === window.location.origin) cleanDest = target.pathname + target.search; } catch (_) {}
     try {
       localStorage.setItem('httq_oauth_return_to', cleanDest || '/tai-khoan');
     } catch (_e) {}
-    const fullRedirect = dest.startsWith('http')
-      ? dest
-      : window.location.origin + (dest.startsWith('/') ? dest : '/' + dest);
+    const fullRedirect = window.location.origin + cleanDest;
     window.location.href = `${SUPABASE_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(fullRedirect)}`;
   };
 
@@ -554,7 +742,7 @@
           ...localDailySteps
         };
       }
-      const st = JSON.parse(localStorage.getItem('httq_state') || '{}');
+      const st = getLocalState();
       const savedWordKeys = [
         ...Object.keys((st && st.masteredChars) || {}),
         ...Object.keys((st && st.savedWords) || {})
@@ -844,6 +1032,20 @@
 
   function getRealProgressSummary() {
     const prog = getRealProgress();
+    // Enrol existing v10 learning progress before the native dashboard requests
+    // its first review summary. Every card corresponds to an actually learned word.
+    const studyState = getLocalState();
+    studyState.collections = studyState.collections || {};
+    const existingCards = studyState.collections.reviewCards || [];
+    const enrolledKeys = new Set(existingCards.filter(card => card.skill === 'meaning').map(card => card.itemKey));
+    let enrolled = false;
+    for (const word of prog.learnedWords || []) {
+      const hanzi = String(word || '').trim();
+      if (!hanzi || enrolledKeys.has(`w:${hanzi}`)) continue;
+      enrolledKeys.add(`w:${hanzi}`); enrolled = true;
+      existingCards.push({ itemKey: `w:${hanzi}`, skill: 'meaning', state: 'learning', dueAt: new Date().toISOString(), wrongCount: 0, correctStreak: 0, attempts: 0, createdAt: new Date().toISOString(), content: { hanzi } });
+    }
+    if (enrolled) { studyState.collections.reviewCards = existingCards; saveLocalState(studyState); }
     const todayStr = new Date().toISOString().slice(0, 10);
     const activeSet = new Set(Array.isArray(prog.activeDates) ? prog.activeDates : []);
     // Tính chuỗi ngày học liên tiếp (streak)
@@ -905,16 +1107,18 @@
       0
     );
     const wordsMastered = (prog.learnedWords || []).length;
-    const dueTotal = wordsMastered > 0 ? Math.min(wordsMastered, Math.max(1, Math.ceil(wordsMastered * 0.4))) : 0;
-    const dueMeaning = Math.ceil(dueTotal * 0.65);
-    const duePinyin = Math.max(0, dueTotal - dueMeaning);
+    const reviewCards = getLocalState().collections?.reviewCards || [];
+    const dueCards = reviewCards.filter(card => !card.deletedAt && (!card.dueAt || new Date(card.dueAt).getTime() <= Date.now()));
+    const dueTotal = dueCards.length;
+    const dueMeaning = dueCards.filter(card => card.skill !== 'pinyin').length;
+    const duePinyin = dueCards.filter(card => card.skill === 'pinyin').length;
 
     prog.wordsLearned = prog.learnedWords || [];
     const todayMinutes = Number((prog.minutesByDate && prog.minutesByDate[todayStr]) || 0);
     const dismissedMistakes = Array.isArray(prog.dismissedMistakes) ? prog.dismissedMistakes : [];
     const activeUserMistakes = (Array.isArray(prog.userMistakes) ? prog.userMistakes : []).filter(m => m && !dismissedMistakes.includes(m.itemKey));
-    const defaultLeftCount = lessonsDone > 0 ? Math.max(0, 3 - dismissedMistakes.filter(k => ['w:谢谢', 'w:不客气', 'w:老师'].includes(k)).length) : 0;
-    const mistakesCount = activeUserMistakes.length + defaultLeftCount;
+    const cardMistakes = reviewCards.filter(card => !card.deletedAt && card.wrongCount > 0 && card.correctStreak < 2 && !card.dismissed && !dismissedMistakes.includes(card.itemKey));
+    const mistakesCount = new Set([...cardMistakes.map(c => c.itemKey), ...activeUserMistakes.map(m => m.itemKey)]).size;
 
     return {
       prog,
@@ -933,12 +1137,12 @@
       lessonsDone,
       stagesDone: (prog.doneStages || []).length,
       wordsMastered,
-      wordsLearning: wordsMastered > 0 ? Math.max(1, Math.ceil(wordsMastered * 0.3)) : 0,
+      wordsLearning: new Set(reviewCards.filter(card => !card.deletedAt && (Number(card.correctStreak) || 0) < 3).map(card => card.itemKey)).size,
       wordsSeen: wordsMastered,
       dueTotal,
       dueMeaning,
       duePinyin,
-      totalCards: wordsMastered,
+      totalCards: reviewCards.filter(card => !card.deletedAt).length,
       mistakesCount,
       gradingUsed: Number(prog.gradingUsed) || 0,
       voiceUsed: Number(prog.voiceUsed) || 0
@@ -947,16 +1151,18 @@
 
   async function syncProgressToSupabaseAuth(progOverride) {
     if (window.__xhzDiagRunning) return null;
+    const owner = getSavedUser();
+    const revision = authSessionRevision;
     const prog = progOverride || getRealProgress();
     saveRealProgress(prog);
     try {
-      const sbToken = localStorage.getItem('sb_access_token');
-      if (!sbToken || sbToken === DEFAULT_JWT) return false;
+      const session = await getSupabaseSession();
+      if (!session || !owner || owner.id !== session.user.id || revision !== authSessionRevision || (getSavedUser() || {}).id !== owner.id) return false;
       const res = await originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
         method: 'PUT',
         headers: {
           'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${sbToken}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
@@ -966,28 +1172,7 @@
           }
         })
       });
-      // Sao lưu kép non-blocking lên bảng study_profiles nếu có quyền
-      try {
-        const u = getSavedUser();
-        if (u && u.id) {
-          originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles`, {
-            method: 'POST',
-            headers: {
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${sbToken}`,
-              'Content-Type': 'application/json',
-              'Prefer': 'resolution=merge-duplicates'
-            },
-            body: JSON.stringify({
-              user_id: u.id,
-              email: u.email,
-              progress: prog,
-              updated_at: new Date().toISOString()
-            })
-          }).catch(() => {});
-        }
-      } catch (_) {}
-      return res.ok;
+      return res.ok && revision === authSessionRevision && (getSavedUser() || {}).id === owner.id;
     } catch (_e) {
       return false;
     }
@@ -995,24 +1180,22 @@
 
   async function syncProgressFromSupabaseAuth(forceReloadUi = false) {
     try {
-      const sbToken = localStorage.getItem('sb_access_token');
-      if (!sbToken || sbToken === DEFAULT_JWT) return null;
+      const revision = authSessionRevision;
+      const session = await getSupabaseSession();
+      if (!session || revision !== authSessionRevision) return null;
+      const ownerId = session.user.id;
+      const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === ownerId;
       const res = await originalFetch(`${SUPABASE_URL}/auth/v1/user`, {
         headers: {
           'apikey': SUPABASE_ANON_KEY,
-          'Authorization': `Bearer ${sbToken}`
+          'Authorization': `Bearer ${session.access_token}`
         }
       });
-      if (!res.ok) return null;
+      if (!res.ok || !stillCurrent()) return null;
       const u = await res.json();
-      if (!u || !u.id) return null;
+      if (!u || u.id !== ownerId || !stillCurrent()) return null;
       const meta = u.user_metadata || {};
-      saveAuthSession(sbToken, localStorage.getItem('sb_refresh_token') || '', {
-        id: u.id,
-        email: u.email,
-        displayName: meta.full_name || meta.name || (u.email || '').split('@')[0],
-        avatar: meta.avatar_url || meta.picture || ''
-      });
+      saveAuthSession(session.access_token, session.refresh_token, u);
       const localP = getRealProgress();
       const remoteP = meta.xhz_progress || null;
       const merged = mergeProgressObjects(localP, remoteP);
@@ -1020,7 +1203,7 @@
       if (!remoteP || (Number(localP.updatedAt) || 0) > (Number(remoteP.updatedAt) || 0)) {
         await syncProgressToSupabaseAuth(merged);
       }
-      if (forceReloadUi) {
+      if (forceReloadUi && stillCurrent()) {
         window.location.reload();
       }
       return merged;
@@ -1165,7 +1348,10 @@
     return prog;
   }
 
-  window.__xhzSyncCloudProgress = () => syncProgressFromSupabaseAuth(true);
+  window.__xhzSyncCloudProgress = async () => {
+    if (!await supabasePull()) return false;
+    return supabaseUpsert(getLocalState());
+  };
   window.__xhzRecordProgress = recordStudyProgress;
 
   async function recognizeChineseSpeech({ expectedHanzi = '', timeoutMs = 6000 } = {}) {
@@ -1235,7 +1421,7 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `xiehanzi-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        a.download = `hoctiengtrungquoc-backup-${new Date().toISOString().slice(0, 10)}.json`;
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {
@@ -1261,12 +1447,13 @@
   };
 
   window.__xhzRunDiagnostics = async function () {
+    const studyKey = typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state:guest';
     const diagKeys = [
       'httq_progress_v2', 'httq_done_stages', 'httq_done_activities',
       'httq_curr_learned_words', 'httq_learned_grammar', 'httq_user_mistakes',
       'httq_dismissed_mistakes', 'httq_dictation_progress', 'httq_learning_profile',
       'httq_habit_settings', 'httq_game_high_scores', 'httq_speaking_progress',
-      'httq_state', 'xhz-seen-words-v1', 'xhz-practice-v1',
+      'httq_state', studyKey, 'xhz-seen-words-v1', 'xhz-practice-v1',
       'httq_current_stage_key', 'httq_current_lesson_id',
       'httq_active_dates', 'httq_minutes_by_date', 'httq_sessions_by_date'
     ];
@@ -1384,27 +1571,172 @@
     return { ok: failed === 0, passed, failed, total: checks.length, checks };
   };
 
-  function getLocalState() {
-    try {
-      return JSON.parse(localStorage.getItem('httq_state') || '{"masteredChars":{},"savedWords":{},"examCount":0,"history":[]}');
-    } catch (_e) {
-      return { masteredChars: {}, savedWords: {}, examCount: 0, history: [] };
+  // BEGIN GENERATED STORAGE SUPPORT
+  // Scope the original client's fixed localStorage keys without changing auth
+  // credentials or sessionStorage. Call once before the copied client starts.
+  function initializeScopedStorage() {
+    if (typeof Storage === 'undefined' || typeof window === 'undefined') return false;
+    const prototype = Storage.prototype;
+    const marker = Symbol.for('httq.scopedStorage.v1');
+    if (prototype[marker]) return true;
+    let local;
+    try { local = window.localStorage; } catch (_) { return false; }
+    if (!local) return false;
+    const keys = new Set(['xhz-practice-v1', 'xhz-study-time-v1', 'xhz-intake-v1',
+      'httq_companion_chat_turns', 'httq_learning_profile', 'httq_current_lesson_id',
+      'httq_habit_settings', 'httq_account_profile', 'httq_companion_id',
+      'httq_learned_grammar', 'httq_user_mistakes', 'httq_dismissed_mistakes', 'httq_progress_v2',
+      'httq_dictation_progress', 'httq_game_high_scores', 'httq_speaking_progress',
+      'httq_done_stages', 'httq_done_activities', 'httq_curr_learned_words',
+      'httq_current_stage_key', 'httq_last_review_mode', 'them-pinyin-history',
+      'xhz-curriculum-place-v1', 'xhz-daily-session-opened-v1', 'xhz-grammar-study-v1',
+      'xhz-lesson-prefs-v1', 'xhz-listening-v1', 'xhz-path-last-current',
+      'xhz-practice-sound-v1', 'xhz-recent-lessons-v1', 'xhz-review-import-v1',
+      'xhz-review-signals-v1', 'xhz-review-source', 'xhz-seen-words-sync-v1',
+      'xhz-seen-words-v1', 'xhz-speaking-progress-v1', 'xhz-speaking-v1',
+      'xhz-track-onboarding-v1', 'xhz_intake', 'xhz-collection-import-v1',
+      'templateHistory', 'thay-do-world-guide-done']);
+    const isScoped = key => keys.has(key) || key.startsWith('httq_daily_steps_') || key.startsWith('xiehanzi:dictation:');
+    const nativeGet = prototype.getItem, nativeSet = prototype.setItem, nativeRemove = prototype.removeItem;
+    const descriptors = Object.fromEntries(['getItem', 'setItem', 'removeItem'].map(name => [name, Object.getOwnPropertyDescriptor(prototype, name)]));
+    const scope = () => typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state:guest';
+    const scopedKey = (key, owner) => `${key}:${owner}`;
+    function getItem(input) {
+      if (!arguments.length) return nativeGet.call(this);
+      const key = String(input);
+      if (this !== local || !isScoped(key)) return nativeGet.call(this, key);
+      const owner = scope(), target = scopedKey(key, owner);
+      let value = nativeGet.call(this, target);
+      // Previously unscoped data belongs to this device's guest workspace. Never
+      // import it into whichever registered account happens to sign in first.
+      if (value === null && owner === 'httq_state:guest') {
+        const legacy = nativeGet.call(this, key);
+        if (legacy !== null) {
+          nativeSet.call(this, target, legacy);
+          nativeRemove.call(this, key);
+          value = legacy;
+        }
+      }
+      return value;
     }
-  }
-
-  function saveLocalState(state) {
+    function setItem(input, value) {
+      if (arguments.length < 2) return nativeSet.apply(this, arguments);
+      const key = String(input);
+      return nativeSet.call(this, this === local && isScoped(key) ? scopedKey(key, scope()) : key, value);
+    }
+    function removeItem(input) {
+      if (!arguments.length) return nativeRemove.call(this);
+      const key = String(input);
+      if (this !== local || !isScoped(key)) return nativeRemove.call(this, key);
+      const owner = scope();
+      nativeRemove.call(this, scopedKey(key, owner));
+      if (owner === 'httq_state:guest') nativeRemove.call(this, key);
+    }
     try {
-      localStorage.setItem('httq_state', JSON.stringify(state));
-    } catch (_e) {}
+      Object.defineProperties(prototype, {
+        getItem: { ...descriptors.getItem, value: getItem },
+        setItem: { ...descriptors.setItem, value: setItem },
+        removeItem: { ...descriptors.removeItem, value: removeItem }
+      });
+      Object.defineProperty(prototype, marker, { value: true, configurable: true });
+    } catch (_) {
+      for (const [name, descriptor] of Object.entries(descriptors)) {
+        try { if (descriptor) Object.defineProperty(prototype, name, descriptor); } catch (_) {}
+      }
+      return false;
+    }
+    if (typeof window.addEventListener === 'function' && typeof StorageEvent !== 'undefined') {
+      window.addEventListener('storage', event => {
+        if (event.storageArea !== local || typeof event.key !== 'string') return;
+        const markerIndex = event.key.lastIndexOf(':httq_state:');
+        const key = markerIndex < 0 ? '' : event.key.slice(0, markerIndex);
+        if (!key || !isScoped(key)) return;
+        // Existing bundle listeners compare event.key with the original fixed
+        // name. Translate only the active owner's event; ignore other owners.
+        event.stopImmediatePropagation();
+        if (event.key !== scopedKey(key, scope())) return;
+        window.dispatchEvent(new StorageEvent('storage', { key, oldValue: event.oldValue, newValue: event.newValue,
+          url: event.url, storageArea: local }));
+      }, true);
+    }
+    return true;
+  }
+  initializeScopedStorage();
+
+  // END GENERATED STORAGE SUPPORT
+
+  function getStudyStateStorageKey() {
+    const user = getSavedUser();
+    return user && user.id ? `httq_state:user:${user.id}` : 'httq_state:guest';
   }
 
-  async function supabaseUpsert(state) {
-    saveLocalState(state);
-    await syncProgressToSupabaseAuth();
+  function getLocalState() {
+    const empty = { masteredChars: {}, savedWords: {}, examCount: 0, history: [] };
+    try {
+      const key = getStudyStateStorageKey();
+      let raw = localStorage.getItem(key);
+      if (!raw) {
+        const legacy = localStorage.getItem('httq_state');
+        const legacyOwner = localStorage.getItem('httq_state_owner');
+        if (legacy && (key === 'httq_state:guest' || legacyOwner === key)) {
+          localStorage.setItem(key, legacy);
+          raw = legacy;
+        }
+      }
+      const state = JSON.parse(raw || '{}');
+      return state && typeof state === 'object' && !Array.isArray(state) ? { ...empty, ...state } : empty;
+    } catch (_) { return empty; }
+  }
+
+  function saveLocalState(state, key = getStudyStateStorageKey()) {
+    if (key !== getStudyStateStorageKey()) return false;
+    try { localStorage.setItem(key, JSON.stringify(state)); return true; }
+    catch (_) { return false; }
+  }
+
+  let studyCloudQueue = Promise.resolve();
+  function supabaseUpsert(state, options = {}) {
+    const key = options.storageKey || getStudyStateStorageKey();
+    if (!saveLocalState(state, key)) return Promise.resolve(false);
+    const token = localStorage.getItem('sb_access_token');
+    if (!authCallbackRequest && (window.__xhzDiagRunning || !token || token === DEFAULT_JWT || key === 'httq_state:guest')) {
+      if (token === DEFAULT_JWT) clearAuthSession(false);
+      return Promise.resolve(false);
+    }
+    const write = async () => {
+      try {
+        const session = await getSupabaseSession();
+        if (!session || key !== getStudyStateStorageKey() || key !== `httq_state:user:${session.user.id}`) return false;
+        const res = await originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles?on_conflict=user_id,workspace`, {
+          method: 'POST',
+          headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}`, 'Content-Type': 'application/json', Prefer: 'resolution=merge-duplicates' },
+          body: JSON.stringify({ user_id: session.user.id, workspace: 'hoctiengtrungquoc', state: getLocalState(), updated_at: new Date().toISOString() })
+        });
+        const metadataSynced = res.ok && key === getStudyStateStorageKey() && await syncProgressToSupabaseAuth();
+        return Boolean(metadataSynced && key === getStudyStateStorageKey() && (getSavedUser() || {}).id === session.user.id);
+      } catch (_) { return false; }
+    };
+    const run = () => navigator.locks && navigator.locks.request ? navigator.locks.request(`httq-study-cloud:${key}`, write) : write();
+    const operation = studyCloudQueue.then(run, run);
+    studyCloudQueue = operation.catch(() => false);
+    return operation;
   }
 
   async function supabasePull() {
-    return await syncProgressFromSupabaseAuth(false);
+    const key = getStudyStateStorageKey();
+    const metadata = await syncProgressFromSupabaseAuth(false);
+    try {
+      const session = await getSupabaseSession();
+      if (!session || key !== getStudyStateStorageKey() || key !== `httq_state:user:${session.user.id}`) return false;
+      const res = await originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles?select=state&user_id=eq.${encodeURIComponent(session.user.id)}&workspace=eq.hoctiengtrungquoc`, {
+        headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${session.access_token}` }
+      });
+      if (!res.ok) return false;
+      const rows = await res.json();
+      if (key !== getStudyStateStorageKey() || (getSavedUser() || {}).id !== session.user.id || !Array.isArray(rows)) return false;
+      if (rows[0] && rows[0].state && !saveLocalState(mergeStudyState(rows[0].state, getLocalState()), key)) return false;
+      return Boolean(metadata);
+    } catch (_) { return false; }
   }
   const initialCloudPullPromise = supabasePull().catch(() => null);
   async function ensureInitialCloudPull() {
@@ -1451,6 +1783,10 @@
       .replace(/^-+|-+$/g, '');
   }
 
+  function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+  }
+
   async function lookupCharacter(slugOrChar) {
     const char = extractHanziChar(slugOrChar);
     const index = (await loadLocalJson('/data/characters/index.json')) || [];
@@ -1460,6 +1796,19 @@
       if (!entry) {
         const cleanSlug = decodeURIComponent(slugOrChar).toLowerCase().trim();
         entry = index.find(x => x.slug === cleanSlug || (x.hv && `${x.hv}-${x.c}` === cleanSlug));
+        if (!entry) {
+          const baseSlug = toSlugVi(cleanSlug.replace(/-\d+$/, ''));
+          if (baseSlug) {
+            const cands = index.filter(x =>
+              (x.slug && toSlugVi(x.slug.replace(/-[\u4e00-\u9fff]+$/, '')) === baseSlug) ||
+              (x.hv && toSlugVi(x.hv) === baseSlug)
+            );
+            if (cands.length) {
+              const numM = cleanSlug.match(/-(\d+)$/);
+              entry = (numM && cands.find(x => String(x.m || '').includes(numM[1]))) || cands[0];
+            }
+          }
+        }
       }
     }
     const targetChar = entry ? (entry.c || entry.character) : char;
@@ -1494,6 +1843,29 @@
       entry = index.find(x => (x.w || x.word || x.hanzi) === word || (x.w || x.word || x.hanzi) === rawDecoded);
       if (!entry) {
         entry = index.find(x => (x.w || '').replace(/\{|\}/g, '') === word);
+      }
+      if (!entry) {
+        const cleanSlug = decodeURIComponent(rawDecoded).toLowerCase().trim();
+        const stripped = toSlugVi(cleanSlug.replace(/-\d+$/, ''));
+        if (stripped) {
+          const parts = stripped.split('-').filter(Boolean);
+          const hvPart = parts[0];
+          const meaningParts = parts.slice(1);
+          entry =
+            index.find(x => {
+              const hvSlug = toSlugVi(x.hv || '');
+              const pSlug = toSlugVi(x.p || '').replace(/-/g, '');
+              if (hvSlug !== hvPart && pSlug !== hvPart) return false;
+              if (!meaningParts.length) return true;
+              const mSlug = toSlugVi(x.m || '');
+              return meaningParts.every(t => mSlug.includes(t));
+            }) ||
+            index.find(x => {
+              const hvSlug = toSlugVi(x.hv || '');
+              const pSlug = toSlugVi(x.p || '').replace(/-/g, '');
+              return hvSlug === stripped || pSlug === stripped;
+            });
+        }
       }
     }
     if (entry) {
@@ -1590,8 +1962,7 @@
         if (found) return found;
       }
     }
-    const firstChunk = (await loadLocalJson('/data/han-viet/han-viet-01.json')) || [];
-    return firstChunk[0] || null;
+    return null;
   }
 
   // ==========================================================================
@@ -1985,9 +2356,7 @@
       `/data/tests/papers/level-3-${cleanId}.json`,
       `/data/tests/papers/level-4-${cleanId}.json`,
       `/data/tests/papers/level-5-${cleanId}.json`,
-      `/data/tests/papers/level-6-${cleanId}.json`,
-      `/data/tests/papers/hsk30-${fallbackLevel || 1}.json`,
-      `/data/tests/papers/hsk30-1.json`
+      `/data/tests/papers/level-6-${cleanId}.json`
     ];
     for (const c of candidates) {
       const data = await loadLocalJson(c);
@@ -2048,10 +2417,616 @@
     };
   }
 
+
+
+
+
+
+
+
+  async function annotateLocalPinyin(text) {
+    const charIndex = await loadLocalJson('/data/characters/index.json') || [];
+    const wordIndex = await loadLocalJson('/data/vocabulary/index.json') || [];
+    const characters = new Map(charIndex.map(item => [item.c, item]));
+    const words = new Map(wordIndex.map(item => [item.w, item]));
+    const input = Array.from(text);
+    const annotations = [];
+    const maxLength = Math.min(input.length, Math.max(1, ...wordIndex.map(item => Array.from(item.w || '').length)));
+    for (let index = 0; index < input.length;) {
+      const char = input[index];
+      const isHanzi = /\p{Script=Han}/u.test(char);
+      let match = null;
+      if (isHanzi) {
+        for (let size = Math.min(maxLength, input.length - index); size >= 2; size--) {
+          const word = words.get(input.slice(index, index + size).join(''));
+          if (!word) continue;
+          const syllables = String(word.p || '').trim().split(/\s+/);
+          if (syllables.length === size && input.slice(index, index + size).every(value => /\p{Script=Han}/u.test(value))) {
+            match = { word, syllables, size }; break;
+          }
+        }
+      }
+      if (match) {
+        for (let offset = 0; offset < match.size; offset++) annotations.push({ char: input[index + offset], isHanzi: true, pinyin: match.syllables[offset], meaningVi: match.word.m || '', isWordStart: offset === 0, wordHanzi: match.word.w, wordPinyin: match.syllables.join(' ') });
+        index += match.size;
+      } else {
+        const info = characters.get(char);
+        annotations.push({ char, isHanzi, pinyin: isHanzi && info ? String(info.p || '').split(/[,，;/]/)[0].trim() : '', meaningVi: isHanzi && info ? info.m || '' : '', isWordStart: false });
+        index++;
+      }
+    }
+    return annotations;
+  }
+
+  // BEGIN GENERATED PERSISTENCE SUPPORT
+  // Persistent adapters for the contracts used by the original client bundles.
+  // Insert this fragment inside the runtime IIFE and call handlePersistentApi
+  // before the legacy handlers. Unknown routes return null.
+  function studyRecordTime(record) {
+    const value = record && (record.updatedAt || record.ts || record.receivedAt || record.createdAt);
+    const timestamp = Date.parse(value);
+    return Number.isFinite(timestamp) ? timestamp : 0;
+  }
+  function studyRecordKey(record) {
+    return String(record && (record._id || record.id || record.localId || record.signalId || record.itemKey) || '');
+  }
+  function mergeStudyRecords(remote, local, keyOf = studyRecordKey, merge) {
+    const records = new Map();
+    for (const record of [...(Array.isArray(remote) ? remote : []), ...(Array.isArray(local) ? local : [])]) {
+      if (!record || typeof record !== 'object') continue;
+      const key = keyOf(record); if (!key) continue;
+      const previous = records.get(key);
+      if (!previous) records.set(key, record);
+      else if (merge) records.set(key, merge(previous, record));
+      else records.set(key, studyRecordTime(record) >= studyRecordTime(previous) ? { ...previous, ...record } : { ...record, ...previous });
+    }
+    return [...records.values()];
+  }
+  function applyStudyReviewSignal(card, signal, receivedAt = new Date().toISOString()) {
+    card.attempts = (Number(card.attempts) || 0) + 1;
+    card.correctStreak = Number(card.correctStreak) || 0; card.wrongCount = Number(card.wrongCount) || 0;
+    card.lastOutcome = signal.outcome; card.updatedAt = signal.ts || receivedAt; card.source = signal.source;
+    if (signal.detail && typeof signal.detail === 'object') card.content = { ...(card.content || {}), ...signal.detail };
+    if (signal.outcome === 'correct') card.correctStreak++;
+    else { card.correctStreak = 0; card.wrongCount++; card.lastWrongAt = signal.ts || receivedAt; card.dismissed = false; }
+    const grade = signal.detail && signal.detail.grade;
+    let days = signal.outcome === 'correct' ? [1, 3, 7, 14, 30][Math.min(4, card.correctStreak - 1)] : 0;
+    if (grade === 'easy') days = Math.max(4, days);
+    const waitMs = grade === 'again' ? 60000 : grade === 'hard' ? 600000 : days ? days * 86400000 : 600000;
+    const timestamp = Number.isFinite(Date.parse(signal.ts)) ? Date.parse(signal.ts) : Number.isFinite(Date.parse(receivedAt)) ? Date.parse(receivedAt) : Date.now();
+    card.dueAt = new Date(timestamp + waitMs).toISOString(); card.intervalMs = waitMs;
+    card.state = card.correctStreak >= 2 ? 'review' : 'learning';
+    return card;
+  }
+  function mergeStudyState(remoteValue, localValue) {
+    const clone = value => JSON.parse(JSON.stringify(value && typeof value === 'object' && !Array.isArray(value) ? value : {}));
+    const remote = clone(remoteValue), local = clone(localValue);
+    const result = { ...remote, ...local };
+    const historyKey = item => String(item.id || `${item.at || item.createdAt}:${item.paperId || item.testId || item.kind || ''}`);
+    result.history = mergeStudyRecords(remote.history, local.history, historyKey).sort((a, b) => Date.parse(b.at || b.createdAt || 0) - Date.parse(a.at || a.createdAt || 0));
+    result.masteredChars = { ...(remote.masteredChars || {}), ...(local.masteredChars || {}) };
+    result.savedWords = { ...(remote.savedWords || {}), ...(local.savedWords || {}) };
+    result.examCount = Math.max(Number(remote.examCount) || 0, Number(local.examCount) || 0);
+    const r = remote.collections || {}, l = local.collections || {};
+    const store = result.collections = { ...r, ...l };
+    if (r.intake || l.intake) store.intake = studyRecordTime(l.intake) >= studyRecordTime(r.intake) ? { ...(r.intake || {}), ...(l.intake || {}) } : { ...(l.intake || {}), ...(r.intake || {}) };
+    store.tombstones = mergeStudyRecords(r.tombstones, l.tombstones, item => `${item.kind}:${item.id}`,
+      (a, b) => Date.parse(b.deletedAt) >= Date.parse(a.deletedAt) ? b : a);
+    const deleted = (kind, record) => store.tombstones.some(tombstone => tombstone.kind === kind && tombstone.id === studyRecordKey(record) &&
+      (Date.parse(tombstone.deletedAt) || 0) >= studyRecordTime(record));
+    for (const [key, kind] of [['library', 'annotation'], ['worksheets', 'worksheet'], ['examNotes', 'notes']]) {
+      store[key] = mergeStudyRecords(r[key], l[key]).filter(item => !deleted(kind, item));
+    }
+    store.lists = mergeStudyRecords(r.lists, l.lists, studyRecordKey, (a, b) => {
+      const list = studyRecordTime(b) >= studyRecordTime(a) ? { ...a, ...b } : { ...b, ...a };
+      list.sections = mergeStudyRecords(a.sections, b.sections, studyRecordKey, (x, y) => {
+        const section = studyRecordTime(y) >= studyRecordTime(x) ? { ...x, ...y } : { ...y, ...x };
+        section.items = mergeStudyRecords(x.items, y.items).filter(item => !deleted('listItem', item));
+        return section;
+      }).filter(section => !deleted('section', section));
+      return list;
+    }).filter(list => !deleted('list', list));
+    // Filter nested records even when a list/section exists on only one device.
+    for (const list of store.lists) {
+      list.sections = (list.sections || []).filter(section => !deleted('section', section));
+      const flattened = list.sections.flatMap(section => (section.items || []).filter(item => !deleted('listItem', item))
+        .map(item => ({ ...item, sectionId: item.sectionId || section._id || section.id })));
+      const words = mergeStudyRecords([], flattened, item => item.hanzi ? `${item.type || 'word'}:${item.hanzi}` : studyRecordKey(item));
+      list.sections = list.sections.map(section => ({ ...section, items: words.filter(item => item.sectionId === (section._id || section.id)) }));
+    }
+    store.studyBlocks = mergeStudyRecords(r.studyBlocks, l.studyBlocks, studyRecordKey, (a, b) => {
+      if (studyRecordTime(a) === studyRecordTime(b)) return Number(b.seconds) >= Number(a.seconds) ? b : a;
+      return studyRecordTime(b) > studyRecordTime(a) ? b : a;
+    });
+    store.speaking = { ...(r.speaking || {}) };
+    for (const [key, item] of Object.entries(l.speaking || {})) {
+      if (['__proto__', 'prototype', 'constructor'].includes(key)) continue;
+      const previous = store.speaking[key] || {};
+      const recent = studyRecordTime(item) >= studyRecordTime(previous) ? item : previous;
+      store.speaking[key] = { ...recent, best: Math.max(Number(previous.best) || 0, Number(item.best) || 0), attempts: Math.max(Number(previous.attempts) || 0, Number(item.attempts) || 0) };
+    }
+    store.reviewSignals = mergeStudyRecords(r.reviewSignals, l.reviewSignals, item => String(item.signalId || '')).sort((a, b) =>
+      studyRecordTime(a) - studyRecordTime(b) || String(a.signalId).localeCompare(String(b.signalId)));
+    const snapshots = mergeStudyRecords(r.reviewCards, l.reviewCards, card => `${card.itemKey}|${card.skill || 'meaning'}`);
+    const replayed = new Map();
+    for (const signal of store.reviewSignals) {
+      if (!signal.itemKey || !['correct', 'wrong', 'partial'].includes(signal.outcome)) continue;
+      const skill = signal.skill || 'meaning', key = `${signal.itemKey}|${skill}`;
+      let card = replayed.get(key);
+      if (!card) { const snapshot = snapshots.find(item => `${item.itemKey}|${item.skill || 'meaning'}` === key); card = { itemKey: signal.itemKey, skill, attempts: 0, wrongCount: 0, correctStreak: 0,
+        createdAt: snapshot && snapshot.createdAt || signal.ts || signal.receivedAt, content: snapshot && snapshot.content }; }
+      replayed.set(key, applyStudyReviewSignal(card, signal, signal.receivedAt || signal.ts));
+    }
+    store.reviewCards = snapshots.filter(card => !replayed.has(`${card.itemKey}|${card.skill || 'meaning'}`));
+    for (const [key, card] of replayed) {
+      const snapshot = snapshots.find(item => `${item.itemKey}|${item.skill || 'meaning'}` === key);
+      // Older snapshots may predate event logging; retain their counters rather
+      // than resetting activity that cannot be reconstructed from stored events.
+      if (snapshot && Number(snapshot.attempts) > card.attempts && studyRecordTime(snapshot) >= studyRecordTime(card)) store.reviewCards.push(snapshot);
+      else {
+        if (snapshot && snapshot.dismissedAt && Date.parse(snapshot.dismissedAt) >= studyRecordTime(card)) { card.dismissed = true; card.dismissedAt = snapshot.dismissedAt; }
+        store.reviewCards.push(card);
+      }
+    }
+    for (const list of store.lists) for (const section of list.sections) for (const item of section.items) {
+      const target = item.type === 'character' ? result.masteredChars : result.savedWords;
+      target[item.hanzi] = { ...item, word: item.hanzi, character: item.hanzi };
+    }
+    for (const tombstone of store.tombstones.filter(item => item.kind === 'listItem' && item.hanzi)) {
+      const retained = store.lists.some(list => list.sections.some(section => section.items.some(item => item.hanzi === tombstone.hanzi)));
+      if (!retained) { delete result.masteredChars[tombstone.hanzi]; delete result.savedWords[tombstone.hanzi]; }
+    }
+    return result;
+  }
+  function persistentStudyStorageKey() {
+    return typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state';
+  }
+  let xhzPersistenceQueue = Promise.resolve();
+  function handlePersistentApi(p, urlObj, init, method) {
+    const supported = /^\/v1\/(?:library|user-lists|user-worksheets|hsk-note-sets)(?:\/|$)/.test(p) ||
+      ['/v1/study-time/sync', '/v1/speaking-progress/sync', '/v2/review/signals',
+        '/v2/review/summary', '/v2/review/words', '/v2/review/mistakes',
+        '/v2/review/mistakes/dismiss', '/v2/review/sentence-cards', '/v1/users/me/intake'].includes(p);
+    if (!supported) return Promise.resolve(null);
+    const requestStorageKey = persistentStudyStorageKey();
+    const operation = xhzPersistenceQueue.then(async () => {
+      if (persistentStudyStorageKey() !== requestStorageKey) return jsonResponse({ ok: false, error: 'session_changed' }, 409);
+      const state = getLocalState();
+      if (!state.collections || typeof state.collections !== 'object' || Array.isArray(state.collections)) state.collections = {};
+      const store = state.collections;
+      for (const key of ['library', 'lists', 'worksheets', 'examNotes', 'studyBlocks', 'reviewSignals', 'reviewCards', 'tombstones']) {
+        if (!Array.isArray(store[key])) store[key] = [];
+      }
+      let enrolledCards = false;
+      // Enroll words and user mistakes from existing progress cleanly.
+      if (typeof getRealProgress === 'function') {
+        const progress = getRealProgress();
+        const dismissedSet = new Set(Array.isArray(progress.dismissedMistakes) ? progress.dismissedMistakes : []);
+        for (const rawWord of (Array.isArray(progress.learnedWords) ? progress.learnedWords : [])) {
+          const hanzi = String(rawWord || '').trim();
+          if (!hanzi || store.reviewCards.some(card => card.itemKey === `w:${hanzi}` && card.skill === 'meaning')) continue;
+          store.reviewCards.push({ itemKey: `w:${hanzi}`, skill: 'meaning', state: 'learning',
+            dueAt: new Date().toISOString(), wrongCount: 0, correctStreak: 0, attempts: 0,
+            content: { hanzi }, createdAt: new Date().toISOString() });
+          enrolledCards = true;
+        }
+        for (const m of (Array.isArray(progress.userMistakes) ? progress.userMistakes : [])) {
+          if (!m || (!m.itemKey && !m.hanzi)) continue;
+          const mKey = m.itemKey || `w:${m.hanzi}`;
+          const mSkill = m.skill || 'meaning';
+          if (dismissedSet.has(mKey)) continue;
+          let existingCard = store.reviewCards.find(c => c.itemKey === mKey && c.skill === mSkill);
+          if (!existingCard) {
+            store.reviewCards.push({
+              itemKey: mKey, skill: mSkill, state: 'learning', dueAt: new Date().toISOString(),
+              wrongCount: Number(m.count) || 1, correctStreak: 0, attempts: Number(m.count) || 1,
+              content: { hanzi: m.hanzi || mKey.replace(/^[a-z]:/, ''), pinyin: m.pinyin || '', meaningVi: m.meaningVi || '' },
+              createdAt: m.lastWrongAt || new Date().toISOString()
+            });
+            enrolledCards = true;
+          } else if ((existingCard.wrongCount || 0) === 0 && !existingCard.dismissed) {
+            existingCard.wrongCount = Number(m.count) || 1;
+            existingCard.correctStreak = 0;
+            enrolledCards = true;
+          }
+        }
+      }
+      if (!store.speaking || typeof store.speaking !== 'object' || Array.isArray(store.speaking)) store.speaking = {};
+      const body = method === 'GET' || method === 'HEAD' ? {} : (await parseRequestBody(init)) || {};
+      const now = new Date().toISOString();
+      const id = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+      const error = (code, status = 400) => jsonResponse({ ok: false, error: code }, status);
+      const page = Math.max(1, Number(urlObj.searchParams.get('page')) || 1);
+      const limit = Math.max(1, Math.min(100, Number(urlObj.searchParams.get('limit')) || 20));
+      const paginate = items => ({ items: items.slice((page - 1) * limit, page * limit), total: items.length, page, limit, hasMore: page * limit < items.length });
+      const commit = async result => {
+        // Do not acknowledge queued sync data when persistence fails. The client
+        // removes its queue on any 2xx response, so quota failures must be 5xx.
+        if (persistentStudyStorageKey() !== requestStorageKey) return error('session_changed', 409);
+        try { localStorage.setItem(requestStorageKey, JSON.stringify(state)); }
+        catch (_) { return error('storage_unavailable', 507); }
+        try { await supabaseUpsert(state, { storageKey: requestStorageKey }); } catch (_) {}
+        return jsonResponse(result);
+      };
+      if (enrolledCards) {
+        const enrollment = await commit({ ok: true });
+        if (!enrollment.ok) return enrollment;
+      }
+      const rememberDeletion = (kind, record) => {
+        const recordId = studyRecordKey(record); if (!recordId) return;
+        store.tombstones = store.tombstones.filter(item => item.kind !== kind || item.id !== recordId);
+        store.tombstones.push({ kind, id: recordId, deletedAt: now, ...(record.hanzi ? { hanzi: record.hanzi } : {}) });
+      };
+      const defaultList = () => ({ id: 'default', _id: 'default', name: 'Chữ Hán & từ', createdAt: now, updatedAt: now,
+        sections: [{ id: 'default-section', _id: 'default-section', name: 'Đã lưu', items: [], createdAt: now, updatedAt: now }] });
+      const getList = listId => store.lists.find(item => item._id === listId || item.id === listId);
+      const ensureList = () => { if (!store.lists.length) store.lists.push(defaultList()); return store.lists[0]; };
+      const saveWord = input => {
+        const list = (input.listId && getList(input.listId)) || ensureList();
+        const section = (input.sectionId && list.sections.find(item => item._id === input.sectionId)) || list.sections[0];
+        const hanzi = String(input.hanzi || input.word || input.character || '').trim();
+        if (!hanzi || !section) return null;
+        const duplicate = list.sections.flatMap(item => item.items).find(item => item.type === (input.type || (hanzi.length === 1 ? 'character' : 'word')) &&
+          ((input.refId && item.refId === input.refId) || item.hanzi === hanzi));
+        if (duplicate) return { item: duplicate, isDuplicate: true, listId: list._id, sectionId: duplicate.sectionId };
+        const itemId = id('item');
+        const item = { ...input, id: itemId, _id: itemId, hanzi, type: input.type || (hanzi.length === 1 ? 'character' : 'word'),
+          sectionId: section._id, createdAt: input.createdAt || now, updatedAt: now, masteredAt: input.masteredAt || null };
+        section.items.push(item); list.updatedAt = now;
+        state.masteredChars = state.masteredChars || {}; state.savedWords = state.savedWords || {};
+        const key = item.type === 'character' ? 'masteredChars' : 'savedWords';
+        state[key][hanzi] = { ...item, word: hanzi, character: hanzi };
+        return { item, isDuplicate: false, listId: list._id, sectionId: section._id };
+      };
+      const forgetWord = item => {
+        if (store.lists.some(list => list.sections.some(section => section.items.some(other => other.hanzi === item.hanzi)))) return;
+        if (state.masteredChars) delete state.masteredChars[item.hanzi];
+        if (state.savedWords) delete state.savedWords[item.hanzi];
+      };
+
+      if (p === '/v1/users/me/intake') {
+        if (method === 'GET') return jsonResponse({ ok: true, intake: store.intake || null });
+        if (method !== 'PATCH' && method !== 'POST') return error('method_not_allowed', 405);
+        const input = { ...(store.intake || {}), ...body };
+        const aliases = { 'hsk1-2': 'hsk1', 'hsk3-4': 'hsk3', 'hsk5+': 'hsk5' };
+        const level = aliases[input.level] || input.level;
+        const levels = ['chua-biet', 'hsk1', 'hsk2', 'hsk3', 'hsk4', 'hsk5', 'hsk6'];
+        const goals = ['giao-tiep', 'hsk-cert', 'tu-vung', 'cong-viec', 'du-hoc'];
+        const times = ['5p', '15p', '30p+'];
+        if (!levels.includes(level) || !goals.includes(input.goal) || !times.includes(input.time)) return error('invalid_intake');
+        if (input.targetLevel && !levels.slice(1).includes(input.targetLevel)) return error('invalid_target_level');
+        if (input.examDate && (!/^\d{4}-\d{2}-\d{2}$/.test(input.examDate) || !Number.isFinite(Date.parse(input.examDate)) || new Date(input.examDate).toISOString().slice(0, 10) !== input.examDate)) return error('invalid_exam_date');
+        const topics = new Set(['gia-dinh', 'an-uong', 'du-lich', 'cong-viec', 'hoc-tap', 'mua-sam', 'suc-khoe', 'giai-tri']);
+        const intake = { level, goal: input.goal, time: input.time, updatedAt: now,
+          ...(input.targetLevel ? { targetLevel: input.targetLevel } : {}), ...(input.examDate ? { examDate: input.examDate } : {}),
+          ...(Array.isArray(input.topicSlugs) ? { topicSlugs: [...new Set(input.topicSlugs.filter(topic => topics.has(topic)))] } : {}),
+          source: typeof input.source === 'string' ? input.source.slice(0, 80) : 'web' };
+        store.intake = intake;
+        const result = await commit({ ok: true, intake });
+        if (result.ok && persistentStudyStorageKey() === requestStorageKey) {
+          try { localStorage.setItem('xhz-intake-v1', JSON.stringify({ ...intake, ts: Date.now() })); } catch (_) {}
+        }
+        return result;
+      }
+
+      if (p === '/v1/library' || p.startsWith('/v1/library/')) {
+        const libraryId = decodeURIComponent(p.slice('/v1/library/'.length));
+        if (p === '/v1/library' && method === 'GET') {
+          const skip = Math.max(0, Number(urlObj.searchParams.get('skip')) || 0);
+          const annotations = store.library.slice(skip, skip + limit);
+          return jsonResponse({ annotations, items: annotations, total: store.library.length, hasMore: skip + limit < store.library.length });
+        }
+        if (p === '/v1/library' && method === 'POST') {
+          if (!String(body.text || '').trim()) return error('empty_text');
+          const itemId = id('annotation');
+          const item = { id: itemId, _id: itemId, title: String(body.title || '').trim(), text: String(body.text),
+            annotations: Array.isArray(body.annotations) ? body.annotations : [], createdAt: now, updatedAt: now };
+          store.library.unshift(item);
+          return commit(item);
+        }
+        const index = store.library.findIndex(item => item.id === libraryId || item._id === libraryId);
+        if (index < 0) return error('not_found', 404);
+        if (method === 'GET') return jsonResponse(store.library[index]);
+        if (method === 'DELETE') { rememberDeletion('annotation', store.library[index]); store.library.splice(index, 1); return commit({ ok: true }); }
+        if (method === 'PATCH') {
+          const item = store.library[index];
+          for (const key of ['title', 'text', 'annotations']) if (body[key] !== undefined) item[key] = body[key];
+          item.updatedAt = now; return commit(item);
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/user-lists' || p.startsWith('/v1/user-lists/')) {
+        if (p === '/v1/user-lists' && method === 'GET') {
+          const lists = store.lists.length ? store.lists : [defaultList()];
+          return jsonResponse({ lists: lists.map(list => ({ ...list, itemCount: list.sections.reduce((sum, section) => sum + section.items.length, 0) })) });
+        }
+        if (p === '/v1/user-lists' && method === 'POST') {
+          const list = defaultList(); list.id = list._id = id('list'); list.name = String(body.name || list.name);
+          list.sections[0].id = list.sections[0]._id = id('section'); store.lists.push(list); return commit(list);
+        }
+        if (p === '/v1/user-lists/quick-save' && method === 'POST') {
+          const result = saveWord(body); return result ? commit({ ok: true, ...result }) : error('empty_hanzi');
+        }
+        if (p === '/v1/user-lists/sync-guest' && method === 'POST') {
+          const items = Array.isArray(body.items) ? body.items : [];
+          const results = items.map(saveWord).filter(Boolean);
+          return commit({ ok: true, imported: results.filter(item => !item.isDuplicate).length, count: results.length, listId: ensureList()._id });
+        }
+        const parts = p.slice('/v1/user-lists/'.length).split('/').map(decodeURIComponent);
+        let list = getList(parts[0]);
+        if (!list && parts[0] === 'default') { list = defaultList(); if (method !== 'GET') store.lists.push(list); }
+        if (!list) return error('not_found', 404);
+        if (parts.length === 1) {
+          if (method === 'GET') return jsonResponse(list);
+          if (method === 'PATCH') { list.name = String(body.name || list.name); list.updatedAt = now; return commit(list); }
+          if (method === 'DELETE') {
+            rememberDeletion('list', list);
+            list.sections.forEach(section => { rememberDeletion('section', section); section.items.forEach(item => rememberDeletion('listItem', item)); });
+            store.lists = store.lists.filter(item => item !== list);
+            list.sections.flatMap(section => section.items).forEach(forgetWord);
+            return commit({ ok: true });
+          }
+        }
+        if (parts[1] === 'sections') {
+          if (parts.length === 2 && method === 'POST') {
+            if (!String(body.name || '').trim()) return error('empty_name');
+            const sectionId = id('section');
+            const section = { id: sectionId, _id: sectionId, name: String(body.name).trim(), items: [], createdAt: now, updatedAt: now };
+            list.sections.push(section); list.updatedAt = now; return commit(section);
+          }
+          const section = list.sections.find(item => item._id === parts[2]);
+          if (!section) return error('not_found', 404);
+          if (method === 'PATCH') { section.name = String(body.name || section.name); section.updatedAt = now; list.updatedAt = now; return commit(section); }
+          if (method === 'DELETE') {
+            if (list.sections.length === 1) return error('last_section');
+            rememberDeletion('section', section); section.items.forEach(item => rememberDeletion('listItem', item));
+            list.sections = list.sections.filter(item => item !== section); section.items.forEach(forgetWord);
+            return commit({ ok: true });
+          }
+        }
+        if (parts[1] === 'items' && parts[2]) {
+          const section = list.sections.find(item => item.items.some(word => word._id === parts[2]));
+          const item = section && section.items.find(word => word._id === parts[2]);
+          if (!item) return error('not_found', 404);
+          if (method === 'DELETE') { rememberDeletion('listItem', item); section.items = section.items.filter(word => word !== item); forgetWord(item); return commit({ ok: true }); }
+          if (method === 'PATCH') {
+            if (body.moveToSectionId) {
+              const target = list.sections.find(item => item._id === body.moveToSectionId);
+              if (!target) return error('section_not_found', 404);
+              if (target !== section) { section.items = section.items.filter(word => word !== item); target.items.push(item); item.sectionId = target._id; }
+            }
+            if (body.mastered !== undefined) item.masteredAt = body.mastered ? now : null;
+            item.updatedAt = now; list.updatedAt = now;
+            const savedKey = item.type === 'character' ? 'masteredChars' : 'savedWords';
+            if (state[savedKey] && state[savedKey][item.hanzi]) state[savedKey][item.hanzi] = { ...item, word: item.hanzi, character: item.hanzi };
+            return commit(item);
+          }
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/user-worksheets' || p.startsWith('/v1/user-worksheets/')) {
+        const create = input => {
+          const worksheetId = id('worksheet');
+          return { _id: worksheetId, id: worksheetId, name: String(input.name || input.text || 'Vở tập viết').trim().slice(0, 80),
+            text: String(input.text || ''), settings: input.settings && typeof input.settings === 'object' ? input.settings : {},
+            templateId: input.templateId || null, localId: input.localId, createdAt: input.createdAt || now, updatedAt: now };
+        };
+        if (p === '/v1/user-worksheets' && method === 'GET') return jsonResponse({ worksheets: store.worksheets });
+        if (p === '/v1/user-worksheets' && method === 'POST') {
+          if (!String(body.text || '').trim()) return error('empty_text');
+          const worksheet = create(body); store.worksheets.unshift(worksheet); return commit(worksheet);
+        }
+        if (p === '/v1/user-worksheets/sync-guest' && method === 'POST') {
+          let imported = 0;
+          for (const input of (Array.isArray(body.items) ? body.items : [])) {
+            if (!String(input.text || '').trim() || (input.localId && store.worksheets.some(item => item.localId === input.localId))) continue;
+            store.worksheets.unshift(create(input)); imported++;
+          }
+          return commit({ ok: true, imported, worksheets: store.worksheets });
+        }
+        const worksheetId = decodeURIComponent(p.slice('/v1/user-worksheets/'.length));
+        const worksheet = store.worksheets.find(item => item._id === worksheetId);
+        if (!worksheet) return error('not_found', 404);
+        if (method === 'GET') return jsonResponse(worksheet);
+        if (method === 'DELETE') { rememberDeletion('worksheet', worksheet); store.worksheets = store.worksheets.filter(item => item !== worksheet); return commit({ ok: true }); }
+        if (method === 'PATCH') {
+          for (const key of ['name', 'text', 'settings', 'templateId']) if (body[key] !== undefined) worksheet[key] = key === 'name' ? String(body[key]).slice(0, 80) : body[key];
+          worksheet.updatedAt = now; return commit(worksheet);
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/hsk-note-sets' || p.startsWith('/v1/hsk-note-sets/')) {
+        if (p === '/v1/hsk-note-sets' && method === 'GET') {
+          const testId = urlObj.searchParams.get('testId');
+          return jsonResponse(paginate(store.examNotes.filter(item => !testId || item.testId === testId)));
+        }
+        const noteId = decodeURIComponent(p.slice('/v1/hsk-note-sets/'.length));
+        let entry = store.examNotes.find(item => item.id === noteId);
+        if (p === '/v1/hsk-note-sets' && method === 'POST') entry = store.examNotes.find(item => item.testId === body.testId);
+        if (p !== '/v1/hsk-note-sets' && !entry) return error('not_found', 404);
+        if (method === 'DELETE' && entry) { rememberDeletion('notes', entry); store.examNotes = store.examNotes.filter(item => item !== entry); return commit({ ok: true }); }
+        if (method === 'GET' && entry) return jsonResponse(entry);
+        if (method === 'POST' || method === 'PATCH') {
+          const notes = Array.isArray(body.notes) ? body.notes.filter(note => note.questionId && String(note.text || '').trim()) : [];
+          if (!notes.length) return error('empty_notes');
+          const testId = (entry && entry.testId) || body.testId;
+          if (!testId) return error('test_not_found', 404);
+          const paper = await loadTestPaperById(testId, body.level);
+          if (!paper || paper.testId !== testId) return error('test_not_found', 404);
+          const questions = (paper.sections || []).flatMap(section => (section.questions || []).map(question => ({ ...question, sectionTitle: section.title || section.name || '' })));
+          if (!questions.length && Array.isArray(paper.questions)) questions.push(...paper.questions);
+          if (notes.some(note => !questions.some(question => String(question.id || question._id) === String(note.questionId)))) return error('question_not_found', 404);
+          const itemId = entry ? entry.id : id('notes');
+          const updated = { id: itemId, _id: itemId, testId, level: paper.level, testTitle: paper.title, testAvailable: true,
+            createdAt: entry ? entry.createdAt : now, updatedAt: now, noteCount: notes.length,
+            notes: notes.map(note => {
+              const question = questions.find(question => String(question.id || question._id) === String(note.questionId));
+              return { ...note, text: String(note.text).trim(), questionNumber: question.number || question.questionNumber,
+                prompt: question.prompt || '', sectionTitle: question.sectionTitle || '', correctAnswer: question.correctAnswer || question.answer || question.correctOption || '' };
+            }) };
+          store.examNotes = [updated, ...store.examNotes.filter(item => item !== entry)]; return commit(updated);
+        }
+        return error('method_not_allowed', 405);
+      }
+
+      if (p === '/v1/study-time/sync') {
+        if (method !== 'POST' && method !== 'GET') return error('method_not_allowed', 405);
+        if (method === 'POST') {
+          const rawBlocks = Array.isArray(body.blocks)
+            ? body.blocks
+            : (body.blocks && typeof body.blocks === 'object' ? Object.values(body.blocks) : []);
+          for (const block of rawBlocks) {
+            const bId = block && (block.id || block.day);
+            if (!bId || !Number.isFinite(Number(block.seconds)) || Number(block.seconds) < 0) continue;
+            const index = store.studyBlocks.findIndex(item => (item.id || item.day) === bId);
+            const current = store.studyBlocks[index];
+            if (!current || String(block.updatedAt || '') >= String(current.updatedAt || '') || Number(block.seconds) > Number(current.seconds)) {
+              const normBlock = { ...block, id: bId, seconds: Number(block.seconds) };
+              if (index < 0) store.studyBlocks.push(normBlock);
+              else store.studyBlocks[index] = normBlock;
+            }
+          }
+          const addMins = Math.round((Number(body.seconds) || 0) / 60);
+          if (addMins > 0 && typeof recordStudyProgress === 'function') {
+            recordStudyProgress({ minutes: addMins });
+          }
+        }
+        const result = { ok: true, blocks: store.studyBlocks, totalSeconds: store.studyBlocks.reduce((sum, block) => sum + Number(block.seconds || 0), 0) };
+        return method === 'POST' ? commit(result) : jsonResponse(result);
+      }
+      if (p === '/v1/speaking-progress/sync') {
+        if (method !== 'POST' && method !== 'GET') return error('method_not_allowed', 405);
+        for (const item of (Array.isArray(body.items) ? body.items : [])) {
+          if (!item || typeof item.key !== 'string' || ['__proto__', 'constructor', 'prototype'].includes(item.key)) continue;
+          const current = store.speaking[item.key] || {};
+          const recent = String(item.updatedAt || '') >= String(current.updatedAt || '') ? item : current;
+          const itemScore = Number(item.best ?? item.score) || 0;
+          const bestVal = Math.max(Number(current.best) || Number(current.score) || 0, itemScore);
+          store.speaking[item.key] = {
+            best: bestVal,
+            score: bestVal,
+            attempts: Math.max(Number(current.attempts) || 0, Number(item.attempts) || 1),
+            lastScore: recent.lastScore ?? itemScore,
+            updatedAt: recent.updatedAt || now
+          };
+        }
+        try {
+          const curSpk = JSON.parse(localStorage.getItem('httq_speaking_progress') || '{}') || {};
+          localStorage.setItem('httq_speaking_progress', JSON.stringify({ ...curSpk, ...store.speaking }));
+        } catch (_) {}
+        return method === 'POST' ? commit({ ok: true, items: store.speaking }) : jsonResponse({ ok: true, items: store.speaking });
+      }
+
+      if (p === '/v2/review/signals') {
+        if (method !== 'POST') return error('method_not_allowed', 405);
+        if (!Array.isArray(body.signals)) return error('invalid_signals');
+        const seen = new Set(store.reviewSignals.map(signal => signal.signalId));
+        let accepted = 0;
+        const learnedWordsBatch = [];
+        const learnedGrammarBatch = [];
+        const wrongBatch = [];
+        for (const signal of body.signals) {
+          if (!signal || !signal.signalId || !signal.itemKey || !['correct', 'wrong', 'partial'].includes(signal.outcome)) return error('invalid_signal');
+          if (seen.has(signal.signalId)) continue;
+          seen.add(signal.signalId); store.reviewSignals.push({ ...signal, receivedAt: now }); accepted++;
+          const skill = signal.skill || 'meaning';
+          let card = store.reviewCards.find(item => item.itemKey === signal.itemKey && item.skill === skill);
+          if (!card) { card = { itemKey: signal.itemKey, skill, correctStreak: 0, attempts: 0, wrongCount: 0, createdAt: now }; store.reviewCards.push(card); }
+          applyStudyReviewSignal(card, signal, now);
+          const cleanK = String(signal.itemKey || '').replace(/^[a-z]:/i, '').trim();
+          if (signal.itemKey.startsWith('g:')) {
+            if (cleanK) learnedGrammarBatch.push(cleanK);
+          } else if (signal.outcome === 'wrong' && cleanK) {
+            wrongBatch.push({ itemKey: signal.itemKey, hanzi: cleanK, skill });
+          } else if (cleanK) {
+            learnedWordsBatch.push(cleanK);
+          }
+        }
+        if (typeof recordStudyProgress === 'function' && (learnedWordsBatch.length || learnedGrammarBatch.length || wrongBatch.length)) {
+          recordStudyProgress({
+            words: learnedWordsBatch,
+            grammarIds: learnedGrammarBatch,
+            mistake: wrongBatch[0],
+            minutes: 0
+          });
+          for (let wi = 1; wi < wrongBatch.length; wi++) recordStudyProgress({ mistake: wrongBatch[wi], minutes: 0 });
+        }
+        // An offline client may deliver older activity after newer activity.
+        // Replay the union in event order instead of moving the due date backward.
+        state.collections = mergeStudyState({}, state).collections;
+        return commit({ ok: true, accepted, duplicates: body.signals.length - accepted });
+      }
+      const cards = store.reviewCards;
+      const activeMistakes = cards.filter(card => card.wrongCount > 0 && card.correctStreak < 2 && !card.dismissed);
+      if (p === '/v2/review/summary') {
+        const bucket = selected => selected.reduce((counts, card) => { counts[card.skill === 'sound' ? 'pinyin' : card.skill] = (counts[card.skill === 'sound' ? 'pinyin' : card.skill] || 0) + 1; return counts; }, { meaning: 0, pinyin: 0 });
+        const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999);
+        const forecast = Array.from({ length: 7 }, (_, offset) => {
+          const day = new Date(Date.now() + offset * 86400000).toISOString().slice(0, 10);
+          const due = cards.filter(card => card.dueAt.slice(0, 10) === day).length;
+          return { day, due, minutes: Math.ceil(due / 3), heavy: due >= 15 };
+        });
+        return jsonResponse({ dueNow: bucket(cards.filter(card => Date.parse(card.dueAt) <= Date.now())),
+          dueToday: bucket(cards.filter(card => Date.parse(card.dueAt) <= todayEnd.getTime())), errorsQueue: activeMistakes.length, totalCards: cards.length, openRun: null, forecast });
+      }
+      if (p === '/v2/review/sentence-cards') {
+        const sentences = cards.filter(card => card.itemKey.startsWith('s:'));
+        return jsonResponse({ dueToday: sentences.filter(card => Date.parse(card.dueAt) <= Date.now() + 86400000).length,
+          total: sentences.length, upcoming: sentences.filter(card => Date.parse(card.dueAt) > Date.now()).length, measureWords: 0, newPerDay: 5 });
+      }
+      if (p === '/v2/review/mistakes/dismiss') {
+        if (method !== 'POST' || !body.itemKey) return error('invalid_item');
+        cards.filter(card => card.itemKey === body.itemKey).forEach(card => { card.dismissed = true; card.dismissedAt = now; });
+        return commit({ ok: true });
+      }
+      const enrichCard = async card => {
+        const hanzi = card.itemKey.replace(/^[a-z]:/, '');
+        const info = card.itemKey.startsWith('c:') ? await lookupCharacter(hanzi) : await lookupWord(hanzi);
+        const content = card.content || {};
+        const word = { hanzi: content.hanzi || hanzi, word: content.hanzi || hanzi, pinyin: content.pinyin || (info && (info.pinyin || info.wordPinyin)) || '',
+          meaningVi: content.meaningVi || (info && (info.meaningVi || info.wordMeaningVi)) || '' };
+        return { ...card, ...word, titleZh: hanzi, word, count: card.wrongCount, errorCount: card.wrongCount,
+          category: card.skill === 'sound' || card.skill === 'pinyin' ? 'tone_error' : 'vocab_confusion',
+          categoryLabelVi: card.skill === 'sound' || card.skill === 'pinyin' ? 'Phát âm / thanh điệu' : 'Nội dung cần ôn',
+          progress: { cleared: card.correctStreak, needed: 2, nextCheckDay: card.dueAt.slice(0, 10) } };
+      };
+      if (p === '/v2/review/mistakes') {
+        const category = urlObj.searchParams.get('category');
+        const all = await Promise.all(activeMistakes.map(enrichCard));
+        const filtered = category ? all.filter(card => card.category === category) : all;
+        const categories = [...new Set(all.map(card => card.category))].map(category => ({ category, labelVi: all.find(card => card.category === category).categoryLabelVi,
+          count: all.filter(card => card.category === category).length }));
+        return jsonResponse({ ...paginate(filtered), mistakes: filtered.slice((page - 1) * limit, page * limit), categories });
+      }
+      if (p === '/v2/review/words') {
+        const q = (urlObj.searchParams.get('q') || '').trim().toLowerCase();
+        const status = urlObj.searchParams.get('status') || 'all';
+        const unique = [...new Map(cards.filter(card => /^[cw]:/.test(card.itemKey)).map(card => [card.itemKey, card])).values()];
+        const known = unique.filter(card => card.state === 'review').length;
+        let items = await Promise.all(unique.map(enrichCard));
+        items = items.map(item => ({ ...item, word: item.hanzi }));
+        if (status === 'known') items = items.filter(item => item.state === 'review');
+        if (status === 'learning') items = items.filter(item => item.state !== 'review');
+        if (q) items = items.filter(item => `${item.hanzi} ${item.pinyin} ${item.meaningVi}`.toLowerCase().includes(q));
+        return jsonResponse({ ...paginate(items), totals: { known, learning: unique.length - known }, nextCursor: null });
+      }
+      return null;
+    });
+    xhzPersistenceQueue = operation.catch(() => {});
+    return operation;
+  }
+  // END GENERATED PERSISTENCE SUPPORT
+
   async function handleApiRequest(urlOrObj, init) {
     const urlObj = typeof urlOrObj === 'string' ? new URL(urlOrObj, window.location.origin) : urlOrObj;
     const p = (urlObj.pathname || '').replace(/^\/api/, '');
     const method = (init && init.method ? init.method : 'GET').toUpperCase();
+
+    const persisted = await handlePersistentApi(p, urlObj, init, method);
+    if (persisted) return persisted;
 
     // ------------------------------------------------------------------------
     // A. SERVER TIME & PUBLIC SETTINGS & AUTH
@@ -2136,55 +3111,53 @@
     }
     if (p.includes('/v1/auth/login') || p.includes('/v1/auth/register')) {
       const body = await parseRequestBody(init);
-      const email = (body.email || 'hocvien@gmail.com').trim();
-      const displayName = (body.displayName || body.name || email.split('@')[0] || 'Học viên').trim();
-      const userObj = saveAuthSession(DEFAULT_JWT, '', {
-        id: 'user-' + Date.now(),
-        email,
-        displayName,
-        hasPassword: true
-      });
-      return jsonResponse({
-        ok: true,
-        isAuthenticated: true,
-        accessToken: DEFAULT_JWT,
-        token: DEFAULT_JWT,
-        ...userObj,
-        user: userObj
-      });
+      const email = typeof body.email === 'string' ? body.email.trim() : '';
+      const password = typeof body.password === 'string' ? body.password : '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || password.length < 6) return authErrorResponse({ status: 400, code: 'invalid_credentials', message: 'Vui lòng nhập email hợp lệ và mật khẩu từ 6 ký tự.' });
+      const register = p.includes('/v1/auth/register');
+      const revision = ++authSessionRevision;
+      try {
+        const data = register
+          ? await requestSupabaseAuth(`signup?redirect_to=${encodeURIComponent(window.location.origin + '/tai-khoan')}`, {
+            method: 'POST', body: JSON.stringify({ email, password, data: { full_name: String(body.displayName || body.name || email.split('@')[0]).trim() } })
+          })
+          : await requestSupabaseAuth('token?grant_type=password', { method: 'POST', body: JSON.stringify({ email, password }) });
+        if (revision !== authSessionRevision) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        if (register && !data.access_token) return jsonResponse({ ok: true, isAuthenticated: false, requiresEmailConfirmation: true, message: 'Vui lòng kiểm tra email và mở liên kết xác nhận trước khi đăng nhập.' }, 202);
+        const user = data.user || await requestSupabaseAuth('user', { headers: { Authorization: `Bearer ${data.access_token}` } });
+        if (revision !== authSessionRevision) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        const userObj = saveAuthSession(data.access_token, data.refresh_token, user);
+        if (!userObj) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Không thể xác thực phiên đăng nhập.' });
+        return jsonResponse({ ok: true, isAuthenticated: true, accessToken: DEFAULT_JWT, token: DEFAULT_JWT, ...userObj, user: userObj });
+      } catch (error) { return authErrorResponse(error); }
     }
     if (p.includes('/v1/users/me/profile') || p.includes('/v1/users/me/preferences')) {
-      const body = await parseRequestBody(init);
-      const cur = getSavedUser() || { email: 'hocvien@gmail.com', displayName: 'Học viên' };
-      const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
-        ...cur,
-        ...body,
-        displayName: body.displayName || body.name || cur.displayName
-      });
-      return jsonResponse({ ok: true, ...updated, user: updated });
+      return updateSupabaseProfile(await parseRequestBody(init), p.includes('/preferences') ? 'preferences' : 'profile', method);
     }
     if (p.includes('/v1/users/me/avatar')) {
-      const cur = getSavedUser() || { email: 'hocvien@gmail.com', displayName: 'Học viên' };
-      if (method === 'DELETE') {
-        const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
-          ...cur,
-          avatar: ''
-        });
-        return jsonResponse({ ok: true, ...updated, user: updated });
-      }
-      const body = await parseRequestBody(init);
-      const updated = saveAuthSession(localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT, '', {
-        ...cur,
-        avatar: body.image || body.avatar || cur.avatar
-      });
-      return jsonResponse({ ok: true, ...updated, user: updated });
+      return updateSupabaseProfile(await parseRequestBody(init), 'avatar', method);
     }
     if (p.includes('/v1/users/me/password')) {
-      return jsonResponse({ ok: true });
+      const body = await parseRequestBody(init);
+      if (typeof body.currentPassword !== 'string' || !body.currentPassword) return authErrorResponse({ status: 400, code: 'current_password_required', message: 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu.' });
+      if (typeof body.newPassword !== 'string' || body.newPassword.length < 6) return authErrorResponse({ status: 400, code: 'weak_password', message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
+      const revision = authSessionRevision;
+      const session = await getSupabaseSession();
+      if (!session) return authErrorResponse({ status: 401, code: 'unauthorized', message: 'Vui lòng đăng nhập để đổi mật khẩu.' });
+      const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === session.user.id;
+      try {
+        const verified = await requestSupabaseAuth('token?grant_type=password', { method: 'POST', body: JSON.stringify({ email: session.user.email, password: body.currentPassword }) });
+        if (!stillCurrent() || !verified.user || verified.user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        const user = await requestSupabaseAuth('user', { method: 'PUT', headers: { Authorization: `Bearer ${verified.access_token}` }, body: JSON.stringify({ password: body.newPassword, data: { xhz_has_password: true } }) });
+        if (!stillCurrent() || user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+        if (!saveAuthSession(verified.access_token, verified.refresh_token, user)) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Vui lòng đăng nhập lại bằng mật khẩu mới.' });
+        return jsonResponse({ ok: true });
+      } catch (error) { return authErrorResponse(error); }
     }
     if (p.includes('/v1/auth/') || p.includes('/v2/auth/') || p.includes('/v1/users/me') || p.includes('/v1/profile')) {
       const realSum = getRealProgressSummary();
-      const savedUser = getSavedUser();
+      const session = await getSupabaseSession();
+      const savedUser = session && session.user;
       if (savedUser) {
         const tok = localStorage.getItem('xiehanzi_access_token') || DEFAULT_JWT;
         const mergedUser = { ...savedUser, streak: realSum.streakDays };
@@ -2664,29 +3637,29 @@
       const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
       return jsonResponse({
         ok: true,
-        currentPlan: 'pro',
-        tier: 'pro',
-        plan: 'pro',
+        currentPlan: 'free',
+        tier: 'free',
+        plan: 'free',
         grading: { used: sum.gradingUsed, limit: 100, resetsAt: nextMonth },
         speaking: { used: sum.gradingUsed, limit: 100, resetsAt: nextMonth },
         companionTurns: { used: sum.voiceUsed, limit: 50, resetsAt: nextMonth },
         plans: [
           {
-            plan: 'pro',
-            titleVi: 'Gói Pro (Trọn đời)',
-            badge: 'Đang kích hoạt',
+            plan: 'free',
+            titleVi: 'Miễn phí',
+            badge: 'Bản web',
             price: 0,
-            features: ['Học không giới hạn', 'Lộ trình đầy đủ', 'Chấm phát âm AI']
+            features: ['Tra cứu và học từ vựng', 'Lộ trình học', 'Đồng bộ tiến độ']
           }
         ]
       });
     }
     if (p === '/v2/me/entitlements') {
       return jsonResponse({
-        plan: 'pro',
-        tier: 'pro',
-        isPro: true,
-        features: ['smart_error_review', 'learning_path', 'speaking_practice', 'unlimited_ai', 'voice_call', 'exam_prep'],
+        plan: 'free',
+        tier: 'free',
+        isPro: false,
+        features: ['smart_error_review', 'learning_path', 'speaking_practice', 'voice_call', 'exam_prep'],
         limits: { aiExplainPerDay: 999, speakingPerDay: 999 }
       });
     }
@@ -3715,6 +4688,7 @@
     if (p.startsWith('/v1/games/rounds/')) {
       const parts = p.split('/').filter(Boolean); // ['v1','games','rounds', roundId, action?]
       const roundId = parts[3];
+      if (!roundId) return jsonResponse({ error: 'round_not_found' }, 404);
       const action = parts[4] || '';
       let round = gameRoundsStore.get(roundId);
       if (!round) {
@@ -4618,6 +5592,11 @@
       return jsonResponse({ words: results, items });
     }
     if (p.startsWith('/v1/pinyin-lookup')) {
+      if (method === 'POST') {
+        const body = await parseRequestBody(init);
+        if (typeof body.text !== 'string' || Array.from(body.text).length > 2000) return jsonResponse({ error: 'invalid_text', message: 'Nhập tối đa 2000 ký tự.' }, 400);
+        return jsonResponse({ annotations: await annotateLocalPinyin(body.text) });
+      }
       const q = (urlObj.searchParams.get('q') || urlObj.searchParams.get('pinyin') || '').trim().toLowerCase();
       const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
       const matches = (Array.isArray(charIdx) ? charIdx : [])
@@ -4809,12 +5788,16 @@
         (paper && (paper.questions && paper.questions.length ? paper.questions : (Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : null))) ||
         body.questions ||
         [];
+      if (!Array.isArray(questions) || !questions.length) return jsonResponse({ error: 'EMPTY_EXAM', message: 'Chưa có câu hỏi để chấm bài.' }, 400);
+      if (questions.some(q => ![q.correctAnswer, q.answer, q.correctOption].some(answer => answer !== undefined && answer !== null && String(answer).trim() !== ''))) {
+        return jsonResponse({ error: 'ANSWER_KEY_UNAVAILABLE', message: 'Đề này chưa có đáp án chuẩn trong kho dữ liệu. Có thể lưu bài làm để xem lại, nhưng chưa thể tính điểm chính xác.' }, 409);
+      }
       const userAnswers = body.answers || body.userAnswers || {};
       let correctCount = 0;
       const results = questions.map((q, idx) => {
         const qId = q.id || q._id || q.number || q.questionNumber || idx + 1;
         const userAns = userAnswers[qId] !== undefined ? userAnswers[qId] : userAnswers[idx];
-        const rightAns = q.correctAnswer || q.answer || q.correctOption || 'A';
+        const rightAns = q.correctAnswer ?? q.answer ?? q.correctOption;
         const isCorrect = String(userAns || '').trim().toUpperCase() === String(rightAns || '').trim().toUpperCase();
         if (isCorrect) correctCount++;
         return {
@@ -5287,14 +6270,17 @@
       customRoot = document.createElement('div');
       customRoot.id = 'xhz-dynamic-page-root';
       customRoot.className = 'mx-auto max-w-5xl px-4 py-8';
-      customRoot.style.color = '#1c1917';
+      customRoot.style.color = 'inherit';
       if (main && main.parentNode) {
         main.parentNode.insertBefore(customRoot, main);
       } else {
         document.body.appendChild(customRoot);
       }
     }
-    customRoot.style.color = '#1c1917';
+    customRoot.style.color = 'inherit';
+    customRoot.style.width = '100%';
+    customRoot.style.boxSizing = 'border-box';
+    customRoot.style.minWidth = '0';
     return customRoot;
   }
 
@@ -5416,7 +6402,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu chữ Hán...</div>`;
     const data = await lookupCharacter(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chữ Hán cho "${decodeURIComponent(slug)}". <a href="/tu-dien" style="text-decoration:underline;margin-left:8px;">Quay lại Từ điển</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chữ Hán cho "${escapeHtml(decodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;margin-left:8px;">Quay lại Từ điển</a></div>`;
       return;
     }
     const ch = data.character || data.c || extractHanziChar(slug);
@@ -5432,11 +6418,11 @@
     const components = Array.isArray(data.components) ? data.components : [];
     const audioSrc = rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${ch}.mp3`);
 
-    document.title = `Chữ ${ch} (${pinyin} - ${hanviet}) | XieHanzi`;
+    document.title = `Chữ ${ch} (${pinyin} - ${hanviet}) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/tu-dien" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
+        <a href="/tra-chu" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #f5f5f4;padding:16px;">
@@ -5444,7 +6430,7 @@
             ${ch}
           </div>
           <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center;">
-            <button id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
+            <button id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
             <button id="xhz-btn-animate" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">✍️ Xem thứ tự nét</button>
             <button id="xhz-btn-quiz-stroke" style="padding:8px 16px;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:600;cursor:pointer;">🎯 Tập viết chữ</button>
             <button id="xhz-btn-save-notebook" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">⭐ Lưu vào Sổ tay</button>
@@ -5453,8 +6439,8 @@
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
             <span style="font-size:36px;font-weight:800;color:#1c1917;">${ch}</span>
-            <span style="font-size:22px;color:#ea580c;font-weight:700;">[${pinyin}]</span>
-            ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;text-transform:uppercase;">Hán Việt: ${hanviet}</span>` : ''}
+            <span style="font-size:22px;color:#0d9488;font-weight:700;">[${pinyin}]</span>
+            ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">Hán Việt: ${hanviet}</span>` : ''}
             ${hsk ? `<span style="padding:4px 10px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:600;font-size:13px;">HSK ${hsk}</span>` : ''}
           </div>
           <div style="font-size:18px;color:#292524;line-height:1.6;">
@@ -5501,7 +6487,7 @@
             return `<a href="/tu-vung/${encodeURIComponent(wHz)}" style="display:block;padding:12px 16px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
                 <span style="font-size:20px;font-weight:700;color:#1c1917;">${wHz}</span>
-                <span style="font-size:14px;color:#ea580c;font-weight:600;">${wPy}</span>
+                <span style="font-size:14px;color:#0d9488;font-weight:600;">${wPy}</span>
               </div>
               <div style="font-size:14px;color:#57534e;margin-top:4px;">${wMean}</div>
             </a>`;
@@ -5531,7 +6517,7 @@
         strokeAnimationSpeed: 1.2,
         delayBetweenStrokes: 180,
         strokeColor: '#1c1917',
-        radicalColor: '#ea580c'
+        radicalColor: '#0d9488'
       });
       const animBtn = document.getElementById('xhz-btn-animate');
       if (animBtn) animBtn.onclick = () => writer.animateCharacter();
@@ -5557,7 +6543,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu từ vựng...</div>`;
     const data = await lookupWord(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy từ vựng "${decodeURIComponent(slug)}". <a href="/tu-dien" style="text-decoration:underline;">Quay lại Từ điển</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy từ vựng "${escapeHtml(decodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;">Quay lại Từ điển</a></div>`;
       return;
     }
     const word = data.word || data.hanzi || decodeURIComponent(slug);
@@ -5581,19 +6567,19 @@
         `https://static.xiehanzi.com/word_audios/${encodeURIComponent(word)}.mp3`
     );
 
-    document.title = `Từ vựng ${word} (${pinyin}) - ${meaning} | XieHanzi`;
+    document.title = `Từ vựng ${word} (${pinyin}) - ${meaning} | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/tu-dien" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
+        <a href="/tra-chu" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Từ điển</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
           <div>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
               <h1 style="font-size:44px;font-weight:800;margin:0;color:#1c1917;font-family:'Noto Serif SC',serif;">${word}</h1>
-              ${pinyin ? `<span style="font-size:24px;color:#ea580c;font-weight:700;">[${pinyin}]</span>` : ''}
-              ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;text-transform:uppercase;">${hanviet}</span>` : ''}
+              ${pinyin ? `<span style="font-size:24px;color:#0d9488;font-weight:700;">[${pinyin}]</span>` : ''}
+              ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">${hanviet}</span>` : ''}
               ${pos ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-weight:700;font-size:13px;">${pos}</span>` : ''}
               ${hsk ? `<span style="padding:4px 12px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${hsk}</span>` : ''}
             </div>
@@ -5603,7 +6589,7 @@
             ${usageNote ? `<div style="margin-top:10px;padding:10px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;">💡 <strong>Cách dùng:</strong> ${usageNote}</div>` : ''}
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
+            <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
             <button id="xhz-btn-save-notebook" style="padding:10px 18px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:14px;">⭐ Lưu vào Sổ tay</button>
           </div>
         </div>
@@ -5626,7 +6612,7 @@
               return `<a href="/tu-vung/${encodeURIComponent(cwHz)}" style="padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span style="font-size:18px;font-weight:800;font-family:'Noto Serif SC',serif;">${cwHz}</span>
-                  <span style="font-size:13px;color:#ea580c;font-weight:700;">${cwPy}</span>
+                  <span style="font-size:13px;color:#0d9488;font-weight:700;">${cwPy}</span>
                 </div>
                 <div style="font-size:13px;color:#57534e;margin-top:4px;">${cwVi}</div>
               </a>`;
@@ -5645,10 +6631,10 @@
               return `<div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
                   <div style="font-size:18px;font-weight:700;color:#1c1917;">${zh}</div>
-                  <div style="font-size:14px;color:#ea580c;margin-top:2px;">${py}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:2px;">${py}</div>
                   <div style="font-size:15px;color:#44403c;margin-top:4px;">${vi}</div>
                 </div>
-                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
+                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
               </div>`;
             }).join('')}
           </div>
@@ -5671,7 +6657,7 @@
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải danh mục âm Hán Việt...</div>`;
     const index = (await loadLocalJson('/data/han-viet/index.json')) || [];
-    document.title = `Từ điển Âm Hán Việt (${index.length} âm đọc) | XieHanzi`;
+    document.title = `Từ điển Âm Hán Việt (${index.length} âm đọc) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
@@ -5693,7 +6679,7 @@
       grid.innerHTML = filtered.map(item => `
         <a href="/han-viet/${encodeURIComponent(item.slug)}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-weight:700;">
           <span style="text-transform:capitalize;">${item.reading}</span>
-          <span style="font-size:12px;color:#ea580c;">→</span>
+          <span style="font-size:12px;color:#0d9488;">→</span>
         </a>
       `).join('');
     };
@@ -5706,7 +6692,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải âm Hán Việt...</div>`;
     const data = await lookupHanViet(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy âm Hán Việt "${decodeURIComponent(slug)}". <a href="/han-viet">Xem toàn bộ danh sách</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy âm Hán Việt "${escapeHtml(decodeURIComponent(slug))}". <a href="/han-viet">Xem toàn bộ danh sách</a></div>`;
       return;
     }
     const groups = Array.isArray(data.groups) ? data.groups : [];
@@ -5714,21 +6700,21 @@
     const flatChars = groups.length > 0
       ? groups.flatMap(g => Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []))
       : (Array.isArray(data.characters) ? data.characters : (data.sampleChars || []));
-    document.title = `Âm Hán Việt "${reading.toUpperCase()}" (${flatChars.length} chữ) | XieHanzi`;
+    document.title = `Âm Hán Việt "${reading.toUpperCase()}" (${flatChars.length} chữ) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/han-viet" style="color:#ea580c;font-weight:600;text-decoration:none;">← Danh sách Âm Hán Việt</a>
+        <a href="/han-viet" style="color:#0d9488;font-weight:600;text-decoration:none;">← Danh sách Âm Hán Việt</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#ea580c;text-transform:uppercase;">${reading}</span> (${flatChars.length} chữ Hán)</h1>
+        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#0d9488;text-transform:uppercase;">${reading}</span> (${flatChars.length} chữ Hán)</h1>
         <p style="color:#57534e;margin:0 0 20px 0;">Nhấn vào bất kỳ chữ Hán nào bên dưới để xem thứ tự nét viết, chiết tự và từ ghép thông dụng.</p>
         ${groups.length > 0 ? groups.map(g => {
           const gChars = Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []);
           const gWords = Array.isArray(g.words) ? g.words : [];
           return `
           <div style="margin-bottom:24px;">
-            <div style="font-size:15px;font-weight:800;color:#9a3412;background:#fff7ed;border:1px solid #fed7aa;display:inline-block;padding:5px 14px;border-radius:999px;margin-bottom:12px;">
+            <div style="font-size:15px;font-weight:800;color:#115e59;background:#f0fdfa;border:1px solid #99f6e4;display:inline-block;padding:5px 14px;border-radius:999px;margin-bottom:12px;">
               Âm đọc: ${(g.reading || g.pinyin || reading).toUpperCase()} (${gChars.length} chữ Hán${gWords.length ? ` · ${gWords.length} từ ghép` : ''})
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">
@@ -5740,7 +6726,7 @@
                   <div style="display:flex;justify-content:space-between;align-items:center;">
                     <span style="font-size:34px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</span>
                     <div style="text-align:right;">
-                      <div style="color:#ea580c;font-weight:800;font-size:15px;">${c.pinyin || g.pinyin || ''}</div>
+                      <div style="color:#0d9488;font-weight:800;font-size:15px;">${c.pinyin || g.pinyin || ''}</div>
                       ${c.hskLevel ? `<span style="font-size:11px;padding:1px 6px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${c.hskLevel}</span>` : ''}
                     </div>
                   </div>
@@ -5761,7 +6747,7 @@
               return `<a href="/han-tu/${encodeURIComponent(c.character || c.c)}" style="padding:14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
                   <span style="font-size:28px;font-weight:800;color:#1c1917;">${c.character || c.c}</span>
-                  <span style="color:#ea580c;font-weight:700;">${c.pinyin || c.p || ''}</span>
+                  <span style="color:#0d9488;font-weight:700;">${c.pinyin || c.p || ''}</span>
                 </div>
                 <div style="font-size:14px;color:#57534e;margin-top:6px;">${c.meaningVi || c.m || ''}</div>
               </a>`;
@@ -5801,21 +6787,21 @@
     const tips = Array.isArray(item.grammar_tips) ? item.grammar_tips : [];
     const attentions = Array.isArray(item.grammar_attentions) ? item.grammar_attentions : [];
     const keywords = Array.isArray(item.keywords) ? item.keywords : [];
-    document.title = `${title} - Ngữ pháp ${item.level || levelSlug.toUpperCase()} | XieHanzi`;
+    document.title = `${title} - Ngữ pháp ${item.level || levelSlug.toUpperCase()} | Học Tiếng Trung`;
     const examples = Array.isArray(item.example) ? item.example : (Array.isArray(item.examples) ? item.examples : []);
 
     root.innerHTML = `
       <div style="margin-bottom:16px;">
-        <a href="/ngu-phap" style="color:#ea580c;font-weight:600;text-decoration:none;">← Quay lại Thư viện Ngữ pháp</a>
+        <a href="/ngu-phap" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Thư viện Ngữ pháp</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;">
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-          <span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:700;font-size:13px;">${(item.level || levelSlug).toUpperCase()}</span>
+          <span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;font-size:13px;">${(item.level || levelSlug).toUpperCase()}</span>
           ${item.type || item.category ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-size:13px;font-weight:600;">${item.type || item.category}</span>` : ''}
           ${keywords.map(kw => `<span style="padding:4px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:700;font-size:13px;">Từ khoá: ${kw}</span>`).join('')}
         </div>
         <h1 style="font-size:30px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">${title}</h1>
-        ${syntax ? `<div style="padding:14px 18px;background:#fff7ed;border-left:4px solid #ea580c;border-radius:10px;font-size:17px;font-weight:700;color:#9a3412;margin-bottom:16px;white-space:pre-line;">📐 Cấu trúc:\n${syntax}</div>` : ''}
+        ${syntax ? `<div style="padding:14px 18px;background:#f0fdfa;border-left:4px solid #0d9488;border-radius:10px;font-size:17px;font-weight:700;color:#115e59;margin-bottom:16px;white-space:pre-line;">📐 Cấu trúc:\n${syntax}</div>` : ''}
         <div style="font-size:16px;line-height:1.75;color:#292524;margin-bottom:20px;white-space:pre-line;">
           ${explanation}
         </div>
@@ -5843,10 +6829,10 @@
               <div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
                   <div style="font-size:19px;font-weight:700;color:#1c1917;">${zh}</div>
-                  <div style="font-size:14px;color:#ea580c;margin-top:3px;">${ex.pinyin || ''}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:3px;">${ex.pinyin || ''}</div>
                   <div style="font-size:15px;color:#44403c;margin-top:4px;">${ex.vietnamese || ex.meaningVi || ''}</div>
                 </div>
-                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fed7aa;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
+                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
               </div>
             `;
           }).join('')}
@@ -5864,6 +6850,7 @@
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tạo đề kiểm tra ngữ pháp...</div>`;
 
     const tracksParam = (searchParams.get('tracks') || 'new-hsk1').split(',').filter(Boolean);
+    const grammarId = searchParams.get('grammarId') || '';
     const count = Math.max(1, Math.min(100, Number(searchParams.get('count')) || 20));
     const typesParam = (searchParams.get('types') || 'mcq,translate_zh_vi,translate_vi_zh').split(',').filter(Boolean);
 
@@ -5875,48 +6862,72 @@
         allQuestions.push(...qData.questions.filter(q => typesParam.includes(q.type)));
       }
     }
-    if (allQuestions.length === 0) {
+    let grammarPoint = null;
+    if (grammarId) {
+      allQuestions = allQuestions.filter(question => question.grammarId === grammarId);
+      const grammarLevel = (grammarId.match(/\d+/) || ['1'])[0];
+      const grammarIsNew = /_new_|^new-/.test(grammarId);
+      const grammarData = await loadLocalJson(`/data/grammar/${grammarIsNew ? 'new-hsk' : 'hsk'}-level-${grammarLevel}.json`);
+      grammarPoint = grammarData && Array.isArray(grammarData.items) ? grammarData.items.find(item => item.id === grammarId) : null;
+      if (!grammarPoint) {
+        root.innerHTML = `<h1>Không tìm thấy chủ điểm ngữ pháp</h1><p>${escapeHtml(grammarId)}</p><a href="/ngu-phap">Quay lại ngữ pháp</a>`;
+        return;
+      }
+      for (const [index, example] of (grammarPoint.example || []).entries()) {
+        if (!example.chinese || !example.vietnamese) continue;
+        for (const type of ['translate_zh_vi', 'translate_vi_zh']) {
+          if (!typesParam.includes(type)) continue;
+          const prompt = type === 'translate_zh_vi' ? example.chinese : example.vietnamese;
+          if (allQuestions.some(question => question.type === type && question.prompt === prompt)) continue;
+          allQuestions.push({ questionId: `${grammarId}_example_${index}_${type}`, grammarId, type, prompt,
+            answer: type === 'translate_zh_vi' ? example.vietnamese : example.chinese,
+            explanation: grammarPoint.grammar_explanation || '' });
+        }
+      }
+    }
+    if (allQuestions.length === 0 && !grammarId) {
       const fallback = await loadLocalJson('/data/grammar/quiz-new-hsk1.json');
       if (fallback && Array.isArray(fallback.questions)) {
         allQuestions = fallback.questions;
       }
     }
     const questions = allQuestions.slice(0, count);
-    document.title = `Kiểm tra ngữ pháp (${questions.length} câu) | XieHanzi`;
+    document.title = `${grammarPoint ? `Luyện tập: ${grammarPoint.topic}` : 'Kiểm tra ngữ pháp'} (${questions.length} câu) | Học Tiếng Trung`;
     root = getMainContentContainer();
 
     root.innerHTML = `
       <style>
-        .xhz-gq-shell { margin: -24px -16px 0 -16px; background: #edeae2; min-height: calc(100vh - 64px); padding-bottom: 48px; color: #1c1917; font-family: inherit; }
-        .xhz-gq-topbar { position: sticky; top: 0; z-index: 35; background: rgba(245, 242, 235, 0.96); backdrop-filter: blur(8px); border-bottom: 1px solid #dfd9cd; padding: 12px 24px; }
+        .xhz-gq-shell { margin: -24px -16px 0 -16px; background: #edf6f5; min-height: calc(100vh - 64px); padding-bottom: 48px; color: #1c1917; font-family: inherit; }
+        .xhz-gq-topbar { position: sticky; top: 0; z-index: 35; background: rgba(240, 250, 249, 0.96); backdrop-filter: blur(8px); border-bottom: 1px solid #d3eae7; padding: 12px 24px; }
         .xhz-gq-topbar-inner { max-width: 1120px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
         .xhz-gq-body { max-width: 1120px; margin: 24px auto 0; padding: 0 20px; display: grid; grid-template-columns: minmax(0, 1fr) 250px; gap: 24px; align-items: start; }
         @media (max-width: 900px) {
           .xhz-gq-body { grid-template-columns: 1fr; }
           .xhz-gq-sidebar { position: static !important; order: -1; }
         }
-        .xhz-gq-qcard { background: #f5f2eb; border: 1px solid #e2ddd2; border-radius: 18px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03); scroll-margin-top: 84px; transition: border-color 0.2s; }
-        .xhz-gq-qcard.is-active { border-color: #d6cfc2; }
+        .xhz-gq-qcard { background: #ffffff; border: 1px solid #cde5e2; border-radius: 18px; padding: 22px 24px; box-shadow: 0 2px 8px rgba(28, 25, 23, 0.03); scroll-margin-top: 84px; transition: border-color 0.2s; }
+        .xhz-gq-qcard.is-active { border-color: #bde0dc; }
         .xhz-gq-opts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
         @media (max-width: 640px) {
           .xhz-gq-opts { grid-template-columns: 1fr; }
         }
-        .xhz-gq-opt { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid #dfd9cd; background: #faf8f4; color: #1c1917; font-size: 15px; font-weight: 500; text-align: left; cursor: pointer; transition: all 0.15s; }
-        .xhz-gq-opt:hover { border-color: #b91c1c; background: #fff; }
-        .xhz-gq-opt-letter { width: 26px; height: 26px; border-radius: 999px; border: 1px solid #d0c9bc; background: #f5f2eb; color: #57534e; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
-        .xhz-gq-opt.is-selected { border-color: #b91c1c; background: #fef2f2; color: #7f1d1d; font-weight: 700; }
-        .xhz-gq-opt.is-selected .xhz-gq-opt-letter { background: #b91c1c; border-color: #b91c1c; color: #fff; }
+        .xhz-gq-opt { display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 12px; border: 1px solid #d3eae7; background: #f2fbfa; color: #1c1917; font-size: 15px; font-weight: 500; text-align: left; cursor: pointer; transition: all 0.15s; }
+        .xhz-gq-opt:hover { border-color: #0d9488; background: #fff; }
+        .xhz-gq-opt-letter { width: 26px; height: 26px; border-radius: 999px; border: 1px solid #99d5ce; background: #ffffff; color: #57534e; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .xhz-gq-opt.is-selected { border-color: #0d9488; background: #f0fdfa; color: #115e59; font-weight: 700; }
+        .xhz-gq-opt.is-selected .xhz-gq-opt-letter { background: #0d9488; border-color: #0d9488; color: #fff; }
         .xhz-gq-opt.is-correct { border-color: #16a34a !important; background: #dcfce7 !important; color: #14532d !important; font-weight: 700; }
         .xhz-gq-opt.is-correct .xhz-gq-opt-letter { background: #16a34a !important; border-color: #16a34a !important; color: #fff !important; }
         .xhz-gq-opt.is-wrong { border-color: #dc2626 !important; background: #fee2e2 !important; color: #7f1d1d !important; }
         .xhz-gq-opt.is-wrong .xhz-gq-opt-letter { background: #dc2626 !important; border-color: #dc2626 !important; color: #fff !important; }
-        .xhz-gq-nav-btn { height: 36px; border-radius: 10px; border: 1.5px solid transparent; background: #dfd9cd; color: #44403c; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.15s; }
+        .xhz-gq-nav-btn { height: 36px; border-radius: 10px; border: 1.5px solid transparent; background: #d3eae7; color: #44403c; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; transition: all 0.15s; }
         .xhz-gq-nav-btn:hover { opacity: 0.9; }
-        .xhz-gq-nav-btn.is-current { border-color: #b91c1c; background: #efeae0; color: #1c1917; }
-        .xhz-gq-nav-btn.is-answered { background: #b91c1c; color: #fff; }
-        .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #f5f2eb; }
+        .xhz-gq-nav-btn.is-current { border-color: #0d9488; background: #d9f2ef; color: #1c1917; }
+        .xhz-gq-nav-btn.is-answered { background: #0d9488; color: #fff; }
+        .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #ffffff; }
       </style>
       <div class="xhz-gq-shell">
+        ${grammarPoint ? `<div style="max-width:1120px;margin:auto;padding:20px;"><a href="/ngu-phap/${/_new_|^new-/.test(grammarId) ? 'new-hsk-' : ''}${(grammarId.match(/\d+/) || ['1'])[0]}/${encodeURIComponent(grammarId)}">← Xem lý thuyết</a><h1 style="font-size:24px;font-weight:800;margin:12px 0;">Luyện tập: ${escapeHtml(grammarPoint.topic)}</h1><p>${questions.length} câu hỏi từ chủ điểm này và các ví dụ có trong dữ liệu.</p></div>` : ''}
         <div class="xhz-gq-topbar">
           <div class="xhz-gq-topbar-inner">
             <div style="display:flex;align-items:center;gap:18px;">
@@ -5929,8 +6940,8 @@
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #d6cfc2;background:#f5f2eb;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
-              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#b91c1c;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(185,28,28,0.25);">Nộp bài</button>
+              <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #bde0dc;background:#ffffff;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
+              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(185,28,28,0.25);">Nộp bài</button>
             </div>
           </div>
         </div>
@@ -5939,12 +6950,12 @@
 
         <div class="xhz-gq-body">
           <div id="xhz-gq-list" style="display:flex;flex-direction:column;gap:18px;"></div>
-          <div class="xhz-gq-sidebar" style="position:sticky;top:76px;background:#f5f2eb;border:1px solid #e2ddd2;border-radius:18px;padding:18px;">
+          <div class="xhz-gq-sidebar" style="position:sticky;top:76px;background:#ffffff;border:1px solid #cde5e2;border-radius:18px;padding:18px;">
             <div style="font-size:14px;font-weight:800;color:#1c1917;margin-bottom:12px;">Câu hỏi</div>
             <div id="xhz-gq-nav-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;"></div>
-            <div style="margin-top:16px;padding-top:12px;border-top:1px solid #e5e0d5;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#57534e;">
+            <div style="margin-top:16px;padding-top:12px;border-top:1px solid #d3eae7;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#57534e;">
               <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#b91c1c;display:inline-block;"></span> Đã trả lời</div>
-              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#dfd9cd;display:inline-block;"></span> Chưa trả lời</div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#d3eae7;display:inline-block;"></span> Chưa trả lời</div>
               <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#d97706;display:inline-block;"></span> Đã đánh dấu</div>
             </div>
           </div>
@@ -6037,10 +7048,10 @@
       const topRowHtml = `
         <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="width:28px;height:28px;border-radius:999px;background:#f9dada;color:#b91c1c;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;">${idx + 1}</span>
+            <span style="width:28px;height:28px;border-radius:999px;background:#ccfbf1;color:#0d9488;font-weight:800;font-size:13px;display:inline-flex;align-items:center;justify-content:center;">${idx + 1}</span>
             <span style="font-size:13px;color:#78716c;font-weight:600;">${typeLabel}</span>
           </div>
-          <button type="button" class="xhz-gq-flag-btn" title="Đánh dấu câu hỏi" style="width:36px;height:36px;border-radius:10px;border:1px solid #dfd9cd;background:#faf8f4;color:#78716c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
+          <button type="button" class="xhz-gq-flag-btn" title="Đánh dấu câu hỏi" style="width:36px;height:36px;border-radius:10px;border:1px solid #d3eae7;background:#f2fbfa;color:#78716c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
           </button>
         </div>
@@ -6090,7 +7101,7 @@
           </div>
           ${q.promptPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${q.promptPinyin}</div>` : ''}
           <div style="margin-top:12px;">
-            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #dfd9cd;font-size:15px;color:#1c1917;background:#faf8f4;box-sizing:border-box;" />
+            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #d3eae7;font-size:15px;color:#1c1917;background:#f2fbfa;box-sizing:border-box;" />
           </div>
           <div class="xhz-gq-exp" style="display:none;margin-top:14px;padding:12px 16px;border-radius:12px;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;font-size:14px;line-height:1.5;"></div>
         `;
@@ -6119,8 +7130,8 @@
           if (flaggedSet.has(idx)) {
             flaggedSet.delete(idx);
             flagBtn.style.color = '#78716c';
-            flagBtn.style.borderColor = '#dfd9cd';
-            flagBtn.style.background = '#faf8f4';
+            flagBtn.style.borderColor = '#d3eae7';
+            flagBtn.style.background = '#f2fbfa';
           } else {
             flaggedSet.add(idx);
             flagBtn.style.color = '#d97706';
@@ -6153,7 +7164,7 @@
           resultBanner.innerHTML = `
             <div style="background:#fff;border:2px solid #b91c1c;border-radius:18px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;box-shadow:0 8px 24px rgba(185,28,28,0.08);">
               <div>
-                <div style="font-size:13px;font-weight:800;color:#b91c1c;text-transform:uppercase;">Kết quả bài kiểm tra ngữ pháp</div>
+                <div style="font-size:13px;font-weight:800;color:#0d9488;text-transform:uppercase;">Kết quả bài kiểm tra ngữ pháp</div>
                 <div style="font-size:26px;font-weight:800;color:#1c1917;margin-top:4px;">Đúng ${totalRight} / ${questions.length} câu (${pct}%)</div>
                 <div style="font-size:14px;color:#57534e;margin-top:2px;">Xem giải thích chi tiết ở từng câu bên dưới.</div>
               </div>
@@ -6191,7 +7202,7 @@
             }
           } else if (expEl) {
             expEl.style.display = 'block';
-            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${q.referenceAnswer || ''}${q.referencePinyin ? `<br/><span style="color:#ea580c;">Pinyin: ${q.referencePinyin}</span>` : ''}`;
+            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${q.referenceAnswer || ''}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${q.referencePinyin}</span>` : ''}`;
           }
         });
 
@@ -6259,10 +7270,10 @@
         return { ...it, wordCount: wc, learnedCount: lc, progressPct: pct };
       }));
 
-      document.title = `${levelObj.name || levelSlug} - ${brandTitle} | XieHanzi`;
+      document.title = `${levelObj.name || levelSlug} - ${brandTitle} | Học Tiếng Trung`;
       root.innerHTML = `
         <div style="margin-bottom:16px;">
-          <a href="/${rootSlug}" style="color:#2563eb;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
+          <a href="/${rootSlug}" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
           <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📘 ${levelObj.name || levelSlug.toUpperCase()}</h1>
@@ -6330,10 +7341,10 @@
 
     if (isPractice && words.length > 0) {
       const startQuizMode = lastSeg === 'luyen-tap' || lastSeg === 'practice';
-      document.title = `Luyện tập: ${title} - ${levelLabel} | XieHanzi`;
+      document.title = `Luyện tập: ${title} - ${levelLabel} | Học Tiếng Trung`;
       root.innerHTML = `
         <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <a href="${baseDetailUrl}" style="color:#2563eb;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
+          <a href="${baseDetailUrl}" style="color:#0d9488;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
           <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${levelLabel}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
@@ -6343,7 +7354,7 @@
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chế độ Flashcard lật thẻ & Trắc nghiệm nhanh (${words.length} từ vựng)</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#2563eb;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
+              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
               <button id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
               <button id="xhz-mode-typing" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">⌨️ Gõ Pinyin &amp; Chữ Hán</button>
             </div>
@@ -6371,7 +7382,7 @@
         stage.innerHTML = `
           <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 0;">
             <div style="font-size:14px;font-weight:700;color:#78716c;">Thẻ ${idx + 1} / ${words.length}</div>
-            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #bfdbfe;background:#eff6ff;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,0.08);transition:all 0.2s;">
+            <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #99f6e4;background:#f0fdfa;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,0.08);transition:all 0.2s;">
               <div style="font-size:64px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</div>
               <div style="font-size:22px;font-weight:700;color:#2563eb;margin-top:8px;">${py}</div>
               ${flipped ? `
@@ -6384,8 +7395,8 @@
             </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
               <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
-              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#dbeafe;color:#1e40af;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
-              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
+              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
               <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
               <button id="xhz-fc-done-all" style="padding:10px 18px;border-radius:12px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành & Lưu tiến độ</button>
             </div>
@@ -6435,9 +7446,9 @@
         let score = 0;
         const answered = new Set();
         stage.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding:12px 16px;border-radius:12px;background:#eff6ff;color:#1e40af;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#f0fdfa;color:#115e59;">
             <div id="xhz-curr-quiz-score" style="font-weight:800;">Điểm số: 0 / ${words.length}</div>
-            <button id="xhz-curr-quiz-finish" style="padding:8px 16px;border-radius:999px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">✅ Hoàn thành bài tập & Lưu tiến độ</button>
+            <button id="xhz-curr-quiz-finish" style="padding:8px 16px;border-radius:999px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">✅ Hoàn thành bài tập &amp; Lưu tiến độ</button>
           </div>
           <div id="xhz-curr-quiz-list" style="display:flex;flex-direction:column;gap:14px;"></div>
         `;
@@ -6484,7 +7495,7 @@
                 <span style="font-size:24px;font-weight:800;color:#1c1917;">${hz}</span>
                 <span style="font-size:15px;color:#2563eb;font-weight:600;margin-left:8px;">[${py}]</span>
               </div>
-              <button class="xhz-q-speak" style="border:none;background:#dbeafe;color:#1e40af;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
+              <button class="xhz-q-speak" style="border:none;background:#ccfbf1;color:#115e59;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
             </div>
             <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;"></div>
           `;
@@ -6558,16 +7569,16 @@
             <div style="padding:24px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-align:center;">
               <div style="font-size:13px;font-weight:700;color:#78716c;text-transform:uppercase;">Nghĩa tiếng Việt</div>
               <div style="font-size:26px;font-weight:800;color:#1c1917;margin:8px 0;">${vi}</div>
-              ${hv ? `<div style="font-size:13px;color:#2563eb;font-weight:700;">Hán Việt: ${hv}</div>` : ''}
-              <div id="xhz-ty-hint-box" style="display:none;margin-top:8px;font-size:16px;color:#1d4ed8;font-weight:700;">${hz} · ${py}</div>
+              ${hv ? `<div style="font-size:13px;color:#0d9488;font-weight:700;">Hán Việt: ${hv}</div>` : ''}
+              <div id="xhz-ty-hint-box" style="display:none;margin-top:8px;font-size:16px;color:#0d9488;font-weight:700;">${hz} · ${py}</div>
               <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
-                <button id="xhz-ty-speak" style="padding:8px 14px;border-radius:999px;border:none;background:#dbeafe;color:#1e40af;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+                <button id="xhz-ty-speak" style="padding:8px 14px;border-radius:999px;border:none;background:#f0fdfa;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
                 <button id="xhz-ty-hint" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;">💡 Hiện gợi ý</button>
               </div>
             </div>
             <div style="display:flex;gap:8px;">
               <input id="xhz-typing-input" type="text" placeholder="Gõ chữ Hán (${hz.slice(0, 1)}...) hoặc Pinyin (vd: ni hao)" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;outline:none;" />
-              <button id="xhz-ty-check" style="padding:12px 20px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;">Kiểm tra</button>
+              <button id="xhz-ty-check" style="padding:12px 20px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;">Kiểm tra</button>
             </div>
             <div id="xhz-ty-feedback" style="min-height:24px;font-size:14px;font-weight:700;"></div>
             <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
@@ -6630,7 +7641,7 @@
         [btnFc, btnQz, btnTy].forEach(b => {
           if (!b) return;
           const isAct = b === activeBtn;
-          b.style.background = isAct ? '#2563eb' : '#f5f5f4';
+          b.style.background = isAct ? '#0d9488' : '#f5f5f4';
           b.style.color = isAct ? '#fff' : '#1c1917';
           b.style.border = isAct ? 'none' : '1px solid #d6d3d1';
         });
@@ -6669,13 +7680,13 @@
     const audioCount = words.filter(w => w.audioUrl || w.hanzi || w.word).length;
     const allHzString = words.map(w => (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '')).join('');
 
-    document.title = `${title} - ${levelLabel} | XieHanzi`;
+    document.title = `${title} - ${levelLabel} | Học Tiếng Trung`;
 
     root.innerHTML = `
       <style>
         .xhz-curr-hero {
           margin: -24px calc(50% - 50vw) 24px calc(50% - 50vw);
-          background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 55%, #1e40af 100%);
+          background: linear-gradient(135deg, #0d9488 0%, #0f766e 52%, #312e81 100%);
           color: #fff;
           padding: 28px 24px 22px;
           position: relative;
@@ -6722,8 +7733,8 @@
           .xhz-curr-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         }
         .xhz-curr-wcard {
-          background: #faf8f5;
-          border: 1px solid #e5e0d5;
+          background: #f2fbfa;
+          border: 1px solid #d3eae7;
           border-radius: 16px;
           padding: 18px 16px 14px;
           display: flex;
@@ -6798,16 +7809,16 @@
       <div style="max-width:1200px;margin:0 auto;">
         <div class="xhz-curr-toolbar">
           <div style="flex:1;min-width:240px;position:relative;">
-            <input id="xhz-curr-search" type="text" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:14px;box-sizing:border-box;" />
+            <input id="xhz-curr-search" type="text" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:14px;box-sizing:border-box;" />
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-            <div style="display:inline-flex;align-items:center;background:#ebe6dc;padding:3px;border-radius:999px;gap:4px;">
-              <button type="button" id="xhz-filter-all" style="padding:5px 12px;border-radius:999px;border:none;background:#dc2626;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Tất cả · ${words.length}</button>
+            <div style="display:inline-flex;align-items:center;background:#dcf0ee;padding:3px;border-radius:999px;gap:4px;">
+              <button type="button" id="xhz-filter-all" style="padding:5px 12px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Tất cả · ${words.length}</button>
               <button type="button" id="xhz-filter-audio" style="padding:5px 10px;border-radius:999px;border:none;background:transparent;color:#44403c;font-size:12px;font-weight:700;cursor:pointer;">🔊 ${audioCount}</button>
               <button type="button" id="xhz-filter-learned" style="padding:5px 10px;border-radius:999px;border:none;background:transparent;color:#44403c;font-size:12px;font-weight:700;cursor:pointer;">✓ <span id="xhz-learned-pill-cnt">0</span></button>
             </div>
-            <button type="button" id="xhz-toggle-pinyin" style="padding:7px 14px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn pinyin</button>
-            <button type="button" id="xhz-toggle-meaning" style="padding:7px 14px;border-radius:999px;border:1px solid #dfd9cd;background:#faf8f5;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn nghĩa</button>
+            <button type="button" id="xhz-toggle-pinyin" style="padding:7px 14px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn pinyin</button>
+            <button type="button" id="xhz-toggle-meaning" style="padding:7px 14px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:13px;font-weight:600;cursor:pointer;">👁 Ẩn nghĩa</button>
           </div>
         </div>
 
@@ -6877,8 +7888,8 @@
             <div class="xhz-wcard-vi" style="font-size:15px;font-weight:700;color:#1c1917;margin-top:6px;line-height:1.35;transition:opacity 0.15s;">${vi}</div>
           </div>
           <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:12px;min-height:24px;">
-            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#e7e2d8;color:#57534e;">${hskTag}</span>` : ''}</span>
-            <button type="button" class="xhz-wcard-heart" title="${isLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}" style="border:none;background:transparent;color:${isLearned ? '#dc2626' : '#78716c'};cursor:pointer;font-size:16px;padding:2px 4px;">
+            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#d7ebe9;color:#57534e;">${hskTag}</span>` : ''}</span>
+            <button type="button" class="xhz-wcard-heart" title="${isLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}" style="border:none;background:transparent;color:${isLearned ? '#0d9488' : '#78716c'};cursor:pointer;font-size:16px;padding:2px 4px;">
               ${isLearned ? '♥' : '♡'}
             </button>
           </div>
@@ -6922,7 +7933,7 @@
         [btnFilterLearned, 'learned']
       ].forEach(([btn, m]) => {
         if (!btn) return;
-        btn.style.background = m === mode ? '#dc2626' : 'transparent';
+        btn.style.background = m === mode ? '#0d9488' : 'transparent';
         btn.style.color = m === mode ? '#fff' : '#44403c';
       });
       renderGrid();
@@ -6936,14 +7947,14 @@
     if (btnTogglePy) {
       btnTogglePy.onclick = () => {
         const hidden = gridEl.classList.toggle('hide-pinyin');
-        btnTogglePy.style.background = hidden ? '#1c1917' : '#faf8f5';
+        btnTogglePy.style.background = hidden ? '#1c1917' : '#f2fbfa';
         btnTogglePy.style.color = hidden ? '#fff' : '#1c1917';
       };
     }
     if (btnToggleVi) {
       btnToggleVi.onclick = () => {
         const hidden = gridEl.classList.toggle('hide-meaning');
-        btnToggleVi.style.background = hidden ? '#1c1917' : '#faf8f5';
+        btnToggleVi.style.background = hidden ? '#1c1917' : '#f2fbfa';
         btnToggleVi.style.color = hidden ? '#fff' : '#1c1917';
       };
     }
@@ -7036,19 +8047,46 @@
 
     function normalizePinyinCompare(str) {
       return String(str || '')
+        .replace(/u:/gi, 'ü')
         .normalize('NFD')
+        .replace(/u\u0308/gi, 'v')
         .replace(/[\u0300-\u036f]/g, '')
         .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '');
+        .replace(/[1-5]/g, '')
+        .replace(/[^a-z]+/g, '');
     }
 
     function normalizeHanziCompare(str) {
       return Array.from(String(str || '')).filter(c => /[\u4e00-\u9fffA-Za-z0-9]/.test(c)).join('');
     }
 
+    function getDictationBlankTargets(seg) {
+      const chars = Array.from(seg.hanzi || '').filter(ch => /[\u4e00-\u9fff]/.test(ch));
+      const raw = Array.isArray(seg.blankCharIdx) ? seg.blankCharIdx : [seg.blankCharIdx];
+      let indices = [...new Set(raw.filter(value => typeof value === 'number' && Number.isInteger(value) && value >= 0 && value < chars.length))].sort((a, b) => a - b);
+      if (!indices.length && chars.length) indices = [0];
+      const syllables = String(seg.pinyin || '').match(/[\p{Script=Latin}\p{M}0-9:]+/gu) || [];
+      const units = String(seg.hanzi || '').match(/[\u4e00-\u9fff]|[A-Za-z0-9]+/g) || [];
+      const pinyinByChar = [];
+      if (syllables.length === units.length) {
+        units.forEach((unit, index) => { if (/[\u4e00-\u9fff]/.test(unit)) pinyinByChar.push(syllables[index]); });
+      } else if (syllables.length === chars.length) {
+        pinyinByChar.push(...syllables);
+      }
+      return indices.map(index => ({ index, hanzi: chars[index], pinyin: pinyinByChar[index] || '' }));
+    }
+
+    function isDictationBlankCorrect(target, input, usePinyin) {
+      const value = String(input || '').trim();
+      if (!value) return false;
+      if (value === target.hanzi) return true;
+      const isPinyin = /^[\p{Script=Latin}\p{M}]+[1-5]?$/u.test(value.replace(/u:/gi, 'ü'));
+      return Boolean(usePinyin && isPinyin && target.pinyin && normalizePinyinCompare(value) && normalizePinyinCompare(value) === normalizePinyinCompare(target.pinyin));
+    }
+
     const hskColors = {
       1: 'background:#fef3c7;color:#92400e;',
-      2: 'background:#ffedd5;color:#9a3412;',
+      2: 'background:#ccfbf1;color:#115e59;',
       3: 'background:#ffe4e6;color:#9f1239;',
       4: 'background:#ede9fe;color:#5b21b6;',
       5: 'background:#e0f2fe;color:#075985;',
@@ -7056,7 +8094,7 @@
     };
     const hskBadgeStyle = hskColors[video.hskLevel] || hskColors[1];
 
-    document.title = `${video.seoTitle || video.title || 'Luyện chép chính tả'} | XieHanzi`;
+    document.title = `${video.seoTitle || video.title || 'Luyện chép chính tả'} | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div class="mx-auto max-w-6xl" style="color:#1c1917;">
@@ -7079,7 +8117,7 @@
           <div style="grid-column:span 1;min-width:0;display:flex;flex-direction:column;gap:16px;" id="xhz-dict-left-col">
             <!-- Video Container -->
             <div>
-              <div id="xhz-dict-listen-banner" style="display:none;align-items:center;justify-content:center;gap:12px;border-radius:16px;border:1px solid #fde68a;background:#fffbeb;padding:28px 16px;text-align:center;">
+              <div id="xhz-dict-listen-banner" style="display:none;align-items:center;justify-content:center;gap:12px;border-radius:16px;border:1px solid #99f6e4;background:#f0fdfa;padding:28px 16px;text-align:center;">
                 <span style="font-size:28px;">🎧</span>
                 <div style="text-align:left;">
                   <p style="margin:0;font-size:14px;font-weight:700;color:#78350f;">Đang ở chế độ chỉ nghe</p>
@@ -7099,15 +8137,15 @@
                   <button type="button" id="xhz-dict-btn-play-seg" style="display:inline-flex;align-items:center;gap:6px;border-radius:8px;background:#1c1917;color:#fff;border:none;padding:6px 12px;font-weight:700;cursor:pointer;font-size:12px;">
                     ▶ Phát câu này
                   </button>
-                  <button type="button" id="xhz-dict-btn-tts-seg" style="display:inline-flex;align-items:center;gap:4px;border-radius:8px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px;" title="Đọc phát âm mẫu câu này">
+                  <button type="button" id="xhz-dict-btn-tts-seg" style="display:inline-flex;align-items:center;gap:4px;border-radius:8px;background:#f0fdfa;color:#115e59;border:1px solid #99f6e4;padding:6px 10px;font-weight:700;cursor:pointer;font-size:12px;" title="Đọc phát âm mẫu câu này">
                     🔊 Đọc mẫu
                   </button>
                   <label style="display:inline-flex;align-items:center;gap:4px;color:#44403c;cursor:pointer;font-weight:600;">
-                    <input type="checkbox" id="xhz-dict-chk-loop" style="accent-color:#d97706;" />
+                    <input type="checkbox" id="xhz-dict-chk-loop" style="accent-color:#0d9488;" />
                     Lặp câu
                   </label>
                   <label style="display:inline-flex;align-items:center;gap:4px;color:#44403c;cursor:pointer;font-weight:600;">
-                    <input type="checkbox" id="xhz-dict-chk-mask" style="accent-color:#d97706;" />
+                    <input type="checkbox" id="xhz-dict-chk-mask" style="accent-color:#0d9488;" />
                     Ẩn phụ đề
                   </label>
                 </div>
@@ -7127,7 +8165,7 @@
                 <span id="xhz-dict-done-label">0/${segments.length} đã xong</span>
               </div>
               <div style="height:6px;width:100%;overflow:hidden;border-radius:999px;background:#e7e5e4;">
-                <div id="xhz-dict-prog-bar" style="height:100%;background:#d97706;width:0%;transition:width 0.25s;"></div>
+                <div id="xhz-dict-prog-bar" style="height:100%;background:#0d9488;width:0%;transition:width 0.25s;"></div>
               </div>
             </div>
 
@@ -7141,7 +8179,7 @@
                   <button type="button" class="xhz-dict-mode-btn" data-mode="listen" style="border-radius:8px;padding:6px 12px;font-weight:700;border:none;cursor:pointer;">Chỉ nghe</button>
                 </div>
                 <label id="xhz-dict-pinyin-wrap" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#44403c;cursor:pointer;font-weight:600;">
-                  <input type="checkbox" id="xhz-dict-chk-pinyin" style="accent-color:#d97706;" />
+                  <input type="checkbox" id="xhz-dict-chk-pinyin" style="accent-color:#0d9488;" />
                   Gõ pinyin
                 </label>
               </div>
@@ -7162,7 +8200,7 @@
               </div>
             </div>
             <div style="display:flex;gap:8px;margin-bottom:10px;">
-              <button type="button" id="xhz-dict-next-unattempted" style="flex:1;border-radius:8px;border:1px solid #fde68a;background:#fffbeb;padding:6px 10px;font-size:12px;font-weight:700;color:#92400e;cursor:pointer;">
+              <button type="button" id="xhz-dict-next-unattempted" style="flex:1;border-radius:8px;border:1px solid #99f6e4;background:#f0fdfa;padding:6px 10px;font-size:12px;font-weight:700;color:#115e59;cursor:pointer;">
                 Tới câu chưa làm tiếp theo →
               </button>
               <button type="button" id="xhz-dict-toggle-list-sub" style="border-radius:8px;border:1px solid #e7e5e4;background:#fafaf9;padding:6px 10px;font-size:11px;font-weight:700;color:#44403c;cursor:pointer;" title="Ẩn/Hiện chữ Hán trong danh sách câu">
@@ -7315,7 +8353,7 @@
         playbackRate = Number(btn.getAttribute('data-rate')) || 1;
         root.querySelectorAll('.xhz-rate-btn').forEach(b => {
           const active = Number(b.getAttribute('data-rate')) === playbackRate;
-          b.style.background = active ? '#d97706' : '#f5f5f4';
+          b.style.background = active ? '#0d9488' : '#f5f5f4';
           b.style.color = active ? '#fff' : '#57534e';
         });
         if (ytPlayer && ytReady && typeof ytPlayer.setPlaybackRate === 'function') {
@@ -7439,7 +8477,7 @@
         const diffLabel = seg.difficulty === 1 ? 'Dễ' : seg.difficulty === 2 ? 'Vừa' : 'Khó';
         const diffStyle = seg.difficulty === 1 ? 'background:#ecfdf5;color:#047857;' : seg.difficulty === 2 ? 'background:#fffbeb;color:#b45309;' : 'background:#fff1f2;color:#be123c;';
         return `
-          <button type="button" class="xhz-dict-seg-btn" data-idx="${idx}" style="display:flex;width:100%;align-items:center;gap:10px;border-radius:10px;padding:9px 10px;text-align:left;font-size:12px;cursor:pointer;border:${isCurrent ? '2px solid #d97706' : '1px solid #f5f5f4'};background:${isCurrent ? '#fffbeb' : '#fafaf9'};transition:all 0.15s;">
+          <button type="button" class="xhz-dict-seg-btn" data-idx="${idx}" style="display:flex;width:100%;align-items:center;gap:10px;border-radius:10px;padding:9px 10px;text-align:left;font-size:12px;cursor:pointer;border:${isCurrent ? '2px solid #0d9488' : '1px solid #f5f5f4'};background:${isCurrent ? '#f0fdfa' : '#fafaf9'};transition:all 0.15s;">
             <span style="display:flex;height:24px;width:24px;flex-shrink:0;align-items:center;justify-content:center;border-radius:999px;font-size:11px;font-weight:800;${badgeBg}">${badgeIcon}</span>
             <div style="min-width:0;flex:1;">
               <div style="display:flex;align-items:center;justify-content:space-between;gap:6px;">
@@ -7475,7 +8513,7 @@
       // Update mode buttons & video visibility for listen mode
       root.querySelectorAll('.xhz-dict-mode-btn').forEach(b => {
         const active = b.getAttribute('data-mode') === mode;
-        b.style.background = active ? '#d97706' : '#f5f5f4';
+        b.style.background = active ? '#0d9488' : '#f5f5f4';
         b.style.color = active ? '#fff' : '#44403c';
       });
       const pyWrap = document.getElementById('xhz-dict-pinyin-wrap');
@@ -7517,7 +8555,7 @@
             <p style="margin:0;font-size:14px;color:#57534e;">Nghe câu thoại và tự nhẩm trong đầu, sau đó bấm <strong>Hiện đáp án</strong> để đối chiếu chữ Hán, Pinyin và nghĩa tiếng Việt.</p>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button type="button" id="xhz-dict-btn-reveal" style="border-radius:10px;border:none;background:#d97706;padding:10px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Hiện đáp án</button>
+                <button type="button" id="xhz-dict-btn-reveal" style="border-radius:10px;border:none;background:#0d9488;padding:10px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Hiện đáp án</button>
                 <button type="button" id="xhz-dict-btn-replay2" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
                 <button type="button" id="xhz-dict-btn-slow" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">🐢 Chậm (0.75×)</button>
               </div>
@@ -7526,15 +8564,19 @@
           </div>
         `;
       } else if (mode === 'blank') {
-        const blankIdx = typeof seg.blankCharIdx === 'number' ? seg.blankCharIdx : 0;
-        const targetBlankChar = hanziChars[blankIdx] || hanziChars[0] || '';
+        const targets = getDictationBlankTargets(seg);
+        const targetByIndex = new Map(targets.map(target => [target.index, target]));
+        const blankValues = curState.blankInputs && typeof curState.blankInputs === 'object' ? curState.blankInputs : {};
+        const escapeInput = value => String(value || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
         const fullChars = Array.from(seg.hanzi || '');
         let hCounter = -1;
         const sentenceWithBlankHtml = fullChars.map(ch => {
           if (/[\u4e00-\u9fff]/.test(ch)) {
             hCounter++;
-            if (hCounter === blankIdx) {
-              return `<input type="text" id="xhz-dict-blank-input" value="${(curState.input || '').replace(/"/g, '&quot;')}" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'pinyin' : '?'}" style="width:${pinyinMode ? '96px' : '56px'};margin:0 6px;border:none;border-bottom:2px solid #d97706;background:#fffbeb;padding:2px 6px;text-align:center;font-size:22px;font-weight:800;color:#1c1917;outline:none;" />`;
+            if (targetByIndex.has(hCounter)) {
+              const first = hCounter === targets[0].index;
+              const value = blankValues[hCounter] !== undefined ? blankValues[hCounter] : targets.length === 1 ? curState.input || '' : '';
+              return `<input type="text" id="xhz-dict-blank-input${first ? '' : '-' + hCounter}" class="xhz-dict-blank-input" data-blank-index="${hCounter}" aria-label="Điền chữ Hán thứ ${hCounter + 1}${pinyinMode ? ' hoặc phiên âm tương ứng' : ''}" value="${escapeInput(value)}" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'pinyin' : '?'}" style="width:${pinyinMode ? '96px' : '56px'};margin:0 6px;border:none;border-bottom:2px solid #0d9488;background:#f0fdfa;padding:2px 6px;text-align:center;font-size:22px;font-weight:800;color:#1c1917;outline:none;" />`;
             }
           }
           return `<span>${ch}</span>`;
@@ -7542,12 +8584,13 @@
 
         stageEl.innerHTML = `
           <div style="display:flex;flex-direction:column;gap:14px;">
+            ${pinyinMode && targets.some(target => !target.pinyin) ? '<p style="margin:0;font-size:13px;color:#92400e;">Một số ô chưa có phiên âm được căn theo chữ. Vui lòng nhập chữ Hán vào những ô này.</p>' : ''}
             <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:2px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;padding:16px;font-size:24px;font-weight:700;color:#1c1917;line-height:1.8;">
               ${sentenceWithBlankHtml}
             </div>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#d97706;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
+                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#0d9488;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
                 <button type="button" id="xhz-dict-btn-replay2" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
                 <button type="button" id="xhz-dict-btn-slow" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">🐢 Chậm (0.75×)</button>
                 <button type="button" id="xhz-dict-btn-skip" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#78716c;cursor:pointer;">Bỏ qua</button>
@@ -7557,23 +8600,27 @@
           </div>
         `;
 
-        const blankInput = document.getElementById('xhz-dict-blank-input');
+        const blankInputs = [...stageEl.querySelectorAll('.xhz-dict-blank-input')];
+        const readBlankInputs = () => Object.fromEntries(blankInputs.map(input => [Number(input.getAttribute('data-blank-index')), input.value.trim()]));
         const checkBlank = () => {
-          const val = (blankInput ? blankInput.value : '').trim();
-          const ok = val.length > 0 && (val === targetBlankChar || (seg.hanzi || '').includes(val) || (pinyinMode && normalizePinyinCompare( seg.pinyin || '' ).includes(normalizePinyinCompare(val))));
-          segStates[currentIndex] = { status: ok ? 'correct' : 'wrong', input: val, checked: true };
+          const values = readBlankInputs();
+          const ok = targets.length > 0 && targets.every(target => isDictationBlankCorrect(target, values[target.index], pinyinMode));
+          segStates[currentIndex] = { status: ok ? 'correct' : 'wrong', input: targets.map(target => values[target.index] || '').join(' '), blankInputs: values, checked: true };
           persistDictState();
           recordDictationAttempt(seg, ok);
           renderAllDictationUI();
         };
-        if (blankInput && !isSubmitted) {
-          blankInput.focus();
-          blankInput.onkeydown = e => {
+        if (blankInputs.length && !isSubmitted) {
+          blankInputs[0].focus();
+          blankInputs.forEach(blankInput => { blankInput.oninput = () => {
+            segStates[currentIndex] = { ...curState, blankInputs: readBlankInputs() };
+            persistDictState();
+          }; blankInput.onkeydown = e => {
             if (e.key === 'Enter') {
               e.preventDefault();
               checkBlank();
             }
-          };
+          }; });
         }
         const btnCheck = document.getElementById('xhz-dict-btn-check');
         if (btnCheck) btnCheck.onclick = checkBlank;
@@ -7611,10 +8658,10 @@
             </div>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
-                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#d97706;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
+                <button type="button" id="xhz-dict-btn-check" style="border-radius:10px;border:none;background:#0d9488;padding:9px 18px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;">Kiểm tra</button>
                 <button type="button" id="xhz-dict-btn-replay2" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
                 <button type="button" id="xhz-dict-btn-slow" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#1c1917;cursor:pointer;">🐢 Chậm (0.75×)</button>
-                <button type="button" id="xhz-dict-btn-hint" style="border-radius:10px;border:1px solid #fde68a;background:#fffbeb;padding:9px 14px;font-size:14px;font-weight:700;color:#92400e;cursor:pointer;">💡 Gợi ý (${hintRevealedCount}/${hanziChars.length})</button>
+                <button type="button" id="xhz-dict-btn-hint" style="border-radius:10px;border:1px solid #99f6e4;background:#f0fdfa;padding:9px 14px;font-size:14px;font-weight:700;color:#115e59;cursor:pointer;">💡 Gợi ý (${hintRevealedCount}/${hanziChars.length})</button>
                 <button type="button" id="xhz-dict-btn-skip" style="border-radius:10px;border:1px solid #d6d3d1;background:#fff;padding:9px 14px;font-size:14px;font-weight:600;color:#78716c;cursor:pointer;">Bỏ qua</button>
               </div>
             ` : ''}
@@ -7710,974 +8757,437 @@
   // 6.8. Trang Làm Đề Thi HSK / YCT (/kiem-tra-hsk/... và /de-kiem-tra/lam-bai/:id)
   // --------------------------------------------------------------------------
   async function renderHskTestPaperPage(pathname) {
-    let root = getMainContentContainer();
-    root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải đề thi...</div>`;
+    const root = getMainContentContainer();
+    const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    root.innerHTML = '<p style="padding:32px;text-align:center;">Đang tải đề thi...</p>';
     const parts = pathname.split('/').filter(Boolean);
-    let lastPart = decodeURIComponent(parts[parts.length - 1] || '');
-    if (lastPart === 'undefined' || !lastPart) {
-      lastPart = 'hsk30-1';
-      try {
-        origReplaceState.call(history, null, '', '/de-kiem-tra/lam-bai/hsk30-1');
-      } catch (_) {}
-    }
-
-    let paper = await loadTestPaperById(lastPart);
-    root = getMainContentContainer();
+    const paperId = decodeURIComponent(parts[parts.length - 1] || '');
+    const paper = await loadTestPaperById(paperId);
     if (!paper) {
-      const levelNum = (lastPart.match(/\d+/) || ['1'])[0];
-      const papersHsk = await loadLocalJson('/data/tests/papers-hsk.json');
-      const lvlEntry = papersHsk && Array.isArray(papersHsk.levels) ? papersHsk.levels.find(l => String(l.level) === String(levelNum)) : null;
-      if (lvlEntry && Array.isArray(lvlEntry.items) && lvlEntry.items.length > 0) {
-        document.title = `Đề thi HSK Cấp ${levelNum} | XieHanzi`;
-        root.innerHTML = `
-          <div style="margin-bottom:16px;">
-            <a href="/kiem-tra-hsk" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại Phòng thi HSK</a>
-          </div>
-          <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-            <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:0 0 16px 0;">📋 Danh sách Đề thi HSK Cấp ${levelNum}</h1>
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
-              ${lvlEntry.items.map(it => `
-                <a href="/kiem-tra-hsk/hsk${levelNum}/test/${encodeURIComponent(it.testId || it.id)}" style="display:block;padding:18px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
-                  <div style="font-size:18px;font-weight:700;color:#1c1917;">${it.title || it.name || it.testId}</div>
-                  <div style="font-size:14px;color:#57534e;margin-top:6px;">Số câu: ${it.questionCount || 40} câu • Thời gian: ${it.durationMinutes || 40} phút</div>
-                  <div style="margin-top:10px;display:inline-block;padding:6px 14px;border-radius:999px;background:#ea580c;color:#fff;font-size:13px;font-weight:700;">Vào làm bài →</div>
-                </a>
-              `).join('')}
-            </div>
-          </div>
-        `;
-        return;
-      }
-      const rawFallback = await loadLocalJson('/data/tests/papers/hsk30-1.json');
-      paper = normalizeTestPaper(rawFallback, 'hsk30-1');
+      const level = (paperId.match(/^hsk([1-6])$/) || [])[1];
+      const index = level && await loadLocalJson('/data/tests/papers-hsk.json');
+      const entry = index && Array.isArray(index.levels) && index.levels.find(item => String(item.level) === level);
+      if (entry && entry.items && entry.items.length) {
+        root.innerHTML = `<h1 style="font-size:28px;font-weight:800;">Đề thi HSK cấp ${level}</h1><p><a href="/kiem-tra-hsk">← Phòng thi HSK</a></p><div style="display:grid;gap:12px;margin-top:20px;">${entry.items.map(item => `<a href="/kiem-tra-hsk/hsk${level}/test/${encodeURIComponent(item.testId || item.id)}" style="padding:18px;border:1px solid #e7e5e4;border-radius:14px;">${escape(item.title || item.name || item.testId)}</a>`).join('')}</div>`;
+      } else root.innerHTML = '<h1>Không tìm thấy đề thi</h1><p>Đề thi này chưa có dữ liệu. <a href="/kiem-tra-hsk">Quay lại phòng thi HSK</a></p>';
+      return;
     }
-
-    const questions =
-      (paper && Array.isArray(paper.questions) && paper.questions.length > 0 && paper.questions) ||
-      (paper && Array.isArray(paper.sections) ? paper.sections.flatMap(s => s.questions || []) : []);
-
-    const title = (paper && (paper.title || paper.name || paper.testId)) || `Đề thi ${lastPart.toUpperCase()}`;
-    const fullAudio = paper && (paper.audioUrl || paper.audio) ? rewriteMediaUrl(paper.audioUrl || paper.audio) : '';
-    const durationMins = Math.max(10, Number(paper && paper.durationMinutes) || 40);
-    const isHsk12 = Number(paper && paper.level) > 0 && Number(paper && paper.level) <= 2 && !/^yct/i.test(lastPart);
-    const maxScale = isHsk12 ? 200 : 300;
-    const passScale = isHsk12 ? 120 : 180;
-    document.title = `${title} | Phòng thi XieHanzi`;
-
-    if (window.__xhzExamTimerInterval) {
-      clearInterval(window.__xhzExamTimerInterval);
-      window.__xhzExamTimerInterval = null;
-    }
-
-    root.innerHTML = `
-      <div id="xhz-exam-topbar" style="position:sticky;top:64px;z-index:20;margin-bottom:16px;padding:12px 18px;border-radius:16px;background:rgba(255,255,255,0.96);backdrop-filter:blur(6px);border:1px solid #e7e5e4;box-shadow:0 4px 16px rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-          <a href="/de-kiem-tra" style="color:#ea580c;font-weight:700;text-decoration:none;">← Thoát</a>
-          <div>
-            <div style="font-weight:800;color:#1c1917;font-size:15px;">${title}</div>
-            <div id="xhz-exam-answered-count" style="font-size:12px;color:#57534e;font-weight:600;">Đã trả lời: 0 / ${questions.length}</div>
-          </div>
-        </div>
-        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <div id="xhz-exam-score-badge" style="padding:7px 14px;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:800;border:1px solid #fed7aa;font-size:13px;">
-            Điểm: 0 / ${questions.length}
-          </div>
-          <div id="xhz-exam-timer" style="padding:7px 14px;border-radius:999px;background:#f5f5f4;color:#1c1917;font-weight:800;font-variant-numeric:tabular-nums;font-size:14px;">
-            ⏱️ ${String(durationMins).padStart(2, '0')}:00
-          </div>
-          <button id="xhz-exam-submit-btn" style="padding:9px 18px;border-radius:999px;background:#dc2626;color:#fff;border:none;font-weight:800;cursor:pointer;font-size:14px;">Nộp bài &amp; Chấm điểm</button>
-        </div>
-      </div>
-      <div id="xhz-exam-result-banner" style="display:none;margin-bottom:18px;"></div>
-      <div style="display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:20px;align-items:start;" id="xhz-exam-layout">
-        <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-bottom:1px solid #e7e5e4;padding-bottom:16px;">
-            <div>
-              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🏆 ${title} (${questions.length} câu)</h1>
-              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chọn đáp án hoặc nhấn "Nộp bài &amp; Chấm điểm" để lưu vào hồ sơ cá nhân.</p>
-            </div>
-            ${fullAudio ? `<audio controls src="${fullAudio}" style="height:40px;max-width:100%;"></audio>` : ''}
-          </div>
-          <div id="xhz-questions-list" style="display:flex;flex-direction:column;gap:20px;"></div>
-        </div>
-        <aside id="xhz-exam-nav-grid" style="position:sticky;top:142px;background:#fff;border:1px solid #e7e5e4;border-radius:18px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,0.04);">
-          <div style="font-weight:800;font-size:15px;color:#1c1917;margin-bottom:10px;">Danh sách câu hỏi</div>
-          <div id="xhz-qnav-pills" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
-            ${questions.map((q, idx) => {
-              const qn = q.number || q.questionNumber || idx + 1;
-              return `<button type="button" id="xhz-qnav-${qn}" data-scroll-q="${qn}" style="height:34px;border-radius:10px;border:1px solid #d6d3d1;background:#fafaf9;color:#44403c;font-weight:700;font-size:13px;cursor:pointer;">${qn}</button>`;
-            }).join('')}
-          </div>
-          <div style="margin-top:12px;font-size:12px;color:#78716c;display:flex;flex-direction:column;gap:4px;">
-            <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;margin-right:6px;"></span>Đúng / Đã chọn</div>
-            <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e7e5e4;margin-right:6px;"></span>Chưa làm</div>
-          </div>
-        </aside>
-      </div>
-      <style>
-        @media (max-width: 900px) {
-          #xhz-exam-layout { grid-template-columns: 1fr !important; }
-          #xhz-exam-nav-grid { position: static !important; order: -1; }
-        }
-      </style>
-    `;
-
-    const listEl = document.getElementById('xhz-questions-list');
-    const scoreBadge = document.getElementById('xhz-exam-score-badge');
-    const answeredCountEl = document.getElementById('xhz-exam-answered-count');
-    const timerEl = document.getElementById('xhz-exam-timer');
-    const submitBtn = document.getElementById('xhz-exam-submit-btn');
-    const resultBanner = document.getElementById('xhz-exam-result-banner');
-    const answeredMap = {};
-    const selectedChoiceMap = {};
-    let examSubmitted = false;
-
-    let remainSec = durationMins * 60;
-    window.__xhzExamTimerInterval = setInterval(() => {
-      if (examSubmitted) return;
-      remainSec = Math.max(0, remainSec - 1);
-      const mm = Math.floor(remainSec / 60);
-      const ss = remainSec % 60;
-      if (timerEl) timerEl.textContent = `⏱️ ${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
-      if (remainSec === 0 && submitBtn && !examSubmitted) {
-        submitBtn.click();
+    const questions = Array.isArray(paper.questions) && paper.questions.length ? paper.questions : (paper.sections || []).flatMap(section => section.questions || []);
+    const title = paper.title || paper.name || paper.testId || paperId;
+    const durationMinutes = Math.max(1, Number(paper.durationMinutes) || 40);
+    const questionKey = (question, index) => String(question.id || question.questionId || question.number || index + 1);
+    const answerKey = question => {
+      if (question.type === 'writing_essay' || question.kind === 'writing_essay') return null;
+      for (const field of ['correctAnswer', 'answer', 'correctOption']) {
+        if (question[field] !== undefined && question[field] !== null && String(question[field]).trim() !== '') return String(question[field]).trim();
       }
-    }, 1000);
+      return null;
+    };
+    const gradableCount = questions.filter(question => answerKey(question) !== null).length;
+    const normalize = value => String(value || '').trim().toLocaleLowerCase().replace(/[\s\p{P}]+/gu, '');
+    const identityKey = typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state:guest';
+    const storageKey = `${identityKey}:hsk-paper:${paperId}`;
+    let attempt = null;
+    try {
+      const saved = JSON.parse(localStorage.getItem(storageKey) || 'null');
+      if (saved && saved.paperId === paperId && saved.answers && typeof saved.answers === 'object') attempt = saved;
+    } catch (_) {}
+    let selectedMode = attempt && attempt.mode === 'practice' ? 'practice' : 'exam';
+    let timer;
+    const audioPlayers = [];
+    let storageFailed = false;
+    const stopPlayers = () => { audioPlayers.forEach(player => { try { player.pause(); } catch (_) {} }); audioPlayers.length = 0; };
+    const stopTimer = () => { if (timer) clearInterval(timer); timer = null; };
+    const saveAttempt = () => {
+      try { localStorage.setItem(storageKey, JSON.stringify(attempt)); storageFailed = false; }
+      catch (_) { storageFailed = true; }
+      const status = root.querySelector('#xhz-exam-save-status');
+      if (status) status.textContent = storageFailed ? 'Chưa lưu được bài trên thiết bị. Hãy giữ trang này mở.' : 'Đã lưu bài làm trên thiết bị này.';
+      return !storageFailed;
+    };
+    const stylesheet = `<style>
+      .xhz-exam{--exam-bg:#fff;--exam-alt:#fafaf9;--exam-text:#292524;--exam-muted:#78716c;--exam-border:#e7e5e4;color:var(--exam-text);max-width:1000px;margin:0 auto}.dark .xhz-exam{--exam-bg:#0f172a;--exam-alt:#1e293b;--exam-text:#f5f5f4;--exam-muted:#a8a29e;--exam-border:#57534e}
+      .xhz-exam h1{font-size:28px;font-weight:800;margin:14px 0}.xhz-exam h2{font-weight:800;font-size:19px;margin:0 0 12px}.xhz-exam p{margin:10px 0}.xhz-exam .exam-panel{padding:22px;border:1px solid var(--exam-border);border-radius:18px;background:var(--exam-bg);margin:18px 0}.xhz-exam .exam-note{padding:15px 18px;border:1px solid #fbbf24;border-radius:12px;background:#fffbeb;color:#78350f;margin:18px 0;line-height:1.6}.xhz-exam .exam-muted{color:var(--exam-muted);font-size:14px}.xhz-exam .exam-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0}.xhz-exam button{padding:11px 16px;border:1px solid var(--exam-border);border-radius:11px;background:var(--exam-bg);color:var(--exam-text);font-weight:700;cursor:pointer}.xhz-exam button:disabled{opacity:.65;cursor:default}.xhz-exam .exam-primary{background:#0d9488;border-color:#0d9488;color:#fff}.xhz-exam .exam-option{display:flex;align-items:flex-start;gap:12px;border:1px solid var(--exam-border);border-radius:12px;background:var(--exam-alt);padding:13px;cursor:pointer}.xhz-exam .exam-option:has(input:checked){border-color:#0d9488;box-shadow:inset 0 0 0 1px #0d9488}.xhz-exam input[type=radio]{accent-color:#0d9488;margin-top:6px}.xhz-exam .exam-options,.xhz-exam .exam-images{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin:14px 0}.xhz-exam img{max-height:160px;max-width:100%;object-fit:contain;display:block;background:#fff;border-radius:8px}.xhz-exam textarea,.xhz-exam input[type=text]{width:100%;padding:12px;border:1px solid var(--exam-border);border-radius:10px;background:var(--exam-bg);color:var(--exam-text);font-size:17px}.xhz-exam .exam-feedback{font-size:14px;margin-top:12px}.xhz-exam :focus-visible{outline:3px solid #0d9488;outline-offset:3px}@media(max-width:480px){.xhz-exam .exam-panel{padding:16px}.xhz-exam h1{font-size:24px}}
+    </style>`;
+    const warning = gradableCount === 0
+      ? 'Chưa có đáp án chuẩn cho đề này. Bạn có thể làm và lưu lựa chọn; bài chưa được chấm điểm.'
+      : gradableCount < questions.length ? `Đề có đáp án cho ${gradableCount}/${questions.length} câu. Những câu còn thiếu đáp án chưa được chấm điểm.` : '';
+    const shell = body => `${stylesheet}<section class="xhz-exam"><p><a href="/kiem-tra-hsk">← Quay lại danh sách đề thi</a></p><h1>${escape(title)}</h1>${warning ? `<div class="exam-note" role="status">${warning}</div>` : ''}${body}</section>`;
 
-    document.querySelectorAll('[data-scroll-q]').forEach(pill => {
-      pill.onclick = () => {
-        const targetCard = document.getElementById('xhz-qcard-' + pill.getAttribute('data-scroll-q'));
-        if (targetCard) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    function renderLobby() {
+      stopTimer(); stopPlayers();
+      const inProgress = attempt && !attempt.submittedAt;
+      root.innerHTML = shell(`<div class="exam-panel"><h2>Chọn chế độ</h2><p>${questions.length} câu · khoảng ${durationMinutes} phút</p>
+        <div class="exam-options"><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="exam" ${selectedMode === 'exam' ? 'checked' : ''}><span><strong>Thi thử</strong><p class="exam-muted">${durationMinutes} phút, không tạm dừng; mỗi đoạn nghe phát một lần.</p></span></label><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="practice" ${selectedMode === 'practice' ? 'checked' : ''}><span><strong>Luyện tập</strong><p class="exam-muted">Không giới hạn thời gian; được nghe lại các đoạn âm thanh.</p></span></label></div>
+        <p>Hãy đeo tai nghe. Bài làm tự lưu trên thiết bị này.</p>
+        ${attempt ? `<p>${inProgress ? 'Bạn có một bài đang làm.' : 'Bạn đã lưu bài làm này.'} Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu.</p><button type="button" id="xhz-exam-resume" class="exam-primary">${inProgress ? 'Tiếp tục bài đang làm' : 'Xem bài đã lưu'}</button>` : ''}
+        <button type="button" id="xhz-exam-start" ${attempt ? '' : 'class="exam-primary"'}>${attempt ? 'Bắt đầu bài mới' : 'Bắt đầu'}</button><p class="exam-muted" id="xhz-exam-save-status"></p></div>`);
+      root.querySelectorAll('input[name="xhz-exam-mode"]').forEach(input => { input.onchange = () => { selectedMode = input.value; }; });
+      const resume = root.querySelector('#xhz-exam-resume');
+      if (resume) resume.onclick = renderRun;
+      root.querySelector('#xhz-exam-start').onclick = () => {
+        // Preserve the previous attempt before starting a fresh one.
+        if (attempt) { try { localStorage.setItem(`${storageKey}:previous`, JSON.stringify(attempt)); } catch (_) {} }
+        const now = Date.now();
+        attempt = { paperId, mode: selectedMode, startedAt: new Date(now).toISOString(), deadlineAt: selectedMode === 'exam' ? now + durationMinutes * 60000 : null, answers: {}, heard: {}, submittedAt: null };
+        saveAttempt(); renderRun();
       };
-    });
+    }
 
-    const updateProgressIndicators = (qNum, isRight) => {
-      const totalDone = Object.keys(answeredMap).length;
-      const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
-      if (answeredCountEl) answeredCountEl.textContent = `Đã trả lời: ${totalDone} / ${questions.length}`;
-      if (scoreBadge) scoreBadge.textContent = `Điểm: ${totalScore} / ${questions.length}`;
-      const pill = document.getElementById('xhz-qnav-' + qNum);
-      if (pill) {
-        pill.style.background = isRight ? '#dcfce7' : '#fee2e2';
-        pill.style.borderColor = isRight ? '#16a34a' : '#dc2626';
-        pill.style.color = isRight ? '#15803d' : '#b91c1c';
-      }
-    };
+    function updateQuestionFeedback(question, index, feedback) {
+      const selected = attempt.answers[questionKey(question, index)];
+      const expected = answerKey(question);
+      if (selected === undefined) { feedback.textContent = ''; return; }
+      if (expected === null) { feedback.textContent = 'Đã lưu lựa chọn. Câu này chưa có đáp án chuẩn để chấm.'; return; }
+      if (attempt.mode === 'exam' && !attempt.submittedAt) { feedback.textContent = 'Đã lưu lựa chọn.'; return; }
+      const isCorrect = normalize(selected) === normalize(expected);
+      feedback.textContent = `${isCorrect ? '✓ Chính xác.' : `Đáp án chuẩn: ${expected}.`} ${question.explanationVi || question.explanation || ''}`;
+    }
 
-    const submitExam = async () => {
-      if (examSubmitted) return;
-      examSubmitted = true;
-      if (window.__xhzExamTimerInterval) {
-        clearInterval(window.__xhzExamTimerInterval);
-        window.__xhzExamTimerInterval = null;
-      }
-      if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = 'Đang chấm...';
-      }
-      const res = await fetch(`/v1/hsk-tests/${encodeURIComponent(lastPart)}/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          paperId: lastPart,
-          answers: selectedChoiceMap,
-          durationMinutes: Math.max(1, Math.round((durationMins * 60 - remainSec) / 60))
-        })
-      }).then(r => r.json()).catch(() => null);
-      const correctCount = Object.values(answeredMap).reduce((a, b) => a + b, 0);
-      const total = Math.max(1, questions.length);
-      const pct = Math.round((correctCount / total) * 100);
-      const scaleScore = Math.round((correctCount / total) * maxScale);
-      const passed = scaleScore >= passScale;
-      if (resultBanner) {
-        resultBanner.style.display = 'block';
-        resultBanner.innerHTML = `
-          <div style="padding:20px 24px;border-radius:18px;border:2px solid ${passed ? '#86efac' : '#fed7aa'};background:${passed ? '#f0fdf4' : '#fff7ed'};color:#1c1917;">
-            <div style="font-size:20px;font-weight:800;color:${passed ? '#15803d' : '#c2410c'};">
-              ${passed ? '🎉 Chúc mừng! Bạn đạt chuẩn!' : '💪 Hoàn thành bài thi — Tiếp tục rèn luyện thêm!'}
-            </div>
-            <div style="margin-top:6px;font-size:15px;font-weight:700;">
-              Đúng ${correctCount}/${total} câu (${pct}%) · Quy đổi thang ${maxScale}: <span style="font-size:18px;color:#ea580c;">${scaleScore}/${maxScale} điểm</span> (Ngưỡng đỗ: ${passScale})
-            </div>
-            <div id="xhz-exam-ai-note" style="margin-top:8px;font-size:13px;color:#57534e;">Đã lưu kết quả vào Lịch sử thi &amp; đồng bộ đám mây.${res && res.ok ? ' ✓' : ''}</div>
+    function renderRun() {
+      stopTimer(); stopPlayers();
+      if (!attempt) { renderLobby(); return; }
+      if (!attempt.heard || typeof attempt.heard !== 'object') attempt.heard = {};
+      const isExam = attempt.mode === 'exam';
+      const submitted = Boolean(attempt.submittedAt);
+      const correctCount = questions.reduce((sum, question, index) => { const expected = answerKey(question); return sum + (expected !== null && attempt.answers[questionKey(question, index)] !== undefined && normalize(attempt.answers[questionKey(question, index)]) === normalize(expected) ? 1 : 0); }, 0);
+      root.innerHTML = shell(`<div id="xhz-exam-run"><div class="exam-toolbar"><strong>${submitted ? 'Bài làm đã lưu' : isExam ? 'Thi thử' : 'Luyện tập'}</strong><strong id="xhz-exam-timer" aria-live="off">${isExam && !submitted ? 'Đang tính thời gian...' : 'Không giới hạn thời gian'}</strong><button type="button" id="xhz-exam-back">Về màn chọn chế độ</button></div>
+        <p id="xhz-exam-save-status" class="exam-muted" role="status">${storageFailed ? 'Chưa lưu được bài trên thiết bị. Hãy giữ trang này mở.' : 'Đã lưu bài làm trên thiết bị này.'}</p>
+        <p id="xhz-exam-progress">Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu${submitted && gradableCount ? ` · Đúng ${correctCount}/${gradableCount} câu có đáp án` : ''}${submitted && !gradableCount ? ' · Chưa chấm điểm' : ''}</p>
+        <div id="xhz-exam-layout" style="display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px;align-items:start;">
+          <div style="min-width:0;">
+            ${paper.audioUrl || paper.audio ? '<div class="exam-panel" id="xhz-exam-full-audio"><h2>Âm thanh toàn đề</h2></div>' : ''}
+            <div id="xhz-exam-questions"></div>
+            <div class="exam-toolbar"><button type="button" id="xhz-exam-submit" class="exam-primary" ${submitted ? 'disabled' : ''}>${submitted ? 'Đã lưu bài làm' : 'Nộp bài và lưu lựa chọn'}</button></div>
           </div>
-        `;
-      }
-      if (submitBtn) {
-        submitBtn.textContent = '✅ Đã nộp bài';
-        submitBtn.style.background = '#16a34a';
-      }
-      document.querySelectorAll('.xhz-exp').forEach(el => { el.style.display = 'block'; });
-      callAiEndpoint('result-ai-readout', {
-        title,
-        correctCount,
-        total,
-        scaleScore,
-        maxScale
-      }).then(aiRes => {
-        const aiEl = document.getElementById('xhz-exam-ai-note');
-        if (aiEl && aiRes && (aiRes.summary || aiRes.reply || aiRes.message)) {
-          aiEl.innerHTML = `🐾 <strong>Nhận xét AI:</strong> ${aiRes.summary || aiRes.reply || aiRes.message}`;
-        }
-      }).catch(() => {});
-    };
-
-    if (submitBtn) submitBtn.onclick = submitExam;
-
-    questions.forEach((q, idx) => {
-      const qNum = q.number || q.questionNumber || idx + 1;
-      const qType = q.type || q.kind || 'multiple_choice';
-      const prompt = q.prompt || q.question || q.stem || q.text || q.transcript || `Câu hỏi số ${qNum}`;
-      const pinyin = q.pinyin || q.transcriptPinyin || '';
-      const qAudio = (q.audio || q.audioUrl) ? rewriteMediaUrl(q.audio || q.audioUrl) : '';
-      const qImgs = Array.isArray(q.images) ? q.images.map(u => rewriteMediaUrl(u)) : [];
-      const singleQuestionImg =
-        q.imageUrl || q.image
-          ? rewriteMediaUrl(q.imageUrl || q.image)
-          : ((qType === 'component_match' || qType === 'writing_sentence') && qImgs.length === 1 ? qImgs[0] : '');
-
-      let rawOpts = Array.isArray(q.options) ? q.options : (Array.isArray(q.choices) ? q.choices : []);
-      const isWrittenQuestion = qType === 'character_fill' || qType === 'writing_sentence' || qType === 'writing_essay';
-
-      if (rawOpts.length === 0 && !isWrittenQuestion) {
-        if (qType === 'true_false') {
-          rawOpts = [
-            { key: 'true', text: '✓ Đúng (对)' },
-            { key: 'false', text: '✗ Sai (错)' }
-          ];
-        } else if (qImgs.length > 0) {
-          rawOpts = qImgs.map((imgUrl, i) => ({
-            key: String.fromCharCode(65 + i),
-            text: `Hình ${String.fromCharCode(65 + i)}`,
-            image: imgUrl
-          }));
-        } else {
-          rawOpts = ['A', 'B', 'C'].map(k => ({ key: k, text: `Phương án ${k}` }));
-        }
-      }
-      const rightAns = String(q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : (q.correctOption || 'A'))).trim();
-
-      const card = document.createElement('div');
-      card.id = `xhz-qcard-${qNum}`;
-      card.style.cssText = 'padding:20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;';
-
-      const showSharedImageGrid = qType === 'image_match' && qImgs.length > 0;
-      const sharedImagesHtml = showSharedImageGrid
-        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
-            ${qImgs.map((u, i) => `
-              <div style="background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:10px;text-align:center;">
-                <div style="font-weight:800;color:#ea580c;font-size:14px;margin-bottom:6px;">Hình ${String.fromCharCode(65 + i)}</div>
-                <img src="${u}" onerror="this.style.display='none'" alt="Hình ${String.fromCharCode(65 + i)}" style="max-height:130px;max-width:100%;border-radius:8px;object-fit:contain;margin:0 auto;display:block;" />
-              </div>
-            `).join('')}
-          </div>`
-        : '';
-
-      const passageHtml = q.passage
-        ? `<div style="margin-bottom:12px;padding:14px 16px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:16px;line-height:1.7;color:#1c1917;">
-            ${q.passage}
-            ${q.passagePinyin ? `<div style="font-size:13px;color:#ea580c;margin-top:6px;">${q.passagePinyin}</div>` : ''}
-          </div>`
-        : '';
-
-      card.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:16px;font-weight:800;color:#1c1917;">
-            <span style="display:inline-block;padding:3px 10px;border-radius:999px;background:#ffedd5;color:#9a3412;margin-right:8px;font-size:13px;">Câu ${qNum}</span>
-            ${prompt}
-          </div>
-          ${q.sectionTitle ? `<span style="font-size:12px;padding:3px 10px;border-radius:999px;background:#e7e5e4;color:#44403c;font-weight:600;">${q.sectionTitle}</span>` : ''}
+          <aside id="xhz-exam-nav-grid" class="exam-panel" style="position:sticky;top:80px;">
+            <h2 style="margin:0 0 10px;">Bảng câu hỏi</h2>
+            <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+              ${questions.map((q, i) => {
+                const qk = questionKey(q, i);
+                const qn = q.number || q.questionNumber || i + 1;
+                const answered = attempt.answers[qk] !== undefined;
+                return `<button type="button" id="xhz-qnav-${qn}" data-scroll-q="${qn}" style="height:32px;border-radius:8px;border:1px solid ${answered ? '#0d9488' : '#d6d3d1'};background:${answered ? '#f0fdfa' : '#fafaf9'};color:${answered ? '#115e59' : '#44403c'};font-weight:700;font-size:12px;cursor:pointer;">${qn}</button>`;
+              }).join('')}
+            </div>
+          </aside>
         </div>
-        ${pinyin ? `<div style="font-size:14px;color:#ea580c;font-weight:600;margin-bottom:8px;">${pinyin}</div>` : ''}
-        ${qAudio ? `<div style="margin-bottom:12px;"><audio controls src="${qAudio}" style="height:38px;max-width:100%;"></audio></div>` : ''}
-        ${singleQuestionImg ? `<div style="margin-bottom:12px;"><img src="${singleQuestionImg}" onerror="this.style.display='none'" alt="Câu ${qNum}" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid #e7e5e4;background:#fff;padding:6px;object-fit:contain;" /></div>` : ''}
-        ${passageHtml}
-        ${sharedImagesHtml}
-        <div class="xhz-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
-        <div class="xhz-exp" style="display:none;margin-top:12px;padding:12px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;font-size:14px;color:#78350f;"></div>
-      `;
-
-      const optsWrap = card.querySelector('.xhz-opts');
-      const expEl = card.querySelector('.xhz-exp');
-
-      if (isWrittenQuestion) {
-        optsWrap.style.display = 'block';
-        optsWrap.innerHTML = `
-          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start;">
-            ${qType === 'writing_essay'
-              ? `<textarea class="xhz-write-input" rows="4" placeholder="Nhập bài viết tiếng Trung của bạn..." style="flex:1;min-width:260px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;"></textarea>`
-              : `<input type="text" class="xhz-write-input" placeholder="Nhập đáp án chữ Hán..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:10px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;" />`
-            }
-            <button class="xhz-write-check" style="padding:10px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">Kiểm tra đáp án</button>
-          </div>
-        `;
-        const inputEl = optsWrap.querySelector('.xhz-write-input');
-        const checkBtn = optsWrap.querySelector('.xhz-write-check');
-        checkBtn.onclick = () => {
-          const userVal = (inputEl.value || '').trim();
-          const isRight = qType === 'writing_essay' ? userVal.length > 0 : userVal === rightAns;
-          selectedChoiceMap[q.id || qNum] = userVal;
-          answeredMap[qNum] = isRight ? 1 : 0;
-          updateProgressIndicators(qNum, isRight);
-          if (expEl) {
-            expEl.style.display = 'block';
-            expEl.innerHTML = `${rightAns && rightAns !== 'null' ? `<strong>Đáp án chuẩn: ${rightAns}</strong><br/>` : ''}${q.explanationVi || q.explanation || ''}`;
+        <style>@media (max-width: 900px) { #xhz-exam-layout { grid-template-columns: 1fr !important; } #xhz-exam-nav-grid { position: static !important; order: -1; } }</style>
+      </div>`);
+      const runRoot = root.querySelector('#xhz-exam-run');
+      root.querySelectorAll('[data-scroll-q]').forEach(pill => {
+        pill.onclick = () => {
+          const card = root.querySelector('#xhz-qcard-' + pill.getAttribute('data-scroll-q'));
+          if (card) card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        };
+      });
+      const updateProgress = () => { const progress = root.querySelector('#xhz-exam-progress'); if (progress) progress.textContent = `Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu`; };
+      const mountAudio = (container, rawUrl, key) => {
+        if (!rawUrl) return;
+        const src = rewriteMediaUrl(rawUrl);
+        if (!isExam) { const audio = document.createElement('audio'); audio.controls = true; audio.preload = 'none'; audio.src = src; audio.style.cssText = 'width:100%;max-width:420px;margin:10px 0;'; container.appendChild(audio); audioPlayers.push(audio); return; }
+        const button = document.createElement('button');
+        button.type = 'button'; button.textContent = attempt.heard[key] ? 'Đã phát đoạn nghe này' : 'Phát đoạn nghe (1 lần)';
+        button.disabled = Boolean(attempt.heard[key]) || submitted;
+        button.onclick = () => {
+          const audio = new window.Audio(src); audioPlayers.push(audio); button.disabled = true;
+          const failed = () => { delete attempt.heard[key]; saveAttempt(); button.disabled = false; button.textContent = 'Chưa tải được âm thanh — thử lại'; };
+          audio.onerror = failed;
+          audio.onended = () => { button.textContent = 'Đã phát đoạn nghe này'; };
+          audio.play().then(() => { attempt.heard[key] = true; saveAttempt(); button.textContent = 'Đang phát đoạn nghe'; }).catch(failed);
+        };
+        container.appendChild(button);
+      };
+      const fullAudio = root.querySelector('#xhz-exam-full-audio');
+      if (fullAudio) mountAudio(fullAudio, paper.audioUrl || paper.audio, 'full-paper');
+      const list = root.querySelector('#xhz-exam-questions');
+      questions.forEach((question, index) => {
+        const key = questionKey(question, index);
+        const number = question.number || question.questionNumber || index + 1;
+        const type = question.type || question.kind || 'multiple_choice';
+        const written = ['character_fill', 'writing_sentence', 'writing_essay'].includes(type);
+        const images = (Array.isArray(question.images) ? question.images : []).map(rewriteMediaUrl);
+        const card = document.createElement('section'); card.className = 'exam-panel'; card.id = `xhz-qcard-${number}`;
+        card.innerHTML = `<h2>Câu ${number}${question.sectionTitle ? ` · ${escape(question.sectionTitle)}` : ''}</h2>${question.instruction ? `<p class="exam-muted">${escape(question.instruction)}</p>` : ''}<p style="font-size:20px;white-space:pre-line;">${escape(question.prompt || question.question || question.stem || question.text || '')}</p>${question.pinyin || question.transcriptPinyin ? `<p class="exam-muted">${escape(question.pinyin || question.transcriptPinyin)}</p>` : ''}${question.passage ? `<p style="white-space:pre-line;">${escape(question.passage)}</p>` : ''}<div class="exam-audio"></div>${question.imageUrl || question.image ? `<img src="${escape(rewriteMediaUrl(question.imageUrl || question.image))}" onerror="this.style.display='none'" alt="Minh họa câu ${number}" loading="lazy">` : ''}${type === 'image_match' && images.length ? `<div class="exam-images">${images.map((src, idx) => `<div><strong>Hình ${String.fromCharCode(65 + idx)}</strong><img src="${escape(src)}" onerror="this.style.display='none'" alt="Hình ${String.fromCharCode(65 + idx)}" loading="lazy"></div>`).join('')}</div>` : ''}<div class="exam-answers"></div><p class="exam-feedback" role="status"></p>`;
+        list.appendChild(card);
+        mountAudio(card.querySelector('.exam-audio'), question.audio || question.audioUrl, key);
+        const answerRoot = card.querySelector('.exam-answers');
+        const feedback = card.querySelector('.exam-feedback');
+        const saveAnswer = value => {
+          if (value === '') delete attempt.answers[key];
+          else attempt.answers[key] = value;
+          saveAttempt(); updateProgress(); updateQuestionFeedback(question, index, feedback);
+          const pill = root.querySelector('#xhz-qnav-' + number);
+          if (pill) {
+            const hasAns = value !== '';
+            pill.style.background = hasAns ? '#f0fdfa' : '#fafaf9';
+            pill.style.borderColor = hasAns ? '#0d9488' : '#d6d3d1';
+            pill.style.color = hasAns ? '#115e59' : '#44403c';
           }
         };
-      } else {
-        rawOpts.forEach((opt, oIdx) => {
-          const key = typeof opt === 'object' ? (opt.key || opt.label || opt.id || String.fromCharCode(65 + oIdx)) : String.fromCharCode(65 + oIdx);
-          const text = typeof opt === 'object' ? (opt.text || opt.hanzi || opt.content || opt.value || key) : String(opt);
-          const optPinyin = typeof opt === 'object' ? (opt.pinyin || '') : '';
-          const optImg = (typeof opt === 'object' && (opt.image || opt.imageUrl))
-            ? rewriteMediaUrl(opt.image || opt.imageUrl)
-            : ((qType === 'image_choice' || qType === 'image_match') && qImgs[oIdx] ? qImgs[oIdx] : '');
-
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:12px 14px;border-radius:12px;border:2px solid #d6d3d1;background:#ffffff;color:#1c1917;text-align:left;cursor:pointer;font-size:15px;font-weight:700;transition:all 0.15s;display:flex;flex-direction:column;gap:8px;';
-          btn.innerHTML = `
-            <div>
-              <span style="color:#ea580c;font-weight:800;margin-right:6px;">${key.toUpperCase()}.</span>
-              <span style="color:#1c1917;">${text !== key ? text : `Hình ${key.toUpperCase()}`}</span>
-              ${optPinyin ? `<div style="font-size:12px;color:#78716c;font-weight:500;margin-top:2px;">${optPinyin}</div>` : ''}
-            </div>
-            ${optImg ? `<img src="${optImg}" onerror="this.style.display='none'" alt="Phương án ${key}" style="max-height:140px;width:100%;object-fit:contain;border-radius:8px;background:#fafaf9;padding:4px;" />` : ''}
-          `;
-          btn.onclick = () => {
-            const isRight = String(key).toUpperCase() === rightAns.toUpperCase() || String(text).toUpperCase() === rightAns.toUpperCase();
-            selectedChoiceMap[q.id || qNum] = key;
-            answeredMap[qNum] = isRight ? 1 : 0;
-            updateProgressIndicators(qNum, isRight);
-
-            Array.from(optsWrap.children).forEach(b => {
-              b.style.background = '#ffffff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            if (isRight) {
-              btn.style.background = '#dcfce7';
-              btn.style.borderColor = '#16a34a';
-              btn.style.color = '#14532d';
-            } else {
-              btn.style.background = '#fee2e2';
-              btn.style.borderColor = '#dc2626';
-              btn.style.color = '#7f1d1d';
-            }
-            if (expEl) {
-              expEl.style.display = 'block';
-              expEl.innerHTML = `<strong>Đáp án đúng: ${rightAns.toUpperCase()}</strong> ${q.explanationVi || q.explanation || (q.transcript ? `<br/>Lời thoại (Transcript): <strong>${q.transcript}</strong> (${q.transcriptPinyin || ''}) — ${q.translationVi || ''}` : '')}`;
-            }
-          };
-          optsWrap.appendChild(btn);
-        });
-      }
-
-      listEl.appendChild(card);
-    });
+        if (written) {
+          const input = document.createElement(type === 'writing_essay' ? 'textarea' : 'input');
+          if (input.tagName === 'INPUT') input.type = 'text'; else input.rows = 5;
+          input.setAttribute('aria-label', `Đáp án câu ${number}`); input.placeholder = type === 'writing_essay' ? 'Nhập bài viết tiếng Trung...' : 'Nhập đáp án chữ Hán...'; input.value = attempt.answers[key] || ''; input.disabled = submitted;
+          input.oninput = () => saveAnswer(input.value);
+          answerRoot.appendChild(input);
+        } else {
+          let options = Array.isArray(question.options) ? question.options : (Array.isArray(question.choices) ? question.choices : []);
+          if (!options.length && type === 'true_false') options = [{ key: 'true', text: 'Đúng (对)' }, { key: 'false', text: 'Sai (错)' }];
+          if (!options.length && images.length) options = images.map((_, idx) => ({ key: String.fromCharCode(65 + idx), text: `Hình ${String.fromCharCode(65 + idx)}` }));
+          if (!options.length) { answerRoot.innerHTML = '<p class="exam-muted">Câu này chưa có lựa chọn trả lời trong dữ liệu.</p>'; }
+          answerRoot.className += ' exam-options';
+          options.forEach((option, optionIndex) => {
+            const optionKey = typeof option === 'object' ? String(option.key || option.label || option.id || String.fromCharCode(65 + optionIndex)) : String.fromCharCode(65 + optionIndex);
+            const text = typeof option === 'object' ? option.text || option.hanzi || option.content || option.value || `Phương án ${optionKey}` : String(option);
+            const image = typeof option === 'object' && (option.image || option.imageUrl) ? rewriteMediaUrl(option.image || option.imageUrl) : type === 'image_choice' ? images[optionIndex] : '';
+            const label = document.createElement('label'); label.className = 'exam-option';
+            const input = document.createElement('input'); input.type = 'radio'; input.name = `xhz-exam-answer-${key}`; input.value = optionKey; input.checked = attempt.answers[key] === optionKey; input.disabled = submitted; input.setAttribute('aria-label', `Câu ${number}, ${optionKey}: ${text}`);
+            const body = document.createElement('span'); body.innerHTML = `<strong>${escape(optionKey)}.</strong> ${escape(text)}${typeof option === 'object' && option.pinyin ? `<small class="exam-muted"> ${escape(option.pinyin)}</small>` : ''}${image ? `<img src="${escape(image)}" onerror="this.style.display='none'" alt="Câu ${number}, phương án ${escape(optionKey)}" loading="lazy">` : ''}`;
+            input.onchange = () => { if (input.checked) saveAnswer(input.value); };
+            label.append(input, body); answerRoot.appendChild(label);
+          });
+        }
+        updateQuestionFeedback(question, index, feedback);
+      });
+      root.querySelector('#xhz-exam-back').onclick = renderLobby;
+      const finish = async expired => {
+        if (attempt.submittedAt) return;
+        attempt.submittedAt = new Date().toISOString();
+        attempt.expired = Boolean(expired);
+        saveAttempt();
+        try {
+          await fetch(`/v1/hsk-tests/${encodeURIComponent(paperId)}/submit`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paperId, answers: attempt.answers, durationMinutes })
+          });
+        } catch (_) {}
+        renderRun();
+      };
+      root.querySelector('#xhz-exam-submit').onclick = () => finish(false);
+      if (isExam && !submitted) {
+        const updateTime = () => {
+          if (!runRoot.isConnected) { stopTimer(); stopPlayers(); return; }
+          const seconds = Math.max(0, Math.ceil((Number(attempt.deadlineAt) - Date.now()) / 1000));
+          const label = root.querySelector('#xhz-exam-timer');
+          if (label) label.textContent = `Còn ${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(seconds % 60).padStart(2, '0')}`;
+          if (!seconds) finish(true);
+        };
+        updateTime();
+        if (!attempt.submittedAt) timer = setInterval(updateTime, 1000);
+      } else if (submitted) root.querySelector('#xhz-exam-timer').textContent = attempt.expired ? 'Hết giờ — bài làm đã kết thúc' : 'Đã kết thúc bài làm';
+    }
+    document.title = `${title} | Thi thử HSK`;
+    renderLobby();
   }
 
-  // --------------------------------------------------------------------------
+
   // 6.8b. Trang Phiên Ôn Tập SRS & Sửa Lỗi (/hoc/bai/on-tap-den-han, on-tap-loi-sai, on-tap-the-cau)
   // --------------------------------------------------------------------------
   async function renderReviewSessionPage(slug) {
     const root = getMainContentContainer();
-    let savedProf = {};
-    try {
-      savedProf = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}') || {};
-    } catch (_) {}
-    const hidePinyin = !!savedProf.hidePinyinInReview;
-    const reviewFormat = savedProf.reviewFormat || 'mixed';
-
-    const lesson1 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json');
-    const lesson2 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-2-my-name-is-li-wen.json');
-    const rawWords = [
-      ...((lesson1 && lesson1.lesson && lesson1.lesson.words) || []),
-      ...((lesson2 && lesson2.lesson && lesson2.lesson.words) || [])
-    ].slice(0, 12);
-
-    const dueItems = rawWords.length > 0 ? rawWords.map((w, idx) => {
-      const hz = (w.hanzi || w.word || '你好').replace(/\{|\}/g, '');
-      return {
-        id: `due-${idx + 1}`,
-        hanzi: hz,
-        pinyin: w.wordPinyin || w.pinyin || 'nǐ hǎo',
-        hanviet: w.hanviet || '',
-        meaningVi: w.translationVi || w.wordMeaningVi || w.meaningVi || 'Xin chào',
-        audioUrl: (Array.isArray(w.audios) && w.audios[0]) || `/word_audios/${hz}.mp3`,
-        exampleZh: (w.examples && w.examples[0] && w.examples[0].hanzi) || `${hz}！`,
-        examplePy: (w.examples && w.examples[0] && w.examples[0].pinyin) || '',
-        exampleVi: (w.examples && w.examples[0] && w.examples[0].vietnamese) || ''
-      };
-    }) : [
-      { id: 'due-1', hanzi: '你好', pinyin: 'nǐ hǎo', hanviet: 'NHĨ HẢO', meaningVi: 'Xin chào', audioUrl: '/word_audios/你好.mp3', exampleZh: '老师，你好！', examplePy: 'Lǎoshī, nǐ hǎo!', exampleVi: 'Chào thầy/cô ạ!' },
-      { id: 'due-2', hanzi: '老师', pinyin: 'lǎoshī', hanviet: 'LÃO SƯ', meaningVi: 'Giáo viên, thầy cô', audioUrl: '/word_audios/老师.mp3', exampleZh: '她是我们的汉语老师。', examplePy: 'Tā shì wǒmen de Hànyǔ lǎoshī.', exampleVi: 'Cô ấy là giáo viên tiếng Trung của chúng tôi.' },
-      { id: 'due-3', hanzi: '谢谢', pinyin: 'xièxie', hanviet: 'TẠ TẠ', meaningVi: 'Cảm ơn', audioUrl: '/word_audios/谢谢.mp3', exampleZh: '谢谢你的帮助！', examplePy: 'Xièxie nǐ de bāngzhù!', exampleVi: 'Cảm ơn sự giúp đỡ của bạn!' },
-      { id: 'due-4', hanzi: '不客气', pinyin: 'bú kèqi', hanviet: 'BẤT KHÁCH KHÍ', meaningVi: 'Đừng khách sáo, không có gì', audioUrl: '/word_audios/不客气.mp3', exampleZh: 'A: 谢谢！ B: 不客气。', examplePy: 'Xièxie! Bú kèqi.', exampleVi: 'Cảm ơn! Không có gì.' },
-      { id: 'due-5', hanzi: '对不起', pinyin: 'duìbuqǐ', hanviet: 'ĐỐI BẤT KHỞI', meaningVi: 'Xin lỗi', audioUrl: '/word_audios/对不起.mp3', exampleZh: '对不起，我来晚了。', examplePy: 'Duìbuqǐ, wǒ lái wǎn le.', exampleVi: 'Xin lỗi, tôi đến muộn.' },
-      { id: 'due-6', hanzi: '没关系', pinyin: 'méi guānxi', hanviet: 'MỘT QUAN HỆ', meaningVi: 'Không sao đâu', audioUrl: '/word_audios/没关系.mp3', exampleZh: 'A: 对不起！ B: 没关系。', examplePy: 'Duìbuqǐ! Méi guānxi.', exampleVi: 'Xin lỗi! Không sao đâu.' },
-      { id: 'due-7', hanzi: '再见', pinyin: 'zàijiàn', hanviet: 'TÁI KIẾN', meaningVi: 'Tạm biệt', audioUrl: '/word_audios/再见.mp3', exampleZh: '明天见，再见！', examplePy: 'Míngtiān jiàn, zàijiàn!', exampleVi: 'Mai gặp lại, tạm biệt!' },
-      { id: 'due-8', hanzi: '请', pinyin: 'qǐng', hanviet: 'THỈNH', meaningVi: 'Mời, xin vui lòng', audioUrl: '/word_audios/请.mp3', exampleZh: '请坐，请喝茶。', examplePy: 'Qǐng zuò, qǐng hē chá.', exampleVi: 'Mời ngồi, mời uống trà.' }
-    ];
-
-    const realUserMistakes = (Array.isArray(getRealProgress().userMistakes) ? getRealProgress().userMistakes : []).map((um, idx) => {
-      const mMean = um.meaningVi || um.expectedDisplay || 'Từ vựng cần ôn lại';
-      return {
-        id: `um-${idx + 1}`,
-        hanzi: um.hanzi,
-        pinyin: um.pinyin || '',
-        meaningVi: mMean,
-        confusedWith: um.givenDisplay || 'Nhầm khi làm bài tập',
-        reasonVi: um.reasonVi || `Bạn đã trả lời sai từ "${um.hanzi}" (${um.count || 1} lần).`,
-        tipVi: `Nghe lại phát âm và nhớ kỹ nghĩa "${mMean}" của từ "${um.hanzi}".`,
-        question: `Nghĩa đúng của từ "${um.hanzi}" ${um.pinyin ? `(${um.pinyin})` : ''} là gì?`,
-        options: [mMean, 'xin lỗi (对不起)', 'không có gì (没关系)', 'tạm biệt (再见)'].filter((v, i, a) => v && a.indexOf(v) === i).slice(0, 4),
-        correctIndex: 0
-      };
-    });
-    const baseMistakeItems = [
-      {
-        id: 'm-1',
-        hanzi: '谢谢',
-        pinyin: 'xièxie',
-        meaningVi: 'Cảm ơn',
-        confusedWith: '对不起 (duìbuqǐ — Xin lỗi)',
-        reasonVi: 'Bạn từng nhầm nghĩa giữa "谢谢" (Cảm ơn) và "对不起" (Xin lỗi) trong hội thoại Bài 1.',
-        tipVi: 'Ghi nhớ: 谢谢 (Tạ tạ) = Cảm ơn khi nhận sự giúp đỡ; 对不起 (Đối bất khởi) = Xin lỗi khi làm phiền.',
-        question: 'Khi bạn được người khác giúp đỡ, bạn nói câu nào?',
-        options: ['谢谢 (xièxie)', '对不起 (duìbuqǐ)', '没关系 (méi guānxi)', '再见 (zàijiàn)'],
-        correctIndex: 0
-      },
-      {
-        id: 'm-2',
-        hanzi: '不客气',
-        pinyin: 'bú kèqi',
-        meaningVi: 'Đừng khách sáo (đáp lại lời cảm ơn)',
-        confusedWith: '没关系 (méi guānxi — Không sao đâu)',
-        reasonVi: 'Bạn từng dùng "不客气" để đáp lại câu "对不起" (Xin lỗi).',
-        tipVi: 'Cặp chuẩn: 谢谢 ↔ 不客气 (Cảm ơn ↔ Đừng khách sáo) | 对不起 ↔ 没关系 (Xin lỗi ↔ Không sao đâu).',
-        question: 'Người đối diện nói “谢谢你！” (Cảm ơn bạn!), bạn đáp lại thế nào?',
-        options: ['不客气 (bú kèqi)', '没关系 (méi guānxi)', '对不起 (duìbuqǐ)', '请问 (qǐngwèn)'],
-        correctIndex: 0
-      },
-      {
-        id: 'm-3',
-        hanzi: '老师',
-        pinyin: 'lǎoshī',
-        meaningVi: 'Giáo viên, thầy/cô',
-        confusedWith: 'lǎoshì (sai thanh điệu âm shī)',
-        reasonVi: 'Bạn từng chọn nhầm thanh điệu của chữ 师 (shī - thanh 1 ngang) thành thanh 4 (shì).',
-        tipVi: 'Chữ 师 (Sư) đọc thanh 1 cao và bằng: lǎoshī (老 thanh 3 + 师 thanh 1).',
-        question: 'Phiên âm Pinyin chính xác của từ “老师” (Giáo viên) là gì?',
-        options: ['lǎoshī', 'lǎoshì', 'láoshī', 'lǎosī'],
-        correctIndex: 0
-      },
-      {
-        id: 'm-4',
-        hanzi: '买 / 卖',
-        pinyin: 'mǎi / mài',
-        meaningVi: '买 (mǎi): Mua — 卖 (mài): Bán',
-        confusedWith: 'Nhầm nét chữ 十 trên đầu chữ 卖 (Bán)',
-        reasonVi: 'Bạn từng nhầm giữa 买 (mǎi - Mua) và 卖 (mài - Bán).',
-        tipVi: 'Chữ 买 (Mua) không có chữ 十 ở trên. Có thêm hàng (十) ở trên là 卖 (Bán - mài thanh 4).',
-        question: 'Trong câu “我去商店买水果” (Tôi đi cửa hàng mua hoa quả), từ “买” đọc và nghĩa là gì?',
-        options: ['mǎi — Mua', 'mài — Bán', 'mái — Đến', 'mǎn — Đầy'],
-        correctIndex: 0
-      }
-    ];
-    const seenMkHz = new Set();
-    const mistakeItems = [...realUserMistakes, ...baseMistakeItems].filter(it => {
-      if (!it || !it.hanzi || seenMkHz.has(it.hanzi)) return false;
-      seenMkHz.add(it.hanzi);
-      return true;
-    });
-
-    const sentenceCards = [
-      { id: 'sc-1', hanzi: '一个人', pinyin: 'yí gè rén', meaningVi: 'Một người (Lượng từ 个 dùng phổ biến nhất cho người & vật)', blankQuestion: '一 ___ 人 (Một người)', options: ['个 (gè)', '本 (běn)', '杯 (bēi)', '件 (jiàn)'], answer: '个 (gè)' },
-      { id: 'sc-2', hanzi: '两本书', pinyin: 'liǎng běn shū', meaningVi: 'Hai quyển sách (Lượng từ 本 dùng cho sách, vở, từ điển)', blankQuestion: '两 ___ 书 (Hai quyển sách)', options: ['本 (běn)', '个 (gè)', '只 (zhī)', '杯 (bēi)'], answer: '本 (běn)' },
-      { id: 'sc-3', hanzi: '三杯茶', pinyin: 'sān bēi chá', meaningVi: 'Ba tách/cốc trà (Lượng từ 杯 dùng cho cốc, tách, ly đồ uống)', blankQuestion: '三 ___ 茶 (Ba tách trà)', options: ['杯 (bēi)', '本 (běn)', '件 (jiàn)', '张 (zhāng)'], answer: '杯 (bēi)' },
-      { id: 'sc-4', hanzi: '四件衣服', pinyin: 'sì jiàn yīfu', meaningVi: 'Bốn bộ/chiếc quần áo (Lượng từ 件 dùng cho áo, việc, món quà)', blankQuestion: '四 ___ 衣服 (Bốn chiếc áo)', options: ['件 (jiàn)', '本 (běn)', '杯 (bēi)', '只 (zhī)'], answer: '件 (jiàn)' },
-      { id: 'sc-5', hanzi: '五只猫', pinyin: 'wǔ zhī māo', meaningVi: 'Năm con mèo (Lượng từ 只 dùng cho động vật nhỏ: mèo, chó, chim)', blankQuestion: '五 ___ 猫 (Năm con mèo)', options: ['只 (zhī)', '本 (běn)', '件 (jiàn)', '杯 (bēi)'], answer: '只 (zhī)' },
-      { id: 'sc-6', hanzi: '我叫李文，我是越南人。', pinyin: 'Wǒ jiào Lǐ Wén, wǒ shì Yuènán rén.', meaningVi: 'Tôi tên là Lý Văn, tôi là người Việt Nam.', blankQuestion: '我 ___ 李文，我是越南人。 (Tôi tên là Lý Văn)', options: ['叫 (jiào)', '是 (shì)', '有 (yǒu)', '在 (zài)'], answer: '叫 (jiào)' }
-    ];
-
+    const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    let preferences = {};
+    try { preferences = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}') || {}; } catch (_) {}
+    const hidePinyin = Boolean(preferences.hidePinyinInReview);
+    getRealProgressSummary(); // Enrol real words from existing v10 progress on direct entry.
+    await handleApiRequest(window.location.origin + '/v2/review/summary', { method: 'GET' }).catch(() => null);
+    const state = getLocalState();
+    const allCards = Array.isArray(state.collections && state.collections.reviewCards) ? state.collections.reviewCards : [];
+    const due = allCards.filter(card => Date.parse(card.dueAt) <= Date.now());
+    const mistakes = allCards.filter(card => card.wrongCount > 0 && card.correctStreak < 2 && !card.dismissed);
+    const sentences = due.filter(card => card.itemKey.startsWith('s:'));
     const isMistakeMode = slug.includes('loi-sai');
     const isSentenceMode = slug.includes('the-cau');
-
-    const modeTitle = isMistakeMode
-      ? 'Ôn lỗi sai — Sửa lỗi hay nhầm'
-      : isSentenceMode
-        ? 'Luyện thẻ câu & Lượng từ HSK 1'
-        : 'Ôn bài đến hạn (SRS Ngắt quãng)';
-
-    const modeSubtitle = isMistakeMode
-      ? `${mistakeItems.length} mục hay nhầm · Phân biệt trực tiếp lỗi sai và kiểm tra lại ngay`
-      : isSentenceMode
-        ? `${sentenceCards.length} mẫu câu & lượng từ trọng tâm · Lật thẻ & Điền lượng từ`
-        : `${dueItems.length} mục đến hạn ôn hôm nay · Chế độ: ${reviewFormat === 'flashcard' ? 'Thẻ lật' : reviewFormat === 'multiple_choice' ? 'Trắc nghiệm' : reviewFormat === 'typing' ? 'Tự gõ' : 'Hỗn hợp'}${hidePinyin ? ' · Đang ẩn Pinyin mặt trước' : ''}`;
-
-    document.title = `${modeTitle} | Ôn tập XieHanzi`;
-
-    root.innerHTML = `
-      <div id="xhz-review-session-root" style="max-width:920px;margin:0 auto;">
-        <!-- Top Navigation Bar -->
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
-          <a href="/on-tap" style="color:#ea580c;font-weight:800;text-decoration:none;display:inline-flex;align-items:center;gap:6px;font-size:15px;">
-            ← Quay lại Trung tâm Ôn tập (/on-tap)
-          </a>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="/hoc/bai/on-tap-den-han" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${!isMistakeMode && !isSentenceMode ? '#ea580c' : '#e7e5e4'};background:${!isMistakeMode && !isSentenceMode ? '#ea580c' : '#fff'};color:${!isMistakeMode && !isSentenceMode ? '#fff' : '#44403c'};">
-              🔄 Ôn bài đến hạn (${dueItems.length})
-            </a>
-            <a href="/hoc/bai/on-tap-loi-sai" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${isMistakeMode ? '#ea580c' : '#e7e5e4'};background:${isMistakeMode ? '#ea580c' : '#fff'};color:${isMistakeMode ? '#fff' : '#44403c'};">
-              🛠️ Ôn lỗi sai (${mistakeItems.length})
-            </a>
-            <a href="/hoc/bai/on-tap-the-cau" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;border:1px solid ${isSentenceMode ? '#ea580c' : '#e7e5e4'};background:${isSentenceMode ? '#ea580c' : '#fff'};color:${isSentenceMode ? '#fff' : '#44403c'};">
-              🃏 Luyện thẻ câu (${sentenceCards.length})
-            </a>
-          </div>
-        </div>
-
-        <!-- Header Card -->
-        <div style="background:linear-gradient(135deg,#fff7ed 0%,#ffedd5 100%);border:1px solid #fed7aa;border-radius:22px;padding:20px 24px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;">
-          <div style="display:flex;align-items:center;gap:16px;">
-            <img src="/images/capy/lesson/happy.webp" alt="Capy" style="width:64px;height:64px;border-radius:16px;object-fit:cover;background:#fff;border:2px solid #fdba74;" />
-            <div>
-              <div style="font-size:12px;font-weight:800;color:#ea580c;text-transform:uppercase;letter-spacing:0.05em;">PHIÊN ÔN TẬP CHỦ ĐỘNG</div>
-              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:4px 0;">${modeTitle}</h1>
-              <div style="font-size:14px;color:#57534e;">${modeSubtitle}</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-            <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;border:1px solid #fdba74;font-weight:800;color:#9a3412;font-size:15px;">
-              Hoàn thành: 0 / ${isMistakeMode ? mistakeItems.length : isSentenceMode ? sentenceCards.length : dueItems.length}
-            </div>
-            <button id="xhz-review-finish-btn" style="padding:10px 18px;border-radius:14px;background:#16a34a;color:#fff;border:none;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,0.2);">
-              ✅ Hoàn thành phiên ôn
-            </button>
-          </div>
-        </div>
-
-        <!-- Dynamic Mode Body -->
-        <div id="xhz-review-body" style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);"></div>
+    const sourceCards = isMistakeMode ? mistakes : isSentenceMode ? sentences : due;
+    const title = isMistakeMode ? 'Ôn lỗi sai' : isSentenceMode ? 'Luyện thẻ câu' : 'Ôn bài đến hạn';
+    document.title = `${title} | Ôn tập Hán ngữ`;
+    root.innerHTML = `<div id="xhz-review-session-root" style="max-width:920px;margin:0 auto;color:#1c1917;">
+      <a href="/on-tap" style="display:inline-block;margin-bottom:18px;color:#0d9488;font-weight:700;">← Quay lại Trung tâm Ôn tập</a>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+        <a href="/hoc/bai/on-tap-den-han" style="padding:8px 14px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-weight:700;">Ôn đến hạn (${due.length})</a>
+        <a href="/hoc/bai/on-tap-loi-sai" style="padding:8px 14px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-weight:700;">Ôn lỗi sai (${mistakes.length})</a>
+        <a href="/hoc/bai/on-tap-the-cau" style="padding:8px 14px;border:1px solid #99f6e4;border-radius:999px;background:#f0fdfa;color:#115e59;font-weight:700;">Thẻ câu (${sentences.length})</a>
       </div>
-    `;
-
+      <div style="padding:20px 24px;border:1px solid #99f6e4;border-radius:22px;background:#f0fdfa;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+        <div><h1 style="font-size:24px;font-weight:800;margin:0 0 6px;">${title}</h1>
+          <p style="margin:0;color:#57534e;">${sourceCards.length} thẻ từ lịch sử học của bạn${isMistakeMode ? ' · Mỗi lỗi cần hai lượt đúng liên tiếp để khắc phục' : ''}</p></div>
+        <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;color:#115e59;font-weight:800;">Đã luyện: 0 / ${sourceCards.length}</div>
+      </div>
+      <div id="xhz-review-status" role="status" aria-live="polite" style="margin:12px 0;color:#0d9488;"></div>
+      <div id="xhz-review-body" style="padding:24px;border:1px solid #e7e5e4;border-radius:22px;background:#fff;">Đang tải thẻ ôn tập...</div>
+    </div>`;
     const bodyEl = root.querySelector('#xhz-review-body');
+    const statusEl = root.querySelector('#xhz-review-status');
     const badgeEl = root.querySelector('#xhz-review-progress-badge');
-    const finishRevBtn = root.querySelector('#xhz-review-finish-btn');
-    if (finishRevBtn) {
-      finishRevBtn.onclick = async () => {
-        finishRevBtn.textContent = 'Đang đồng bộ...';
-        finishRevBtn.disabled = true;
-        const prog = recordStudyProgress({
-          minutes: 4,
-          sessionInc: 1,
-          gradingInc: 1,
-          dailyStepDone: 'step-review-1'
-        });
-        try {
-          await Promise.race([prog.__syncPromise || syncProgressToSupabaseAuth(prog), new Promise(r => setTimeout(r, 2000))]);
-        } catch (_) {}
-        window.location.assign('/on-tap');
-      };
-    }
-
-    // ========================================================================
-    // MODE B: ÔN LỖI SAI (on-tap-loi-sai)
-    // ========================================================================
-    if (isMistakeMode) {
-      const solvedMap = {};
-      bodyEl.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:18px;">
-          <div style="font-size:16px;font-weight:800;color:#1c1917;">
-            Giải quyết từng cặp từ dễ nhầm dưới đây để xoá khỏi Sổ lỗi:
-          </div>
-          <a href="/hoc/so-loi" style="font-size:13px;font-weight:700;color:#ea580c;text-decoration:underline;">Xem toàn bộ Sổ lỗi →</a>
-        </div>
-        <div id="xhz-mistake-cards" style="display:flex;flex-direction:column;gap:18px;"></div>
-      `;
-      const listWrap = bodyEl.querySelector('#xhz-mistake-cards');
-      mistakeItems.forEach((m, idx) => {
-        const card = document.createElement('div');
-        card.style.cssText = 'padding:20px;border-radius:18px;border:1px solid #fed7aa;background:#fffaf5;display:flex;flex-direction:column;gap:12px;';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;">
-            <div>
-              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fee2e2;color:#b91c1c;">Lỗi sai #${idx + 1}</span>
-              <span style="font-size:26px;font-weight:800;color:#1c1917;margin-left:10px;">${m.hanzi}</span>
-              <span style="font-size:16px;font-weight:700;color:#ea580c;margin-left:8px;">(${m.pinyin})</span>
-              <span style="font-size:15px;font-weight:700;color:#44403c;margin-left:8px;">— ${m.meaningVi}</span>
-            </div>
-            <button class="xhz-mistake-speak" style="padding:7px 14px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:700;cursor:pointer;font-size:13px;">
-              🔊 Nghe phát âm chuẩn
-            </button>
-          </div>
-          <div style="padding:12px 14px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:14px;line-height:1.55;">
-            <div style="color:#b91c1c;font-weight:700;">⚠️ Hay nhầm với: ${m.confusedWith}</div>
-            <div style="color:#44403c;margin-top:4px;">${m.reasonVi}</div>
-            <div style="color:#15803d;font-weight:700;margin-top:6px;">💡 Mẹo nhớ: ${m.tipVi}</div>
-          </div>
-          <div style="margin-top:4px;">
-            <div style="font-size:15px;font-weight:800;color:#1c1917;margin-bottom:10px;">🎯 Kiểm tra khắc phục: ${m.question}</div>
-            <div class="xhz-mistake-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;"></div>
-            <div class="xhz-mistake-status" style="display:none;margin-top:10px;padding:10px 14px;border-radius:10px;font-size:14px;font-weight:700;"></div>
-          </div>
-        `;
-        card.querySelector('.xhz-mistake-speak').onclick = () => {
-          const cleanHz = m.hanzi.split('/')[0].trim();
-          playPronunciation(cleanHz, `/word_audios/${cleanHz}.mp3`);
-        };
-        const optsWrap = card.querySelector('.xhz-mistake-opts');
-        const statusEl = card.querySelector('.xhz-mistake-status');
-        m.options.forEach((optText, oIdx) => {
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:11px 14px;border-radius:12px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;text-align:left;cursor:pointer;font-size:14px;';
-          btn.textContent = `${String.fromCharCode(65 + oIdx)}. ${optText}`;
-          btn.onclick = () => {
-            const isCorrect = oIdx === m.correctIndex;
-            solvedMap[m.id] = isCorrect ? 1 : 0;
-            const solvedCount = Object.values(solvedMap).reduce((a, b) => a + b, 0);
-            if (badgeEl) badgeEl.textContent = `Hoàn thành: ${solvedCount} / ${mistakeItems.length}`;
-            Array.from(optsWrap.children).forEach(b => {
-              b.style.background = '#fff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            if (isCorrect) {
-              btn.style.background = '#dcfce7';
-              btn.style.borderColor = '#16a34a';
-              btn.style.color = '#14532d';
-              statusEl.style.display = 'block';
-              statusEl.style.background = '#dcfce7';
-              statusEl.style.color = '#14532d';
-              statusEl.textContent = '✅ Chính xác! Bạn đã khắc phục được lỗi nhầm lẫn này.';
-              const cleanHz = m.hanzi.split('/')[0].trim();
-              playPronunciation(cleanHz, `/word_audios/${cleanHz}.mp3`);
-              recordStudyProgress({ words: [cleanHz], gradingInc: 1, dailyStepDone: 'step-review-1' });
-            } else {
-              btn.style.background = '#fee2e2';
-              btn.style.borderColor = '#dc2626';
-              btn.style.color = '#7f1d1d';
-              statusEl.style.display = 'block';
-              statusEl.style.background = '#fee2e2';
-              statusEl.style.color = '#991b1b';
-              statusEl.textContent = `❌ Chưa đúng. Hãy xem lại mẹo nhớ: ${m.tipVi}`;
-            }
-          };
-          optsWrap.appendChild(btn);
-        });
-        listWrap.appendChild(card);
-      });
+    if (!sourceCards.length) {
+      bodyEl.innerHTML = `<div style="padding:24px;text-align:center;line-height:1.7;">
+        <h2 style="font-size:20px;font-weight:800;">${isMistakeMode ? 'Bạn chưa có lỗi cần ôn.' : isSentenceMode ? 'Chưa có thẻ câu đến hạn.' : 'Bạn đã ôn hết các thẻ đến hạn.'}</h2>
+        <p style="color:#57534e;">Kết quả từ các bài học và bài luyện sẽ được lưu vào lịch ôn của bạn.</p>
+        <a href="/hoc" style="display:inline-block;padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;">Tiếp tục học</a>
+      </div>`;
       return;
     }
-
-    // ========================================================================
-    // MODE C: LUYỆN THẺ CÂU (on-tap-the-cau)
-    // ========================================================================
-    if (isSentenceMode) {
-      const doneSentences = {};
-      bodyEl.innerHTML = `
-        <div style="font-size:16px;font-weight:800;color:#1c1917;margin-bottom:16px;">
-          Luyện phản xạ cụm danh từ - lượng từ & mẫu câu giao tiếp HSK 1:
-        </div>
-        <div id="xhz-sentence-list" style="display:flex;flex-direction:column;gap:16px;"></div>
-      `;
-      const sList = bodyEl.querySelector('#xhz-sentence-list');
-      sentenceCards.forEach((sc, idx) => {
-        const card = document.createElement('div');
-        card.style.cssText = 'padding:20px;border-radius:18px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:12px;';
-        card.innerHTML = `
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
-            <div>
-              <span style="font-size:12px;font-weight:800;color:#ea580c;">THẺ CÂU #${idx + 1}</span>
-              <div style="font-size:28px;font-weight:800;color:#1c1917;margin-top:2px;">${sc.hanzi}</div>
-              <div style="font-size:15px;font-weight:700;color:#ea580c;margin-top:2px;">${hidePinyin ? '(Đã ẩn Pinyin — bấm Nghe để kiểm tra)' : sc.pinyin}</div>
-              <div style="font-size:15px;color:#44403c;margin-top:4px;font-weight:600;">${sc.meaningVi}</div>
-            </div>
-            <button class="xhz-sc-speak" style="padding:8px 16px;border-radius:999px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:700;cursor:pointer;">
-              🔊 Nghe câu
-            </button>
-          </div>
-          <div style="padding-top:10px;border-top:1px dashed #d6d3d1;">
-            <div style="font-size:14px;font-weight:800;color:#1c1917;margin-bottom:8px;">Điền từ/lượng từ đúng: ${sc.blankQuestion}</div>
-            <div class="xhz-sc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;"></div>
-          </div>
-        `;
-        card.querySelector('.xhz-sc-speak').onclick = () => playPronunciation(sc.hanzi, '');
-        const optsBox = card.querySelector('.xhz-sc-opts');
-        sc.options.forEach(opt => {
-          const btn = document.createElement('button');
-          btn.style.cssText = 'padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:14px;';
-          btn.textContent = opt;
-          btn.onclick = () => {
-            const ok = opt === sc.answer;
-            doneSentences[sc.id] = ok ? 1 : 0;
-            const total = Object.values(doneSentences).reduce((a, b) => a + b, 0);
-            if (badgeEl) badgeEl.textContent = `Hoàn thành: ${total} / ${sentenceCards.length}`;
-            Array.from(optsBox.children).forEach(b => {
-              b.style.background = '#fff';
-              b.style.borderColor = '#d6d3d1';
-              b.style.color = '#1c1917';
-            });
-            btn.style.background = ok ? '#dcfce7' : '#fee2e2';
-            btn.style.borderColor = ok ? '#16a34a' : '#dc2626';
-            btn.style.color = ok ? '#14532d' : '#7f1d1d';
-            if (ok) {
-              playPronunciation(sc.hanzi, '');
-              recordStudyProgress({ words: [sc.hanzi], gradingInc: 1, dailyStepDone: 'step-review-1' });
-            }
-          };
-          optsBox.appendChild(btn);
-        });
-        sList.appendChild(card);
-      });
-      return;
-    }
-
-    // ========================================================================
-    // MODE A: ÔN BÀI ĐẾN HẠN (on-tap-den-han) — Flashcard SRS + Trắc nghiệm + Tự gõ
-    // ========================================================================
-    const defaultTab = reviewFormat === 'multiple_choice' ? 'mc' : reviewFormat === 'typing' ? 'typing' : 'srs';
-    bodyEl.innerHTML = `
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:22px;border-bottom:1px solid #f5f5f4;padding-bottom:14px;">
-        <button class="xhz-rev-tab" data-tab="srs" style="padding:10px 18px;border-radius:12px;border:2px solid #ea580c;background:#ea580c;color:#fff;font-weight:800;cursor:pointer;font-size:14px;">
-          1. 🗂️ Thẻ lật SRS (Ngắt quãng)
-        </button>
-        <button class="xhz-rev-tab" data-tab="mc" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:800;cursor:pointer;font-size:14px;">
-          2. 🎯 Trắc nghiệm nhanh (${dueItems.length} câu)
-        </button>
-        <button class="xhz-rev-tab" data-tab="typing" style="padding:10px 18px;border-radius:12px;border:2px solid #e7e5e4;background:#fafaf9;color:#1c1917;font-weight:800;cursor:pointer;font-size:14px;">
-          3. ⌨️ Tự gõ chữ Hán / Pinyin
-        </button>
-      </div>
-
-      <!-- TAB 1: SRS FLASHCARD -->
-      <div id="xhz-rev-panel-srs" style="max-width:580px;margin:0 auto;text-align:center;">
-        <div id="xhz-srs-counter" style="font-size:14px;font-weight:700;color:#78716c;margin-bottom:12px;">Thẻ 1 / ${dueItems.length}</div>
-        <div id="xhz-srs-card" style="padding:36px 24px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;cursor:pointer;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(234,88,12,0.08);">
-          <div id="xhz-srs-hanzi" style="font-size:68px;font-weight:800;color:#1c1917;"></div>
-          <div id="xhz-srs-pinyin" style="font-size:22px;font-weight:700;color:#ea580c;"></div>
-          <div id="xhz-srs-back" style="display:none;margin-top:12px;padding-top:14px;border-top:1px dashed #fdba74;width:100%;">
-            <div id="xhz-srs-meaning" style="font-size:24px;font-weight:800;color:#1c1917;"></div>
-            <div id="xhz-srs-example" style="font-size:14px;color:#57534e;margin-top:8px;"></div>
-          </div>
-          <div id="xhz-srs-hint" style="font-size:12px;color:#9a3412;margin-top:8px;">(Bấm vào thẻ để lật xem đáp án & chấm mức độ nhớ)</div>
-        </div>
-        <div style="display:flex;justify-content:center;gap:10px;margin-top:16px;flex-wrap:wrap;">
-          <button id="xhz-srs-speak" style="padding:10px 18px;border-radius:12px;border:1px solid #fdba74;background:#ffedd5;color:#9a3412;font-weight:800;cursor:pointer;">🔊 Nghe phát âm</button>
-          <button id="xhz-srs-flip" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:800;cursor:pointer;">🔄 Lật thẻ</button>
-        </div>
-        <div style="margin-top:18px;">
-          <div style="font-size:13px;font-weight:700;color:#57534e;margin-bottom:10px;">Đánh giá mức độ nhớ của bạn để lên lịch SRS tiếp theo:</div>
-          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
-            <button class="xhz-srs-grade" data-grade="again" style="padding:12px 8px;border-radius:12px;border:1px solid #fecaca;background:#fef2f2;color:#b91c1c;font-weight:800;cursor:pointer;">
-              Quên<div style="font-size:11px;font-weight:600;margin-top:2px;">1 phút</div>
-            </button>
-            <button class="xhz-srs-grade" data-grade="hard" style="padding:12px 8px;border-radius:12px;border:1px solid #fed7aa;background:#fff7ed;color:#c2410c;font-weight:800;cursor:pointer;">
-              Khó<div style="font-size:11px;font-weight:600;margin-top:2px;">10 phút</div>
-            </button>
-            <button class="xhz-srs-grade" data-grade="good" style="padding:12px 8px;border-radius:12px;border:1px solid #bbf7d0;background:#f0fdf4;color:#15803d;font-weight:800;cursor:pointer;">
-              Tốt<div style="font-size:11px;font-weight:600;margin-top:2px;">1 ngày</div>
-            </button>
-            <button class="xhz-srs-grade" data-grade="easy" style="padding:12px 8px;border-radius:12px;border:1px solid #bfdbfe;background:#eff6ff;color:#1d4ed8;font-weight:800;cursor:pointer;">
-              Dễ<div style="font-size:11px;font-weight:600;margin-top:2px;">4 ngày</div>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- TAB 2: MULTIPLE CHOICE -->
-      <div id="xhz-rev-panel-mc" style="display:none;flex-direction:column;gap:14px;"></div>
-
-      <!-- TAB 3: TYPING -->
-      <div id="xhz-rev-panel-typing" style="display:none;flex-direction:column;gap:14px;"></div>
-    `;
-
-    let srsIdx = 0;
-    const srsReviewed = {};
-    const srsCounter = bodyEl.querySelector('#xhz-srs-counter');
-    const srsCard = bodyEl.querySelector('#xhz-srs-card');
-    const srsHanzi = bodyEl.querySelector('#xhz-srs-hanzi');
-    const srsPinyin = bodyEl.querySelector('#xhz-srs-pinyin');
-    const srsBack = bodyEl.querySelector('#xhz-srs-back');
-    const srsMeaning = bodyEl.querySelector('#xhz-srs-meaning');
-    const srsExample = bodyEl.querySelector('#xhz-srs-example');
-
-    function renderSrsCard() {
-      const item = dueItems[srsIdx % dueItems.length];
-      if (!item) return;
-      if (srsCounter) srsCounter.textContent = `Thẻ ${srsIdx + 1} / ${dueItems.length}`;
-      if (srsHanzi) srsHanzi.textContent = item.hanzi;
-      if (srsPinyin) {
-        srsPinyin.textContent = hidePinyin ? '••• (Đang ẩn Pinyin — Lật thẻ để xem)' : `${item.pinyin}${item.hanviet ? ` · ${item.hanviet.toUpperCase()}` : ''}`;
-      }
-      if (srsMeaning) srsMeaning.textContent = `${item.meaningVi} (${item.pinyin})`;
-      if (srsExample) srsExample.innerHTML = item.exampleZh ? `Ví dụ: <strong>${item.exampleZh}</strong> ${item.examplePy ? `(${item.examplePy})` : ''} — ${item.exampleVi}` : '';
-      if (srsBack) srsBack.style.display = 'none';
-    }
-    renderSrsCard();
-
-    function flipSrsCard() {
-      const item = dueItems[srsIdx % dueItems.length];
-      if (! srsBack) return;
-      const showing = srsBack.style.display !== 'none';
-      srsBack.style.display = showing ? 'none' : 'block';
-      if (!showing && item && srsPinyin) {
-        srsPinyin.textContent = `${item.pinyin}${item.hanviet ? ` · ${item.hanviet.toUpperCase()}` : ''}`;
-      }
-    }
-    if (srsCard) srsCard.onclick = flipSrsCard;
-    const flipBtn = bodyEl.querySelector('#xhz-srs-flip');
-    if (flipBtn) flipBtn.onclick = flipSrsCard;
-
-    const speakBtn = bodyEl.querySelector('#xhz-srs-speak');
-    if (speakBtn) {
-      speakBtn.onclick = () => {
-        const item = dueItems[srsIdx % dueItems.length];
-        if (item) playPronunciation(item.hanzi, item.audioUrl);
-      };
-    }
-
-    bodyEl.querySelectorAll('.xhz-srs-grade').forEach(btn => {
-      btn.onclick = () => {
-        const item = dueItems[srsIdx % dueItems.length];
-        if (item) {
-          srsReviewed[item.id] = 1;
-          const doneCount = Object.keys(srsReviewed).length;
-          if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
-          recordStudyProgress({
-            words: [item.hanzi],
-            minutes: doneCount === 1 ? 2 : 0,
-            sessionInc: doneCount === 1 ? 1 : 0,
-            gradingInc: 1,
-            dailyStepDone: 'step-review-1'
-          });
+    const items = await Promise.all(sourceCards.map(async card => {
+      const content = card.content || {};
+      const text = content.hanzi || content.text || card.itemKey.replace(/^[a-z]:/, '');
+      let info = null;
+      if (card.itemKey.startsWith('c:')) info = await lookupCharacter(text);
+      else if (card.itemKey.startsWith('w:')) info = await lookupWord(text);
+      let grammar = null;
+      if (card.itemKey.startsWith('g:')) {
+        const grammarId = card.itemKey.slice(2);
+        const files = ['hsk-level-1', 'hsk-level-2', 'hsk-level-3', 'hsk-level-4', 'hsk-level-5', 'hsk-level-6', 'new-hsk-level-1', 'new-hsk-level-2', 'new-hsk-level-3'];
+        for (const file of files) {
+          const data = await loadLocalJson(`/data/grammar/${file}.json`);
+          grammar = data && Array.isArray(data.items) && data.items.find(item => item.id === grammarId || item.code === grammarId);
+          if (grammar) break;
         }
-        srsIdx = (srsIdx + 1) % dueItems.length;
-        renderSrsCard();
-      };
-    });
-
-    // Populate Multiple Choice Panel
-    const mcPanel = bodyEl.querySelector('#xhz-rev-panel-mc');
-    dueItems.forEach((item, idx) => {
-      const pool = dueItems.filter((_, i) => i !== idx).map(x => x.meaningVi);
-      const opts = [item.meaningVi, pool[idx % pool.length] || 'Tạm biệt', pool[(idx + 2) % pool.length] || 'Học sinh', pool[(idx + 4) % pool.length] || 'Cảm ơn'];
-      const rot = idx % opts.length;
-      const rotated = [...opts.slice(rot), ...opts.slice(0, rot)];
-
-      const row = document.createElement('div');
-      row.style.cssText = 'padding:16px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;';
-      row.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <div style="font-size:17px;font-weight:800;color:#1c1917;">
-            <span style="color:#ea580c;margin-right:6px;">Câu ${idx + 1}.</span>
-            <span style="font-size:24px;">${item.hanzi}</span>
-            ${hidePinyin ? '' : `<span style="color:#ea580c;margin-left:6px;">(${item.pinyin})</span>`}
-          </div>
-          <button class="xhz-mc-audio" style="padding:5px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 Nghe</button>
-        </div>
-        <div class="xhz-mc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
-      `;
-      row.querySelector('.xhz-mc-audio').onclick = () => playPronunciation(item.hanzi, item.audioUrl);
-      const optsWrap = row.querySelector('.xhz-mc-opts');
-      rotated.forEach((optText, oIdx) => {
-        const b = document.createElement('button');
-        b.style.cssText = 'padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;text-align:left;cursor:pointer;font-size:14px;';
-        b.textContent = `${String.fromCharCode(65 + oIdx)}. ${optText}`;
-        b.onclick = () => {
-          const ok = optText === item.meaningVi;
-          srsReviewed[item.id] = 1;
-          const doneCount = Object.keys(srsReviewed).length;
-          if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
-          recordStudyProgress({
-            words: [item.hanzi],
-            minutes: doneCount === 1 ? 2 : 0,
-            sessionInc: doneCount === 1 ? 1 : 0,
-            gradingInc: 1,
-            dailyStepDone: 'step-review-1'
-          });
-          Array.from(optsWrap.children).forEach(el => {
-            el.style.background = '#fff';
-            el.style.borderColor = '#d6d3d1';
-            el.style.color = '#1c1917';
-          });
-          b.style.background = ok ? '#dcfce7' : '#fee2e2';
-          b.style.borderColor = ok ? '#16a34a' : '#dc2626';
-          b.style.color = ok ? '#14532d' : '#7f1d1d';
-          if (ok) playPronunciation(item.hanzi, item.audioUrl);
-        };
-        optsWrap.appendChild(b);
-      });
-      mcPanel.appendChild(row);
-    });
-
-    // Populate Typing Panel
-    const typingPanel = bodyEl.querySelector('#xhz-rev-panel-typing');
-    dueItems.forEach((item, idx) => {
-      const row = document.createElement('div');
-      row.style.cssText = 'padding:16px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:10px;';
-      row.innerHTML = `
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
-          <div style="font-size:16px;font-weight:800;color:#1c1917;">
-            #${idx + 1}. Nghĩa: <span style="color:#ea580c;">“${item.meaningVi}”</span> ${hidePinyin ? '' : `<span style="color:#78716c;font-size:14px;">(Gợi ý Pinyin: ${item.pinyin})</span>`}
-          </div>
-          <button class="xhz-type-audio" style="padding:5px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;border:none;font-weight:700;cursor:pointer;">🔊 Nghe gợi ý</button>
-        </div>
-        <div style="display:flex;gap:10px;flex-wrap:wrap;">
-          <input type="text" class="xhz-type-input" placeholder="Gõ chữ Hán (${item.hanzi}) hoặc Pinyin..." style="flex:1;min-width:200px;padding:10px 14px;border-radius:10px;border:2px solid #d6d3d1;font-size:15px;font-weight:700;" />
-          <button class="xhz-type-check" style="padding:10px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:800;cursor:pointer;">Kiểm tra</button>
-        </div>
-        <div class="xhz-type-feedback" style="display:none;font-size:14px;font-weight:700;"></div>
-      `;
-      row.querySelector('.xhz-type-audio').onclick = () => playPronunciation(item.hanzi, item.audioUrl);
-      const inp = row.querySelector('.xhz-type-input');
-      const fb = row.querySelector('.xhz-type-feedback');
-      row.querySelector('.xhz-type-check').onclick = () => {
-        const val = (inp.value || '').trim().toLowerCase();
-        const cleanPy = item.pinyin.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const cleanVal = val.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-        const ok = val === item.hanzi || cleanVal === cleanPy;
-        srsReviewed[item.id] = 1;
-        const doneCount = Object.keys(srsReviewed).length;
-        if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
-        recordStudyProgress({
-          words: [item.hanzi],
-          minutes: doneCount === 1 ? 2 : 0,
-          sessionInc: doneCount === 1 ? 1 : 0,
-          gradingInc: 1,
-          dailyStepDone: 'step-review-1'
-        });
-        fb.style.display = 'block';
-        fb.style.color = ok ? '#15803d' : '#b91c1c';
-        fb.textContent = ok ? `✅ Chính xác: ${item.hanzi} (${item.pinyin})` : `💡 Đáp án chuẩn: ${item.hanzi} (${item.pinyin}) — ${item.meaningVi}`;
-        playPronunciation(item.hanzi, item.audioUrl);
-      };
-      typingPanel.appendChild(row);
-    });
-
-    // Tab switching
-    const revTabs = bodyEl.querySelectorAll('.xhz-rev-tab');
-    const panels = {
-      srs: bodyEl.querySelector('#xhz-rev-panel-srs'),
-      mc: mcPanel,
-      typing: typingPanel
-    };
-    function switchRevTab(tabKey) {
-      revTabs.forEach(b => {
-        const active = b.getAttribute('data-tab') === tabKey;
-        b.style.background = active ? '#ea580c' : '#fafaf9';
-        b.style.color = active ? '#fff' : '#1c1917';
-        b.style.borderColor = active ? '#ea580c' : '#e7e5e4';
-      });
-      if (panels.srs) panels.srs.style.display = tabKey === 'srs' ? 'block' : 'none';
-      if (panels.mc) panels.mc.style.display = tabKey === 'mc' ? 'flex' : 'none';
-      if (panels.typing) panels.typing.style.display = tabKey === 'typing' ? 'flex' : 'none';
+      }
+      const example = info && Array.isArray(info.examples) ? info.examples[0] : null;
+      const pinyin = content.pinyin || (info && (info.pinyin || info.wordPinyin || (Array.isArray(info.pinyins) && info.pinyins.join(' ')))) || '';
+      return { ...card, id: `${card.itemKey}|${card.skill}`, hanzi: (grammar && (grammar.pattern || grammar.title)) || text,
+        pinyin, meaningVi: content.meaningVi || content.translationVi || (info && (info.meaningVi || info.wordMeaningVi)) || (grammar && (grammar.explanation || grammar.summary)) || '',
+        audioUrl: content.audioUrl || (info && (info.audioUrl || (Array.isArray(info.audios) && info.audios[0]))) || '',
+        exampleZh: example && (example.hanzi || example.chinese) || '', exampleVi: example && (example.vietnamese || example.meaningVi) || '' };
+    }));
+    const index = (await loadLocalJson('/data/vocabulary/index.json')) || [];
+    const vocabulary = Array.isArray(index) ? index : [];
+    const completed = new Set();
+    const pending = new Set();
+    async function record(item, outcome, detail = {}) {
+      if (pending.has(item.id)) return false;
+      pending.add(item.id); statusEl.textContent = '';
+      const signalId = window.crypto && typeof window.crypto.randomUUID === 'function' ? window.crypto.randomUUID() : `review-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const signal = { signalId, itemKey: item.itemKey, skill: item.skill || 'meaning', outcome, ts: new Date().toISOString(), source: 'srs_review',
+        detail: { hanzi: item.hanzi, pinyin: item.pinyin, meaningVi: item.meaningVi, audioUrl: item.audioUrl, ...detail } };
+      try {
+        const url = new URL('/v2/review/signals', window.location.origin);
+        const response = await handlePersistentApi(url.pathname, url, { body: JSON.stringify({ signals: [signal] }) }, 'POST');
+        if (!response || !response.ok) throw new Error('Chưa lưu được kết quả. Hãy thử lại; thẻ vẫn đang ở đây.');
+        completed.add(item.id);
+        badgeEl.textContent = `Đã luyện: ${completed.size} / ${items.length}`;
+        if (completed.size === 1) { recordStudyProgress({ minutes: 2, sessionInc: 1, dailyStepDone: 'step-review-1' }); }
+        return true;
+      } catch (error) { statusEl.textContent = error.message || 'Chưa lưu được kết quả. Hãy thử lại.'; return false; }
+      finally { pending.delete(item.id); }
     }
-    revTabs.forEach(b => {
-      b.onclick = () => switchRevTab(b.getAttribute('data-tab'));
-    });
-    switchRevTab(defaultTab);
+    const buttonStyle = 'padding:11px 14px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;';
+    const normalize = text => String(text || '').toLowerCase().normalize('NFD').replace(/u\u0308/g, 'v').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\u3400-\u9fff]/g, '');
+    const play = item => playPronunciation(item.hanzi, item.audioUrl);
+    function populateQuiz(container) {
+      items.forEach((item, itemIndex) => {
+        const testsSound = ['sound', 'pinyin'].includes(item.skill) && Boolean(item.pinyin);
+        const answer = testsSound ? item.pinyin : item.meaningVi || item.hanzi;
+        const pool = vocabulary.map(word => testsSound ? word.p : word.m).filter(value => value && value !== answer);
+        const options = [answer, ...new Set(pool)].slice(0, 4);
+        const rotation = itemIndex % options.length;
+        const choices = [...options.slice(rotation), ...options.slice(0, rotation)];
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
+        row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;">
+          <div><strong style="font-size:24px;">${answer === item.hanzi ? 'Nghe rồi chọn đáp án đúng' : escape(item.hanzi)}</strong>
+            ${!hidePinyin && !testsSound && answer !== item.hanzi ? `<div style="color:#0d9488;">${escape(item.pinyin)}</div>` : ''}
+            ${isMistakeMode ? `<div style="font-size:13px;color:#78716c;">${item.wrongCount} lượt sai · Đã đúng liên tiếp ${item.correctStreak}/2</div>` : ''}</div>
+          <button class="xhz-mc-audio" style="${buttonStyle}">🔊 Nghe</button></div>
+          <div class="xhz-mc-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
+          <div class="xhz-mc-feedback" role="status" style="margin-top:10px;font-weight:700;"></div>`;
+        row.querySelector('.xhz-mc-audio').onclick = () => play(item);
+        const optionsEl = row.querySelector('.xhz-mc-opts');
+        const feedback = row.querySelector('.xhz-mc-feedback');
+        let answered = false;
+        choices.forEach(choice => {
+          const button = document.createElement('button'); button.style.cssText = buttonStyle; button.textContent = choice;
+          button.onclick = async () => {
+            if (answered || pending.has(item.id)) return;
+            const correct = choice === answer;
+            if (!await record(item, correct ? 'correct' : 'wrong', { mode: 'multiple_choice', given: choice, expected: answer })) return;
+            answered = true;
+            optionsEl.querySelectorAll('button').forEach(option => { option.disabled = true; option.style.opacity = '0.8'; });
+            button.style.background = correct ? '#dcfce7' : '#fee2e2'; button.style.borderColor = correct ? '#16a34a' : '#dc2626';
+            feedback.style.color = correct ? '#15803d' : '#b91c1c';
+            feedback.textContent = correct ? 'Chính xác! Đã lưu vào lịch ôn.' : `Đáp án: ${answer}. Đã lưu để bạn ôn lại.`;
+          };
+          optionsEl.appendChild(button);
+        });
+        container.appendChild(row);
+      });
+    }
+    function populateTyping(container) {
+      items.forEach(item => {
+        const row = document.createElement('div'); row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
+        row.innerHTML = `<div style="margin-bottom:12px;font-weight:700;">${escape(item.meaningVi || 'Nghe rồi gõ lại chữ/câu')}</div>
+          <button class="xhz-type-audio" style="${buttonStyle}margin-bottom:12px;">🔊 Nghe gợi ý</button>
+          <div style="display:flex;flex-wrap:wrap;gap:10px;"><input class="xhz-type-input" aria-label="Câu trả lời" placeholder="Nhập chữ Hán hoặc pinyin..." style="flex:1;min-width:180px;padding:10px 14px;border:1px solid #d6d3d1;border-radius:10px;color:#1c1917;background:#fff;" />
+            <button class="xhz-type-check" style="${buttonStyle}background:#0d9488;color:#fff;border-color:#0d9488;">Kiểm tra</button></div>
+          <div class="xhz-type-feedback" role="status" style="margin-top:10px;font-weight:700;"></div>`;
+        row.querySelector('.xhz-type-audio').onclick = () => play(item);
+        const input = row.querySelector('.xhz-type-input'); const button = row.querySelector('.xhz-type-check');
+        button.onclick = async () => {
+          const value = normalize(input.value); if (!value || button.disabled || pending.has(item.id)) return;
+          const correct = value === normalize(item.hanzi) || Boolean(item.pinyin && value === normalize(item.pinyin));
+          if (!await record(item, correct ? 'correct' : 'wrong', { mode: 'typing', given: input.value, expected: item.hanzi })) return;
+          button.disabled = true; input.disabled = true;
+          const feedback = row.querySelector('.xhz-type-feedback'); feedback.style.color = correct ? '#15803d' : '#b91c1c';
+          feedback.textContent = `${correct ? 'Chính xác!' : 'Đáp án:'} ${item.hanzi}${item.pinyin ? ` (${item.pinyin})` : ''} — Đã lưu vào lịch ôn.`;
+        };
+        input.onkeydown = event => { if (event.key === 'Enter') button.click(); };
+        container.appendChild(row);
+      });
+    }
+    bodyEl.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px;">
+      <button class="xhz-rev-tab" data-tab="srs" style="${buttonStyle}">🗂️ Thẻ lật SRS</button>
+      <button class="xhz-rev-tab" data-tab="mc" style="${buttonStyle}">🎯 Trắc nghiệm</button>
+      <button class="xhz-rev-tab" data-tab="typing" style="${buttonStyle}">⌨️ Tự gõ</button></div>
+      <div id="xhz-rev-panel-srs" style="max-width:580px;margin:auto;text-align:center;"></div>
+      <div id="xhz-rev-panel-mc" style="display:none;flex-direction:column;gap:14px;"></div>
+      <div id="xhz-rev-panel-typing" style="display:none;flex-direction:column;gap:14px;"></div>`;
+    const srsPanel = bodyEl.querySelector('#xhz-rev-panel-srs');
+    let currentIndex = 0;
+    function renderCard() {
+      const item = items[currentIndex];
+      if (!item) { srsPanel.innerHTML = '<div style="padding:30px;font-weight:700;line-height:1.8;">Đã lưu kết quả của toàn bộ thẻ trong phiên này.<br/><a href="/on-tap" style="color:#0d9488;">Xem lịch ôn mới →</a></div>'; return; }
+      let flipped = false;
+      const goodDays = [1, 3, 7, 14, 30][Math.min(4, item.correctStreak || 0)];
+      srsPanel.innerHTML = `<div style="margin-bottom:12px;color:#78716c;font-weight:700;">Thẻ ${currentIndex + 1} / ${items.length}</div>
+        <button id="xhz-srs-card" style="width:100%;padding:32px 24px;min-height:250px;border-radius:22px;border:2px solid #5eead4;background:#f0fdfa;color:#1c1917;cursor:pointer;">
+          <div style="font-size:48px;font-weight:800;overflow-wrap:anywhere;">${escape(item.hanzi)}</div>
+          <div class="xhz-srs-pinyin" style="font-size:20px;color:#0d9488;margin-top:10px;">${hidePinyin ? '' : escape(item.pinyin)}</div>
+          <div id="xhz-srs-back" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed #5eead4;">
+            <div style="font-size:22px;font-weight:700;">${escape(item.meaningVi)}</div>
+            ${item.exampleZh ? `<div style="font-size:15px;margin-top:8px;">${escape(item.exampleZh)} ${escape(item.exampleVi)}</div>` : ''}
+          </div><div style="margin-top:16px;font-size:13px;color:#115e59;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
+        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
+          ${[['again', 'Quên', '1 phút'], ['hard', 'Khó', '10 phút'], ['good', 'Tốt', `${goodDays} ngày`], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`]].map(([grade, label, interval]) => `<button class="xhz-srs-grade" data-grade="${grade}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval}</div></button>`).join('')}
+        </div>`;
+      const flip = () => {
+        flipped = !flipped; srsPanel.querySelector('#xhz-srs-back').style.display = flipped ? 'block' : 'none';
+        srsPanel.querySelector('.xhz-srs-pinyin').textContent = hidePinyin && !flipped ? '' : item.pinyin;
+        srsPanel.querySelectorAll('.xhz-srs-grade').forEach(button => { button.disabled = !flipped; button.style.opacity = flipped ? '1' : '0.5'; });
+      };
+      srsPanel.querySelector('#xhz-srs-card').onclick = flip; srsPanel.querySelector('#xhz-srs-flip').onclick = flip;
+      srsPanel.querySelector('#xhz-srs-speak').onclick = () => play(item);
+      srsPanel.querySelectorAll('.xhz-srs-grade').forEach(button => {
+        button.onclick = async () => {
+          if (!flipped || pending.has(item.id)) return;
+          const grade = button.getAttribute('data-grade');
+          const outcome = grade === 'again' ? 'wrong' : grade === 'hard' ? 'partial' : 'correct';
+          if (await record(item, outcome, { mode: 'flashcard', grade })) { currentIndex++; renderCard(); }
+        };
+      });
+    }
+    renderCard();
+    populateQuiz(bodyEl.querySelector('#xhz-rev-panel-mc'));
+    populateTyping(bodyEl.querySelector('#xhz-rev-panel-typing'));
+    function switchTab(tab) {
+      bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { const active = button.getAttribute('data-tab') === tab; button.style.background = active ? '#0d9488' : '#fff'; button.style.color = active ? '#fff' : '#1c1917'; });
+      for (const name of ['srs', 'mc', 'typing']) bodyEl.querySelector(`#xhz-rev-panel-${name}`).style.display = tab === name ? name === 'srs' ? 'block' : 'flex' : 'none';
+    }
+    bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { button.onclick = () => switchTab(button.getAttribute('data-tab')); });
+    const tab = isMistakeMode ? 'mc' : preferences.reviewFormat === 'typing' ? 'typing' : preferences.reviewFormat === 'multiple_choice' ? 'mc' : 'srs';
+    switchTab(tab);
   }
 
   async function renderMistakeBookOrLearnedWordsPage(pathname) {
@@ -8689,14 +9199,14 @@
     const root = getMainContentContainer();
     const res = await (await handleApiRequest(window.location.origin + '/v2/review/words', { method: 'GET' })).json();
     const items = Array.isArray(res && res.items) ? res.items : [];
-    document.title = `Từ đã học (${items.length} từ) | XieHanzi`;
+    document.title = `Từ đã học (${items.length} từ) | Học Tiếng Trung`;
 
     root.innerHTML = `
       <div style="max-width:960px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
-          <a href="/on-tap" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Trung tâm Ôn tập</a>
+          <a href="/on-tap" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trung tâm Ôn tập</a>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="/hoc/bai/on-tap-den-han" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🔄 Ôn tập ngay</a>
+            <a href="/hoc/bai/on-tap-den-han" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🔄 Ôn tập ngay</a>
             <a href="/hoc/tu-da-hoc" style="padding:8px 16px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📚 Xem bản đầy đủ</a>
           </div>
         </div>
@@ -8720,7 +9230,7 @@
         ? items.filter(it => it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm))
         : items;
       if (filtered.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#ea580c;font-weight:700;">Lộ trình học</a> để tích lũy từ mới nhé!</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#0d9488;font-weight:700;">Lộ trình học</a> để tích lũy từ mới nhé!</div>`;
         return;
       }
       grid.innerHTML = filtered.map(it => {
@@ -8729,9 +9239,9 @@
           <div style="padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
               <a href="${href}" style="text-decoration:none;color:#1c1917;font-size:28px;font-weight:800;font-family:'Noto Serif SC',serif;">${it.hanzi}</a>
-              <button type="button" onclick="window.__xhzPlayAudio('${it.hanzi.replace(/'/g, '')}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
+              <button type="button" onclick="window.__xhzPlayAudio('${it.hanzi.replace(/'/g, '')}')" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
             </div>
-            ${it.pinyin ? `<div style="font-size:14px;color:#ea580c;font-weight:700;">${it.pinyin}</div>` : ''}
+            ${it.pinyin ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${it.pinyin}</div>` : ''}
             <div style="font-size:14px;color:#44403c;line-height:1.4;">${it.meaningVi || 'Từ vựng đã học'}</div>
           </div>
         `;
@@ -8752,7 +9262,7 @@
     const hb = prog.habitSettings || {};
     const dailyGoal = Number(hb.dailyMinutesGoal || hb.dailyMinutes || 15) || 15;
     const weeklyGoal = Number(hb.weeklySessionsGoal || hb.weeklyGoal || 5) || 5;
-    document.title = isHabit ? 'Thói quen học tập | XieHanzi' : 'Tiến độ học tập HSK | XieHanzi';
+    document.title = isHabit ? 'Thói quen học tập | Học Tiếng Trung' : 'Tiến độ học tập HSK | Học Tiếng Trung';
 
     // Build 5-skill mastery & readiness stats
     const vocabPct = Math.min(100, Math.round((sum.wordsSeen / 300) * 100));
@@ -8766,7 +9276,7 @@
     const speakingPct = Math.min(100, Math.round((spkCount / 25) * 100));
     const skillRows = [
       { label: 'Từ vựng HSK 1', pct: vocabPct, detail: `${sum.wordsSeen} / 300 từ`, color: '#2563eb' },
-      { label: 'Chữ Hán & Viết nét', pct: writingPct, detail: `${charCount} / 150 chữ`, color: '#ea580c' },
+      { label: 'Chữ Hán & Viết nét', pct: writingPct, detail: `${charCount} / 150 chữ`, color: '#0d9488' },
       { label: 'Ngữ pháp trọng tâm', pct: gramPct, detail: `${gramCount} / 30 điểm`, color: '#7c3aed' },
       { label: 'Lộ trình & Nghe hiểu', pct: listeningPct, detail: `${stageCount} / 40 chặng`, color: '#16a34a' },
       { label: 'Luyện nói AI', pct: speakingPct, detail: `${spkCount} lượt`, color: '#db2777' }
@@ -8796,11 +9306,11 @@
     root.innerHTML = `
       <div style="max-width:940px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
-          <a href="/hoc" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Trang Học (/hoc)</a>
+          <a href="/hoc" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trang Học (/hoc)</a>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <a href="/hoc/tien-do" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${!isHabit ? '#ea580c' : '#fff'};color:${!isHabit ? '#fff' : '#44403c'};border:1px solid ${!isHabit ? '#ea580c' : '#e7e5e4'};">📊 Tiến độ HSK</a>
-            <a href="/hoc/thoi-quen" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${isHabit ? '#ea580c' : '#fff'};color:${isHabit ? '#fff' : '#44403c'};border:1px solid ${isHabit ? '#ea580c' : '#e7e5e4'};">🔥 Chuỗi ngày học</a>
-            <a href="/on-tap" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">🔄 Ôn tập</a>
+            <a href="/hoc/tien-do" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${!isHabit ? '#0d9488' : '#fff'};color:${!isHabit ? '#fff' : '#44403c'};border:1px solid ${!isHabit ? '#0d9488' : '#e7e5e4'};">📊 Tiến độ HSK</a>
+            <a href="/hoc/thoi-quen" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${isHabit ? '#0d9488' : '#fff'};color:${isHabit ? '#fff' : '#44403c'};border:1px solid ${isHabit ? '#0d9488' : '#e7e5e4'};">🔥 Chuỗi ngày học</a>
+            <a href="/on-tap" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">🔄 Ôn tập</a>
           </div>
         </div>
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
@@ -8811,9 +9321,9 @@
             Mục tiêu mỗi ngày: <strong>${dailyGoal} phút</strong> · Đã hoàn thành hôm nay: <strong>${sum.todayMinutes} / ${dailyGoal} phút</strong> · Từ vựng đã mở khóa: <strong>${sum.wordsSeen} / 300</strong> từ HSK 1
           </p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px;">
-            <div style="padding:16px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;">
-              <div style="font-size:12px;font-weight:700;color:#9a3412;">CHUỖI NGÀY HỌC</div>
-              <div style="font-size:28px;font-weight:800;color:#ea580c;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
+            <div style="padding:16px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;">
+              <div style="font-size:12px;font-weight:700;color:#115e59;">CHUỖI NGÀY HỌC</div>
+              <div style="font-size:28px;font-weight:800;color:#0d9488;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
               <div style="font-size:12px;color:#78716c;margin-top:4px;">Kỷ lục dài nhất: ${sum.longestStreak} ngày · Tuần này: ${sum.sessionsThisWeek}/${weeklyGoal} buổi</div>
             </div>
             <div style="padding:16px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;">
@@ -8905,7 +9415,7 @@
           `}
 
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#ea580c;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
+            <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
             <a href="/hoc/bai/on-tap-den-han" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;text-decoration:none;">🔄 Ôn bài đến hạn (${sum.dueTotal})</a>
             <a href="/hoc/so-loi" style="padding:12px 22px;border-radius:14px;background:#fafaf9;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;">📓 Xem Sổ lỗi (${sum.mistakesCount})</a>
           </div>
@@ -8938,116 +9448,77 @@
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
-    const browseType = parts[1]; // 'bo-thu' or 'hsk'
-    const rawVal = decodeURIComponent(parts.slice(2).join('/'));
-    root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải kho 3.000+ chữ Hán...</div>`;
-
-    const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
-    const normStrip = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-    let matched = [];
-    let headingLabel = '';
-
-    if (browseType === 'bo-thu') {
-      const cjkM = rawVal.match(/[\u4e00-\u9fff\u2f00-\u2fdf\u2e80-\u2eff\u3400-\u4dbf]/);
-      const radChar = cjkM ? cjkM[0] : rawVal.trim();
-      headingLabel = `Bộ thủ: ${radChar || rawVal}`;
-      matched = Array.isArray(charIdx)
-        ? charIdx.filter(e => e && (e.r === radChar || e.radical === radChar || e.c === radChar))
-        : [];
-    } else {
-      const lvlNum = Number((rawVal.match(/\d+/) || ['1'])[0]) || 1;
-      headingLabel = `Cấp độ HSK ${lvlNum}`;
-      matched = Array.isArray(charIdx)
-        ? charIdx.filter(e => e && Number(e.hsk || e.hskLevel) === lvlNum)
-        : [];
-    }
-
-    matched.sort((a, b) => (Number(a.s || 0) - Number(b.s || 0)) || (Number(a.f || 99999) - Number(b.f || 99999)));
-    document.title = `Tra chữ Hán theo ${browseType === 'bo-thu' ? `Bộ thủ ${rawVal}` : `HSK ${rawVal}`} (${matched.length} chữ) | XieHanzi`;
-
-    root.innerHTML = `
-      <div style="max-width:1040px;margin:0 auto;">
-        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <a href="/tra-chu/${browseType}" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Tra chữ theo ${browseType === 'bo-thu' ? 'Bộ thủ' : 'cấp độ HSK'}</a>
-          <span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:800;font-size:13px;">${matched.length} chữ Hán</span>
-        </div>
-        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;">
-          <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">
-            📚 Tra cứu Chữ Hán (${headingLabel})
-          </h1>
-          <input id="xhz-char-browse-filter" type="text" placeholder="Lọc nhanh theo chữ Hán, Pinyin, âm Hán Việt hoặc nghĩa..." style="width:100%;max-width:440px;padding:10px 16px;border-radius:12px;border:1px solid #d6d3d1;font-size:15px;margin-bottom:18px;color:#1c1917;background:#fff;" />
-          <div id="xhz-char-browse-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;"></div>
-          <div id="xhz-char-browse-more" style="margin-top:18px;text-align:center;"></div>
-        </div>
+    const type = parts[1];
+    let value = '';
+    try { value = decodeURIComponent(parts.slice(2).join('/')); } catch (_) {}
+    const index = await loadLocalJson('/data/characters/index.json');
+    const escape = text => String(text ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
+    const level = (value.match(/\d+/) || [null])[0] ? Number((value.match(/\d+/) || [])[0]) : null;
+    const radM = value.match(/[\u4e00-\u9fff\u2f00-\u2fdf\u2e80-\u2eff\u3400-\u4dbf]/);
+    const radChar = radM ? radM[0] : value.trim();
+    const entries = Array.isArray(index) ? index.filter(item => type === 'hsk'
+      ? level !== null && Number(item.hsk) === level
+      : type === 'bo-thu' && (item.r === radChar || item.c === radChar)) : [];
+    const title = type === 'hsk' ? `Chữ Hán HSK ${level || value} (HSK 2.0)` : `Chữ Hán bộ ${radChar || value}`;
+    document.title = `${title} | Học Tiếng Trung`;
+    root.innerHTML = `<style>
+      #xhz-character-browse { --browse-ink:#1c1917;--browse-card:#fafaf9;--browse-border:#d6d3d1;color:var(--browse-ink); }
+      html.dark #xhz-character-browse { --browse-ink:#e2e8f0;--browse-card:#0f172a;--browse-border:#57534e; }
+      #xhz-character-browse input,#xhz-character-browse select,#xhz-character-browse button.xhz-nav-btn,#xhz-browse-grid .xhz-char-card { color:var(--browse-ink)!important;background:var(--browse-card)!important;border-color:var(--browse-border)!important; }
+      #xhz-browse-grid .xhz-char-card:hover { border-color:#0d9488!important; }
+    </style><section id="xhz-character-browse" style="max-width:1100px;margin:auto;">
+      <a href="/tra-chu" style="color:#0d9488;font-weight:700;">← Từ điển Hán - Việt</a>
+      <h1 style="font-size:28px;font-weight:800;margin:20px 0 8px;">${escape(title)}</h1>
+      <p id="xhz-browse-count" role="status">${entries.length} chữ Hán trong kho dữ liệu</p>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
+        <label style="flex:1;min-width:220px;">Tìm trong danh sách
+          <input id="xhz-char-browse-filter" type="search" placeholder="Chữ Hán, pinyin, Hán Việt hoặc nghĩa" style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
+        </label>
+        <label>Sắp xếp
+          <select id="xhz-browse-sort" style="display:block;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;">
+            <option value="strokes">Số nét</option><option value="hanviet">Hán Việt A → Z</option><option value="frequency">Tần suất</option>
+          </select>
+        </label>
       </div>
-    `;
-
-    const gridEl = document.getElementById('xhz-char-browse-grid');
-    const moreEl = document.getElementById('xhz-char-browse-more');
-    const filterEl = document.getElementById('xhz-char-browse-filter');
-    let visibleLimit = 120;
-
-    const renderList = (query = '') => {
-      const q = normStrip(query.trim());
-      const filtered = q
-        ? matched.filter(e =>
-            String(e.c || '').includes(query.trim()) ||
-            normStrip(e.p || '').includes(q) ||
-            normStrip(e.hv || '').includes(q) ||
-            normStrip(e.m || '').includes(q)
-          )
-        : matched;
-      if (filtered.length === 0) {
-        gridEl.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:#78716c;">Không tìm thấy chữ Hán phù hợp trong ${headingLabel}.</div>`;
-        moreEl.innerHTML = '';
-        return;
-      }
-      const slice = filtered.slice(0, visibleLimit);
-      gridEl.innerHTML = slice.map(e => {
-        const ch = e.c || e.character || '';
-        const py = e.p || e.pinyin || '';
-        const hv = e.hv || e.hanviet || '';
-        const mean = e.m || e.meaningVi || '';
-        const rad = e.r || e.radical || '';
-        const strokes = e.s || e.strokeCount || '';
-        const hsk = e.hsk || e.hskLevel || '';
-        return `
-          <div style="padding:16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
-            <div>
-              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-                <a href="/han-tu/${encodeURIComponent(ch)}" style="font-size:38px;font-weight:800;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;line-height:1.1;">${ch}</a>
-                <button type="button" onclick="window.__xhzPlayAudio('${ch.replace(/'/g, '')}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
-              </div>
-              <div style="margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                ${py ? `<span style="font-size:14px;font-weight:700;color:#ea580c;">${py}</span>` : ''}
-                ${hv ? `<span style="font-size:11px;font-weight:700;color:#9a3412;background:#ffedd5;padding:2px 7px;border-radius:999px;text-transform:uppercase;">${hv}</span>` : ''}
-              </div>
-              <div style="font-size:13px;color:#44403c;margin-top:4px;line-height:1.4;">${mean}</div>
+      <div id="xhz-browse-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:12px;"></div>
+      <button id="xhz-browse-more" class="xhz-nav-btn" type="button" style="margin:20px auto;padding:10px 24px;border:1px solid #d6d3d1;border-radius:999px;background:#fff;color:#1c1917;">Xem thêm</button>
+    </section>`;
+    const search = root.querySelector('#xhz-char-browse-filter');
+    const sort = root.querySelector('#xhz-browse-sort');
+    const grid = root.querySelector('#xhz-browse-grid');
+    const count = root.querySelector('#xhz-browse-count');
+    const more = root.querySelector('#xhz-browse-more');
+    const normalize = text => String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
+    let visible = 60;
+    const render = () => {
+      const query = normalize(search.value.trim());
+      const results = entries.filter(item => !query || normalize(`${item.c} ${item.p} ${item.hv} ${item.m}`).includes(query));
+      results.sort((a, b) => sort.value === 'hanviet' ? String(a.hv || '').localeCompare(String(b.hv || ''), 'vi')
+        : sort.value === 'frequency' ? (Number(a.f) || Infinity) - (Number(b.f) || Infinity)
+        : (Number(a.s) || 0) - (Number(b.s) || 0) || (Number(a.f) || Infinity) - (Number(b.f) || Infinity));
+      count.textContent = `${results.length} / ${entries.length} chữ Hán`;
+      grid.innerHTML = results.slice(0, visible).map(item => `
+        <div class="xhz-char-card" style="display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:14px;border:1px solid #d6d3d1;border-radius:16px;background:#fafaf9;">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
+              <a href="/han-tu/${encodeURIComponent(item.slug || item.c)}" style="font-size:36px;font-family:'Noto Serif SC',serif;color:inherit;text-decoration:none;line-height:1.1;">${escape(item.c)}</a>
+              <button type="button" onclick="window.__xhzPlayAudio('${String(item.c || '').replace(/'/g, '')}')" style="border:none;background:#f0fdfa;color:#0f766e;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
             </div>
-            <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;color:#57534e;padding-top:6px;border-top:1px solid #e7e5e4;">
-              ${strokes ? `<span style="padding:2px 7px;border-radius:6px;background:#fff;border:1px solid #e7e5e4;">${strokes} nét</span>` : ''}
-              ${rad ? `<span style="padding:2px 7px;border-radius:6px;background:#fff;border:1px solid #e7e5e4;">Bộ ${rad}</span>` : ''}
-              ${hsk ? `<span style="padding:2px 7px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${hsk}</span>` : ''}
-            </div>
+            <div style="margin-top:4px;color:#0d9488;font-weight:700;">${escape(item.p)}</div>
+            <strong>${escape(item.hv)}</strong>
+            <div style="font-size:13px;margin-top:2px;">${escape(item.m)}</div>
           </div>
-        `;
-      }).join('');
-      if (filtered.length > slice.length) {
-        moreEl.innerHTML = `<button id="xhz-char-load-more" style="padding:10px 22px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">Xem thêm (${filtered.length - slice.length} chữ nữa)</button>`;
-        const mb = document.getElementById('xhz-char-load-more');
-        if (mb) mb.onclick = () => { visibleLimit += 120; renderList(filterEl ? filterEl.value : ''); };
-      } else {
-        moreEl.innerHTML = '';
-      }
+          <small style="opacity:0.8;">${Number(item.s) || 0} nét · Bộ ${escape(item.r)}${item.hsk ? ` · HSK ${escape(item.hsk)}` : ''}</small>
+        </div>`).join('') || '<p>Không tìm thấy chữ phù hợp.</p>';
+      more.hidden = visible >= results.length;
     };
-
-    renderList('');
-    if (filterEl) {
-      filterEl.oninput = () => { visibleLimit = 120; renderList(filterEl.value); };
-    }
+    search.oninput = () => { visible = 60; render(); };
+    sort.onchange = () => { visible = 60; render(); };
+    more.onclick = () => { visible += 60; render(); };
+    render();
   }
 
-  // --------------------------------------------------------------------------
+
   // 6.9. Trang Chặng Học / Bài Học (/hoc/chang/:stageKey, /hoc/bai/:runId)
   //      Interactive Capybara Lesson Runner 1:1 với xiehanzi.com
   // --------------------------------------------------------------------------
@@ -9122,7 +9593,7 @@
             flex-shrink: 0 !important;
             padding-top: 12px !important;
             padding-bottom: 18px !important;
-            background: var(--lp-bg, #e8e4dc) !important;
+            background: var(--lp-bg, #eef8f7) !important;
             z-index: 5 !important;
           }
         }
@@ -9670,7 +10141,7 @@
       });
     });
 
-    document.title = `${run.titleVi || 'Bài học'} | XieHanzi`;
+    document.title = `${run.titleVi || 'Bài học'} | Học Tiếng Trung`;
 
     // Ẩn main tĩnh và tạo full-screen overlay lp-runner
     const main = document.querySelector('main');
@@ -9953,10 +10424,10 @@
             showOutline: phase !== 'recall',
             strokeAnimationSpeed: 1.1,
             delayBetweenStrokes: 220,
-            strokeColor: '#191715',
-            outlineColor: '#D8D2C4',
-            drawingColor: '#C8251D',
-            highlightColor: '#2563EB',
+            strokeColor: '#0f172a',
+            outlineColor: '#cbd5e1',
+            drawingColor: '#0d9488',
+            highlightColor: '#4f46e5',
             drawingWidth: 22,
             charDataLoader: function (char, onComplete) {
               originalFetch(`https://cdn.jsdelivr.net/npm/hanzi-writer-data@2.0/${encodeURIComponent(char)}.json`)
@@ -10312,10 +10783,10 @@
             </div>
             <div class="lp-write-box lp-write-grid" style="position:relative;">
               <svg viewBox="0 0 100 100" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;" aria-hidden="true">
-                <line x1="0" y1="50" x2="100" y2="50" stroke="#E4DEC9" stroke-width="0.7" stroke-dasharray="3,3"/>
-                <line x1="50" y1="0" x2="50" y2="100" stroke="#E4DEC9" stroke-width="0.7" stroke-dasharray="3,3"/>
-                <line x1="0" y1="0" x2="100" y2="100" stroke="#EDE8D8" stroke-width="0.5" stroke-dasharray="3,3"/>
-                <line x1="100" y1="0" x2="0" y2="100" stroke="#EDE8D8" stroke-width="0.5" stroke-dasharray="3,3"/>
+                <line x1="0" y1="50" x2="100" y2="50" stroke="#cbd5e1" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <line x1="50" y1="0" x2="50" y2="100" stroke="#cbd5e1" stroke-width="0.7" stroke-dasharray="3,3"/>
+                <line x1="0" y1="0" x2="100" y2="100" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
+                <line x1="100" y1="0" x2="0" y2="100" stroke="#e2e8f0" stroke-width="0.5" stroke-dasharray="3,3"/>
               </svg>
               <div id="xhz-hw-canvas" style="position:relative;z-index:2;width:256px;height:256px;display:flex;align-items:center;justify-content:center;cursor:pointer;"></div>
             </div>
@@ -11391,6 +11862,13 @@
       else await renderHanVietDetailPage(parts[1]);
       return;
     }
+    if (parts[0] === 'ngu-phap' && parts[1] === 'luyen-tap' && parts.length >= 3) {
+      lastHandledFullUrl = fullKey;
+      const pointId = decodeURIComponent(parts[2]);
+      const level = (pointId.match(/\d+/) || ['1'])[0];
+      await renderGrammarQuizRunPage(new URLSearchParams({ tracks: `${/_new_|^new-/.test(pointId) ? 'new-hsk' : 'hsk'}${level}`, grammarId: pointId, count: '20' }));
+      return;
+    }
     if (parts[0] === 'ngu-phap' && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderGrammarDetailPage(parts[1], parts[2]);
@@ -11483,14 +11961,14 @@
           'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;margin-bottom:16px;border-radius:16px;border:1px solid #e7e5e4;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.04);';
         const initial = (savedUser.displayName || savedUser.email || 'U').trim().charAt(0).toUpperCase();
         const avatarHtml = savedUser.avatar
-          ? `<img src="${savedUser.avatar}" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
-          : `<div style="width:44px;height:44px;border-radius:999px;background:#fef2f2;color:#dc2626;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:1px solid #fecaca;">${initial}</div>`;
+          ? `<img src="${escapeHtml(savedUser.avatar)}" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
+          : `<div style="width:44px;height:44px;border-radius:999px;background:#fef2f2;color:#dc2626;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:1px solid #fecaca;">${escapeHtml(initial)}</div>`;
         banner.innerHTML =
           `<div style="display:flex;align-items:center;gap:12px;min-width:0;">` +
           avatarHtml +
           `<div style="min-width:0;">` +
-          `<div style="font-weight:700;font-size:16px;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${savedUser.displayName || 'Học viên'}</div>` +
-          `<div id="xhz-cloud-sync-status" style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${savedUser.email} · Đã đồng bộ đám mây</div>` +
+          `<div style="font-weight:700;font-size:16px;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(savedUser.displayName || 'Học viên')}</div>` +
+          `<div id="xhz-cloud-sync-status" style="font-size:13px;color:#57534e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">Đã đăng nhập: ${escapeHtml(savedUser.email)}</div>` +
           `</div>` +
           `</div>` +
           `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
@@ -11506,12 +11984,11 @@
               ev.preventDefault();
               syncBtn.disabled = true;
               syncBtn.textContent = '⏳ Đang đồng bộ...';
-              if (window.__xhzSyncCloudProgress) {
-                await window.__xhzSyncCloudProgress();
-              }
-              syncBtn.textContent = '✅ Đã đồng bộ!';
+              let synced = false;
+              try { synced = Boolean(window.__xhzSyncCloudProgress && await window.__xhzSyncCloudProgress()); } catch (_) {}
+              syncBtn.textContent = synced ? '✅ Đã đồng bộ!' : 'Thử đồng bộ lại';
               if (statusEl) {
-                statusEl.textContent = `Đã đăng nhập: ${savedUser.email} · Vừa đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}`;
+                statusEl.textContent = synced ? `Đã đăng nhập: ${savedUser.email} · Vừa đồng bộ lúc ${new Date().toLocaleTimeString('vi-VN')}` : 'Chưa đồng bộ được. Dữ liệu học trên thiết bị vẫn được giữ lại.';
               }
               setTimeout(() => {
                 syncBtn.disabled = false;
@@ -11727,6 +12204,368 @@
   // ============================================================================
   // 7. KHỞI CHẠY & THEO DÕI SPA NAVIGATION
   // ============================================================================
+  let htqHydrationSettled = false;
+
+  function cleanDocumentTitle() {
+    if (!htqHydrationSettled) return;
+    try {
+      if (/xiehanzi/i.test(document.title)) {
+        document.title = scrubBrandText(document.title)
+          .replace(/\s*-\s*học chữ Hán online/gi, ' - Học chữ Hán online')
+          .replace(/\s{2,}/g, ' ')
+          .trim();
+      }
+    } catch (_e) {}
+  }
+
+  function scrubBrandingAndLogos(root) {
+    if (!htqHydrationSettled) return;
+    cleanDocumentTitle();
+    injectMasterV3Styles();
+    const target = root && root.nodeType === 1 ? root : document.body;
+    if (!target) return;
+
+    try {
+      // Tag primary header home link as Jade Glass pill and hide logo image cleanly
+      target.querySelectorAll('header[data-site-header="true"] > div > a[href="/"]').forEach(anchor => {
+        anchor.setAttribute('data-htq-home-pill', '1');
+        anchor.setAttribute('aria-label', 'Trang chủ');
+        anchor.classList.remove('dark:bg-foreground', 'dark:px-2');
+        anchor.querySelectorAll('img').forEach(img => {
+          img.setAttribute('data-htq-logo', '1');
+          img.style.setProperty('display', 'none', 'important');
+        });
+      });
+
+      // Hide any XieHanzi / placeholder logo images in headers or footers
+      target.querySelectorAll('img').forEach(img => {
+        const src = img.getAttribute('src') || '';
+        const alt = img.getAttribute('alt') || '';
+        const isBlank = src.indexOf('R0lGODlhAQABAIAAAAAAAP') !== -1;
+        const isOldLogo = /XieHanzi_480x150/i.test(src) || /Logo XieHanzi|^XieHanzi$/i.test(alt);
+        if (isOldLogo || (isBlank && (img.closest('header') || img.closest('footer')))) {
+          img.setAttribute('data-htq-logo', '1');
+          img.style.setProperty('display', 'none', 'important');
+          const anchor = img.closest('a');
+          if (anchor) {
+            if (anchor.closest('header') || anchor.closest('nav')) {
+              anchor.setAttribute('data-htq-home-pill', '1');
+              anchor.setAttribute('aria-label', 'Trang chủ');
+              anchor.classList.remove('dark:bg-foreground', 'dark:px-2');
+            } else if (anchor.closest('footer')) {
+              anchor.style.setProperty('display', 'none', 'important');
+            }
+          }
+        } else if (/xiehanzi/i.test(alt)) {
+          img.setAttribute('alt', scrubBrandText(alt));
+        }
+      });
+
+      // Replace Thay Do landing top-left brand text cleanly
+      target.querySelectorAll('[class*="thay-do-landing_brand"]').forEach(el => {
+        if (/xiehanzi/i.test(el.textContent || '')) {
+          el.textContent = 'Trang chủ';
+        }
+      });
+
+      // Scrub attributes with brand strings
+      target.querySelectorAll('[aria-label*="ieHanzi" i],[title*="ieHanzi" i],[placeholder*="ieHanzi" i]').forEach(el => {
+        ['aria-label', 'title', 'placeholder'].forEach(attr => {
+          const val = el.getAttribute(attr);
+          if (val && /xiehanzi/i.test(val)) {
+            el.setAttribute(attr, scrubBrandText(val));
+          }
+        });
+      });
+
+      // Hide old third-party app badges, QR boxes, and XieHanzi external brand social links
+      target.querySelectorAll(
+        'a[href*="facebook.com/xiehanzi"], a[href*="m.me/xiehanzi"], a[href*="youtube.com/@xiehanzi"], a[href*="status.xiehanzi.com"], ' +
+        '[data-phone-float="invite"], a[href*="apps.apple.com"], [data-platform="android"], [data-platform="ios"], img[src*="tai-app-qr"]'
+      ).forEach(el => {
+        if (el.tagName === 'IMG') {
+          const card = el.closest('.rounded-2xl');
+          if (card) card.style.setProperty('display', 'none', 'important');
+          else el.style.setProperty('display', 'none', 'important');
+        } else if (el.matches('a[href*="apps.apple.com"], [data-platform="android"], [data-platform="ios"]')) {
+          const row = el.parentElement;
+          if (row && row.tagName === 'DIV' && row.querySelectorAll('a[href*="apps.apple.com"], [data-platform]').length >= 1) {
+            row.style.setProperty('display', 'none', 'important');
+          }
+          el.style.setProperty('display', 'none', 'important');
+        } else {
+          const li = el.closest('li');
+          if (li) li.style.setProperty('display', 'none', 'important');
+          else el.style.setProperty('display', 'none', 'important');
+        }
+      });
+
+      // Walk all visible Text nodes (skip script/style/textarea)
+      const walker = document.createTreeWalker(target, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent) return NodeFilter.FILTER_REJECT;
+          const tag = parent.tagName;
+          if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT' || tag === 'TEXTAREA') {
+            return NodeFilter.FILTER_REJECT;
+          }
+          if (!node.nodeValue || !/xiehanzi/i.test(node.nodeValue)) {
+            return NodeFilter.FILTER_SKIP;
+          }
+          return NodeFilter.FILTER_ACCEPT;
+        }
+      });
+      const toUpdate = [];
+      let n;
+      while ((n = walker.nextNode())) toUpdate.push(n);
+      for (const textNode of toUpdate) {
+        const cleaned = scrubBrandText(textNode.nodeValue);
+        if (cleaned !== textNode.nodeValue) {
+          textNode.nodeValue = cleaned;
+        }
+      }
+    } catch (_e) {}
+  }
+
+
+
+
+
+
+  function isImmersiveRoute(p) {
+    return /^\/(thay-do|truong-thay-do|kho-du-lieu)/.test(p || '/');
+  }
+
+  function toggleStudioTheme() {
+    const hdrBtn = document.querySelector('header[data-site-header="true"] button[aria-label*="giao diện"]');
+    if (hdrBtn) {
+      hdrBtn.click();
+      return;
+    }
+    const isDark = !document.documentElement.classList.contains('dark');
+    document.documentElement.classList.toggle('dark', isDark);
+    try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (_e) {}
+  }
+
+  function buildStudioSidebar(curPath) {
+    if (isImmersiveRoute(curPath) || !document.querySelector('header[data-site-header="true"]')) {
+      document.body.setAttribute('data-htq-immersive', '1');
+      const existing = document.getElementById('htq-studio-sidebar');
+      if (existing) existing.remove();
+      return;
+    }
+    document.body.removeAttribute('data-htq-immersive');
+    let sb = document.getElementById('htq-studio-sidebar');
+    if (!sb) {
+      sb = document.createElement('aside');
+      sb.id = 'htq-studio-sidebar';
+      sb.setAttribute('aria-label', 'Thanh điều hướng Hán Ngữ Studio');
+      document.body.appendChild(sb);
+    }
+
+    const groups = [
+      {
+        label: 'Bàn làm việc',
+        items: [
+          ['🏠', 'Trang chủ Studio', '/'],
+          ['🗺️', 'Lộ trình HSK 3.0', '/lo-trinh/'],
+          ['📖', 'Bài học hôm nay', '/hoc/'],
+          ['🔁', 'Ôn tập thông minh', '/on-tap/']
+        ]
+      },
+      {
+        label: 'Từ điển & Tra cứu',
+        items: [
+          ['🔍', 'Từ điển Chữ Hán', '/tra-chu/'],
+          ['🌐', 'Dịch Trung - Việt AI', '/dich-tieng-trung/'],
+          ['📚', 'Kho từ vựng HSK', '/thu-vien-new-hsk/']
+        ]
+      },
+      {
+        label: 'Luyện 4 kỹ năng AI',
+        items: [
+          ['🎧', 'Luyện nghe phản xạ', '/luyen-nghe/'],
+          ['🎙️', 'Luyện nói AI', '/luyen-noi/'],
+          ['⌨️', 'Luyện gõ Pinyin', '/luyen-go/'],
+          ['✍️', 'Chép chính tả Video', '/luyen-chep-chinh-ta/']
+        ]
+      },
+      {
+        label: 'Phòng thi & Công cụ',
+        items: [
+          ['📝', 'Thi thử HSK', '/kiem-tra-hsk/'],
+          ['📋', 'Đề kiểm tra', '/de-kiem-tra/'],
+          ['⚖️', 'Kiểm tra Ngữ pháp', '/kiem-tra-ngu-phap/'],
+          ['🖨️', 'Tạo vở tập viết PDF', '/tao-vo-tap-viet/'],
+          ['🎮', 'Trò chơi Chữ Hán', '/tro-choi/'],
+          ['🏮', 'Trường Thầy Đồ', '/thay-do/']
+        ]
+      }
+    ];
+
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const isDark = document.documentElement.classList.contains('dark');
+    const sbKey = norm + '|' + (isDark ? '1' : '0');
+    if (sb.getAttribute('data-htq-key') === sbKey) return;
+    sb.setAttribute('data-htq-key', sbKey);
+
+    const navHtml = groups.map(g => {
+      const links = g.items.map(([ico, text, href]) => {
+        const hrefNorm = href.replace(/\/+$/, '') || '/';
+        const active = hrefNorm === '/' ? norm === '/' : (norm === hrefNorm || norm.startsWith(hrefNorm + '/'));
+        return '<a href="' + href + '" class="htq-sb-link' + (active ? ' is-active' : '') + '"><span>' + ico + '</span><span>' + text + '</span></a>';
+      }).join('');
+      return '<div class="htq-sb-group"><div class="htq-sb-label">' + g.label + '</div>' + links + '</div>';
+    }).join('');
+    sb.innerHTML =
+      '<a href="/" class="htq-sb-brand">' +
+        '<div class="htq-sb-emblem">汉</div>' +
+        '<div><div class="htq-sb-title">Hán Ngữ Studio</div><div class="htq-sb-sub">Học Tiếng Trung v4</div></div>' +
+      '</a>' +
+      navHtml +
+      '<div class="htq-sb-footer">' +
+        '<button type="button" id="htq-sb-theme-btn" class="htq-sb-btn"><span>' + (isDark ? '🌙 Giao diện Tối' : '☀️ Giao diện Sáng') + '</span><span>Đổi</span></button>' +
+        '<a href="/tai-khoan/" class="htq-sb-link" style="margin-bottom:0"><span>👤</span><span>Tài khoản &amp; Đồng bộ</span></a>' +
+      '</div>';
+
+    const themeBtn = document.getElementById('htq-sb-theme-btn');
+    if (themeBtn) {
+      themeBtn.onclick = () => {
+        toggleStudioTheme();
+        setTimeout(() => buildStudioSidebar(window.location.pathname), 60);
+      };
+    }
+  }
+
+  function buildHomeWorkspace(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-studio-workspace');
+    if (norm !== '/') {
+      if (existing) existing.remove();
+      return;
+    }
+    const traCuu = document.getElementById('tra-cuu');
+    if (!traCuu || !traCuu.parentElement) return;
+    if (existing) return;
+
+    let summary = { streakDays: 0, wordsMastered: 0, stagesDone: 0 };
+    try {
+      if (typeof getRealProgressSummary === 'function') {
+        summary = getRealProgressSummary() || summary;
+      }
+    } catch (_e) {}
+
+    const skills = [
+      ['🎧', 'Luyện Nghe Phản Xạ', 'Bài nghe hội thoại & đề thi HSK theo tốc độ tự chọn.', '/luyen-nghe/'],
+      ['🎙️', 'Luyện Nói AI Thanh Điệu', 'Chấm điểm phát âm từng âm tiết và thanh 1-4.', '/luyen-noi/'],
+      ['⌨️', 'Luyện Gõ Pinyin', 'Rèn phản xạ bàn phím chữ Hán nhanh và chuẩn xác.', '/luyen-go/'],
+      ['✍️', 'Chép Chính Tả Video', 'Nghe câu thật từ video và gõ lại toàn bộ chữ Hán.', '/luyen-chep-chinh-ta/'],
+      ['📝', 'Phòng Thi HSK 1–6 & 3.0', 'Kho đề chính thức và đề luyện tự chấm điểm tức thì.', '/kiem-tra-hsk/'],
+      ['⚖️', 'Kiểm Tra Ngữ Pháp', 'Hơn 480 điểm ngữ pháp từ HSK 1 đến HSK 3.0.', '/kiem-tra-ngu-phap/']
+    ];
+    const curriculums = [
+      ['HSK 3.0 Mới', '/thu-vien-new-hsk/'],
+      ['HSK 2.0', '/thu-vien-hsk/'],
+      ['Giáo trình Boya', '/thu-vien-boya/'],
+      ['Giáo trình Hán Ngữ', '/thu-vien-hanyu-jiaocheng/'],
+      ['YCT Thiếu nhi', '/thu-vien-yct/'],
+      ['Tất cả lộ trình →', '/lo-trinh/']
+    ];
+
+    const sec = document.createElement('section');
+    sec.id = 'htq-studio-workspace';
+    sec.setAttribute('aria-label', 'Bảng điều khiển học tập Hán Ngữ Studio');
+    sec.innerHTML =
+      '<div class="htq-ws-grid">' +
+        '<div class="htq-ws-panel">' +
+          '<div class="htq-ws-head"><h2 class="htq-ws-title">Trung Tâm Luyện Tập 6 Kỹ Năng &amp; Khảo Thí HSK</h2><span class="htq-ws-badge">Mở miễn phí 100%</span></div>' +
+          '<div class="htq-skill-grid">' +
+            skills.map(([ico, title, desc, href]) =>
+              '<a href="' + href + '" class="htq-skill-card">' +
+                '<div class="htq-skill-top"><span>' + ico + '</span><span>' + title + '</span></div>' +
+                '<p class="htq-skill-desc">' + desc + '</p>' +
+              '</a>'
+            ).join('') +
+          '</div>' +
+          '<div class="htq-curr-row">' +
+            curriculums.map(([lbl, href]) => '<a href="' + href + '" class="htq-curr-pill">' + lbl + '</a>').join('') +
+          '</div>' +
+        '</div>' +
+        '<div class="htq-ws-panel">' +
+          '<div class="htq-ws-head"><h2 class="htq-ws-title">Tiến Độ &amp; Tiện Ích Nhanh</h2><span class="htq-ws-badge">Studio v4</span></div>' +
+          '<div class="htq-stat-row">' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.streakDays || 0) + '</div><div class="htq-stat-lbl">Ngày liên tiếp</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.wordsMastered || 0) + '</div><div class="htq-stat-lbl">Từ đã học</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.stagesDone || 0) + '</div><div class="htq-stat-lbl">Chặng xong</div></div>' +
+          '</div>' +
+          '<a href="/hoc/" class="htq-cta-btn">▶ Vào bài học hôm nay</a>' +
+          '<div class="htq-quick-grid">' +
+            '<a href="/tro-choi/ghep-chu/" class="htq-quick-item"><span>🧩</span><span>Ghép Chữ Hán</span></a>' +
+            '<a href="/tro-choi/tim-chu-trong-chu/" class="htq-quick-item"><span>🔎</span><span>Tìm Chữ Trong Chữ</span></a>' +
+            '<a href="/tao-vo-tap-viet/" class="htq-quick-item"><span>🖨️</span><span>Vở Tập Viết PDF</span></a>' +
+            '<a href="/flashcard-pdf/" class="htq-quick-item"><span>📇</span><span>Flashcard PDF</span></a>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+
+    traCuu.parentElement.insertBefore(sec, traCuu.nextSibling);
+  }
+
+  function buildSubpageRibbon(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-subpage-ribbon');
+    if (norm === '/' || isImmersiveRoute(norm) || !document.querySelector('header[data-site-header="true"]')) {
+      if (existing) existing.remove();
+      return;
+    }
+    const main = document.getElementById('noi-dung-chinh');
+    if (!main) return;
+    if (existing && existing.getAttribute('data-htq-path') === norm) return;
+    if (existing) existing.remove();
+
+    const chips = [
+      ['Từ điển', '/tra-chu/'],
+      ['Lộ trình', '/lo-trinh/'],
+      ['Nghe', '/luyen-nghe/'],
+      ['Nói AI', '/luyen-noi/'],
+      ['Gõ Pinyin', '/luyen-go/'],
+      ['Thi HSK', '/kiem-tra-hsk/'],
+      ['Ngữ pháp', '/kiem-tra-ngu-phap/'],
+      ['Trò chơi', '/tro-choi/'],
+      ['Thầy Đồ', '/thay-do/']
+    ];
+    const ribbon = document.createElement('div');
+    ribbon.id = 'htq-subpage-ribbon';
+    ribbon.setAttribute('data-htq-path', norm);
+    ribbon.innerHTML = '<div class="htq-ribbon-inner">' +
+      chips.map(([t, h]) => {
+        const hn = h.replace(/\/+$/, '');
+        const act = norm === hn || norm.startsWith(hn + '/');
+        return '<a href="' + h + '" class="htq-ribbon-chip' + (act ? ' is-active' : '') + '">' + t + '</a>';
+      }).join('') + '</div>';
+    main.insertBefore(ribbon, main.firstChild);
+  }
+
+  function mountStudioLayout() {
+    if (!htqHydrationSettled) return;
+    try {
+      const p = window.location.pathname || '/';
+      buildStudioSidebar(p);
+      buildHomeWorkspace(p);
+      buildSubpageRibbon(p);
+    } catch (_e) {}
+  }
+
+  function scheduleScrubPasses() {
+    [750, 1150, 1900].forEach(ms => {
+      setTimeout(() => {
+        htqHydrationSettled = true;
+        scrubBrandingAndLogos(document.body);
+        mountStudioLayout();
+      }, ms);
+    });
+  }
+
   const origPushState = history.pushState;
   const origReplaceState = history.replaceState;
   history.pushState = function (...args) {
@@ -11734,17 +12573,30 @@
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
     setTimeout(enhanceWorksheetAndPdfTools, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 500);
   };
   history.replaceState = function (...args) {
     origReplaceState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
     setTimeout(enhanceWorksheetAndPdfTools, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 500);
   };
   window.addEventListener('popstate', () => {
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
     setTimeout(enhanceWorksheetAndPdfTools, 120);
+    setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 120);
+  });
+
+  window.addEventListener('load', () => {
+    setTimeout(() => {
+      htqHydrationSettled = true;
+      scrubBrandingAndLogos(document.body);
+      mountStudioLayout();
+    }, 380);
   });
 
   function boot() {
@@ -11752,8 +12604,14 @@
     enhanceAccountPageAuthUI();
     enhanceWorksheetAndPdfTools();
     supabaseFetchInitial();
+    cleanDocumentTitle();
+    scheduleScrubPasses();
     if (isDynamicSpaRoute(window.location.pathname)) {
-      setTimeout(checkAndRenderDynamicPage, 450);
+      if (document.readyState === 'complete') {
+        setTimeout(checkAndRenderDynamicPage, 350);
+      } else {
+        window.addEventListener('load', () => setTimeout(checkAndRenderDynamicPage, 350), { once: true });
+      }
     }
     if ((window.location.pathname || '').startsWith('/hoc')) {
       const idleFn = window.requestIdleCallback || (cb => setTimeout(cb, 650));
@@ -11762,7 +12620,9 @@
       });
     }
 
+    let scrubRaf = 0;
     const obs = new MutationObserver(mutations => {
+      cleanDocumentTitle();
       for (const m of mutations) {
         m.addedNodes.forEach(node => {
           if (node.nodeType === 1) rewriteDomMedia(node);
@@ -11770,6 +12630,12 @@
       }
       enhanceAccountPageAuthUI();
       enhanceWorksheetAndPdfTools();
+      if (htqHydrationSettled && !scrubRaf) {
+        scrubRaf = requestAnimationFrame(() => {
+          scrubRaf = 0;
+          scrubBrandingAndLogos(document.body);
+        });
+      }
     });
     if (document.documentElement) {
       obs.observe(document.documentElement, { childList: true, subtree: true });
