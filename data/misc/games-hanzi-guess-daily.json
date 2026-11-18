@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot GET /api/v1/games/hanzi-guess-daily</pre>
-</body>
-</html>
+{
+  "game": "hanzi-guess",
+  "date": "2026-11-18",
+  "dayKey": "2026-11-18",
+  "plays": 0,
+  "bestScore": null,
+  "totalPlayers": 72,
+  "challenge": {
+    "id": "hanzi-guess-daily-2026-11-18",
+    "target": "明",
+    "pinyin": "míng",
+    "hanviet": "minh",
+    "meaningVi": "sáng sủa, rõ ràng, ngày mai",
+    "radical": "日",
+    "strokeCount": 8,
+    "hskLevel": 1,
+    "hints": [
+      "Gồm bộ Nhật (日 - mặt trời) và bộ Nguyệt (月 - mặt trăng)",
+      "8 nét, cấp độ HSK 1",
+      "Thường gặp trong từ 明天 (ngày mai)"
+    ]
+  }
+}

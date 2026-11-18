@@ -1,10 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot GET /api/v1/games/leaderboard</pre>
-</body>
-</html>
+{
+  "game": "hanzi-guess",
+  "weekKey": "2026-W47",
+  "date": "2026-11-18",
+  "dayKey": "2026-11-18",
+  "entries": [
+    { "rank": 1, "userId": "u1", "displayName": "Ngọc Hân", "score": 975, "durationMs": 16900, "difficulty": "hard" },
+    { "rank": 2, "userId": "u2", "displayName": "Anh Quân", "score": 935, "durationMs": 19800, "difficulty": "hard" },
+    { "rank": 3, "userId": "u3", "displayName": "Phương Nhi", "score": 895, "durationMs": 22900, "difficulty": "normal" },
+    { "rank": 4, "userId": "u4", "displayName": "Trung Kiên", "score": 865, "durationMs": 25400, "difficulty": "normal" },
+    { "rank": 5, "userId": "u5", "displayName": "Hà Vy", "score": 825, "durationMs": 28700, "difficulty": "easy" }
+  ],
+  "items": [
+    { "rank": 1, "userId": "u1", "displayName": "Ngọc Hân", "score": 975, "durationMs": 16900, "difficulty": "hard" },
+    { "rank": 2, "userId": "u2", "displayName": "Anh Quân", "score": 935, "durationMs": 19800, "difficulty": "hard" },
+    { "rank": 3, "userId": "u3", "displayName": "Phương Nhi", "score": 895, "durationMs": 22900, "difficulty": "normal" }
+  ],
+  "me": { "rank": 4, "score": 865 }
+}

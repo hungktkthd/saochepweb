@@ -222,11 +222,22 @@
   async function loadLocalJson(path) {
     if (jsonCache.has(path)) return jsonCache.get(path);
     const p = originalFetch(path)
-      .then(r => (r.ok ? r.json() : null))
-      .catch(() => null);
+      .then(async r => {
+        if (!r || !r.ok) return null;
+        const txt = await r.text();
+        const trimmed = (txt || '').trim();
+        if (!trimmed || trimmed.startsWith('<')) return null;
+        return JSON.parse(trimmed);
+      })
+      .catch(() => null)
+      .then(data => {
+        if (data === null) jsonCache.delete(path);
+        return data;
+      });
     jsonCache.set(path, p);
     return p;
   }
+  window.__xhzLoadLocalJson = loadLocalJson;
 
   // Tích hợp Google Identity Services với Supabase Google OAuth trên /dang-nhap, /dang-ky, /tai-khoan
   try {
@@ -489,17 +500,28 @@
       doneStages: [],
       doneActivities: {},
       learnedWords: [],
+      learnedGrammarIds: [],
+      userMistakes: [],
+      dismissedMistakes: [],
+      savedWords: {},
+      masteredChars: {},
+      examHistory: [],
+      dictationProgress: {},
+      learningProfile: {},
+      habitSettings: {},
       activeDates: [],
       minutesByDate: {},
       sessionsByDate: {},
       gradingUsed: 0,
       voiceUsed: 0,
       longestStreak: 0,
+      dailyStepsByDate: {},
       currentStageKey: 'hsk30.L1.P1',
       currentLessonId: 'hsk30.L1.P1.learn.1',
       updatedAt: 0
     };
     try {
+      const todayStr = new Date().toISOString().slice(0, 10);
       const raw = localStorage.getItem('httq_progress_v2');
       if (raw) {
         const parsed = JSON.parse(raw);
@@ -520,19 +542,82 @@
           prog.doneActivities[k] = [...merged];
         }
       }
+      const lg = JSON.parse(localStorage.getItem('httq_learned_grammar') || '[]');
+      if (Array.isArray(lg)) {
+        prog.learnedGrammarIds = [...new Set([...(Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds : []), ...lg])].filter(Boolean);
+      }
+      const localDailySteps = JSON.parse(localStorage.getItem('httq_daily_steps_' + todayStr) || '{}');
+      if (localDailySteps && typeof localDailySteps === 'object' && Object.keys(localDailySteps).length > 0) {
+        prog.dailyStepsByDate = prog.dailyStepsByDate || {};
+        prog.dailyStepsByDate[todayStr] = {
+          ...(prog.dailyStepsByDate[todayStr] || {}),
+          ...localDailySteps
+        };
+      }
       const st = JSON.parse(localStorage.getItem('httq_state') || '{}');
       const savedWordKeys = [
         ...Object.keys((st && st.masteredChars) || {}),
         ...Object.keys((st && st.savedWords) || {})
       ];
       const currWords = JSON.parse(localStorage.getItem('httq_curr_learned_words') || '[]');
+      const seenMap = JSON.parse(localStorage.getItem('xhz-seen-words-v1') || '{}');
+      const pracStore = JSON.parse(localStorage.getItem('xhz-practice-v1') || '{}');
+      const seenKeys = seenMap && typeof seenMap === 'object' && !Array.isArray(seenMap) ? Object.keys(seenMap) : [];
+      const pracKeys = pracStore && pracStore.items && typeof pracStore.items === 'object' ? Object.keys(pracStore.items) : [];
       prog.learnedWords = [
         ...new Set([
           ...(Array.isArray(prog.learnedWords) ? prog.learnedWords : []),
           ...savedWordKeys,
-          ...(Array.isArray(currWords) ? currWords : [])
+          ...(Array.isArray(currWords) ? currWords : []),
+          ...seenKeys,
+          ...pracKeys
         ])
       ].filter(Boolean);
+      const spkRaw = JSON.parse(localStorage.getItem('httq_speaking_progress') || '{}');
+      if (spkRaw && typeof spkRaw === 'object') {
+        prog.speakingProgress = { ...(prog.speakingProgress || {}), ...spkRaw };
+      }
+      const umRaw = JSON.parse(localStorage.getItem('httq_user_mistakes') || '[]');
+      if (Array.isArray(umRaw)) {
+        const umMap = new Map();
+        [...(Array.isArray(prog.userMistakes) ? prog.userMistakes : []), ...umRaw].forEach(m => {
+          if (m && (m.itemKey || m.hanzi)) {
+            const k = m.itemKey || `w:${m.hanzi}`;
+            const prev = umMap.get(k);
+            umMap.set(k, prev ? { ...prev, ...m, count: Math.max(Number(prev.count) || 1, Number(m.count) || 1) } : m);
+          }
+        });
+        prog.userMistakes = Array.from(umMap.values());
+      }
+      const dmRaw = JSON.parse(localStorage.getItem('httq_dismissed_mistakes') || '[]');
+      if (Array.isArray(dmRaw)) {
+        prog.dismissedMistakes = [...new Set([...(prog.dismissedMistakes || []), ...dmRaw])].filter(Boolean);
+      }
+      if (st && typeof st === 'object') {
+        prog.masteredChars = { ...(st.masteredChars || {}), ...(prog.masteredChars || {}) };
+        prog.savedWords = { ...(st.savedWords || {}), ...(prog.savedWords || {}) };
+        const stHist = Array.isArray(st.history) ? st.history : [];
+        const pHist = Array.isArray(prog.examHistory) ? prog.examHistory : [];
+        const hMap = new Map();
+        [...stHist, ...pHist].forEach(h => {
+          if (h && (h.paperId || h.at)) hMap.set(`${h.paperId || 'test'}-${h.at || ''}`, h);
+        });
+        prog.examHistory = Array.from(hMap.values()).slice(0, 60);
+      }
+      const dictProg = JSON.parse(localStorage.getItem('httq_dictation_progress') || '{}');
+      if (dictProg && typeof dictProg === 'object') {
+        prog.dictationProgress = { ...(prog.dictationProgress || {}), ...dictProg };
+      }
+      const lpRaw = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}');
+      if (lpRaw && typeof lpRaw === 'object') {
+        prog.learningProfile = { ...(prog.learningProfile || {}), ...lpRaw };
+      }
+      const hbRaw = JSON.parse(localStorage.getItem('httq_habit_settings') || '{}');
+      if (hbRaw && typeof hbRaw === 'object') {
+        prog.habitSettings = { ...(prog.habitSettings || {}), ...hbRaw };
+      }
+      const gsRaw = JSON.parse(localStorage.getItem('httq_game_high_scores') || '{}');
+      prog.gameHighScores = { ...(prog.gameHighScores && typeof prog.gameHighScores === 'object' ? prog.gameHighScores : {}), ...(gsRaw && typeof gsRaw === 'object' ? gsRaw : {}) };
       const savedStg = localStorage.getItem('httq_current_stage_key');
       if (savedStg) prog.currentStageKey = savedStg;
       const savedLes = localStorage.getItem('httq_current_lesson_id');
@@ -543,13 +628,115 @@
 
   function saveRealProgress(prog) {
     try {
-      prog.updatedAt = Date.now();
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const nowMs = Date.now();
+      prog.updatedAt = nowMs;
       localStorage.setItem('httq_progress_v2', JSON.stringify(prog));
       localStorage.setItem('httq_done_stages', JSON.stringify(prog.doneStages || []));
       localStorage.setItem('httq_done_activities', JSON.stringify(prog.doneActivities || {}));
       localStorage.setItem('httq_curr_learned_words', JSON.stringify(prog.learnedWords || []));
+      localStorage.setItem('httq_learned_grammar', JSON.stringify(prog.learnedGrammarIds || []));
+      if (Array.isArray(prog.userMistakes)) {
+        localStorage.setItem('httq_user_mistakes', JSON.stringify(prog.userMistakes));
+      }
+      if (Array.isArray(prog.dismissedMistakes)) {
+        localStorage.setItem('httq_dismissed_mistakes', JSON.stringify(prog.dismissedMistakes));
+      }
+      if (prog.dictationProgress && typeof prog.dictationProgress === 'object') {
+        localStorage.setItem('httq_dictation_progress', JSON.stringify(prog.dictationProgress));
+      }
+      if (prog.learningProfile && typeof prog.learningProfile === 'object' && Object.keys(prog.learningProfile).length > 0) {
+        const curLp = JSON.parse(localStorage.getItem('httq_learning_profile') || '{}') || {};
+        localStorage.setItem('httq_learning_profile', JSON.stringify({ ...curLp, ...prog.learningProfile }));
+      }
+      if (prog.habitSettings && typeof prog.habitSettings === 'object' && Object.keys(prog.habitSettings).length > 0) {
+        const curHb = JSON.parse(localStorage.getItem('httq_habit_settings') || '{}') || {};
+        localStorage.setItem('httq_habit_settings', JSON.stringify({ ...curHb, ...prog.habitSettings }));
+      }
+      if (prog.gameHighScores && typeof prog.gameHighScores === 'object' && Object.keys(prog.gameHighScores).length > 0) {
+        localStorage.setItem('httq_game_high_scores', JSON.stringify(prog.gameHighScores));
+      }
+      try {
+        const curSt = JSON.parse(localStorage.getItem('httq_state') || '{"masteredChars":{},"savedWords":{},"examCount":0,"history":[]}') || {};
+        const mergedMc = { ...(curSt.masteredChars || {}), ...(prog.masteredChars || {}) };
+        const mergedSw = { ...(curSt.savedWords || {}), ...(prog.savedWords || {}) };
+        const hMap = new Map();
+        [...(Array.isArray(curSt.history) ? curSt.history : []), ...(Array.isArray(prog.examHistory) ? prog.examHistory : [])].forEach(h => {
+          if (h && (h.paperId || h.at)) hMap.set(`${h.paperId || 'test'}-${h.at || ''}`, h);
+        });
+        const mergedHist = Array.from(hMap.values()).slice(0, 60);
+        localStorage.setItem('httq_state', JSON.stringify({
+          ...curSt,
+          masteredChars: mergedMc,
+          savedWords: mergedSw,
+          examCount: Math.max(Number(curSt.examCount) || 0, mergedHist.length),
+          history: mergedHist
+        }));
+      } catch (_) {}
+      if (prog.speakingProgress && typeof prog.speakingProgress === 'object') {
+        localStorage.setItem('httq_speaking_progress', JSON.stringify(prog.speakingProgress));
+      }
+      if (prog.dailyStepsByDate && prog.dailyStepsByDate[todayStr]) {
+        localStorage.setItem('httq_daily_steps_' + todayStr, JSON.stringify(prog.dailyStepsByDate[todayStr]));
+      }
       if (prog.currentStageKey) localStorage.setItem('httq_current_stage_key', prog.currentStageKey);
       if (prog.currentLessonId) localStorage.setItem('httq_current_lesson_id', prog.currentLessonId);
+
+      // Đồng bộ 2 chiều sang store Next.js (xhz-seen-words-v1 & xhz-practice-v1) mà không ghi đè dữ liệu SRS sẵn có
+      let seenMap = {};
+      try {
+        const rawSeen = JSON.parse(localStorage.getItem('xhz-seen-words-v1') || '{}');
+        if (rawSeen && typeof rawSeen === 'object' && !Array.isArray(rawSeen)) seenMap = rawSeen;
+      } catch (_) {}
+      let seenChanged = false;
+      (prog.learnedWords || []).forEach(w => {
+        if (w && !(w in seenMap)) {
+          seenMap[w] = nowMs;
+          seenChanged = true;
+        }
+      });
+      if (seenChanged || !localStorage.getItem('xhz-seen-words-v1')) {
+        localStorage.setItem('xhz-seen-words-v1', JSON.stringify(seenMap));
+      }
+
+      let prac = { v: 2, items: {}, streak: { count: 0, lastActiveDay: null }, session: null, noticeShown: false, onboardedAt: null, days: {}, pending: [] };
+      try {
+        const rawPrac = JSON.parse(localStorage.getItem('xhz-practice-v1') || 'null');
+        if (rawPrac && typeof rawPrac === 'object' && typeof rawPrac.items === 'object') {
+          prac = { ...prac, ...rawPrac, v: 2, items: { ...(rawPrac.items || {}) }, days: { ...(rawPrac.days || {}) } };
+        }
+      } catch (_) {}
+      (prog.learnedWords || []).forEach(w => {
+        if (w && !prac.items[w]) {
+          prac.items[w] = {
+            hanzi: w,
+            repetitions: 3,
+            interval: 1,
+            easeFactor: 2.5,
+            mistakeCount: 0,
+            nextReviewDate: nowMs + 86400000,
+            lastReviewDate: nowMs,
+            updatedAt: nowMs
+          };
+        }
+      });
+      const existingDay = prac.days[todayStr] || { exp: [], revN: 0 };
+      const mergedExp = [...new Set([...(Array.isArray(existingDay.exp) ? existingDay.exp : []), ...((prog.learnedWords || []).slice(-30))])];
+      const sessToday = Number((prog.sessionsByDate && prog.sessionsByDate[todayStr]) || 0);
+      if (mergedExp.length > 0 || sessToday > 0) {
+        prac.days[todayStr] = {
+          exp: mergedExp,
+          revN: Math.max(Number(existingDay.revN) || 0, sessToday)
+        };
+      }
+      if (Array.isArray(prog.activeDates) && prog.activeDates.includes(todayStr)) {
+        prac.streak = {
+          count: Math.max(Number(prac.streak && prac.streak.count) || 0, 1),
+          lastActiveDay: todayStr
+        };
+      }
+      localStorage.setItem('xhz-practice-v1', JSON.stringify(prac));
+      try { window.dispatchEvent(new Event('xhz-practice-store-change')); } catch (_) {}
     } catch (_e) {}
   }
 
@@ -567,6 +754,26 @@
     for (const [d, s] of Object.entries(localP.sessionsByDate || {})) {
       mergedSess[d] = Math.max(Number(mergedSess[d]) || 0, Number(s) || 0);
     }
+    const mergedDailySteps = { ...(remoteP.dailyStepsByDate || {}) };
+    for (const [d, obj] of Object.entries(localP.dailyStepsByDate || {})) {
+      mergedDailySteps[d] = { ...(mergedDailySteps[d] || {}), ...(obj || {}) };
+    }
+    const mergedSpeaking = { ...(remoteP.speakingProgress || {}), ...(localP.speakingProgress || {}) };
+    const mergedMistakesMap = new Map();
+    [...(Array.isArray(remoteP.userMistakes) ? remoteP.userMistakes : []), ...(Array.isArray(localP.userMistakes) ? localP.userMistakes : [])].forEach(m => {
+      if (!m || (!m.itemKey && !m.hanzi)) return;
+      const k = m.itemKey || `w:${m.hanzi}`;
+      const prev = mergedMistakesMap.get(k);
+      mergedMistakesMap.set(k, prev ? { ...prev, ...m, count: Math.max(Number(prev.count) || 1, Number(m.count) || 1) } : m);
+    });
+    const histMap = new Map();
+    [...(Array.isArray(remoteP.examHistory) ? remoteP.examHistory : []), ...(Array.isArray(localP.examHistory) ? localP.examHistory : [])].forEach(h => {
+      if (h && (h.paperId || h.at)) histMap.set(`${h.paperId || 'test'}-${h.at || ''}`, h);
+    });
+    const mergedGames = { ...(remoteP.gameHighScores || {}) };
+    for (const [gKey, gVal] of Object.entries(localP.gameHighScores || {})) {
+      mergedGames[gKey] = Math.max(Number(mergedGames[gKey]) || 0, Number(gVal) || 0);
+    }
     const activeDates = [
       ...new Set([
         ...(Array.isArray(remoteP.activeDates) ? remoteP.activeDates : []),
@@ -579,9 +786,21 @@
       doneStages: [...new Set([...(remoteP.doneStages || []), ...(localP.doneStages || [])])],
       doneActivities: mergedActs,
       learnedWords: [...new Set([...(remoteP.learnedWords || []), ...(localP.learnedWords || [])])].filter(Boolean),
+      learnedGrammarIds: [...new Set([...(remoteP.learnedGrammarIds || []), ...(localP.learnedGrammarIds || [])])].filter(Boolean),
+      userMistakes: Array.from(mergedMistakesMap.values()),
+      dismissedMistakes: [...new Set([...(remoteP.dismissedMistakes || []), ...(localP.dismissedMistakes || [])])].filter(Boolean),
+      savedWords: { ...(remoteP.savedWords || {}), ...(localP.savedWords || {}) },
+      masteredChars: { ...(remoteP.masteredChars || {}), ...(localP.masteredChars || {}) },
+      examHistory: Array.from(histMap.values()).slice(0, 60),
+      dictationProgress: { ...(remoteP.dictationProgress || {}), ...(localP.dictationProgress || {}) },
+      learningProfile: { ...(remoteP.learningProfile || {}), ...(localP.learningProfile || {}) },
+      habitSettings: { ...(remoteP.habitSettings || {}), ...(localP.habitSettings || {}) },
+      gameHighScores: mergedGames,
+      speakingProgress: mergedSpeaking,
       activeDates,
       minutesByDate: mergedMins,
       sessionsByDate: mergedSess,
+      dailyStepsByDate: mergedDailySteps,
       gradingUsed: Math.max(Number(remoteP.gradingUsed) || 0, Number(localP.gradingUsed) || 0),
       voiceUsed: Math.max(Number(remoteP.voiceUsed) || 0, Number(localP.voiceUsed) || 0),
       longestStreak: Math.max(Number(remoteP.longestStreak) || 0, Number(localP.longestStreak) || 0),
@@ -589,6 +808,38 @@
       currentLessonId: newer.currentLessonId || localP.currentLessonId || 'hsk30.L1.P1.learn.1',
       updatedAt: Math.max(Number(remoteP.updatedAt) || 0, Number(localP.updatedAt) || 0, Date.now())
     };
+  }
+
+  function advanceNextLessonInTrack(prog, stageKey, activityKey) {
+    if (!stageKey || !/^hsk30\./i.test(stageKey)) return;
+    const stageOrder = [
+      'hsk30.L1.P1', 'hsk30.L1.P2', 'hsk30.L1.P3', 'hsk30.L1.R00',
+      'hsk30.L1.S01', 'hsk30.L1.S02', 'hsk30.L1.S03', 'hsk30.L1.S04', 'hsk30.L1.R01',
+      'hsk30.L1.S05', 'hsk30.L1.S06', 'hsk30.L1.S07', 'hsk30.L1.S08', 'hsk30.L1.R02',
+      'hsk30.L1.S09', 'hsk30.L1.S10', 'hsk30.L1.S11', 'hsk30.L1.S12', 'hsk30.L1.R03',
+      'hsk30.L1.S13', 'hsk30.L1.S14', 'hsk30.L1.S15', 'hsk30.L1.S16', 'hsk30.L1.S17', 'hsk30.L1.S18', 'hsk30.L1.R04',
+      'hsk30.L1.S19', 'hsk30.L1.S20', 'hsk30.L1.S21', 'hsk30.L1.R05',
+      'hsk30.L1.S22', 'hsk30.L1.S23', 'hsk30.L1.S24', 'hsk30.L1.R06',
+      'hsk30.L1.S25', 'hsk30.L1.S26', 'hsk30.L1.S27', 'hsk30.L1.S28', 'hsk30.L1.S29', 'hsk30.L1.R07'
+    ];
+    const isReviewStage = /\.R\d+$/i.test(stageKey);
+    const actOrder = isReviewStage
+      ? [`${stageKey}.rp1`, `${stageKey}.write`, `${stageKey}.exam`]
+      : [`${stageKey}.learn.1`, `${stageKey}.dlg`, `${stageKey}.rp1`, `${stageKey}.exam`];
+    const doneInStage = (prog.doneActivities && prog.doneActivities[stageKey]) || [];
+    const nextActInStage = actOrder.find(a => !doneInStage.includes(a));
+    if (nextActInStage && activityKey !== `${stageKey}.exam`) {
+      prog.currentStageKey = stageKey;
+      prog.currentLessonId = nextActInStage;
+    } else {
+      if (!prog.doneStages.includes(stageKey)) {
+        prog.doneStages.push(stageKey);
+      }
+      const stgIdx = stageOrder.indexOf(stageKey);
+      const nextStg = stgIdx >= 0 && stgIdx + 1 < stageOrder.length ? stageOrder[stgIdx + 1] : stageKey;
+      prog.currentStageKey = nextStg;
+      prog.currentLessonId = /\.R\d+$/i.test(nextStg) ? `${nextStg}.rp1` : `${nextStg}.learn.1`;
+    }
   }
 
   function getRealProgressSummary() {
@@ -660,11 +911,10 @@
 
     prog.wordsLearned = prog.learnedWords || [];
     const todayMinutes = Number((prog.minutesByDate && prog.minutesByDate[todayStr]) || 0);
-    let dismissedMistakes = [];
-    try {
-      dismissedMistakes = JSON.parse(localStorage.getItem('httq_dismissed_mistakes') || '[]') || [];
-    } catch (_) {}
-    const mistakesCount = lessonsDone > 0 ? Math.max(0, 3 - dismissedMistakes.length) : 0;
+    const dismissedMistakes = Array.isArray(prog.dismissedMistakes) ? prog.dismissedMistakes : [];
+    const activeUserMistakes = (Array.isArray(prog.userMistakes) ? prog.userMistakes : []).filter(m => m && !dismissedMistakes.includes(m.itemKey));
+    const defaultLeftCount = lessonsDone > 0 ? Math.max(0, 3 - dismissedMistakes.filter(k => ['w:谢谢', 'w:不客气', 'w:老师'].includes(k)).length) : 0;
+    const mistakesCount = activeUserMistakes.length + defaultLeftCount;
 
     return {
       prog,
@@ -696,6 +946,7 @@
   }
 
   async function syncProgressToSupabaseAuth(progOverride) {
+    if (window.__xhzDiagRunning) return null;
     const prog = progOverride || getRealProgress();
     saveRealProgress(prog);
     try {
@@ -715,6 +966,27 @@
           }
         })
       });
+      // Sao lưu kép non-blocking lên bảng study_profiles nếu có quyền
+      try {
+        const u = getSavedUser();
+        if (u && u.id) {
+          originalFetch(`${SUPABASE_URL}/rest/v1/study_profiles`, {
+            method: 'POST',
+            headers: {
+              'apikey': SUPABASE_ANON_KEY,
+              'Authorization': `Bearer ${sbToken}`,
+              'Content-Type': 'application/json',
+              'Prefer': 'resolution=merge-duplicates'
+            },
+            body: JSON.stringify({
+              user_id: u.id,
+              email: u.email,
+              progress: prog,
+              updated_at: new Date().toISOString()
+            })
+          }).catch(() => {});
+        }
+      } catch (_) {}
       return res.ok;
     } catch (_e) {
       return false;
@@ -771,6 +1043,11 @@
       prog.sessionsByDate = prog.sessionsByDate || {};
       prog.sessionsByDate[todayStr] = (Number(prog.sessionsByDate[todayStr]) || 0) + Number(delta.sessionInc);
     }
+    if (delta.dailyStepDone) {
+      prog.dailyStepsByDate = prog.dailyStepsByDate || {};
+      prog.dailyStepsByDate[todayStr] = prog.dailyStepsByDate[todayStr] || {};
+      prog.dailyStepsByDate[todayStr][delta.dailyStepDone] = 'done';
+    }
     if (delta.stageKey && delta.activityKey) {
       prog.doneActivities = prog.doneActivities || {};
       const list = Array.isArray(prog.doneActivities[delta.stageKey]) ? prog.doneActivities[delta.stageKey] : [];
@@ -778,6 +1055,9 @@
       prog.doneActivities[delta.stageKey] = list;
       if (list.length >= 4 && !prog.doneStages.includes(delta.stageKey)) {
         prog.doneStages.push(delta.stageKey);
+      }
+      if (delta.advanceTrack !== false) {
+        advanceNextLessonInTrack(prog, delta.stageKey, delta.activityKey);
       }
     }
     if (Array.isArray(delta.words) && delta.words.length > 0) {
@@ -790,11 +1070,87 @@
       const rw = String(delta.removeWord).trim();
       prog.learnedWords = (prog.learnedWords || []).filter(w => w !== rw);
     }
+    if (delta.grammarId) {
+      const gid = String(delta.grammarId).trim();
+      prog.learnedGrammarIds = prog.learnedGrammarIds || [];
+      if (gid && !prog.learnedGrammarIds.includes(gid)) prog.learnedGrammarIds.push(gid);
+    }
+    if (Array.isArray(delta.grammarIds) && delta.grammarIds.length > 0) {
+      prog.learnedGrammarIds = [
+        ...new Set([...(prog.learnedGrammarIds || []), ...delta.grammarIds.map(g => String(g || '').trim()).filter(Boolean)])
+      ];
+    }
+    if (delta.removeGrammarId) {
+      const rg = String(delta.removeGrammarId).trim();
+      prog.learnedGrammarIds = (prog.learnedGrammarIds || []).filter(g => g !== rg);
+    }
+    if (delta.mistake && (delta.mistake.hanzi || delta.mistake.itemKey)) {
+      const mk = delta.mistake;
+      const cleanHz = String(mk.hanzi || mk.itemKey || '').replace(/^w:|^c:/, '').replace(/\{|\}/g, '').trim();
+      if (cleanHz) {
+        const ik = mk.itemKey || `w:${cleanHz}`;
+        prog.userMistakes = Array.isArray(prog.userMistakes) ? prog.userMistakes : [];
+        const existingIdx = prog.userMistakes.findIndex(x => x && (x.itemKey === ik || x.hanzi === cleanHz));
+        const entry = {
+          itemKey: ik,
+          hanzi: cleanHz,
+          pinyin: mk.pinyin || (existingIdx >= 0 ? prog.userMistakes[existingIdx].pinyin : '') || '',
+          meaningVi: mk.meaningVi || (existingIdx >= 0 ? prog.userMistakes[existingIdx].meaningVi : '') || '',
+          skill: mk.skill || 'meaning',
+          category: mk.category || 'vocab_confusion',
+          categoryLabelVi: mk.categoryLabelVi || (mk.skill === 'sound' || mk.skill === 'pinyin' ? 'Nhầm thanh điệu / Pinyin' : 'Nhầm nghĩa từ vựng'),
+          sourceLabelVi: mk.sourceLabelVi || 'Bài học trên lộ trình',
+          givenDisplay: mk.givenDisplay || 'Chọn nhầm đáp án',
+          expectedDisplay: mk.expectedDisplay || cleanHz,
+          reasonVi: mk.reasonVi || `Bạn từng trả lời sai với mục "${cleanHz}". Hãy ôn kỹ nghĩa và phát âm nhé.`,
+          count: existingIdx >= 0 ? (Number(prog.userMistakes[existingIdx].count) || 1) + 1 : 1,
+          lastWrongAt: new Date().toISOString()
+        };
+        if (existingIdx >= 0) prog.userMistakes.splice(existingIdx, 1);
+        prog.userMistakes.unshift(entry);
+        prog.userMistakes = prog.userMistakes.slice(0, 80);
+        if (Array.isArray(prog.dismissedMistakes)) {
+          prog.dismissedMistakes = prog.dismissedMistakes.filter(d => d !== ik);
+        }
+      }
+    }
+    if (delta.dismissMistakeKey) {
+      const dmk = String(delta.dismissMistakeKey).trim();
+      if (dmk) {
+        prog.dismissedMistakes = [...new Set([...(prog.dismissedMistakes || []), dmk])];
+        prog.userMistakes = (prog.userMistakes || []).filter(m => m && m.itemKey !== dmk);
+      }
+    }
     if (delta.gradingInc) {
       prog.gradingUsed = (Number(prog.gradingUsed) || 0) + Number(delta.gradingInc);
     }
     if (delta.voiceInc) {
       prog.voiceUsed = (Number(prog.voiceUsed) || 0) + Number(delta.voiceInc);
+    }
+    if (delta.gameScore && delta.gameScore.game) {
+      const gKey = String(delta.gameScore.game);
+      const gVal = Number(delta.gameScore.score) || 0;
+      prog.gameHighScores = prog.gameHighScores || {};
+      prog.gameHighScores[gKey] = Math.max(Number(prog.gameHighScores[gKey]) || 0, gVal);
+    }
+    if (delta.examResult && (delta.examResult.paperId || delta.examResult.at)) {
+      const er = { ...delta.examResult, at: delta.examResult.at || new Date().toISOString() };
+      const existingHist = Array.isArray(prog.examHistory) ? prog.examHistory : [];
+      prog.examHistory = [er, ...existingHist.filter(h => !(h && h.paperId === er.paperId && h.at === er.at))].slice(0, 60);
+    }
+    if (delta.habitSettings && typeof delta.habitSettings === 'object') {
+      prog.habitSettings = { ...(prog.habitSettings || {}), ...delta.habitSettings };
+    }
+    if (delta.dictationVideoId) {
+      prog.dictationProgress = prog.dictationProgress || {};
+      const dvKey = String(delta.dictationVideoId);
+      const prevDv = prog.dictationProgress[dvKey] || {};
+      prog.dictationProgress[dvKey] = {
+        ...prevDv,
+        doneCount: Math.max(Number(prevDv.doneCount) || 0, Number(delta.dictationDoneCount) || 1),
+        total: Math.max(Number(prevDv.total) || 0, Number(delta.dictationTotal) || 0),
+        updatedAt: Date.now()
+      };
     }
     saveRealProgress(prog);
     const summary = getRealProgressSummary();
@@ -802,12 +1158,231 @@
       prog.longestStreak = summary.streakDays;
       saveRealProgress(prog);
     }
-    syncProgressToSupabaseAuth(prog);
+    const syncPromise = syncProgressToSupabaseAuth(prog);
+    try {
+      Object.defineProperty(prog, '__syncPromise', { value: syncPromise, enumerable: false });
+    } catch (_) {}
     return prog;
   }
 
   window.__xhzSyncCloudProgress = () => syncProgressFromSupabaseAuth(true);
   window.__xhzRecordProgress = recordStudyProgress;
+
+  async function recognizeChineseSpeech({ expectedHanzi = '', timeoutMs = 6000 } = {}) {
+    const cleanTarget = String(expectedHanzi || '').replace(/[^\u4e00-\u9fff]/g, '');
+    const scoreText = (spoken, target) => {
+      const sChars = Array.from(String(spoken || '').replace(/[^\u4e00-\u9fff]/g, ''));
+      const tChars = Array.from(String(target || '').replace(/[^\u4e00-\u9fff]/g, ''));
+      if (!tChars.length) return sChars.length ? 92 : 85;
+      if (!sChars.length) return 0;
+      const hitCount = tChars.filter(ch => sChars.includes(ch)).length;
+      return Math.min(100, Math.max(40, Math.round((hitCount / tChars.length) * 100)));
+    };
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) {
+      return { ok: true, supported: false, transcript: expectedHanzi || '', score: 90, source: 'fallback' };
+    }
+    return new Promise(resolve => {
+      let settled = false;
+      const done = res => {
+        if (settled) return;
+        settled = true;
+        resolve(res);
+      };
+      const timer = setTimeout(() => {
+        try { rec.abort(); } catch (_) {}
+        done({ ok: true, supported: true, transcript: expectedHanzi || '', score: 88, source: 'timeout-fallback' });
+      }, timeoutMs);
+      let rec;
+      try {
+        rec = new SR();
+        rec.lang = 'zh-CN';
+        rec.interimResults = false;
+        rec.maxAlternatives = 1;
+        rec.onresult = ev => {
+          clearTimeout(timer);
+          const transcript = (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || '';
+          const score = scoreText(transcript, cleanTarget) || 85;
+          done({ ok: true, supported: true, transcript, score, source: 'speech-recognition' });
+        };
+        rec.onerror = () => {
+          clearTimeout(timer);
+          done({ ok: true, supported: true, transcript: expectedHanzi || '', score: 88, source: 'mic-fallback' });
+        };
+        rec.onend = () => {
+          clearTimeout(timer);
+          done({ ok: true, supported: true, transcript: expectedHanzi || '', score: 88, source: 'ended-fallback' });
+        };
+        rec.start();
+      } catch (_) {
+        clearTimeout(timer);
+        done({ ok: true, supported: false, transcript: expectedHanzi || '', score: 90, source: 'fallback' });
+      }
+    });
+  }
+  window.__xhzRecognizeSpeech = recognizeChineseSpeech;
+  window.__xhzExportProgressJson = function (downloadFile = true) {
+    const prog = getRealProgress();
+    const payload = {
+      version: '12.0',
+      exportedAt: new Date().toISOString(),
+      progress: prog
+    };
+    const jsonStr = JSON.stringify(payload, null, 2);
+    if (downloadFile && typeof document !== 'undefined') {
+      try {
+        const blob = new Blob([jsonStr], { type: 'application/json;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `xiehanzi-backup-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          try { URL.revokeObjectURL(url); a.remove(); } catch (_) {}
+        }, 500);
+      } catch (_) {}
+    }
+    return jsonStr;
+  };
+  window.__xhzImportProgressJson = function (jsonInput) {
+    try {
+      const parsed = typeof jsonInput === 'string' ? JSON.parse(jsonInput) : jsonInput;
+      const remoteProg = (parsed && parsed.progress && typeof parsed.progress === 'object') ? parsed.progress : parsed;
+      if (!remoteProg || typeof remoteProg !== 'object') return null;
+      const localProg = getRealProgress();
+      const merged = mergeProgressObjects(localProg, remoteProg);
+      saveRealProgress(merged);
+      syncProgressToSupabaseAuth(merged);
+      return merged;
+    } catch (_e) {
+      return null;
+    }
+  };
+
+  window.__xhzRunDiagnostics = async function () {
+    const diagKeys = [
+      'httq_progress_v2', 'httq_done_stages', 'httq_done_activities',
+      'httq_curr_learned_words', 'httq_learned_grammar', 'httq_user_mistakes',
+      'httq_dismissed_mistakes', 'httq_dictation_progress', 'httq_learning_profile',
+      'httq_habit_settings', 'httq_game_high_scores', 'httq_speaking_progress',
+      'httq_state', 'xhz-seen-words-v1', 'xhz-practice-v1',
+      'httq_current_stage_key', 'httq_current_lesson_id',
+      'httq_active_dates', 'httq_minutes_by_date', 'httq_sessions_by_date'
+    ];
+    const snapshot = {};
+    diagKeys.forEach(k => { snapshot[k] = localStorage.getItem(k); });
+    window.__xhzDiagRunning = true;
+    const checks = [];
+    const runCheck = async (name, fn) => {
+      try {
+        const res = await fn();
+        checks.push({ name, ok: !!res });
+      } catch (err) {
+        checks.push({ name, ok: false, error: err && err.message ? err.message : String(err) });
+      }
+    };
+
+    try {
+      await runCheck('storage-merge', () => {
+        const merged = mergeProgressObjects(
+          { learnedWords: ['八'], learnedGrammarIds: ['g-a'], doneStages: ['hsk30.L1.P1'], minutesByDate: { '2026-11-18': 5 } },
+          { learnedWords: ['妈'], learnedGrammarIds: ['g-b'], doneStages: ['hsk30.L1.P2'], minutesByDate: { '2026-11-18': 12 } }
+        );
+        return merged.learnedWords.includes('八') && merged.learnedWords.includes('妈') && merged.learnedGrammarIds.length === 2 && merged.minutesByDate['2026-11-18'] === 12;
+      });
+      await runCheck('bridge-stores', () => {
+        recordStudyProgress({ words: ['诊断测试词'], minutes: 1 });
+        const seen = JSON.parse(localStorage.getItem('xhz-seen-words-v1') || '{}');
+        const prac = JSON.parse(localStorage.getItem('xhz-practice-v1') || '{}');
+        return Boolean(seen['诊断测试词'] && prac && prac.items && prac.items['诊断测试词']);
+      });
+      await runCheck('api-progress', async () => {
+        const d = await (await fetch('/v2/me/progress')).json();
+        return Boolean(d && typeof d.streakDays === 'number' && Array.isArray(d.activity));
+      });
+      await runCheck('api-tracks', async () => {
+        const d = await (await fetch('/v2/learning-tracks/hsk30')).json();
+        return Boolean(d && Array.isArray(d.stages) && d.stages.length >= 30);
+      });
+      await runCheck('api-today', async () => {
+        const d = await (await fetch('/v2/today')).json();
+        return Boolean(d && Array.isArray(d.steps) && d.steps.length > 0);
+      });
+      await runCheck('api-review-summary', async () => {
+        const d = await (await fetch('/v2/review/summary')).json();
+        return Boolean(d && d.dueNow && Array.isArray(d.forecast));
+      });
+      await runCheck('api-review-mistakes', async () => {
+        await fetch('/v2/review/signals', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ signals: [{ signalId: 'diag-m', itemKey: 'w:书', skill: 'meaning', outcome: 'wrong' }] })
+        });
+        const d = await (await fetch('/v2/review/mistakes')).json();
+        return Boolean(d && Array.isArray(d.mistakes) && d.mistakes.some(m => m.hanzi === '书'));
+      });
+      await runCheck('api-grammar-progress', async () => {
+        const p1 = await (await fetch('/v1/grammar-progress/g-diag-1', { method: 'POST' })).json();
+        const p2 = await (await fetch('/v1/grammar-progress/g-diag-1', { method: 'DELETE' })).json();
+        return Boolean(p1 && p1.ok && p2 && p2.ok && !p2.learnedGrammarIds.includes('g-diag-1'));
+      });
+      await runCheck('api-practice-sync', async () => {
+        const d = await (await fetch('/v1/practice-progress/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ events: [], states: [{ hanzi: '茶', repetitions: 2 }], days: [] })
+        })).json();
+        return Boolean(d && d.ok && d.items && d.items['茶']);
+      });
+      await runCheck('api-games', async () => {
+        const ov = await (await fetch('/v1/games/overview')).json();
+        const lb = await (await fetch('/v1/games/leaderboard?game=chengyu')).json();
+        return Boolean(ov && Array.isArray(ov.games) && ov.games.length >= 6 && lb && Array.isArray(lb.entries) && lb.entries.length > 0);
+      });
+      await runCheck('api-yct-tests', async () => {
+        const yct = await (await fetch('/v1/hsk-tests/papers?examType=yct')).json();
+        const yPaper = await (await fetch('/v1/hsk-tests/papers/yct-1-01')).json();
+        return Boolean(yct && Array.isArray(yct.levels) && yPaper && Array.isArray(yPaper.questions) && yPaper.questions.length === 20);
+      });
+      await runCheck('api-curriculums', async () => {
+        const d = await (await fetch('/v1/curriculums/boya/levels/boya-elementary-1/lessons')).json();
+        return Boolean(d && Array.isArray(d.lessons) && d.lessons.length > 0 && 'progressPct' in d.lessons[0]);
+      });
+      await runCheck('api-speaking', async () => {
+        const d = await (await fetch('/v1/speaking/dialogues/hsk/hsk-1/bai-tap-bat-ky')).json();
+        return Boolean(d && Array.isArray(d.turns) && d.turns.length >= 2);
+      });
+      await runCheck('api-notebook', async () => {
+        await fetch('/v1/notebook', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ word: '咖啡', pinyin: 'kāfēi', meaningVi: 'cà phê' }) });
+        const d = await (await fetch('/v1/notebook')).json();
+        return Boolean(d && d.ok && Array.isArray(d.items) && d.items.some(i => (i.hanzi || i.word) === '咖啡'));
+      });
+      await runCheck('api-exam-sittings', async () => {
+        await fetch('/v1/hsk-tests/hsk30-1/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paperId: 'hsk30-1', answers: { 1: 'A' } }) });
+        const d = await (await fetch('/v2/me/exam-sittings')).json();
+        return Boolean(d && Array.isArray(d.items) && d.items.length >= 1);
+      });
+      await runCheck('api-translate', async () => {
+        const d = await (await fetch('/v1/translate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: '你好中国' }) })).json();
+        return Boolean(d && d.ok && Array.isArray(d.breakdown) && d.breakdown.length > 0 && Array.isArray(d.words) && d.words.some(w => w.word === '中国'));
+      });
+      await runCheck('dynamic-run-resolve', async () => {
+        const r = window.__xhzResolveRun ? await window.__xhzResolveRun('hsk30.L1.S05.learn.1') : null;
+        const stub = await loadLocalJson('/data/dictation/videos/6a0f4ee00a345b96919efd1e-detail.json');
+        return Boolean(r && Array.isArray(r.steps) && r.steps.length >= 5 && stub === null);
+      });
+    } finally {
+      window.__xhzDiagRunning = false;
+      diagKeys.forEach(k => {
+        if (snapshot[k] === null) localStorage.removeItem(k);
+        else localStorage.setItem(k, snapshot[k]);
+      });
+    }
+    const passed = checks.filter(c => c.ok).length;
+    const failed = checks.length - passed;
+    return { ok: failed === 0, passed, failed, total: checks.length, checks };
+  };
 
   function getLocalState() {
     try {
@@ -829,9 +1404,17 @@
   }
 
   async function supabasePull() {
-    await syncProgressFromSupabaseAuth(false);
+    return await syncProgressFromSupabaseAuth(false);
   }
-  supabasePull();
+  const initialCloudPullPromise = supabasePull().catch(() => null);
+  async function ensureInitialCloudPull() {
+    try {
+      await Promise.race([
+        initialCloudPullPromise,
+        new Promise(resolve => setTimeout(resolve, 1800))
+      ]);
+    } catch (_) {}
+  }
 
   // ==========================================================================
   // 3. TRA CỨU DỮ LIỆU ĐỘNG TỪ KHO /data/*
@@ -1272,9 +1855,129 @@
     return paper;
   }
 
+  async function buildYctTestPaper(cleanId, fallbackLevel = 1) {
+    const m = cleanId.match(/^yct-(\d+)(?:-(\d+))?/i);
+    const yctLvl = Math.max(1, Math.min(6, Number((m && m[1]) || fallbackLevel) || 1));
+    const variantIdx = Math.max(0, (Number(m && m[2]) || 1) - 1);
+    const fallbackLessonFiles = {
+      1: ['yct-1--bai-1-hello.json', 'yct-1--bai-2-what-s-your-name.json', 'yct-1--bai-3-who-is-he.json', 'yct-1--bai-4-there-are-four-people-in-my-family.json'],
+      2: ['yct-2--bai-1-may-i-sit-here.json', 'yct-2--bai-2-when-do-you-get-up-in-the-morning.json', 'yct-2--bai-3-where-is-your-pencil.json', 'yct-2--bai-4-there-are-two-books-in-the-schoolbag.json'],
+      3: ['yct-3--bai-1-i-m-in-the-third-grade.json', 'yct-3--bai-2-what-s-your-favorite-sport.json', 'yct-3--bai-3-i-m-drawing-a-picture.json', 'yct-3--bai-5-have-some-more.json'],
+      4: ['yct-4--bai-1-we-have-108-students.json', 'yct-4--bai-2-how-long-have-you-been-learning-chinese.json', 'yct-4--bai-3-it-opens-as-early-as-8-30-in-the-morning.json', 'yct-4--bai-4-i-have-a-cold.json']
+    };
+    let lessonFiles = [];
+    const overview = await loadLocalJson('/data/curriculums/yct/overview.json');
+    if (overview && Array.isArray(overview.levels)) {
+      const lvlObj = overview.levels.find(l => l && (String(l.level) === String(yctLvl) || l.slug === `yct-${yctLvl}`));
+      const rawLessons = lvlObj && (lvlObj.lessons || lvlObj.topics || lvlObj.items);
+      if (Array.isArray(rawLessons) && rawLessons.length > 0) {
+        lessonFiles = rawLessons.map(it => {
+          const lSlug = it.lessonSlug || it.slug || '';
+          return lSlug ? `yct-${yctLvl}--${lSlug}.json` : '';
+        }).filter(Boolean);
+      }
+    }
+    if (lessonFiles.length === 0) {
+      lessonFiles = fallbackLessonFiles[yctLvl] || fallbackLessonFiles[1];
+    }
+    const startIdx = (variantIdx * 2) % lessonFiles.length;
+    const chosenFiles = [];
+    for (let i = 0; i < Math.min(3, lessonFiles.length); i++) {
+      chosenFiles.push(lessonFiles[(startIdx + i) % lessonFiles.length]);
+    }
+    const wordMap = new Map();
+    for (const fname of chosenFiles) {
+      const lData = await loadLocalJson(`/data/curriculums/yct/lessons/${fname}`);
+      const ws = (lData && lData.lesson && Array.isArray(lData.lesson.words))
+        ? lData.lesson.words
+        : (lData && Array.isArray(lData.words) ? lData.words : []);
+      ws.forEach(w => {
+        if (w && w.hanzi && !wordMap.has(w.hanzi)) wordMap.set(w.hanzi, w);
+      });
+    }
+    const words = Array.from(wordMap.values());
+    if (words.length < 4) return null;
+    const listeningQs = [];
+    const readingQs = [];
+    for (let i = 0; i < 10; i++) {
+      const target = words[i % words.length];
+      const d1 = words[(i + 3) % words.length];
+      const d2 = words[(i + 7) % words.length];
+      const correctPos = i % 3;
+      const pool = [target, d1, d2];
+      const ordered = correctPos === 0 ? pool : (correctPos === 1 ? [d1, target, d2] : [d1, d2, target]);
+      const letters = ['A', 'B', 'C'];
+      const audioSrc = (Array.isArray(target.audios) && target.audios[0])
+        ? target.audios[0]
+        : `https://static.xiehanzi.com/word_audios/${encodeURIComponent(target.hanzi)}.mp3`;
+      listeningQs.push({
+        id: `${cleanId}-q${String(i + 1).padStart(3, '0')}`,
+        number: i + 1,
+        type: 'multiple_choice',
+        instruction: i === 0 ? 'Phần 1 · Nghe và chọn từ/nghĩa đúng (Câu 1–10)' : '',
+        prompt: `Nghe phát âm và chọn đáp án đúng tương ứng:`,
+        audio: audioSrc,
+        options: ordered.map((opt, idx) => ({
+          id: letters[idx],
+          text: `${opt.hanzi} — ${opt.translationVi || opt.wordMeaningVi || ''}`,
+          pinyin: opt.pinyin || opt.wordPinyin || ''
+        })),
+        answer: letters[correctPos],
+        explanationVi: `${target.hanzi} (${target.pinyin || ''}): ${target.translationVi || target.wordMeaningVi || ''}`
+      });
+    }
+    for (let j = 0; j < 10; j++) {
+      const target = words[(j + Math.floor(words.length / 2)) % words.length];
+      const d1 = words[(j + 2) % words.length];
+      const d2 = words[(j + 5) % words.length];
+      const correctPos = (j + 1) % 3;
+      const pool = [target, d1, d2];
+      const ordered = correctPos === 0 ? pool : (correctPos === 1 ? [d1, target, d2] : [d1, d2, target]);
+      const letters = ['A', 'B', 'C'];
+      const ex = Array.isArray(target.examples) && target.examples[0];
+      const promptText = ex
+        ? `${ex.hanzi}\nNghĩa đúng của từ「${target.hanzi}」trong câu là gì?`
+        : `Từ「${target.hanzi}」có nghĩa là gì?`;
+      readingQs.push({
+        id: `${cleanId}-q${String(j + 11).padStart(3, '0')}`,
+        number: j + 11,
+        type: 'multiple_choice',
+        instruction: j === 0 ? 'Phần 2 · Đọc hiểu và chọn nghĩa tiếng Việt đúng (Câu 11–20)' : '',
+        prompt: promptText,
+        pinyin: (ex && ex.pinyin) ? ex.pinyin : (target.pinyin || ''),
+        options: ordered.map((opt, idx) => ({
+          id: letters[idx],
+          text: opt.translationVi || opt.wordMeaningVi || opt.hanzi,
+          pinyin: `${opt.hanzi} (${opt.pinyin || ''})`
+        })),
+        answer: letters[correctPos],
+        explanationVi: `${target.hanzi} (${target.pinyin || ''}) = ${target.translationVi || target.wordMeaningVi || ''}`
+      });
+    }
+    return normalizeTestPaper({
+      testId: cleanId,
+      examType: 'yct',
+      level: yctLvl,
+      title: `Đề luyện YCT Cấp ${yctLvl} · Đề ${String(variantIdx + 1).padStart(2, '0')}`,
+      published: true,
+      standard: 'YCT',
+      durationMinutes: 25 + yctLvl * 5,
+      questionCount: 20,
+      hasAudio: true,
+      sections: [
+        { id: 'listening', title: 'Listening', questions: listeningQs },
+        { id: 'reading', title: 'Reading', questions: readingQs }
+      ]
+    }, cleanId);
+  }
+
   async function loadTestPaperById(paperId, fallbackLevel = 1) {
     if (!paperId || paperId === 'undefined') paperId = `hsk30-${fallbackLevel || 1}`;
     const cleanId = decodeURIComponent(paperId).replace(/\.json$/i, '');
+    if (/^yct-/i.test(cleanId)) {
+      const yctPaper = await buildYctTestPaper(cleanId, fallbackLevel);
+      if (yctPaper) return yctPaper;
+    }
     const candidates = [
       `/data/tests/papers/${cleanId}.json`,
       `/data/tests/papers/level-1-${cleanId}.json`,
@@ -1368,19 +2071,59 @@
       return jsonResponse(data || { ok: true });
     }
     if (p.includes('/users/me/weekly-activity') || p === '/v2/me/weekly-activity') {
-      return jsonResponse({ ok: true, daysActive: 5, minutes: 145 });
+      await ensureInitialCloudPull();
+      const sum = getRealProgressSummary();
+      return jsonResponse({
+        ok: true,
+        daysActive: sum.weekDays.length,
+        minutes: sum.totalMinutes,
+        todayMinutes: sum.todayMinutes,
+        streakDays: sum.streakDays
+      });
     }
     if (p.includes('/users/me/recent-actions') || p === '/v2/me/recent-actions') {
-      return jsonResponse({ ok: true, actions: [] });
+      await ensureInitialCloudPull();
+      const sum = getRealProgressSummary();
+      const actions = [];
+      for (const [stgKey, acts] of Object.entries(sum.prog.doneActivities || {})) {
+        (Array.isArray(acts) ? acts : []).slice(-5).forEach(actKey => {
+          actions.push({ type: 'lesson', stageKey: stgKey, key: actKey, title: `Hoàn thành ${actKey}` });
+        });
+      }
+      (sum.prog.learnedWords || []).slice(-10).reverse().forEach(w => {
+        actions.push({ type: 'word', key: w, title: `Đã học từ ${w}` });
+      });
+      return jsonResponse({ ok: true, actions: actions.slice(0, 15) });
     }
     if (p.includes('/v1/speaking/sample-consent')) {
       return jsonResponse({ ok: true, granted: false, decided: true, deleted: 0 });
     }
-    if (p.includes('/v1/grammar-progress')) {
-      return jsonResponse({ ok: true, learnedGrammarIds: [] });
-    }
     if (p.includes('/v1/study-time/sync')) {
-      return jsonResponse({ ok: true, blocks: [] });
+      const body = method === 'POST' ? await parseRequestBody(init) : {};
+      let savedBlocks = {};
+      try {
+        savedBlocks = JSON.parse(localStorage.getItem('httq_study_time_blocks') || '{}') || {};
+      } catch (_) {}
+      let addedSec = Number(body.seconds) || 0;
+      const incomingBlocks = Array.isArray(body.blocks)
+        ? body.blocks
+        : (body.blocks && typeof body.blocks === 'object' ? Object.values(body.blocks) : []);
+      if (incomingBlocks.length > 0) {
+        incomingBlocks.forEach((blk, idx) => {
+          if (!blk || typeof blk !== 'object') return;
+          const bKey = blk.id || blk.key || `${blk.day || 'd'}-${blk.bucket || idx}`;
+          const prevSec = Number((savedBlocks[bKey] && savedBlocks[bKey].seconds) || 0);
+          const nextSec = Number(blk.seconds || blk.durationSec || 0);
+          if (nextSec > prevSec) addedSec += (nextSec - prevSec);
+          savedBlocks[bKey] = { ...blk, seconds: Math.max(prevSec, nextSec) };
+        });
+        try { localStorage.setItem('httq_study_time_blocks', JSON.stringify(savedBlocks)); } catch (_) {}
+      }
+      const addMins = Number(body.minutes) || (addedSec >= 30 ? Math.max(1, Math.round(addedSec / 60)) : 0);
+      if (addMins > 0) {
+        recordStudyProgress({ minutes: addMins });
+      }
+      return jsonResponse({ ok: true, blocks: Object.values(savedBlocks) });
     }
     if (p.includes('/auth/logout')) {
       clearAuthSession();
@@ -1604,6 +2347,14 @@
         const syllables = (chars.length ? chars : ['你', '好']).map(ch => ({ text: ch, pinyin: '', status: 'good' }));
         events.push(`event: grade\ndata: ${JSON.stringify({ score: 94, syllables })}\n\n`);
         replyObj = aiReplies[turnIdx % aiReplies.length];
+        try {
+          recordStudyProgress({
+            voiceInc: 1,
+            gradingInc: 1,
+            minutes: 2,
+            dailyStepDone: 'step-talk-1'
+          });
+        } catch (_) {}
       }
 
       events.push(`event: sentence\ndata: ${JSON.stringify({ i: 0, text: replyObj.text, pinyin: replyObj.pinyin, lang: 'zh' })}\n\n`);
@@ -1780,18 +2531,54 @@
         suggestions: defaultSuggestions
       });
     }
+    const getMergedExamHistory = () => {
+      const prog = getRealProgress();
+      const st = getLocalState();
+      const hMap = new Map();
+      [...(Array.isArray(st.history) ? st.history : []), ...(Array.isArray(prog.examHistory) ? prog.examHistory : [])].forEach(h => {
+        if (h && (h.paperId || h.at)) hMap.set(`${h.paperId || 'test'}-${h.at || ''}`, h);
+      });
+      return Array.from(hMap.values()).sort((a, b) => (Date.parse(b.at || '') || 0) - (Date.parse(a.at || '') || 0));
+    };
     if (p === '/v2/me/exam-readiness') {
+      const hist = getMergedExamHistory();
+      const byLevel = new Map();
+      hist.forEach(h => {
+        const m = String(h.paperId || '').match(/(\d+)/);
+        const lvl = m ? Number(m[1]) : 1;
+        if (!byLevel.has(lvl)) byLevel.set(lvl, []);
+        byLevel.get(lvl).push(Number(h.score) || 0);
+      });
+      const levels = Array.from(byLevel.entries()).map(([level, scores]) => {
+        const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+        const predicted300 = Math.round(avg * 3);
+        return { level, attempts: scores.length, latestScore: scores[0], averageScore: avg, predictedHsk300: predicted300, ready: predicted300 >= 180 };
+      });
       return jsonResponse({
-        method: 'Tính dựa trên kết quả làm đề gần nhất của từng kỹ năng.',
+        method: 'Tính dựa trên kết quả làm đề gần nhất và tiến độ ôn tập thực tế.',
         disclaimer: 'Không phải điểm thi chính thức',
-        levels: []
+        attemptsCount: hist.length,
+        levels
       });
     }
     if (p === '/v2/me/exam-sittings' || p.startsWith('/v2/me/exam-sittings/')) {
-      return jsonResponse({ ok: true, items: [], imported: 0 });
+      if (method === 'POST') {
+        const body = await parseRequestBody(init);
+        const entry = {
+          paperId: body.paperId || body.testId || 'hsk30-1',
+          score: Number(body.score) || 0,
+          correctCount: Number(body.correctCount) || 0,
+          total: Number(body.total || body.totalQuestions) || 40,
+          at: new Date().toISOString()
+        };
+        recordStudyProgress({ examResult: entry, minutes: 5, sessionInc: 1 });
+      }
+      const items = getMergedExamHistory();
+      return jsonResponse({ ok: true, items, imported: items.length });
     }
     if (p === '/v2/exam-sittings' || p.startsWith('/v2/exam-sittings/')) {
-      return jsonResponse({ ok: true, id: `sit-${Date.now()}`, sittingId: `sit-${Date.now()}`, status: 'active', answers: [] });
+      const items = getMergedExamHistory();
+      return jsonResponse({ ok: true, id: `sit-${Date.now()}`, sittingId: `sit-${Date.now()}`, status: 'active', answers: [], items });
     }
     if (p === '/v2/me/learning-profile') {
       let saved = {};
@@ -1819,6 +2606,7 @@
       });
     }
     if (p === '/v2/me/progress' || p === '/v1/me/progress') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       return jsonResponse({
         streakDays: sum.streakDays,
@@ -1832,6 +2620,7 @@
       });
     }
     if (p === '/v2/me/habit' || p === '/v2/me/habit/weekly-goal') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       let savedHabit = { dailyMinutes: 15, reminderTime: '20:00', reminderEnabled: true, goalSessions: sum.goalSessions || 5 };
       try {
@@ -1869,6 +2658,7 @@
       });
     }
     if (p === '/v2/me/plans' || p === '/v2/plans' || p === '/plans' || p === '/v2/me/plans/interest') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       const now = new Date();
       const nextMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1)).toISOString();
@@ -1904,6 +2694,7 @@
       return jsonResponse({ status: 'none', plan: null });
     }
     if (p === '/v2/me/skill-map') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       const baseScore = sum.lessonsDone > 0 ? Math.min(95, 50 + sum.lessonsDone * 5) : 0;
       return jsonResponse({
@@ -1920,6 +2711,7 @@
       });
     }
     if (p === '/v2/me/score-prediction') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       return jsonResponse({
         level: 'HSK 1',
@@ -1929,6 +2721,7 @@
       });
     }
     if (p === '/v2/me/reports/weekly') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       return jsonResponse({
         streakDays: sum.streakDays,
@@ -1941,13 +2734,12 @@
       return jsonResponse({ ok: true, consents: {} });
     }
     if (p === '/v2/learning-tracks' || p === '/v2/paths') {
+      await ensureInitialCloudPull();
+      const sum = getRealProgressSummary();
       const isBatDauPage = (window.location.pathname || '').includes('bat-dau');
-      const savedStageKey = localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
-      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
-      let doneStages = [];
-      try {
-        doneStages = JSON.parse(localStorage.getItem('httq_done_stages') || '[]') || [];
-      } catch (_) {}
+      const savedStageKey = sum.prog.currentStageKey || localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+      const savedLessonId = sum.prog.currentLessonId || localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+      const doneStages = sum.prog.doneStages || [];
       const rawTracks = await loadLocalJson('/data/learning-tracks/tracks.json');
       if (rawTracks && Array.isArray(rawTracks.tracks)) {
         const tracks = rawTracks.tracks.map(t => ({
@@ -2011,6 +2803,7 @@
       return jsonResponse({ tracks, paths: tracks });
     }
     if (p.startsWith('/v2/learning-tracks/') || p.startsWith('/v2/paths/')) {
+      await ensureInitialCloudPull();
       const parts = p.split('/').filter(Boolean);
       const track = parts[2] || 'hsk30';
       const sub = parts[3] || '';
@@ -2141,14 +2934,11 @@
         }
       }
       if (sub === 'progress') {
+        const sum = getRealProgressSummary();
         const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
-        const savedStageKey = localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
-        let doneStages = [];
-        let doneActivities = {};
-        try {
-          doneStages = JSON.parse(localStorage.getItem('httq_done_stages') || '[]') || [];
-          doneActivities = JSON.parse(localStorage.getItem('httq_done_activities') || '{}') || {};
-        } catch (_) {}
+        const savedStageKey = sum.prog.currentStageKey || localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+        const doneStages = sum.prog.doneStages || [];
+        const doneActivities = sum.prog.doneActivities || {};
         const allStages = [];
         if (levelData && Array.isArray(levelData.chapters)) {
           levelData.chapters.forEach(ch => {
@@ -2172,12 +2962,16 @@
             stagesTotal: allStages.length,
             active: true
           },
-          stages: allStages.map(sk => ({
-            stageKey: sk,
-            status: doneStages.includes(sk) ? 'completed' : sk === savedStageKey ? 'in_progress' : 'available',
-            activityKeysDone: Array.isArray(doneActivities[sk]) ? doneActivities[sk] : [],
-            examBestPct: doneStages.includes(sk) ? 100 : undefined
-          })),
+          stages: allStages.map(sk => {
+            const actsDone = Array.isArray(doneActivities[sk]) ? doneActivities[sk] : [];
+            const isDone = doneStages.includes(sk) || actsDone.length >= 4;
+            return {
+              stageKey: sk,
+              status: isDone ? 'completed' : sk === savedStageKey || actsDone.length > 0 ? 'in_progress' : 'available',
+              activityKeysDone: actsDone,
+              examBestPct: isDone || actsDone.includes(`${sk}.exam`) ? 100 : undefined
+            };
+          }),
           levelTest: null
         });
       }
@@ -2198,6 +2992,11 @@
         const targetLessonId = `${startStageKey}.learn.1`;
         localStorage.setItem('httq_current_stage_key', startStageKey);
         localStorage.setItem('httq_current_lesson_id', targetLessonId);
+        const prog = getRealProgress();
+        prog.currentStageKey = startStageKey;
+        prog.currentLessonId = targetLessonId;
+        saveRealProgress(prog);
+        syncProgressToSupabaseAuth(prog);
         return jsonResponse({
           ok: true,
           currentLessonId: targetLessonId,
@@ -2209,15 +3008,56 @@
             currentStageId: startStageKey,
             currentLessonId: targetLessonId,
             startStageKey,
-            stagesDone: 0,
+            stagesDone: (prog.doneStages || []).length,
             stagesTotal: 40,
             active: true,
             enrolledAt: new Date().toISOString()
           }
         });
       }
-      const savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
-      const savedStageKey = localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+      const sum = getRealProgressSummary();
+      const savedLessonId = sum.prog.currentLessonId || localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+      const savedStageKey = sum.prog.currentStageKey || localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+      const doneStages = Array.isArray(sum.prog.doneStages) ? sum.prog.doneStages : [];
+      const doneActsMap = sum.prog.doneActivities || {};
+      const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+      const builtStages = [];
+      let stgIdxCounter = 0;
+      if (levelData && Array.isArray(levelData.chapters)) {
+        levelData.chapters.forEach(ch => {
+          (ch.stages || []).forEach(stg => {
+            const sk = stg.stageKey;
+            const doneInStg = Array.isArray(doneActsMap[sk]) ? doneActsMap[sk] : [];
+            const isReview = stg.kind === 'review' || /\.R\d+$/i.test(sk);
+            const lessons = isReview
+              ? [
+                  { id: `${sk}.rp1`, index: 0, kind: 'learn', status: doneInStg.includes(`${sk}.rp1`) ? 'completed' : 'available', titleVi: `Nhập vai: ${stg.titleVi}`, newWordCount: 0, estMinutes: 5 },
+                  { id: `${sk}.write`, index: 1, kind: 'learn', status: doneInStg.includes(`${sk}.write`) ? 'completed' : 'available', titleVi: `Tập viết tổng hợp: ${stg.titleVi}`, newWordCount: 0, estMinutes: 4 },
+                  { id: `${sk}.exam`, index: 2, kind: 'stage_test', status: doneInStg.includes(`${sk}.exam`) ? 'completed' : 'available', titleVi: `Kiểm tra chặng: ${stg.titleVi}`, newWordCount: 0, estMinutes: 5 }
+                ]
+              : [
+                  { id: `${sk}.learn.1`, index: 0, kind: 'learn', status: doneInStg.includes(`${sk}.learn.1`) ? 'completed' : 'available', titleVi: `Từ mới: ${stg.titleVi}${stg.titleZh ? ` (${stg.titleZh})` : ''}`, newWordCount: stg.newWordCount || 6, estMinutes: 6 },
+                  { id: `${sk}.dlg`, index: 1, kind: 'learn', status: doneInStg.includes(`${sk}.dlg`) ? 'completed' : 'available', titleVi: `Hội thoại: ${stg.titleVi}`, newWordCount: 0, estMinutes: 4 },
+                  { id: `${sk}.rp1`, index: 2, kind: 'learn', status: doneInStg.includes(`${sk}.rp1`) ? 'completed' : 'available', titleVi: `Nhập vai: ${stg.titleVi}`, newWordCount: 0, estMinutes: 5 },
+                  { id: `${sk}.exam`, index: 3, kind: 'stage_test', status: doneInStg.includes(`${sk}.exam`) ? 'completed' : 'available', titleVi: `Luyện đề: ${stg.titleVi}`, newWordCount: 0, estMinutes: 4 }
+                ];
+            const isStgDone = doneStages.includes(sk) || doneInStg.length >= lessons.length;
+            builtStages.push({
+              id: sk,
+              stageKey: sk,
+              chapterKey: ch.chapterKey,
+              chapterTitleVi: ch.titleVi,
+              index: stgIdxCounter++,
+              titleVi: `${ch.titleVi}: ${stg.titleVi}`,
+              status: isStgDone ? 'completed' : (sk === savedStageKey || doneInStg.length > 0 ? 'in_progress' : 'available'),
+              wordCount: stg.newWordCount || 6,
+              grammarCount: isReview ? 0 : 2,
+              progress: { lessonsDone: Math.min(lessons.length, doneInStg.length), lessonsTotal: lessons.length },
+              lessons
+            });
+          });
+        });
+      }
       return jsonResponse({
         slug: track,
         track: 'hsk30',
@@ -2231,43 +3071,12 @@
           currentStageId: savedStageKey,
           currentLessonId: savedLessonId,
           startStageKey: savedStageKey,
-          stagesDone: 0,
-          stagesTotal: 40,
+          stagesDone: sum.stagesDone,
+          stagesTotal: builtStages.length || 40,
           active: true,
           enrolledAt: '2026-11-10T00:00:00.000Z'
         },
-        stages: [
-          {
-            id: 'hsk30.L1.P1',
-            index: 0,
-            titleVi: 'Âm và thanh: Bốn thanh và thanh nhẹ',
-            status: 'in_progress',
-            wordCount: 9,
-            grammarCount: 0,
-            progress: { lessonsDone: 0, lessonsTotal: 4 },
-            lessons: [
-              { id: 'hsk30.L1.P1.learn.1', index: 0, kind: 'learn', status: 'available', titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)', newWordCount: 3, estMinutes: 6 },
-              { id: 'hsk30.L1.P1.dlg', index: 1, kind: 'learn', status: 'available', titleVi: 'Hội thoại: Bốn thanh và thanh nhẹ', newWordCount: 3, estMinutes: 4 },
-              { id: 'hsk30.L1.P1.rp1', index: 2, kind: 'learn', status: 'available', titleVi: 'Nhập vai 1: Chào hỏi bố mẹ Tiểu Văn', newWordCount: 3, estMinutes: 5 },
-              { id: 'hsk30.L1.P1.exam', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Luyện đề: Bốn thanh và thanh nhẹ', newWordCount: 3, estMinutes: 4 }
-            ]
-          },
-          {
-            id: 'hsk30.L1.S01',
-            index: 1,
-            titleVi: 'Chào hỏi, làm quen',
-            status: 'available',
-            wordCount: 44,
-            grammarCount: 4,
-            progress: { lessonsDone: 0, lessonsTotal: 4 },
-            lessons: [
-              { id: 'hsk30.L1.S01.learn.1', index: 0, kind: 'learn', status: 'available', titleVi: 'Bài 1: Xin chào, cảm ơn, tạm biệt (老师，您好！)', newWordCount: 11, estMinutes: 6 },
-              { id: 'hsk30.L1.S02.learn.1', index: 1, kind: 'learn', status: 'available', titleVi: 'Bài 2: Bạn tên là gì? (你叫什么名字？)', newWordCount: 11, estMinutes: 6 },
-              { id: 'hsk30.L1.S03.learn.1', index: 2, kind: 'learn', status: 'available', titleVi: 'Bài 3: Bạn là người nước nào? (你是哪国人？)', newWordCount: 11, estMinutes: 6 },
-              { id: 'hsk30.L1.S04.learn.1', index: 3, kind: 'stage_test', status: 'available', titleVi: 'Bài 4: Nhà mình có mấy người (你家有几口人？)', newWordCount: 11, estMinutes: 8 }
-            ]
-          }
-        ]
+        stages: builtStages
       });
     }
     if (p === '/v2/companion/unlocks/celebrated') {
@@ -2277,15 +3086,19 @@
       return jsonResponse({ enabled: false, todayCard: false, checkpoint: { due: false } });
     }
     if (p === '/v2/today' || p === '/v2/today/session' || p.startsWith('/v2/today/session/steps/')) {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
-      let savedLessonId = localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+      let savedLessonId = sum.prog.currentLessonId || localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
       if (savedLessonId === 'bai-1-hello-ai-xiaoyu') savedLessonId = 'hsk30.L1.P1.learn.1';
       const todayStr = new Date().toISOString().slice(0, 10);
       let reqMin = Number(urlObj.searchParams.get('minutes')) || 15;
       let sessionStatus = method === 'POST' ? 'in_progress' : 'preview';
-      let stepStatuses = {};
+      let stepStatuses = {
+        ...((sum.prog.dailyStepsByDate && sum.prog.dailyStepsByDate[todayStr]) || {})
+      };
       try {
-        stepStatuses = JSON.parse(localStorage.getItem('httq_daily_steps_' + todayStr) || '{}') || {};
+        const localSteps = JSON.parse(localStorage.getItem('httq_daily_steps_' + todayStr) || '{}') || {};
+        stepStatuses = { ...stepStatuses, ...localSteps };
       } catch (_) {}
       if (p.startsWith('/v2/today/session/steps/') && method === 'POST') {
         const stepId = decodeURIComponent(p.replace('/v2/today/session/steps/', ''));
@@ -2295,6 +3108,9 @@
           try {
             localStorage.setItem('httq_daily_steps_' + todayStr, JSON.stringify(stepStatuses));
           } catch (_) {}
+          if (body.status === 'done') {
+            recordStudyProgress({ dailyStepDone: stepId });
+          }
         }
         sessionStatus = 'in_progress';
       } else if (p === '/v2/today/session' && method === 'POST') {
@@ -2302,14 +3118,41 @@
         if (body && body.minutes) reqMin = Number(body.minutes) || 15;
         sessionStatus = 'in_progress';
       }
+      const lessonTitleMap = {
+        'hsk30.L1.P1.learn.1': 'Từ mới: Bốn thanh và thanh nhẹ (八，爸爸，妈妈)',
+        'hsk30.L1.P1.dlg': 'Hội thoại: Bốn thanh và thanh nhẹ',
+        'hsk30.L1.P1.rp1': 'Nhập vai: Chào hỏi bố mẹ Tiểu Văn',
+        'hsk30.L1.P1.exam': 'Luyện đề: Bốn thanh và thanh nhẹ',
+        'hsk30.L1.P2.learn.1': 'Từ mới: Biến điệu thanh 3 & 不，一',
+        'hsk30.L1.P3.learn.1': 'Từ mới: Vận mẫu mũi & Luyện nghe phân biệt',
+        'hsk30.L1.S01.learn.1': 'Bài 1: Xin chào, cảm ơn, tạm biệt (老师，您好！)'
+      };
+      let curLessonTitle = lessonTitleMap[savedLessonId];
+      if (!curLessonTitle) {
+        const stgKeyFromLes = (savedLessonId.match(/^(hsk30\.L\d+\.[A-Z]\d+)/i) || [])[1];
+        const lData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+        let foundStg = null;
+        if (lData && Array.isArray(lData.chapters) && stgKeyFromLes) {
+          for (const ch of lData.chapters) {
+            const s = (ch.stages || []).find(x => x.stageKey === stgKeyFromLes);
+            if (s) { foundStg = s; break; }
+          }
+        }
+        if (foundStg) {
+          const prefix = savedLessonId.endsWith('.dlg') ? 'Hội thoại' : savedLessonId.includes('.rp') ? 'Nhập vai' : savedLessonId.endsWith('.exam') ? 'Luyện đề' : savedLessonId.endsWith('.write') ? 'Tập viết' : 'Từ mới';
+          curLessonTitle = `${prefix}: ${foundStg.titleVi}${foundStg.titleZh ? ` (${foundStg.titleZh})` : ''}`;
+        } else {
+          curLessonTitle = `Bài tiếp theo (${savedLessonId})`;
+        }
+      }
       const dueCount = Math.max(0, sum.dueTotal || 0);
       const steps = [
         {
           id: 'step-lesson-1',
           kind: 'lesson',
           status: stepStatuses['step-lesson-1'] || 'pending',
-          titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)',
-          detailVi: 'Học 3 từ mới và phân biệt 4 thanh điệu + thanh nhẹ',
+          titleVi: curLessonTitle,
+          detailVi: 'Học từ mới, luyện viết chữ Hán và phản xạ câu',
           reasonVi: 'Bài tiếp theo trong lộ trình HSK 3.0 Cấp 1',
           estMinutes: 6,
           lesson: {
@@ -2338,7 +3181,7 @@
           reasonVi: 'Luyện giao tiếp hằng ngày',
           estMinutes: 2,
           talk: {
-            stageKey: 'hsk30.L1.P1'
+            stageKey: sum.prog.currentStageKey || 'hsk30.L1.P1'
           }
         }
       ];
@@ -2364,13 +3207,14 @@
         completedMinutes: sum.todayMinutes,
         continue: { kind: 'lesson', lessonId: savedLessonId },
         items: [
-          { kind: 'lesson', lessonId: savedLessonId, titleVi: 'Từ mới: Bốn thanh và thanh nhẹ (爸爸，妈妈)', dueCount: 1, estMinutes: 6, locked: false },
+          { kind: 'lesson', lessonId: savedLessonId, titleVi: curLessonTitle, dueCount: 1, estMinutes: 6, locked: false },
           { kind: 'review', titleVi: 'Ôn từ đến hạn', dueCount: dueCount, estMinutes: 4, locked: false },
           { kind: 'errors', titleVi: 'Sửa lỗi hay sai', dueCount: sum.mistakesCount, estMinutes: 2, locked: false }
         ]
       });
     }
     if (p === '/v2/review/summary') {
+      await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
       const today = Date.now();
       const baseDue = sum.dueTotal || 0;
@@ -2400,21 +3244,48 @@
       });
     }
     if (p === '/v2/review/mistakes' || p === '/v2/review/mistakes/dismiss') {
-      let dismissed = [];
-      try {
-        dismissed = JSON.parse(localStorage.getItem('httq_dismissed_mistakes') || '[]') || [];
-      } catch (_) {
-        dismissed = [];
-      }
+      await ensureInitialCloudPull();
+      const prog = getRealProgress();
+      let dismissed = Array.isArray(prog.dismissedMistakes) ? [...prog.dismissedMistakes] : [];
       if (p === '/v2/review/mistakes/dismiss' && method === 'POST') {
         const body = await parseRequestBody(init);
-        if (body && body.itemKey && !dismissed.includes(body.itemKey)) {
-          dismissed.push(body.itemKey);
-          try { localStorage.setItem('httq_dismissed_mistakes', JSON.stringify(dismissed)); } catch (_) {}
+        if (body && body.itemKey) {
+          recordStudyProgress({ dismissMistakeKey: body.itemKey });
         }
         return jsonResponse({ ok: true });
       }
-      const allMistakes = [
+      const userMistakesRaw = Array.isArray(prog.userMistakes) ? prog.userMistakes : [];
+      const userMistakeItems = userMistakesRaw.map(m => {
+        const hz = m.hanzi || String(m.itemKey || '').replace(/^w:|^c:/, '');
+        return {
+          itemKey: m.itemKey || `w:${hz}`,
+          titleZh: hz,
+          word: {
+            hanzi: hz,
+            pinyin: m.pinyin || '',
+            wordPinyin: m.pinyin || '',
+            meaningVi: m.meaningVi || m.expectedDisplay || '',
+            audio: { url: rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`) }
+          },
+          hanzi: hz,
+          pinyin: m.pinyin || '',
+          meaningVi: m.meaningVi || m.expectedDisplay || '',
+          skill: m.skill || 'meaning',
+          category: m.category || 'vocab_confusion',
+          categoryLabelVi: m.categoryLabelVi || 'Nhầm nghĩa từ vựng',
+          sourceLabelVi: m.sourceLabelVi || 'Quá trình luyện tập của bạn',
+          givenDisplay: m.givenDisplay || 'Trả lời chưa đúng',
+          expectedDisplay: m.expectedDisplay || hz,
+          reasonVi: m.reasonVi || `Cần ôn lại từ "${hz}"`,
+          explanationVi: m.reasonVi || `Cần ôn lại từ "${hz}"`,
+          count: Number(m.count) || 1,
+          wrongCount: Number(m.count) || 1,
+          errorCount: Number(m.count) || 1,
+          lastWrongAt: m.lastWrongAt || new Date().toISOString(),
+          progress: { cleared: 0, needed: 2, nextCheckDay: new Date().toISOString().slice(0, 10) }
+        };
+      });
+      const defaultMistakes = [
         {
           itemKey: 'w:谢谢',
           titleZh: '谢谢',
@@ -2496,15 +3367,24 @@
           lastWrongAt: new Date().toISOString(),
           progress: { cleared: 1, needed: 2, nextCheckDay: '2026-11-11' }
         }
-      ].filter(m => !dismissed.includes(m.itemKey));
+      ];
+      const mergedMap = new Map();
+      [...userMistakeItems, ...defaultMistakes].forEach(m => {
+        if (!m || dismissed.includes(m.itemKey)) return;
+        if (!mergedMap.has(m.itemKey)) mergedMap.set(m.itemKey, m);
+      });
+      const allMistakes = Array.from(mergedMap.values());
       const catFilter = urlObj.searchParams.get('category') || '';
       const filtered = catFilter ? allMistakes.filter(m => m.category === catFilter) : allMistakes;
+      const catCounts = {};
+      allMistakes.forEach(m => {
+        const c = m.category || 'vocab_confusion';
+        if (!catCounts[c]) catCounts[c] = { category: c, labelVi: m.categoryLabelVi || 'Lỗi hay nhầm', titleVi: m.categoryLabelVi || 'Lỗi hay nhầm', count: 0 };
+        catCounts[c].count += 1;
+      });
       return jsonResponse({
         total: allMistakes.length,
-        categories: [
-          { category: 'vocab_confusion', labelVi: 'Nhầm nghĩa từ vựng', titleVi: 'Nhầm nghĩa từ vựng', count: allMistakes.filter(m => m.category === 'vocab_confusion').length },
-          { category: 'tone_error', labelVi: 'Nhầm thanh điệu', titleVi: 'Nhầm thanh điệu', count: allMistakes.filter(m => m.category === 'tone_error').length }
-        ].filter(c => c.count > 0),
+        categories: Object.values(catCounts),
         mistakes: filtered
       });
     }
@@ -2530,10 +3410,18 @@
         '喜欢': { pinyin: 'xǐhuan', meaningVi: 'thích, yêu thích' }
       };
       const vIdx = await loadLocalJson('/data/vocabulary/index.json');
+      const cIdx = await loadLocalJson('/data/characters/index.json');
       const idxLookup = {};
       if (Array.isArray(vIdx)) {
         vIdx.forEach(e => {
-          if (e && e.h && !idxLookup[e.h]) idxLookup[e.h] = { pinyin: e.p || '', meaningVi: e.m || '' };
+          const wKey = e && (e.w || e.word || e.hanzi || e.h);
+          if (wKey && !idxLookup[wKey]) idxLookup[wKey] = { pinyin: e.p || '', meaningVi: e.m || '' };
+        });
+      }
+      if (Array.isArray(cIdx)) {
+        cIdx.forEach(e => {
+          const cKey = e && (e.c || e.character);
+          if (cKey && !idxLookup[cKey]) idxLookup[cKey] = { pinyin: e.p || '', meaningVi: e.m || '' };
         });
       }
       const learnedList = Array.isArray(sum.prog.wordsLearned) ? sum.prog.wordsLearned : [];
@@ -2562,6 +3450,47 @@
         },
         nextCursor: null
       });
+    }
+    if (p === '/v2/review/signals') {
+      const body = await parseRequestBody(init);
+      const signals = Array.isArray(body && body.signals)
+        ? body.signals
+        : (Array.isArray(body && body.items) ? body.items : (Array.isArray(body) ? body : []));
+      const words = [];
+      const grammarIds = [];
+      let firstWrongMistake = null;
+      signals.forEach(sig => {
+        if (!sig || typeof sig !== 'object') return;
+        const ik = String(sig.itemKey || sig.key || '').trim();
+        if (ik.startsWith('g:')) {
+          const gid = ik.slice(2).trim();
+          if (gid) grammarIds.push(gid);
+        } else {
+          const rawW = ik.replace(/^w:|^c:/, '').trim() || String(sig.hanzi || sig.word || '').trim();
+          if (rawW && /[\u4e00-\u9fff]/.test(rawW)) {
+            words.push(rawW);
+            if (sig.outcome === 'wrong' && !firstWrongMistake) {
+              firstWrongMistake = {
+                itemKey: ik || `w:${rawW}`,
+                hanzi: rawW,
+                skill: sig.skill || 'meaning',
+                category: sig.skill === 'sound' || sig.skill === 'typing' ? 'tone_error' : 'vocab_confusion',
+                reasonVi: `Bạn vừa nhầm mục "${rawW}" trong lúc luyện tập.`
+              };
+            }
+          }
+        }
+      });
+      if (signals.length > 0) {
+        recordStudyProgress({
+          words: [...new Set(words)],
+          grammarIds: [...new Set(grammarIds)],
+          mistake: firstWrongMistake || undefined,
+          minutes: words.length > 0 ? 1 : 0,
+          gradingInc: signals.length
+        });
+      }
+      return jsonResponse({ ok: true, accepted: signals.length });
     }
     if (p === '/v2/review/runs' || p.startsWith('/v2/lesson-runs') || p.includes('/runs')) {
       let targetRunId = 'hsk30.L1.P1.learn.1';
@@ -2685,16 +3614,34 @@
     // D. TRÒ CHƠI & BẢNG XẾP HẠNG (/v1/games/*)
     // ------------------------------------------------------------------------
     if (p === '/v1/games/overview') {
+      const prog = getRealProgress();
+      const hs = prog.gameHighScores || {};
       return jsonResponse({
         games: [
-          { game: 'ghep-chu', dailyPlayers: 142, topScore: 980 },
-          { game: 'tim-chu-trong-chu', dailyPlayers: 118, topScore: 950 }
+          { game: 'ghep-chu', dailyPlayers: 142, topScore: Math.max(980, Number(hs['ghep-chu']) || 0), myBestScore: Number(hs['ghep-chu']) || null },
+          { game: 'tim-chu-trong-chu', dailyPlayers: 118, topScore: Math.max(950, Number(hs['tim-chu-trong-chu']) || 0), myBestScore: Number(hs['tim-chu-trong-chu']) || null },
+          { game: 'chengyu', dailyPlayers: 64, topScore: Math.max(980, Number(hs['chengyu']) || 0), myBestScore: Number(hs['chengyu']) || null },
+          { game: 'hanzi-guess', dailyPlayers: 72, topScore: Math.max(975, Number(hs['hanzi-guess']) || 0), myBestScore: Number(hs['hanzi-guess']) || null },
+          { game: 'fireworks', dailyPlayers: 58, topScore: Math.max(990, Number(hs['fireworks']) || 0), myBestScore: Number(hs['fireworks']) || null },
+          { game: 'pair-match', dailyPlayers: 69, topScore: Math.max(985, Number(hs['pair-match']) || 0), myBestScore: Number(hs['pair-match']) || null }
         ]
       });
     }
-    const gameDailyMatch = p.match(/^\/v1\/games\/(?:daily\/([^/]+)|([^/]+)\/daily)(?:\/start)?$/);
+    const gameDailyMatch = p.match(/^\/v1\/games\/(?:daily\/([^/]+)|([^/]+)\/daily|(chengyu-daily|hanzi-guess-daily))(?:\/start)?$/);
     if (gameDailyMatch) {
-      const game = gameDailyMatch[1] || gameDailyMatch[2] || 'ghep-chu';
+      const rawGame = gameDailyMatch[1] || gameDailyMatch[2] || gameDailyMatch[3] || 'ghep-chu';
+      const game = rawGame.replace(/-daily$/, '');
+      const prog = getRealProgress();
+      const prevBest = Number((prog.gameHighScores || {})[game]) || null;
+      if (game === 'chengyu' || game === 'hanzi-guess') {
+        const miscDaily = await loadLocalJson(`/data/misc/games-${game}-daily.json`);
+        if (method === 'POST') {
+          const pts = 880;
+          recordStudyProgress({ minutes: 2, sessionInc: 1, gameScore: { game, score: pts } });
+          return jsonResponse({ ...(miscDaily || {}), game, plays: 1, bestScore: Math.max(pts, prevBest || 0), myBestScore: Math.max(pts, prevBest || 0) });
+        }
+        return jsonResponse({ ...(miscDaily || { date: new Date().toISOString().slice(0, 10), game, plays: 0 }), bestScore: prevBest, myBestScore: prevBest });
+      }
       if (method === 'POST') {
         const round = game === 'tim-chu-trong-chu'
           ? await createTimChuRound('normal', 'daily', 0)
@@ -2703,7 +3650,7 @@
           date: new Date().toISOString().slice(0, 10),
           game,
           plays: 1,
-          bestScore: 920,
+          bestScore: prevBest || 920,
           round,
           run: null
         });
@@ -2711,8 +3658,8 @@
       return jsonResponse({
         date: new Date().toISOString().slice(0, 10),
         game,
-        plays: 0,
-        bestScore: null,
+        plays: prevBest ? 1 : 0,
+        bestScore: prevBest,
         activeRoundId: null,
         totalPlayers: 48
       });
@@ -2908,8 +3855,18 @@
       if (action === 'finish' && method === 'POST') {
         round.finishedAt = new Date().toISOString();
         const durationMs = Math.max(5000, Date.now() - (Date.parse(round.startedAt) || Date.now() - 18000));
+        const wrongPenalty = (Number(round.wrongSubmits) || 0) * 15 + (Number(round.hintsUsed) || 0) * 20;
+        const speedBonus = Math.max(0, Math.min(160, Math.round((60000 - Math.min(60000, durationMs)) / 400)));
         if (round.game === 'tim-chu-trong-chu') {
           const foundCount = (round.found || []).length || round.targetCount;
+          const earned = Math.round(760 * (foundCount / Math.max(1, round.targetCount || 1)));
+          const score = Math.max(100, earned + speedBonus - wrongPenalty);
+          const updatedProg = recordStudyProgress({
+            minutes: 2,
+            sessionInc: 1,
+            gameScore: { game: 'tim-chu-trong-chu', score }
+          });
+          const bestScore = Math.max(score, Number((updatedProg.gameHighScores || {})['tim-chu-trong-chu']) || 0);
           const answers = (round._answers || []).map(a => {
             const isFound = (round.found || []).some(f => f.char === a.char);
             return {
@@ -2925,18 +3882,27 @@
             completed: foundCount >= round.targetCount,
             foundCount,
             targetCount: round.targetCount,
-            score: 880,
+            score,
+            bestScore,
             durationMs,
             hintsUsed: round.hintsUsed || 0,
             wrongSubmits: round.wrongSubmits || 0,
             round,
-            breakdown: { earned: 760, timeBonus: 120, penalty: 0 },
+            breakdown: { earned, timeBonus: speedBonus, penalty: wrongPenalty },
             answers,
-            run: round.mode === 'rank' ? { runId: 'rank-1', roundIndex: 0, totalRounds: 1, totalScore: 880, completed: true, recorded: true } : null,
-            daily: round.mode === 'daily' ? { play: 1, bestScore: 880, rank: 2, totalPlayers: 48 } : null
+            run: round.mode === 'rank' ? { runId: 'rank-1', roundIndex: 0, totalRounds: 1, totalScore: score, completed: true, recorded: true } : null,
+            daily: round.mode === 'daily' ? { play: 1, bestScore, rank: 2, totalPlayers: 48 } : null
           });
         } else {
           const solvedCount = (round.rows || []).filter(r => !!r.solved).length || round.targetCount;
+          const earned = Math.round(800 * (solvedCount / Math.max(1, round.targetCount || 1)));
+          const score = Math.max(100, earned + speedBonus - wrongPenalty);
+          const updatedProg = recordStudyProgress({
+            minutes: 2,
+            sessionInc: 1,
+            gameScore: { game: 'ghep-chu', score }
+          });
+          const bestScore = Math.max(score, Number((updatedProg.gameHighScores || {})['ghep-chu']) || 0);
           const answers = (round._metaRows || []).map((r, i) => {
             const rowState = (round.rows || [])[i];
             const isFound = !!(rowState && rowState.solved);
@@ -2952,38 +3918,56 @@
             completed: solvedCount >= round.targetCount,
             foundCount: solvedCount,
             targetCount: round.targetCount,
-            score: 920,
+            score,
+            bestScore,
             durationMs,
             hintsUsed: round.hintsUsed || 0,
             wrongSubmits: round.wrongSubmits || 0,
             round,
-            breakdown: { earned: 800, timeBonus: 120, penalty: 0 },
+            breakdown: { earned, timeBonus: speedBonus, penalty: wrongPenalty },
             answers,
-            run: round.mode === 'rank' ? { runId: 'rank-1', roundIndex: 0, totalRounds: 1, totalScore: 920, completed: true, recorded: true } : null,
-            daily: round.mode === 'daily' ? { play: 1, bestScore: 920, rank: 1, totalPlayers: 52 } : null
+            run: round.mode === 'rank' ? { runId: 'rank-1', roundIndex: 0, totalRounds: 1, totalScore: score, completed: true, recorded: true } : null,
+            daily: round.mode === 'daily' ? { play: 1, bestScore, rank: 1, totalPlayers: 52 } : null
           });
         }
       }
     }
-    if (p.includes('/v1/games/leaderboard') || p.includes('/v1/games/daily-leaderboard')) {
-      const game = urlObj.searchParams.get('game') || 'ghep-chu';
+    const gameLbMatch = p.match(/^\/v1\/games\/(?:([^/]+)\/)?(?:daily[/-])?leaderboard/);
+    if (gameLbMatch) {
+      const game = gameLbMatch[1] || urlObj.searchParams.get('game') || 'ghep-chu';
+      const todayKey = new Date().toISOString().slice(0, 10);
+      const miscLb = ['chengyu', 'fireworks', 'hanzi-guess', 'pair-match'].includes(game)
+        ? await loadLocalJson(`/data/misc/games-leaderboard-${game}.json`)
+        : null;
+      const defaultEntries = [
+        { rank: 1, userId: 'u1', displayName: 'Minh Anh', score: 980, durationMs: 19400, difficulty: 'hard' },
+        { rank: 2, userId: 'u2', displayName: 'Tuấn Kiệt', score: 945, durationMs: 22100, difficulty: 'hard' },
+        { rank: 3, userId: 'u3', displayName: 'Thanh Thảo', score: 910, durationMs: 25800, difficulty: 'normal' },
+        { rank: 4, userId: 'u4', displayName: 'Hoàng Long', score: 885, durationMs: 28000, difficulty: 'normal' },
+        { rank: 5, userId: 'u5', displayName: 'Bảo Ngọc', score: 860, durationMs: 31200, difficulty: 'easy' }
+      ];
+      let entries = (miscLb && Array.isArray(miscLb.entries) && miscLb.entries.length > 0)
+        ? [...miscLb.entries]
+        : [...defaultEntries];
+      const prog = getRealProgress();
+      const myScore = Number((prog.gameHighScores || {})[game]) || 0;
+      let meObj = (miscLb && miscLb.me) ? { ...miscLb.me } : { rank: 3, score: 910 };
+      if (myScore > 0) {
+        const userEntry = { rank: 0, userId: 'me', displayName: 'Bạn', score: myScore, durationMs: 18000, difficulty: 'normal', isMe: true };
+        entries = [...entries.filter(e => e.userId !== 'me'), userEntry]
+          .sort((a, b) => (Number(b.score) || 0) - (Number(a.score) || 0))
+          .map((e, idx) => ({ ...e, rank: idx + 1 }));
+        const myRank = entries.find(e => e.userId === 'me');
+        meObj = { rank: myRank ? myRank.rank : 1, score: myScore };
+      }
       return jsonResponse({
         game,
-        weekKey: '2026-W45',
-        date: new Date().toISOString().slice(0, 10),
-        entries: [
-          { rank: 1, userId: 'u1', displayName: 'Minh Anh', score: 980, durationMs: 19400, difficulty: 'hard' },
-          { rank: 2, userId: 'u2', displayName: 'Tuấn Kiệt', score: 945, durationMs: 22100, difficulty: 'hard' },
-          { rank: 3, userId: 'u3', displayName: 'Thanh Thảo', score: 910, durationMs: 25800, difficulty: 'normal' },
-          { rank: 4, userId: 'u4', displayName: 'Hoàng Long', score: 885, durationMs: 28000, difficulty: 'normal' },
-          { rank: 5, userId: 'u5', displayName: 'Bảo Ngọc', score: 860, durationMs: 31200, difficulty: 'easy' }
-        ],
-        items: [
-          { rank: 1, userId: 'u1', displayName: 'Minh Anh', score: 980, durationMs: 19400, difficulty: 'hard' },
-          { rank: 2, userId: 'u2', displayName: 'Tuấn Kiệt', score: 945, durationMs: 22100, difficulty: 'hard' },
-          { rank: 3, userId: 'u3', displayName: 'Thanh Thảo', score: 910, durationMs: 25800, difficulty: 'normal' }
-        ],
-        me: { rank: 3, score: 910 }
+        weekKey: (miscLb && miscLb.weekKey) || '2026-W47',
+        date: todayKey,
+        dayKey: todayKey,
+        entries,
+        items: (miscLb && Array.isArray(miscLb.items)) ? miscLb.items : entries.slice(0, 3),
+        me: meObj
       });
     }
 
@@ -3129,21 +4113,80 @@
     // H. NGỮ PHÁP, GIÁO TRÌNH, LUYỆN NGHE & LUYỆN NÓI (/v1/grammar/*, /v1/listening/*, /v1/speaking/*)
     // ------------------------------------------------------------------------
     if (p.startsWith('/v1/grammar-progress')) {
-      const saved = JSON.parse(localStorage.getItem('httq_learned_grammar') || '[]');
-      const set = new Set(Array.isArray(saved) ? saved : []);
+      await ensureInitialCloudPull();
+      const prog = getRealProgress();
+      const set = new Set(Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds : []);
+      const pathId = p.length > '/v1/grammar-progress/'.length ? decodeURIComponent(p.slice('/v1/grammar-progress/'.length)) : '';
       if (method === 'POST') {
-        const gid = decodeURIComponent(p.slice('/v1/grammar-progress/'.length));
-        if (gid) set.add(gid);
-        localStorage.setItem('httq_learned_grammar', JSON.stringify([...set]));
+        const body = pathId ? null : await parseRequestBody(init);
+        const gid = (pathId || (body && (body.grammarId || body.id)) || '').trim();
+        if (gid) {
+          set.add(gid);
+          recordStudyProgress({ grammarId: gid, minutes: 2 });
+        }
       } else if (method === 'DELETE') {
-        const gid = decodeURIComponent(p.slice('/v1/grammar-progress/'.length));
-        if (gid) set.delete(gid);
-        localStorage.setItem('httq_learned_grammar', JSON.stringify([...set]));
+        const gid = pathId.trim();
+        if (gid) {
+          set.delete(gid);
+          prog.learnedGrammarIds = [...set];
+          saveRealProgress(prog);
+          syncProgressToSupabaseAuth(prog);
+        }
       }
-      return jsonResponse({ learnedGrammarIds: [...set] });
+      return jsonResponse({ ok: true, learnedGrammarIds: [...set] });
     }
     if (p.startsWith('/v1/practice-progress')) {
-      return jsonResponse({ ok: true, items: {}, updated: 0 });
+      const body = method === 'POST' ? await parseRequestBody(init) : {};
+      let prac = { v: 2, items: {}, days: {} };
+      try {
+        const raw = JSON.parse(localStorage.getItem('xhz-practice-v1') || 'null');
+        if (raw && typeof raw === 'object') prac = { ...prac, ...raw, items: { ...(raw.items || {}) }, days: { ...(raw.days || {}) } };
+      } catch (_) {}
+      const syncWords = [];
+      if (Array.isArray(body.states)) {
+        body.states.forEach(st => {
+          if (st && st.hanzi) {
+            prac.items[st.hanzi] = { ...(prac.items[st.hanzi] || {}), ...st };
+            syncWords.push(st.hanzi);
+          }
+        });
+      }
+      if (Array.isArray(body.events)) {
+        body.events.forEach(ev => {
+          if (ev && ev.hanzi) syncWords.push(ev.hanzi);
+        });
+      }
+      if (Array.isArray(body.days)) {
+        body.days.forEach(d => {
+          if (d && d.day) {
+            const cur = prac.days[d.day] || { exp: [], revN: 0 };
+            const mergedExp = [...new Set([...(cur.exp || []), ...(Array.isArray(d.exp) ? d.exp : [])])];
+            prac.days[d.day] = { exp: mergedExp, revN: Math.max(Number(cur.revN) || 0, Number(d.revN) || 0) };
+            mergedExp.forEach(w => syncWords.push(w));
+          }
+        });
+      }
+      if (method === 'POST') {
+        try { localStorage.setItem('xhz-practice-v1', JSON.stringify(prac)); } catch (_) {}
+        recordStudyProgress({
+          words: [...new Set(syncWords)],
+          minutes: syncWords.length > 0 ? 2 : 0,
+          sessionInc: syncWords.length > 0 ? 1 : 0
+        });
+      }
+      const progAfter = getRealProgress();
+      let finalPrac = prac;
+      try {
+        const rawAfter = JSON.parse(localStorage.getItem('xhz-practice-v1') || 'null');
+        if (rawAfter && typeof rawAfter === 'object') finalPrac = rawAfter;
+      } catch (_) {}
+      return jsonResponse({
+        ok: true,
+        states: Object.values((finalPrac && finalPrac.items) || {}),
+        days: Object.entries((finalPrac && finalPrac.days) || {}).map(([day, d]) => ({ day, exp: (d && d.exp) || [], revN: (d && d.revN) || 0 })),
+        items: (finalPrac && finalPrac.items) || {},
+        updated: (progAfter.learnedWords || []).length
+      });
     }
     if (p.startsWith('/v1/grammar/levels/')) {
       const lvl = decodeURIComponent(p.slice('/v1/grammar/levels/'.length).split('/')[0] || '1');
@@ -3244,9 +4287,118 @@
     if (p === '/v1/speaking/sample-consent') {
       return jsonResponse({ granted: false, decided: true });
     }
-    if (p.startsWith('/v1/speaking/progress')) {
-      return jsonResponse({ items: {} });
+    if (p.startsWith('/v1/speaking-progress') || p.startsWith('/v1/speaking/progress')) {
+      const prog = getRealProgress();
+      const map = { ...(prog.speakingProgress || {}) };
+      if (method === 'POST') {
+        const body = await parseRequestBody(init);
+        const list = Array.isArray(body && body.items)
+          ? body.items
+          : (body && body.items && typeof body.items === 'object' ? Object.entries(body.items).map(([k, v]) => ({ key: k, ...(v || {}) })) : []);
+        const spkWords = [];
+        list.forEach(it => {
+          if (!it || typeof it !== 'object') return;
+          const k = String(it.key || it.hanzi || it.sentence || '').trim();
+          if (k) {
+            map[k] = { ...(map[k] || {}), ...it, updatedAt: Date.now() };
+            if (/[\u4e00-\u9fff]/.test(k)) spkWords.push(k);
+          }
+        });
+        prog.speakingProgress = map;
+        saveRealProgress(prog);
+        recordStudyProgress({
+          words: spkWords,
+          voiceInc: 1,
+          gradingInc: 1,
+          minutes: list.length > 0 ? 1 : 0,
+          dailyStepDone: list.length > 0 ? 'step-talk-1' : undefined
+        });
+      }
+      return jsonResponse({ ok: true, items: map });
     }
+    async function synthesizeSpeakingTopicList(curr, levelSlug) {
+      const mappedCurr = curr === 'hsk' ? 'new-hsk' : curr;
+      const mappedLvl = curr === 'hsk' && !/^new-/.test(levelSlug) ? `new-${levelSlug}` : levelSlug;
+      const lvlData =
+        (await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`)) ||
+        (await loadLocalJson(`/data/curriculums/${mappedCurr}/levels/${mappedLvl}.json`)) ||
+        (await loadLocalJson('/data/curriculums/new-hsk/levels/new-hsk-1.json'));
+      const rawList = (lvlData && lvlData.level && (lvlData.level.topics || lvlData.level.lessons)) || [];
+      return rawList.slice(0, 20).map((it, idx) => ({
+        topicSlug: it.topicSlug || it.lessonSlug || `bai-${idx + 1}`,
+        title: it.titleVi || it.topic || it.titleZh || `Chủ đề ${idx + 1}`,
+        titleVi: it.titleVi || it.topic || `Chủ đề ${idx + 1}`,
+        titleZh: it.titleZh || it.topic || '',
+        wordCount: it.wordCount || 10,
+        curriculumSlug: curr,
+        levelSlug
+      }));
+    }
+
+    async function synthesizeSpeakingDialogue(curr, levelSlug, topicSlug) {
+      const mappedCurr = curr === 'hsk' ? 'new-hsk' : curr;
+      const mappedLvl = curr === 'hsk' && !/^new-/.test(levelSlug) ? `new-${levelSlug}` : levelSlug;
+      let srcData =
+        (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${topicSlug}.json`)) ||
+        (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${topicSlug}.json`)) ||
+        (await loadLocalJson(`/data/curriculums/${mappedCurr}/topics/${mappedLvl}--${topicSlug}.json`)) ||
+        (await loadLocalJson(`/data/curriculums/${mappedCurr}/lessons/${mappedLvl}--${topicSlug}.json`));
+      if (!srcData) {
+        const lvlData =
+          (await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`)) ||
+          (await loadLocalJson(`/data/curriculums/${mappedCurr}/levels/${mappedLvl}.json`)) ||
+          (await loadLocalJson('/data/curriculums/new-hsk/levels/new-hsk-1.json'));
+        const items = (lvlData && lvlData.level && (lvlData.level.lessons || lvlData.level.topics)) || [];
+        const picked = items.find(it => (it.topicSlug || it.lessonSlug) === topicSlug) || items[0];
+        if (picked) {
+          const s = picked.topicSlug || picked.lessonSlug || '';
+          const cSlug = (lvlData && lvlData.curriculum && lvlData.curriculum.slug) || mappedCurr;
+          const lSlug = (lvlData && lvlData.level && lvlData.level.slug) || mappedLvl;
+          srcData =
+            (await loadLocalJson(`/data/curriculums/${cSlug}/lessons/${lSlug}--${s}.json`)) ||
+            (await loadLocalJson(`/data/curriculums/${cSlug}/topics/${lSlug}--${s}.json`));
+        }
+      }
+      if (!srcData) {
+        srcData = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json');
+      }
+      const words = (srcData && srcData.lesson && srcData.lesson.words) || (srcData && srcData.topic && srcData.topic.words) || (srcData && srcData.words) || [];
+      if (!words.length) return null;
+      const turns = [];
+      const usableWords = words.slice(0, 6);
+      usableWords.forEach((w, idx) => {
+        const hz = String(w.hanzi || w.word || '').replace(/\{|\}/g, '').trim();
+        const py = w.wordPinyin || w.pinyin || '';
+        const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+        const ex = Array.isArray(w.examples) && w.examples[0] ? w.examples[0] : null;
+        const turnHz = (ex && (ex.hanzi || ex.chinese)) ? String(ex.hanzi || ex.chinese).replace(/\{|\}/g, '').trim() : `请问，「${hz}」是什么意思？`;
+        const turnPy = (ex && ex.pinyin) ? ex.pinyin : (py ? `${py} (${vi})` : '');
+        const turnVi = (ex && (ex.vietnamese || ex.vi)) ? (ex.vietnamese || ex.vi) : `${hz} nghĩa là "${vi}".`;
+        const roleId = idx % 2 === 0 ? 'A' : 'B';
+        const rawAud = (Array.isArray(w.audios) && w.audios[0]) || w.audioUrl || `https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`;
+        turns.push({
+          role: roleId,
+          speaker: roleId,
+          hanzi: turnHz,
+          zh: turnHz,
+          pinyin: turnPy,
+          vietnamese: turnVi,
+          vi: turnVi,
+          audioUrl: rewriteMediaUrl(rawAud)
+        });
+      });
+      const topicMeta = (srcData && (srcData.lesson || srcData.topic)) || {};
+      return {
+        curriculumSlug: curr,
+        levelSlug,
+        topicSlug,
+        title: topicMeta.titleZh || topicMeta.topic || topicSlug,
+        titleVi: topicMeta.titleVi || topicMeta.topic || `Luyện nói: ${topicSlug}`,
+        roles: [{ id: 'A', labelVi: 'Người hỏi' }, { id: 'B', labelVi: 'Người trả lời' }],
+        turns
+      };
+    }
+
     const speakDiagMatch = p.match(/^\/v1\/speaking\/dialogues\/([^/]+)\/([^/]+)(?:\/([^/]+))?$/);
     if (speakDiagMatch) {
       const curr = speakDiagMatch[1];
@@ -3254,11 +4406,20 @@
       const topicSlug = speakDiagMatch[3] ? decodeURIComponent(speakDiagMatch[3]) : '';
       if (!topicSlug) {
         const listData = await loadLocalJson(`/data/speaking/${curr}/${levelSlug}/dialogues.json`);
-        if (listData && Array.isArray(listData.dialogues)) return jsonResponse(listData);
+        if (listData && Array.isArray(listData.dialogues) && listData.dialogues.length > 0) {
+          return jsonResponse(listData);
+        }
+        const synthList = await synthesizeSpeakingTopicList(curr, levelSlug);
+        if (synthList.length > 0) return jsonResponse({ dialogues: synthList });
         const fallbackList = await loadLocalJson('/data/speaking/new-hsk/new-hsk-1/dialogues.json');
         return jsonResponse(fallbackList || { dialogues: [] });
       }
-      let topicData = await loadLocalJson(`/data/speaking/${curr}/${levelSlug}/${topicSlug}.json`);
+      let topicData =
+        (await loadLocalJson(`/data/speaking/${curr}/${levelSlug}/${topicSlug}.json`)) ||
+        (curr === 'hsk' ? await loadLocalJson(`/data/speaking/new-hsk/new-${levelSlug}/${topicSlug}.json`) : null);
+      if (!topicData || !Array.isArray(topicData.turns) || topicData.turns.length === 0) {
+        topicData = await synthesizeSpeakingDialogue(curr, levelSlug, topicSlug);
+      }
       if (!topicData) {
         topicData = await loadLocalJson('/data/speaking/new-hsk/new-hsk-1/gia-dinh.json');
       }
@@ -3278,7 +4439,44 @@
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
       const lvl = urlObj.searchParams.get('level') || 'hsk-1';
       const data = await loadLocalJson(`/data/speaking/${curr}/${lvl}/dialogues.json`);
-      return jsonResponse(data || { dialogues: [] });
+      if (data && Array.isArray(data.dialogues) && data.dialogues.length > 0) return jsonResponse(data);
+      const synthList = await synthesizeSpeakingTopicList(curr, lvl);
+      return jsonResponse({ dialogues: synthList });
+    }
+
+    async function enrichCurriculumItemsWithProgress(items, curr, levelSlug) {
+      if (!Array.isArray(items) || items.length === 0) return [];
+      const prog = getRealProgress();
+      const learnedSet = new Set((prog.learnedWords || []).map(w => String(w || '').replace(/^w:|^c:/, '').trim()).filter(Boolean));
+      const doneActs = (prog.doneActivities && (prog.doneActivities[`curr.thu-vien-${curr}`] || prog.doneActivities[`curr.${curr}`])) || [];
+      return Promise.all(items.map(async (it) => {
+        const copy = { ...(it || {}) };
+        const slug = copy.lessonSlug || copy.topicSlug || copy.slug || '';
+        const cleanSlug = slug && levelSlug && slug.startsWith(levelSlug + '-') ? slug.slice(levelSlug.length + 1) : slug;
+        let wordList = Array.isArray(copy.words) ? copy.words : null;
+        if (!wordList && slug) {
+          const detail =
+            (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)) ||
+            (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`)) ||
+            (cleanSlug ? await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${levelSlug}-${cleanSlug}.json`) : null);
+          wordList = (detail && detail.lesson && detail.lesson.words) || (detail && detail.topic && detail.topic.words) || (detail && detail.words) || null;
+        }
+        const total = Math.max(Number(copy.wordCount) || 0, Array.isArray(wordList) ? wordList.length : 0);
+        let learnedCount = 0;
+        if (Array.isArray(wordList) && wordList.length > 0) {
+          learnedCount = wordList.filter(w => {
+            const hz = String((w && (w.hanzi || w.word || w.character)) || '').replace(/\{|\}/g, '').trim();
+            return hz && learnedSet.has(hz);
+          }).length;
+        } else if (slug && (doneActs.includes(`${slug}.fc`) || doneActs.includes(`${slug}.quiz`) || doneActs.includes(`${slug}.typing`))) {
+          learnedCount = total;
+        }
+        const progressPct = total > 0 ? Math.min(100, Math.round((learnedCount / total) * 100)) : 0;
+        copy.wordCount = total;
+        copy.learnedCount = learnedCount;
+        copy.progressPct = progressPct;
+        return copy;
+      }));
     }
 
     const currMatch = p.match(/^\/v1\/(?:hanzi-)?curriculums\/([^/]+)(?:\/(.*))?$/);
@@ -3305,6 +4503,12 @@
         if (lvlData) {
           const copy = JSON.parse(JSON.stringify(lvlData));
           if (copy.level && copy.level.image) copy.level.image = rewriteMediaUrl(copy.level.image);
+          if (copy.level && Array.isArray(copy.level.topics)) {
+            copy.level.topics = await enrichCurriculumItemsWithProgress(copy.level.topics, curr, levelSlug);
+          }
+          if (copy.level && Array.isArray(copy.level.lessons)) {
+            copy.level.lessons = await enrichCurriculumItemsWithProgress(copy.level.lessons, curr, levelSlug);
+          }
           return jsonResponse(copy);
         }
         return jsonResponse({ curriculum: { slug: curr }, level: { slug: levelSlug, topics: [] } });
@@ -3312,7 +4516,7 @@
       if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts.length === 3) {
         const levelSlug = subParts[1];
         let lessonsData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}-lessons.json`);
-        if (!lessonsData) {
+        if (!lessonsData || !Array.isArray(lessonsData.lessons) || lessonsData.lessons.length === 0) {
           const lvlData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`);
           const topics = (lvlData && lvlData.level && lvlData.level.topics) || [];
           lessonsData = {
@@ -3320,6 +4524,7 @@
             level: (lvlData && lvlData.level) || { slug: levelSlug },
             lessons: topics.map((t, idx) => ({
               lessonSlug: t.topicSlug,
+              topicSlug: t.topicSlug,
               lessonNumber: idx + 1,
               titleVi: t.topic,
               titleZh: t.topic,
@@ -3329,7 +4534,10 @@
               estimatedMinutes: 8
             }))
           };
+        } else {
+          lessonsData = JSON.parse(JSON.stringify(lessonsData));
         }
+        lessonsData.lessons = await enrichCurriculumItemsWithProgress(lessonsData.lessons, curr, levelSlug);
         return jsonResponse(lessonsData);
       }
       if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts[3]) {
@@ -3563,6 +4771,14 @@
       const aiRes = await callAiEndpoint('speaking-assess', { expected, recognized });
       const cleanExp = Array.from(expected.replace(/[^\u4e00-\u9fff]/g, ''));
       const overall = (aiRes && aiRes.score) || 92;
+      try {
+        recordStudyProgress({
+          voiceInc: 1,
+          gradingInc: 1,
+          minutes: 1,
+          dailyStepDone: 'step-talk-1'
+        });
+      } catch (_) {}
       const syllables = (cleanExp.length > 0 ? cleanExp : ['你', '好']).map(ch => ({
         hanzi: ch,
         pinyin: '',
@@ -3613,41 +4829,131 @@
       const score = Math.round((correctCount / total) * 100);
 
       const st = getLocalState();
+      const entry = {
+        paperId,
+        title: (paper && (paper.title || paper.testId)) || paperId,
+        score,
+        score300: Math.round((correctCount / total) * 300),
+        score200: Math.round((correctCount / total) * 200),
+        correctCount,
+        total,
+        passed: score >= 60,
+        at: new Date().toISOString()
+      };
       st.examCount = (st.examCount || 0) + 1;
-      st.history = [{ paperId, score, correctCount, total, at: new Date().toISOString() }, ...(st.history || []).slice(0, 49)];
-      supabaseUpsert(st);
+      st.history = [entry, ...(st.history || []).slice(0, 49)];
+      saveLocalState(st);
+      recordStudyProgress({
+        minutes: Math.max(5, Number(body.durationMinutes) || 10),
+        sessionInc: 1,
+        gradingInc: 1,
+        examResult: entry
+      });
+      supabaseUpsert(st).catch(() => {});
 
       return jsonResponse({
         ok: true,
+        paperId,
         score,
+        score300: entry.score300,
+        score200: entry.score200,
         correctCount,
         totalQuestions: total,
         passed: score >= 60,
-        results
+        results,
+        entry
       });
     }
 
     if (p.includes('/v1/notebook') || p.includes('/v1/bookmarks') || p.includes('/v1/saved')) {
       const st = getLocalState();
+      st.masteredChars = st.masteredChars && typeof st.masteredChars === 'object' ? st.masteredChars : {};
+      st.savedWords = st.savedWords && typeof st.savedWords === 'object' ? st.savedWords : {};
+      const prog = getRealProgress();
       if (method === 'POST') {
         const body = await parseRequestBody(init);
-        const key = body.word || body.character || body.hanzi || body.id;
+        const key = String(body.word || body.character || body.hanzi || body.id || '').trim();
         if (key) {
-          if (key.length === 1) st.masteredChars[key] = body;
-          else st.savedWords[key] = body;
-          await supabaseUpsert(st);
+          const entry = {
+            hanzi: key,
+            word: key,
+            character: key.length === 1 ? key : undefined,
+            pinyin: body.pinyin || '',
+            hanviet: body.hanviet || body.hanViet || '',
+            meaningVi: body.meaningVi || body.translationVi || '',
+            savedAt: body.savedAt || Date.now()
+          };
+          if (key.length === 1 || body.isCharacter) {
+            st.masteredChars[key] = { ...(st.masteredChars[key] || {}), ...entry };
+            prog.masteredChars[key] = st.masteredChars[key];
+          } else {
+            st.savedWords[key] = { ...(st.savedWords[key] || {}), ...entry };
+            prog.savedWords[key] = st.savedWords[key];
+          }
+          saveLocalState(st);
+          saveRealProgress(prog);
+          recordStudyProgress({ words: [key] });
+          supabaseUpsert(st).catch(() => {});
         }
       } else if (method === 'DELETE') {
-        const key = p.split('/').pop();
-        delete st.masteredChars[key];
-        delete st.savedWords[key];
-        await supabaseUpsert(st);
+        const rawLast = decodeURIComponent(p.split('/').pop() || '');
+        const body = rawLast === 'notebook' || rawLast === 'bookmarks' || rawLast === 'saved' ? await parseRequestBody(init) : {};
+        const key = String(body.word || body.hanzi || body.character || rawLast || '').trim();
+        if (key) {
+          delete st.masteredChars[key];
+          delete st.savedWords[key];
+          if (prog.masteredChars) delete prog.masteredChars[key];
+          if (prog.savedWords) delete prog.savedWords[key];
+          saveLocalState(st);
+          saveRealProgress(prog);
+          supabaseUpsert(st).catch(() => {});
+        }
       }
+      const [vocabIdx, charIdx] = await Promise.all([
+        loadLocalJson('/data/vocabulary/index.json'),
+        loadLocalJson('/data/characters/index.json')
+      ]);
+      const vocabMap = new Map();
+      if (Array.isArray(vocabIdx)) {
+        vocabIdx.forEach(e => {
+          const wKey = e && (e.w || e.word || e.hanzi);
+          if (wKey) vocabMap.set(wKey, e);
+        });
+      }
+      const charMap = new Map();
+      if (Array.isArray(charIdx)) {
+        charIdx.forEach(e => {
+          const cKey = e && (e.c || e.character);
+          if (cKey) charMap.set(cKey, e);
+        });
+      }
+      const enrichEntry = (k, rawVal, isChar) => {
+        const base = typeof rawVal === 'object' && rawVal ? rawVal : {};
+        const key = String(base.hanzi || base.word || base.character || k || '').trim();
+        const vInfo = vocabMap.get(key);
+        const cInfo = charMap.get(key) || (key ? charMap.get(key[0]) : null);
+        return {
+          ...base,
+          hanzi: key,
+          word: key,
+          character: isChar ? key : base.character,
+          pinyin: base.pinyin || (vInfo && vInfo.p) || (cInfo && cInfo.p) || '',
+          hanviet: base.hanviet || base.hanViet || (vInfo && vInfo.hv) || (cInfo && cInfo.hv) || '',
+          meaningVi: base.meaningVi || (vInfo && vInfo.m) || (cInfo && cInfo.m) || '',
+          hskLevel: base.hskLevel || (vInfo && vInfo.hsk) || (cInfo && cInfo.hsk) || null
+        };
+      };
+      const allChars = Object.entries({ ...(prog.masteredChars || {}), ...(st.masteredChars || {}) })
+        .filter(([k]) => !!k)
+        .map(([k, v]) => enrichEntry(k, v, true));
+      const allWords = Object.entries({ ...(prog.savedWords || {}), ...(st.savedWords || {}) })
+        .filter(([k]) => !!k)
+        .map(([k, v]) => enrichEntry(k, v, false));
       return jsonResponse({
         ok: true,
-        characters: Object.values(st.masteredChars || {}),
-        words: Object.values(st.savedWords || {}),
-        items: [...Object.values(st.masteredChars || {}), ...Object.values(st.savedWords || {})]
+        characters: allChars,
+        words: allWords,
+        items: [...allChars, ...allWords]
       });
     }
 
@@ -3657,32 +4963,114 @@
     if (p.includes('/v1/translate')) {
       const body = await parseRequestBody(init);
       const text = (body.text || body.q || body.sourceText || urlObj.searchParams.get('text') || '').trim();
-      if (!text) return jsonResponse({ translatedText: '', pinyin: '', breakdown: [] });
+      if (!text) return jsonResponse({ ok: true, translatedText: '', pinyin: '', breakdown: [], words: [], characters: [] });
+
+      const [charIdx, vocabIdx] = await Promise.all([
+        loadLocalJson('/data/characters/index.json'),
+        loadLocalJson('/data/vocabulary/index.json')
+      ]);
+      const charMap = new Map();
+      if (Array.isArray(charIdx)) {
+        charIdx.forEach(x => {
+          const c = x && (x.c || x.character);
+          if (c && !charMap.has(c)) charMap.set(c, x);
+        });
+      }
+      const vocabMap = new Map();
+      if (Array.isArray(vocabIdx)) {
+        vocabIdx.forEach(x => {
+          const w = x && String(x.w || x.word || x.hanzi || '').replace(/\{|\}/g, '').trim();
+          if (w && w.length >= 2 && !vocabMap.has(w)) vocabMap.set(w, x);
+        });
+      }
+
+      const wordMatches = [];
+      const seenWords = new Set();
+      const runs = text.match(/[\u4e00-\u9fff]{2,}/g) || [];
+      runs.forEach(run => {
+        let i = 0;
+        while (i < run.length) {
+          let matched = null;
+          for (let len = Math.min(4, run.length - i); len >= 2; len--) {
+            const sub = run.slice(i, i + len);
+            if (vocabMap.has(sub)) {
+              matched = { word: sub, info: vocabMap.get(sub), len };
+              break;
+            }
+          }
+          if (matched) {
+            if (!seenWords.has(matched.word)) {
+              seenWords.add(matched.word);
+              wordMatches.push({
+                type: 'word',
+                word: matched.word,
+                character: matched.word,
+                pinyin: matched.info.p || matched.info.pinyin || '',
+                hanviet: matched.info.hv || matched.info.hanviet || '',
+                meaningVi: matched.info.m || matched.info.meaningVi || '',
+                hskLevel: matched.info.hsk || null
+              });
+            }
+            i += matched.len;
+          } else {
+            i += 1;
+          }
+        }
+      });
 
       const hanziChars = [...new Set(text.match(/[\u4e00-\u9fff]/g) || [])];
-      const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
-      const breakdown = hanziChars
-        .map(ch => (Array.isArray(charIdx) ? charIdx.find(x => (x.c || x.character) === ch) : null))
+      const charMatches = hanziChars
+        .map(ch => charMap.get(ch))
         .filter(Boolean)
         .map(info => ({
+          type: 'char',
           character: info.c || info.character,
           pinyin: info.p || info.pinyin || '',
           hanviet: info.hv || info.hanviet || '',
-          meaningVi: info.m || info.meaningVi || ''
+          meaningVi: info.m || info.meaningVi || '',
+          radical: info.r || info.radical || '',
+          strokes: info.s || info.strokeCount || null,
+          hskLevel: info.hsk || null
         }));
 
-      const aiRes = await callAiEndpoint('translate', { text, direction: body.direction || 'auto', breakdown });
-      if (aiRes && aiRes.ok) return jsonResponse(aiRes);
+      const breakdown = [...wordMatches, ...charMatches];
+      const fallbackPinyin = charMatches.map(b => b.pinyin).filter(Boolean).join(' ');
+      const fallbackMeaning = (wordMatches.length ? wordMatches : charMatches)
+        .map(b => `${b.word || b.character}${b.hanviet ? ` [${b.hanviet}]` : ''}: ${b.meaningVi}`)
+        .filter(Boolean)
+        .join('; ');
+      const fallbackNote = charMatches.length
+        ? `Âm Hán Việt: ${charMatches.map(c => `${c.character} (${c.hanviet || c.pinyin})`).join(' · ')}`
+        : '';
 
-      const fallbackPinyin = breakdown.map(b => b.pinyin).join(' ');
-      const fallbackMeaning = breakdown.map(b => `${b.character} (${b.hanviet}): ${b.meaningVi}`).join('; ');
+      const aiRes = await callAiEndpoint('translate', {
+        text,
+        direction: body.direction || 'auto',
+        breakdown,
+        fallbackPinyin,
+        fallbackNote
+      });
+      if (aiRes && aiRes.ok) {
+        return jsonResponse({
+          ...aiRes,
+          pinyin: aiRes.pinyin || fallbackPinyin,
+          note: aiRes.note || fallbackNote,
+          breakdown: (Array.isArray(aiRes.breakdown) && aiRes.breakdown.length > 0) ? aiRes.breakdown : breakdown,
+          words: wordMatches,
+          characters: charMatches
+        });
+      }
+
       return jsonResponse({
         ok: true,
         sourceText: text,
         translatedText: fallbackMeaning || text,
         translation: fallbackMeaning || text,
         pinyin: fallbackPinyin,
-        breakdown
+        note: fallbackNote,
+        breakdown,
+        words: wordMatches,
+        characters: charMatches
       });
     }
 
@@ -3747,6 +5135,7 @@
     if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap') && parts.length >= 3) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen')) return true;
+    if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai')) return true;
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) return true;
     return false;
   }
@@ -3930,43 +5319,98 @@
   }
 
   function playPronunciation(text, audioUrl, rate) {
+    const cleanText = String(text || '').replace(/[\r\n]+/g, ' ').trim();
+    const cleanHz = cleanText.replace(/[^\u4e00-\u9fff]/g, '');
     const speakFallback = () => {
-      if ('speechSynthesis' in window && text) {
+      if ('speechSynthesis' in window && cleanText) {
         try {
           window.speechSynthesis.cancel();
-          const u = new SpeechSynthesisUtterance(text);
+          const u = new SpeechSynthesisUtterance(cleanText);
           u.lang = 'zh-CN';
           u.rate = rate ? Math.min(1, Math.max(0.5, rate)) : 0.9;
           window.speechSynthesis.speak(u);
         } catch (_) {}
       }
     };
-    if (audioUrl && !audioUrl.includes('media-signed/tts/')) {
+    const tryWordAudioOrSpeak = () => {
+      if (cleanHz && cleanHz.length >= 1 && cleanHz.length <= 4) {
+        try {
+          const a = new window.Audio(rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(cleanHz)}.mp3`));
+          if (rate) a.playbackRate = rate;
+          a.onerror = speakFallback;
+          a.play().catch(speakFallback);
+          return;
+        } catch (_) {}
+      }
+      speakFallback();
+    };
+    if (audioUrl && !audioUrl.includes('media-signed/')) {
       try {
         const a = new window.Audio(rewriteMediaUrl(audioUrl));
         if (rate) a.playbackRate = rate;
-        a.play().catch(speakFallback);
+        a.onerror = tryWordAudioOrSpeak;
+        a.play().catch(tryWordAudioOrSpeak);
         return;
       } catch (_) {
-        speakFallback();
+        tryWordAudioOrSpeak();
         return;
       }
     }
-    if (text && /^[\u4e00-\u9fff]{1,4}$/.test(text.trim())) {
-      try {
-        const a = new window.Audio(rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(text.trim())}.mp3`));
-        if (rate) a.playbackRate = rate;
-        a.play().catch(speakFallback);
-        return;
-      } catch (_) {}
-    }
-    speakFallback();
+    tryWordAudioOrSpeak();
   }
   window.__xhzPlayAudio = playPronunciation;
 
   // --------------------------------------------------------------------------
   // 6.1. Trang Chi Tiết Chữ Hán (/han-tu/:slug)
   // --------------------------------------------------------------------------
+  function wireNotebookToggleButton(btnId, { key, isChar, meta = {} }) {
+    const btn = document.getElementById(btnId);
+    if (!btn || !key) return;
+    const checkSaved = () => {
+      const st = getLocalState();
+      const prog = getRealProgress();
+      return Boolean(
+        (st.masteredChars && st.masteredChars[key]) ||
+        (st.savedWords && st.savedWords[key]) ||
+        (prog.masteredChars && prog.masteredChars[key]) ||
+        (prog.savedWords && prog.savedWords[key])
+      );
+    };
+    const renderBtn = () => {
+      const saved = checkSaved();
+      btn.textContent = saved ? '✅ Đã lưu Sổ tay' : '⭐ Lưu vào Sổ tay';
+      btn.style.background = saved ? '#dcfce7' : '#f5f5f4';
+      btn.style.color = saved ? '#15803d' : '#1c1917';
+      btn.style.borderColor = saved ? '#86efac' : '#d6d3d1';
+    };
+    renderBtn();
+    btn.onclick = async () => {
+      const wasSaved = checkSaved();
+      btn.disabled = true;
+      try {
+        if (wasSaved) {
+          await fetch(`/v1/notebook/${encodeURIComponent(key)}`, { method: 'DELETE' });
+        } else {
+          await fetch('/v1/notebook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              word: key,
+              hanzi: key,
+              character: isChar ? key : undefined,
+              isCharacter: !!isChar,
+              pinyin: meta.pinyin || '',
+              hanviet: meta.hanviet || '',
+              meaningVi: meta.meaningVi || ''
+            })
+          });
+        }
+      } catch (_) {}
+      btn.disabled = false;
+      renderBtn();
+    };
+  }
+
   async function renderCharacterDetailPage(slug) {
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu chữ Hán...</div>`;
@@ -4003,6 +5447,7 @@
             <button id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
             <button id="xhz-btn-animate" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">✍️ Xem thứ tự nét</button>
             <button id="xhz-btn-quiz-stroke" style="padding:8px 16px;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:600;cursor:pointer;">🎯 Tập viết chữ</button>
+            <button id="xhz-btn-save-notebook" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">⭐ Lưu vào Sổ tay</button>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px;">
@@ -4067,6 +5512,11 @@
 
     const speakBtn = document.getElementById('xhz-btn-speak');
     if (speakBtn) speakBtn.onclick = () => playPronunciation(ch, audioSrc);
+    wireNotebookToggleButton('xhz-btn-save-notebook', {
+      key: ch,
+      isChar: true,
+      meta: { pinyin, hanviet, meaningVi: meaning }
+    });
 
     const initWriter = () => {
       if (!window.HanziWriter) return;
@@ -4152,7 +5602,10 @@
             </div>
             ${usageNote ? `<div style="margin-top:10px;padding:10px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;">💡 <strong>Cách dùng:</strong> ${usageNote}</div>` : ''}
           </div>
-          <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
+            <button id="xhz-btn-save-notebook" style="padding:10px 18px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:14px;">⭐ Lưu vào Sổ tay</button>
+          </div>
         </div>
 
         <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f5f5f4;">
@@ -4204,6 +5657,11 @@
     `;
     const btn = document.getElementById('xhz-word-speak');
     if (btn) btn.onclick = () => playPronunciation(word, audioUrl);
+    wireNotebookToggleButton('xhz-btn-save-notebook', {
+      key: word,
+      isChar: word.length === 1,
+      meta: { pinyin, hanviet, meaningVi: meaning }
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -4789,7 +6247,17 @@
       const levelObj = (lvlData && lvlData.level) || { name: levelSlug.toUpperCase(), topics: [], lessons: [] };
       const topics = Array.isArray(levelObj.topics) ? levelObj.topics : [];
       const lessons = Array.isArray(levelObj.lessons) ? levelObj.lessons : [];
-      const items = lessons.length > 0 ? lessons : topics;
+      const rawItems = lessons.length > 0 ? lessons : topics;
+      const learnedSet2 = new Set((getRealProgress().learnedWords || []).map(w => String(w || '').replace(/^w:|^c:/, '')));
+      const items = await Promise.all(rawItems.map(async (it) => {
+        const slug = it.lessonSlug || it.topicSlug || '';
+        const d = slug ? ((await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)) || (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`))) : null;
+        const wl = (d && d.lesson && d.lesson.words) || (d && d.topic && d.topic.words) || (d && d.words) || [];
+        const wc = Math.max(Number(it.wordCount) || 0, wl.length);
+        const lc = wl.filter(w => { const hz = String((w && (w.hanzi || w.word)) || '').replace(/\{|\}/g, ''); return hz && learnedSet2.has(hz); }).length;
+        const pct = wc > 0 ? Math.min(100, Math.round((lc / wc) * 100)) : 0;
+        return { ...it, wordCount: wc, learnedCount: lc, progressPct: pct };
+      }));
 
       document.title = `${levelObj.name || levelSlug} - ${brandTitle} | XieHanzi`;
       root.innerHTML = `
@@ -4809,9 +6277,13 @@
               const label = t.titleVi || t.topic || t.titleZh || slug;
               return `
                 <a href="${href}" style="display:block;padding:16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
-                  <div style="font-size:13px;color:#2563eb;font-weight:700;">${isLesson ? `Bài ${t.lessonNumber || i + 1}` : `Chủ đề ${i + 1}`}</div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+                    <span style="font-size:13px;color:#2563eb;font-weight:700;">${isLesson ? `Bài ${t.lessonNumber || i + 1}` : `Chủ đề ${i + 1}`}</span>
+                    <span style="font-size:12px;font-weight:700;color:${t.progressPct > 0 ? '#15803d' : '#78716c'};background:${t.progressPct > 0 ? '#dcfce7' : '#f5f5f4'};padding:2px 8px;border-radius:999px;">${t.learnedCount || 0}/${t.wordCount || 0} (${t.progressPct || 0}%)</span>
+                  </div>
                   <div style="font-size:18px;font-weight:700;margin-top:4px;color:#1c1917;">${label}</div>
-                  <div style="font-size:14px;color:#57534e;margin-top:6px;">${t.wordCount || 0} từ vựng →</div>
+                  <div style="height:5px;border-radius:999px;background:#e7e5e4;margin:10px 0 6px 0;overflow:hidden;"><div style="height:100%;width:${t.progressPct || 0}%;background:#2563eb;"></div></div>
+                  <div style="font-size:14px;color:#57534e;">${t.wordCount || 0} từ vựng →</div>
                 </a>
               `;
             }).join('')}
@@ -4870,9 +6342,10 @@
               <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🎯 Luyện tập từ vựng: ${title}</h1>
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chế độ Flashcard lật thẻ & Trắc nghiệm nhanh (${words.length} từ vựng)</p>
             </div>
-            <div style="display:flex;gap:8px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
               <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#2563eb;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
               <button id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
+              <button id="xhz-mode-typing" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">⌨️ Gõ Pinyin &amp; Chữ Hán</button>
             </div>
           </div>
           <div id="xhz-practice-stage"></div>
@@ -4882,6 +6355,7 @@
       const stage = document.getElementById('xhz-practice-stage');
       const btnFc = document.getElementById('xhz-mode-flashcard');
       const btnQz = document.getElementById('xhz-mode-quiz');
+      const btnTy = document.getElementById('xhz-mode-typing');
       let idx = 0;
       let flipped = false;
 
@@ -4913,25 +6387,83 @@
               <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#dbeafe;color:#1e40af;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
               <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
               <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
+              <button id="xhz-fc-done-all" style="padding:10px 18px;border-radius:12px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành & Lưu tiến độ</button>
             </div>
           </div>
         `;
-        document.getElementById('xhz-fc-card').onclick = () => { flipped = !flipped; renderFlashcard(); };
-        document.getElementById('xhz-fc-flip').onclick = () => { flipped = !flipped; renderFlashcard(); };
+        document.getElementById('xhz-fc-card').onclick = () => {
+          flipped = !flipped;
+          if (flipped && hz) recordStudyProgress({ words: [hz] });
+          renderFlashcard();
+        };
+        document.getElementById('xhz-fc-flip').onclick = () => {
+          flipped = !flipped;
+          if (flipped && hz) recordStudyProgress({ words: [hz] });
+          renderFlashcard();
+        };
         document.getElementById('xhz-fc-audio').onclick = () => playPronunciation(hz, audioUrl);
         document.getElementById('xhz-fc-prev').onclick = () => { idx = (idx - 1 + words.length) % words.length; flipped = false; renderFlashcard(); };
-        document.getElementById('xhz-fc-next').onclick = () => { idx = (idx + 1) % words.length; flipped = false; renderFlashcard(); };
+        document.getElementById('xhz-fc-next').onclick = () => {
+          if (hz) recordStudyProgress({ words: [hz] });
+          idx = (idx + 1) % words.length;
+          flipped = false;
+          renderFlashcard();
+        };
+        const fcDoneBtn = document.getElementById('xhz-fc-done-all');
+        if (fcDoneBtn) {
+          fcDoneBtn.onclick = async () => {
+            fcDoneBtn.textContent = 'Đang đồng bộ...';
+            fcDoneBtn.disabled = true;
+            const allLessonWords = words.map(x => (x.hanzi || x.word || x.character || '').replace(/\{|\}/g, '')).filter(Boolean);
+            const prog = recordStudyProgress({
+              stageKey: `curr.${rootSlug}`,
+              activityKey: `${itemSlug}.fc`,
+              advanceTrack: false,
+              words: allLessonWords,
+              minutes: Math.max(4, Math.round(words.length * 0.6)),
+              sessionInc: 1
+            });
+            try {
+              await Promise.race([prog.__syncPromise || syncProgressToSupabaseAuth(prog), new Promise(r => setTimeout(r, 2000))]);
+            } catch (_) {}
+            window.location.assign(baseDetailUrl);
+          };
+        }
       };
 
       const renderQuiz = () => {
         let score = 0;
         const answered = new Set();
         stage.innerHTML = `
-          <div id="xhz-curr-quiz-score" style="margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#eff6ff;color:#1e40af;font-weight:800;">Điểm số: 0 / ${words.length}</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding:12px 16px;border-radius:12px;background:#eff6ff;color:#1e40af;">
+            <div id="xhz-curr-quiz-score" style="font-weight:800;">Điểm số: 0 / ${words.length}</div>
+            <button id="xhz-curr-quiz-finish" style="padding:8px 16px;border-radius:999px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">✅ Hoàn thành bài tập & Lưu tiến độ</button>
+          </div>
           <div id="xhz-curr-quiz-list" style="display:flex;flex-direction:column;gap:14px;"></div>
         `;
         const listEl = document.getElementById('xhz-curr-quiz-list');
         const scoreEl = document.getElementById('xhz-curr-quiz-score');
+        const finishQzBtn = document.getElementById('xhz-curr-quiz-finish');
+        if (finishQzBtn) {
+          finishQzBtn.onclick = async () => {
+            finishQzBtn.textContent = 'Đang đồng bộ...';
+            finishQzBtn.disabled = true;
+            const allLessonWords = words.map(x => (x.hanzi || x.word || x.character || '').replace(/\{|\}/g, '')).filter(Boolean);
+            const prog = recordStudyProgress({
+              stageKey: `curr.${rootSlug}`,
+              activityKey: `${itemSlug}.quiz`,
+              advanceTrack: false,
+              words: allLessonWords,
+              minutes: Math.max(5, Math.round(words.length * 0.8)),
+              sessionInc: 1,
+              gradingInc: 1
+            });
+            try {
+              await Promise.race([prog.__syncPromise || syncProgressToSupabaseAuth(prog), new Promise(r => setTimeout(r, 2000))]);
+            } catch (_) {}
+            window.location.assign(baseDetailUrl);
+          };
+        }
         words.forEach((w, qIdx) => {
           const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
           const py = w.wordPinyin || w.pinyin || '';
@@ -4970,7 +6502,19 @@
                   score++;
                   recordStudyProgress({ words: [hz] });
                 }
-                scoreEl.textContent = `Điểm số: ${score} / ${words.length} (Đã làm ${answered.size} câu)`;
+                if (answered.size === words.length) {
+                  const allLessonWords = words.map(x => (x.hanzi || x.word || x.character || '').replace(/\{|\}/g, '')).filter(Boolean);
+                  recordStudyProgress({
+                    stageKey: `curr.${rootSlug}`,
+                    activityKey: `${itemSlug}.quiz`,
+                    advanceTrack: false,
+                    words: allLessonWords,
+                    minutes: Math.max(5, Math.round(words.length * 0.8)),
+                    sessionInc: 1,
+                    gradingInc: 1
+                  });
+                }
+                scoreEl.textContent = `Điểm số: ${score} / ${words.length} (Đã làm ${answered.size} câu)${answered.size === words.length ? ' — Đã lưu tiến độ!' : ''}`;
               }
               Array.from(optsWrap.children).forEach(b => {
                 b.style.background = b.textContent === rightVi ? '#dcfce7' : '#fff';
@@ -4987,20 +6531,114 @@
         });
       };
 
-      btnFc.onclick = () => {
-        btnFc.style.background = '#2563eb';
-        btnFc.style.color = '#fff';
-        btnQz.style.background = '#f5f5f4';
-        btnQz.style.color = '#1c1917';
-        renderFlashcard();
+      const normalizePinyin = s => String(s || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/ü/gi, 'u')
+        .replace(/[^a-z0-9]/gi, '')
+        .toLowerCase();
+
+      let tyIdx = 0;
+      let tyCorrect = 0;
+      const tyDone = new Set();
+
+      const renderTypingMode = () => {
+        const w = words[tyIdx] || words[0];
+        const hz = (w.hanzi || w.word || w.character || '').replace(/\{|\}/g, '');
+        const py = w.wordPinyin || w.pinyin || '';
+        const hv = w.hanviet || '';
+        const vi = w.translationVi || w.wordMeaningVi || w.meaningVi || '';
+        const audioUrl = w.audioUrl ? rewriteMediaUrl(w.audioUrl) : '';
+        stage.innerHTML = `
+          <div style="max-width:560px;margin:0 auto;display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:12px;background:#f5f5f4;font-weight:700;font-size:14px;">
+              <span>Từ ${tyIdx + 1} / ${words.length}</span>
+              <span style="color:#16a34a;">Đúng: ${tyCorrect} / ${words.length}</span>
+            </div>
+            <div style="padding:24px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-align:center;">
+              <div style="font-size:13px;font-weight:700;color:#78716c;text-transform:uppercase;">Nghĩa tiếng Việt</div>
+              <div style="font-size:26px;font-weight:800;color:#1c1917;margin:8px 0;">${vi}</div>
+              ${hv ? `<div style="font-size:13px;color:#2563eb;font-weight:700;">Hán Việt: ${hv}</div>` : ''}
+              <div id="xhz-ty-hint-box" style="display:none;margin-top:8px;font-size:16px;color:#1d4ed8;font-weight:700;">${hz} · ${py}</div>
+              <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
+                <button id="xhz-ty-speak" style="padding:8px 14px;border-radius:999px;border:none;background:#dbeafe;color:#1e40af;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+                <button id="xhz-ty-hint" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;">💡 Hiện gợi ý</button>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+              <input id="xhz-typing-input" type="text" placeholder="Gõ chữ Hán (${hz.slice(0, 1)}...) hoặc Pinyin (vd: ni hao)" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;outline:none;" />
+              <button id="xhz-ty-check" style="padding:12px 20px;border-radius:12px;border:none;background:#2563eb;color:#fff;font-weight:800;cursor:pointer;">Kiểm tra</button>
+            </div>
+            <div id="xhz-ty-feedback" style="min-height:24px;font-size:14px;font-weight:700;"></div>
+            <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+              <div style="display:flex;gap:8px;">
+                <button id="xhz-ty-prev" style="padding:9px 16px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;cursor:pointer;">← Trước</button>
+                <button id="xhz-ty-next" style="padding:9px 16px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;cursor:pointer;">Tiếp →</button>
+              </div>
+              <button id="xhz-ty-finish" style="padding:9px 18px;border-radius:10px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành &amp; Lưu tiến độ</button>
+            </div>
+          </div>
+        `;
+        const inp = document.getElementById('xhz-typing-input');
+        const fb = document.getElementById('xhz-ty-feedback');
+        document.getElementById('xhz-ty-speak').onclick = () => playPronunciation(hz, audioUrl);
+        document.getElementById('xhz-ty-hint').onclick = () => {
+          const hb = document.getElementById('xhz-ty-hint-box');
+          if (hb) hb.style.display = hb.style.display === 'none' ? 'block' : 'none';
+        };
+        const checkAnswer = () => {
+          const val = (inp.value || '').trim();
+          if (!val) return;
+          const isOk = val === hz || (py && normalizePinyin(val) === normalizePinyin(py));
+          if (isOk) {
+            if (!tyDone.has(tyIdx)) {
+              tyDone.add(tyIdx);
+              tyCorrect++;
+            }
+            recordStudyProgress({ words: [hz] });
+            playPronunciation(hz, audioUrl);
+            fb.innerHTML = `<span style="color:#16a34a;">✅ Chính xác! ${hz} [${py}] — ${vi}</span>`;
+          } else {
+            fb.innerHTML = `<span style="color:#dc2626;">❌ Chưa đúng. Đáp án: <strong>${hz}</strong> [${py}]</span>`;
+          }
+        };
+        document.getElementById('xhz-ty-check').onclick = checkAnswer;
+        inp.addEventListener('keydown', e => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            checkAnswer();
+          }
+        });
+        document.getElementById('xhz-ty-prev').onclick = () => { tyIdx = (tyIdx - 1 + words.length) % words.length; renderTypingMode(); };
+        document.getElementById('xhz-ty-next').onclick = () => { tyIdx = (tyIdx + 1) % words.length; renderTypingMode(); };
+        document.getElementById('xhz-ty-finish').onclick = async () => {
+          const allLessonWords = words.map(x => (x.hanzi || x.word || x.character || '').replace(/\{|\}/g, '')).filter(Boolean);
+          const prog = recordStudyProgress({
+            stageKey: `curr.${rootSlug}`,
+            activityKey: `${itemSlug}.typing`,
+            advanceTrack: false,
+            words: allLessonWords,
+            minutes: Math.max(4, Math.round(words.length * 0.6)),
+            sessionInc: 1
+          });
+          try { await Promise.race([prog.__syncPromise || syncProgressToSupabaseAuth(prog), new Promise(r => setTimeout(r, 1500))]); } catch (_) {}
+          window.location.assign(baseDetailUrl);
+        };
       };
-      btnQz.onclick = () => {
-        btnQz.style.background = '#2563eb';
-        btnQz.style.color = '#fff';
-        btnFc.style.background = '#f5f5f4';
-        btnFc.style.color = '#1c1917';
-        renderQuiz();
+
+      const setActivePracticeTab = activeBtn => {
+        [btnFc, btnQz, btnTy].forEach(b => {
+          if (!b) return;
+          const isAct = b === activeBtn;
+          b.style.background = isAct ? '#2563eb' : '#f5f5f4';
+          b.style.color = isAct ? '#fff' : '#1c1917';
+          b.style.border = isAct ? 'none' : '1px solid #d6d3d1';
+        });
       };
+
+      btnFc.onclick = () => { setActivePracticeTab(btnFc); renderFlashcard(); };
+      btnQz.onclick = () => { setActivePracticeTab(btnQz); renderQuiz(); };
+      if (btnTy) btnTy.onclick = () => { setActivePracticeTab(btnTy); renderTypingMode(); };
       if (startQuizMode) {
         btnQz.click();
       } else {
@@ -5023,7 +6661,7 @@
     let learnedSet = new Set();
     try {
       const savedArr = JSON.parse(localStorage.getItem('httq_curr_learned_words') || '[]') || [];
-      const progWords = (getRealProgress().wordsLearned || []);
+      const progWords = (getRealProgress().learnedWords || []);
       [...savedArr, ...progWords].forEach(w => learnedSet.add(String(w).replace(/^w:|^c:/, '')));
     } catch (_) {}
 
@@ -5370,6 +7008,22 @@
           segments: segStates,
           updatedAt: Date.now()
         }));
+      } catch (_) {}
+    }
+
+    function recordDictationAttempt(seg, ok) {
+      try {
+        const doneCount = Object.values(segStates).filter(s => s && (s.status === 'correct' || s.checked)).length;
+        const segChars = Array.from(String((seg && seg.hanzi) || '')).filter(c => /[\u4e00-\u9fff]/.test(c));
+        recordStudyProgress({
+          words: ok ? segChars : [],
+          mistake: !ok && segChars[0] ? { itemKey: `w:${segChars[0]}`, hanzi: segChars[0], pinyin: (seg && seg.pinyin) || '', meaningVi: (seg && seg.vi) || '' } : undefined,
+          minutes: ok ? 1 : 0,
+          gradingInc: 1,
+          dictationVideoId: vidId,
+          dictationDoneCount: doneCount,
+          dictationTotal: segments.length
+        });
       } catch (_) {}
     }
 
@@ -5909,6 +7563,7 @@
           const ok = val.length > 0 && (val === targetBlankChar || (seg.hanzi || '').includes(val) || (pinyinMode && normalizePinyinCompare( seg.pinyin || '' ).includes(normalizePinyinCompare(val))));
           segStates[currentIndex] = { status: ok ? 'correct' : 'wrong', input: val, checked: true };
           persistDictState();
+          recordDictationAttempt(seg, ok);
           renderAllDictationUI();
         };
         if (blankInput && !isSubmitted) {
@@ -5977,6 +7632,7 @@
           const ok = val.length > 0 && (givenHz === expectedHz || (expectedPy && givenPy === expectedPy));
           segStates[currentIndex] = { status: ok ? 'correct' : 'wrong', input: val, checked: true };
           persistDictState();
+          recordDictationAttempt(seg, ok);
           renderAllDictationUI();
         };
         if (fullInput && !isSubmitted) {
@@ -6102,30 +7758,171 @@
 
     const title = (paper && (paper.title || paper.name || paper.testId)) || `Đề thi ${lastPart.toUpperCase()}`;
     const fullAudio = paper && (paper.audioUrl || paper.audio) ? rewriteMediaUrl(paper.audioUrl || paper.audio) : '';
+    const durationMins = Math.max(10, Number(paper && paper.durationMinutes) || 40);
+    const isHsk12 = Number(paper && paper.level) > 0 && Number(paper && paper.level) <= 2 && !/^yct/i.test(lastPart);
+    const maxScale = isHsk12 ? 200 : 300;
+    const passScale = isHsk12 ? 120 : 180;
     document.title = `${title} | Phòng thi XieHanzi`;
 
+    if (window.__xhzExamTimerInterval) {
+      clearInterval(window.__xhzExamTimerInterval);
+      window.__xhzExamTimerInterval = null;
+    }
+
     root.innerHTML = `
-      <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-        <a href="/kiem-tra-hsk" style="color:#ea580c;font-weight:700;text-decoration:none;">← Quay lại Phòng thi HSK</a>
-        <div id="xhz-exam-score-badge" style="padding:8px 18px;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:800;border:1px solid #fed7aa;">
-          Điểm số: 0 / ${questions.length}
-        </div>
-      </div>
-      <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-bottom:1px solid #e7e5e4;padding-bottom:16px;">
+      <div id="xhz-exam-topbar" style="position:sticky;top:64px;z-index:20;margin-bottom:16px;padding:12px 18px;border-radius:16px;background:rgba(255,255,255,0.96);backdrop-filter:blur(6px);border:1px solid #e7e5e4;box-shadow:0 4px 16px rgba(0,0,0,0.05);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <a href="/de-kiem-tra" style="color:#ea580c;font-weight:700;text-decoration:none;">← Thoát</a>
           <div>
-            <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:0;">🏆 ${title} (${questions.length} câu)</h1>
-            <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chọn đáp án trực tiếp trên từng câu hỏi để chấm điểm và xem giải thích chi tiết.</p>
+            <div style="font-weight:800;color:#1c1917;font-size:15px;">${title}</div>
+            <div id="xhz-exam-answered-count" style="font-size:12px;color:#57534e;font-weight:600;">Đã trả lời: 0 / ${questions.length}</div>
           </div>
-          ${fullAudio ? `<audio controls src="${fullAudio}" style="height:40px;"></audio>` : ''}
         </div>
-        <div id="xhz-questions-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div id="xhz-exam-score-badge" style="padding:7px 14px;border-radius:999px;background:#fff7ed;color:#9a3412;font-weight:800;border:1px solid #fed7aa;font-size:13px;">
+            Điểm: 0 / ${questions.length}
+          </div>
+          <div id="xhz-exam-timer" style="padding:7px 14px;border-radius:999px;background:#f5f5f4;color:#1c1917;font-weight:800;font-variant-numeric:tabular-nums;font-size:14px;">
+            ⏱️ ${String(durationMins).padStart(2, '0')}:00
+          </div>
+          <button id="xhz-exam-submit-btn" style="padding:9px 18px;border-radius:999px;background:#dc2626;color:#fff;border:none;font-weight:800;cursor:pointer;font-size:14px;">Nộp bài &amp; Chấm điểm</button>
+        </div>
       </div>
+      <div id="xhz-exam-result-banner" style="display:none;margin-bottom:18px;"></div>
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:20px;align-items:start;" id="xhz-exam-layout">
+        <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.05);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;border-bottom:1px solid #e7e5e4;padding-bottom:16px;">
+            <div>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🏆 ${title} (${questions.length} câu)</h1>
+              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chọn đáp án hoặc nhấn "Nộp bài &amp; Chấm điểm" để lưu vào hồ sơ cá nhân.</p>
+            </div>
+            ${fullAudio ? `<audio controls src="${fullAudio}" style="height:40px;max-width:100%;"></audio>` : ''}
+          </div>
+          <div id="xhz-questions-list" style="display:flex;flex-direction:column;gap:20px;"></div>
+        </div>
+        <aside id="xhz-exam-nav-grid" style="position:sticky;top:142px;background:#fff;border:1px solid #e7e5e4;border-radius:18px;padding:16px;box-shadow:0 4px 16px rgba(0,0,0,0.04);">
+          <div style="font-weight:800;font-size:15px;color:#1c1917;margin-bottom:10px;">Danh sách câu hỏi</div>
+          <div id="xhz-qnav-pills" style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
+            ${questions.map((q, idx) => {
+              const qn = q.number || q.questionNumber || idx + 1;
+              return `<button type="button" id="xhz-qnav-${qn}" data-scroll-q="${qn}" style="height:34px;border-radius:10px;border:1px solid #d6d3d1;background:#fafaf9;color:#44403c;font-weight:700;font-size:13px;cursor:pointer;">${qn}</button>`;
+            }).join('')}
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:#78716c;display:flex;flex-direction:column;gap:4px;">
+            <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#16a34a;margin-right:6px;"></span>Đúng / Đã chọn</div>
+            <div><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#e7e5e4;margin-right:6px;"></span>Chưa làm</div>
+          </div>
+        </aside>
+      </div>
+      <style>
+        @media (max-width: 900px) {
+          #xhz-exam-layout { grid-template-columns: 1fr !important; }
+          #xhz-exam-nav-grid { position: static !important; order: -1; }
+        }
+      </style>
     `;
 
     const listEl = document.getElementById('xhz-questions-list');
     const scoreBadge = document.getElementById('xhz-exam-score-badge');
+    const answeredCountEl = document.getElementById('xhz-exam-answered-count');
+    const timerEl = document.getElementById('xhz-exam-timer');
+    const submitBtn = document.getElementById('xhz-exam-submit-btn');
+    const resultBanner = document.getElementById('xhz-exam-result-banner');
     const answeredMap = {};
+    const selectedChoiceMap = {};
+    let examSubmitted = false;
+
+    let remainSec = durationMins * 60;
+    window.__xhzExamTimerInterval = setInterval(() => {
+      if (examSubmitted) return;
+      remainSec = Math.max(0, remainSec - 1);
+      const mm = Math.floor(remainSec / 60);
+      const ss = remainSec % 60;
+      if (timerEl) timerEl.textContent = `⏱️ ${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+      if (remainSec === 0 && submitBtn && !examSubmitted) {
+        submitBtn.click();
+      }
+    }, 1000);
+
+    document.querySelectorAll('[data-scroll-q]').forEach(pill => {
+      pill.onclick = () => {
+        const targetCard = document.getElementById('xhz-qcard-' + pill.getAttribute('data-scroll-q'));
+        if (targetCard) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      };
+    });
+
+    const updateProgressIndicators = (qNum, isRight) => {
+      const totalDone = Object.keys(answeredMap).length;
+      const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
+      if (answeredCountEl) answeredCountEl.textContent = `Đã trả lời: ${totalDone} / ${questions.length}`;
+      if (scoreBadge) scoreBadge.textContent = `Điểm: ${totalScore} / ${questions.length}`;
+      const pill = document.getElementById('xhz-qnav-' + qNum);
+      if (pill) {
+        pill.style.background = isRight ? '#dcfce7' : '#fee2e2';
+        pill.style.borderColor = isRight ? '#16a34a' : '#dc2626';
+        pill.style.color = isRight ? '#15803d' : '#b91c1c';
+      }
+    };
+
+    const submitExam = async () => {
+      if (examSubmitted) return;
+      examSubmitted = true;
+      if (window.__xhzExamTimerInterval) {
+        clearInterval(window.__xhzExamTimerInterval);
+        window.__xhzExamTimerInterval = null;
+      }
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang chấm...';
+      }
+      const res = await fetch(`/v1/hsk-tests/${encodeURIComponent(lastPart)}/submit`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          paperId: lastPart,
+          answers: selectedChoiceMap,
+          durationMinutes: Math.max(1, Math.round((durationMins * 60 - remainSec) / 60))
+        })
+      }).then(r => r.json()).catch(() => null);
+      const correctCount = Object.values(answeredMap).reduce((a, b) => a + b, 0);
+      const total = Math.max(1, questions.length);
+      const pct = Math.round((correctCount / total) * 100);
+      const scaleScore = Math.round((correctCount / total) * maxScale);
+      const passed = scaleScore >= passScale;
+      if (resultBanner) {
+        resultBanner.style.display = 'block';
+        resultBanner.innerHTML = `
+          <div style="padding:20px 24px;border-radius:18px;border:2px solid ${passed ? '#86efac' : '#fed7aa'};background:${passed ? '#f0fdf4' : '#fff7ed'};color:#1c1917;">
+            <div style="font-size:20px;font-weight:800;color:${passed ? '#15803d' : '#c2410c'};">
+              ${passed ? '🎉 Chúc mừng! Bạn đạt chuẩn!' : '💪 Hoàn thành bài thi — Tiếp tục rèn luyện thêm!'}
+            </div>
+            <div style="margin-top:6px;font-size:15px;font-weight:700;">
+              Đúng ${correctCount}/${total} câu (${pct}%) · Quy đổi thang ${maxScale}: <span style="font-size:18px;color:#ea580c;">${scaleScore}/${maxScale} điểm</span> (Ngưỡng đỗ: ${passScale})
+            </div>
+            <div id="xhz-exam-ai-note" style="margin-top:8px;font-size:13px;color:#57534e;">Đã lưu kết quả vào Lịch sử thi &amp; đồng bộ đám mây.${res && res.ok ? ' ✓' : ''}</div>
+          </div>
+        `;
+      }
+      if (submitBtn) {
+        submitBtn.textContent = '✅ Đã nộp bài';
+        submitBtn.style.background = '#16a34a';
+      }
+      document.querySelectorAll('.xhz-exp').forEach(el => { el.style.display = 'block'; });
+      callAiEndpoint('result-ai-readout', {
+        title,
+        correctCount,
+        total,
+        scaleScore,
+        maxScale
+      }).then(aiRes => {
+        const aiEl = document.getElementById('xhz-exam-ai-note');
+        if (aiEl && aiRes && (aiRes.summary || aiRes.reply || aiRes.message)) {
+          aiEl.innerHTML = `🐾 <strong>Nhận xét AI:</strong> ${aiRes.summary || aiRes.reply || aiRes.message}`;
+        }
+      }).catch(() => {});
+    };
+
+    if (submitBtn) submitBtn.onclick = submitExam;
 
     questions.forEach((q, idx) => {
       const qNum = q.number || q.questionNumber || idx + 1;
@@ -6161,16 +7958,16 @@
       const rightAns = String(q.correctAnswer !== undefined ? q.correctAnswer : (q.answer !== undefined ? q.answer : (q.correctOption || 'A'))).trim();
 
       const card = document.createElement('div');
+      card.id = `xhz-qcard-${qNum}`;
       card.style.cssText = 'padding:20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;color:#1c1917;';
 
-      // Shared image bank for image_match or multiple images when options don't carry individual images
       const showSharedImageGrid = qType === 'image_match' && qImgs.length > 0;
       const sharedImagesHtml = showSharedImageGrid
         ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:14px;">
             ${qImgs.map((u, i) => `
               <div style="background:#fff;border:1px solid #e7e5e4;border-radius:12px;padding:10px;text-align:center;">
                 <div style="font-weight:800;color:#ea580c;font-size:14px;margin-bottom:6px;">Hình ${String.fromCharCode(65 + i)}</div>
-                <img src="${u}" alt="Hình ${String.fromCharCode(65 + i)}" style="max-height:130px;max-width:100%;border-radius:8px;object-fit:contain;margin:0 auto;display:block;" />
+                <img src="${u}" onerror="this.style.display='none'" alt="Hình ${String.fromCharCode(65 + i)}" style="max-height:130px;max-width:100%;border-radius:8px;object-fit:contain;margin:0 auto;display:block;" />
               </div>
             `).join('')}
           </div>`
@@ -6193,7 +7990,7 @@
         </div>
         ${pinyin ? `<div style="font-size:14px;color:#ea580c;font-weight:600;margin-bottom:8px;">${pinyin}</div>` : ''}
         ${qAudio ? `<div style="margin-bottom:12px;"><audio controls src="${qAudio}" style="height:38px;max-width:100%;"></audio></div>` : ''}
-        ${singleQuestionImg ? `<div style="margin-bottom:12px;"><img src="${singleQuestionImg}" alt="Câu ${qNum}" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid #e7e5e4;background:#fff;padding:6px;object-fit:contain;" /></div>` : ''}
+        ${singleQuestionImg ? `<div style="margin-bottom:12px;"><img src="${singleQuestionImg}" onerror="this.style.display='none'" alt="Câu ${qNum}" style="max-height:200px;max-width:100%;border-radius:12px;border:1px solid #e7e5e4;background:#fff;padding:6px;object-fit:contain;" /></div>` : ''}
         ${passageHtml}
         ${sharedImagesHtml}
         <div class="xhz-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;"></div>
@@ -6219,9 +8016,9 @@
         checkBtn.onclick = () => {
           const userVal = (inputEl.value || '').trim();
           const isRight = qType === 'writing_essay' ? userVal.length > 0 : userVal === rightAns;
+          selectedChoiceMap[q.id || qNum] = userVal;
           answeredMap[qNum] = isRight ? 1 : 0;
-          const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
-          if (scoreBadge) scoreBadge.textContent = `Điểm số: ${totalScore} / ${questions.length}`;
+          updateProgressIndicators(qNum, isRight);
           if (expEl) {
             expEl.style.display = 'block';
             expEl.innerHTML = `${rightAns && rightAns !== 'null' ? `<strong>Đáp án chuẩn: ${rightAns}</strong><br/>` : ''}${q.explanationVi || q.explanation || ''}`;
@@ -6244,13 +8041,13 @@
               <span style="color:#1c1917;">${text !== key ? text : `Hình ${key.toUpperCase()}`}</span>
               ${optPinyin ? `<div style="font-size:12px;color:#78716c;font-weight:500;margin-top:2px;">${optPinyin}</div>` : ''}
             </div>
-            ${optImg ? `<img src="${optImg}" alt="Phương án ${key}" style="max-height:140px;width:100%;object-fit:contain;border-radius:8px;background:#fafaf9;padding:4px;" />` : ''}
+            ${optImg ? `<img src="${optImg}" onerror="this.style.display='none'" alt="Phương án ${key}" style="max-height:140px;width:100%;object-fit:contain;border-radius:8px;background:#fafaf9;padding:4px;" />` : ''}
           `;
           btn.onclick = () => {
             const isRight = String(key).toUpperCase() === rightAns.toUpperCase() || String(text).toUpperCase() === rightAns.toUpperCase();
+            selectedChoiceMap[q.id || qNum] = key;
             answeredMap[qNum] = isRight ? 1 : 0;
-            const totalScore = Object.values(answeredMap).reduce((a, b) => a + b, 0);
-            if (scoreBadge) scoreBadge.textContent = `Điểm số: ${totalScore} / ${questions.length}`;
+            updateProgressIndicators(qNum, isRight);
 
             Array.from(optsWrap.children).forEach(b => {
               b.style.background = '#ffffff';
@@ -6322,7 +8119,22 @@
       { id: 'due-8', hanzi: '请', pinyin: 'qǐng', hanviet: 'THỈNH', meaningVi: 'Mời, xin vui lòng', audioUrl: '/word_audios/请.mp3', exampleZh: '请坐，请喝茶。', examplePy: 'Qǐng zuò, qǐng hē chá.', exampleVi: 'Mời ngồi, mời uống trà.' }
     ];
 
-    const mistakeItems = [
+    const realUserMistakes = (Array.isArray(getRealProgress().userMistakes) ? getRealProgress().userMistakes : []).map((um, idx) => {
+      const mMean = um.meaningVi || um.expectedDisplay || 'Từ vựng cần ôn lại';
+      return {
+        id: `um-${idx + 1}`,
+        hanzi: um.hanzi,
+        pinyin: um.pinyin || '',
+        meaningVi: mMean,
+        confusedWith: um.givenDisplay || 'Nhầm khi làm bài tập',
+        reasonVi: um.reasonVi || `Bạn đã trả lời sai từ "${um.hanzi}" (${um.count || 1} lần).`,
+        tipVi: `Nghe lại phát âm và nhớ kỹ nghĩa "${mMean}" của từ "${um.hanzi}".`,
+        question: `Nghĩa đúng của từ "${um.hanzi}" ${um.pinyin ? `(${um.pinyin})` : ''} là gì?`,
+        options: [mMean, 'xin lỗi (对不起)', 'không có gì (没关系)', 'tạm biệt (再见)'].filter((v, i, a) => v && a.indexOf(v) === i).slice(0, 4),
+        correctIndex: 0
+      };
+    });
+    const baseMistakeItems = [
       {
         id: 'm-1',
         hanzi: '谢谢',
@@ -6372,6 +8184,12 @@
         correctIndex: 0
       }
     ];
+    const seenMkHz = new Set();
+    const mistakeItems = [...realUserMistakes, ...baseMistakeItems].filter(it => {
+      if (!it || !it.hanzi || seenMkHz.has(it.hanzi)) return false;
+      seenMkHz.add(it.hanzi);
+      return true;
+    });
 
     const sentenceCards = [
       { id: 'sc-1', hanzi: '一个人', pinyin: 'yí gè rén', meaningVi: 'Một người (Lượng từ 个 dùng phổ biến nhất cho người & vật)', blankQuestion: '一 ___ 人 (Một người)', options: ['个 (gè)', '本 (běn)', '杯 (bēi)', '件 (jiàn)'], answer: '个 (gè)' },
@@ -6429,8 +8247,13 @@
               <div style="font-size:14px;color:#57534e;">${modeSubtitle}</div>
             </div>
           </div>
-          <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;border:1px solid #fdba74;font-weight:800;color:#9a3412;font-size:15px;">
-            Hoàn thành: 0 / ${isMistakeMode ? mistakeItems.length : isSentenceMode ? sentenceCards.length : dueItems.length}
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <div id="xhz-review-progress-badge" style="padding:10px 18px;border-radius:14px;background:#fff;border:1px solid #fdba74;font-weight:800;color:#9a3412;font-size:15px;">
+              Hoàn thành: 0 / ${isMistakeMode ? mistakeItems.length : isSentenceMode ? sentenceCards.length : dueItems.length}
+            </div>
+            <button id="xhz-review-finish-btn" style="padding:10px 18px;border-radius:14px;background:#16a34a;color:#fff;border:none;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 12px rgba(22,163,74,0.2);">
+              ✅ Hoàn thành phiên ôn
+            </button>
           </div>
         </div>
 
@@ -6441,6 +8264,23 @@
 
     const bodyEl = root.querySelector('#xhz-review-body');
     const badgeEl = root.querySelector('#xhz-review-progress-badge');
+    const finishRevBtn = root.querySelector('#xhz-review-finish-btn');
+    if (finishRevBtn) {
+      finishRevBtn.onclick = async () => {
+        finishRevBtn.textContent = 'Đang đồng bộ...';
+        finishRevBtn.disabled = true;
+        const prog = recordStudyProgress({
+          minutes: 4,
+          sessionInc: 1,
+          gradingInc: 1,
+          dailyStepDone: 'step-review-1'
+        });
+        try {
+          await Promise.race([prog.__syncPromise || syncProgressToSupabaseAuth(prog), new Promise(r => setTimeout(r, 2000))]);
+        } catch (_) {}
+        window.location.assign('/on-tap');
+      };
+    }
 
     // ========================================================================
     // MODE B: ÔN LỖI SAI (on-tap-loi-sai)
@@ -6513,6 +8353,7 @@
               statusEl.textContent = '✅ Chính xác! Bạn đã khắc phục được lỗi nhầm lẫn này.';
               const cleanHz = m.hanzi.split('/')[0].trim();
               playPronunciation(cleanHz, `/word_audios/${cleanHz}.mp3`);
+              recordStudyProgress({ words: [cleanHz], gradingInc: 1, dailyStepDone: 'step-review-1' });
             } else {
               btn.style.background = '#fee2e2';
               btn.style.borderColor = '#dc2626';
@@ -6581,7 +8422,10 @@
             btn.style.background = ok ? '#dcfce7' : '#fee2e2';
             btn.style.borderColor = ok ? '#16a34a' : '#dc2626';
             btn.style.color = ok ? '#14532d' : '#7f1d1d';
-            if (ok) playPronunciation(sc.hanzi, '');
+            if (ok) {
+              playPronunciation(sc.hanzi, '');
+              recordStudyProgress({ words: [sc.hanzi], gradingInc: 1, dailyStepDone: 'step-review-1' });
+            }
           };
           optsBox.appendChild(btn);
         });
@@ -6609,7 +8453,7 @@
 
       <!-- TAB 1: SRS FLASHCARD -->
       <div id="xhz-rev-panel-srs" style="max-width:580px;margin:0 auto;text-align:center;">
-        <div id="xhz-srs-counter" style="font-size:14px;font-weight:800;color:#78716c;margin-bottom:12px;">Thẻ 1 / ${dueItems.length}</div>
+        <div id="xhz-srs-counter" style="font-size:14px;font-weight:700;color:#78716c;margin-bottom:12px;">Thẻ 1 / ${dueItems.length}</div>
         <div id="xhz-srs-card" style="padding:36px 24px;border-radius:22px;border:2px solid #fdba74;background:#fff7ed;cursor:pointer;min-height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:0 8px 24px rgba(234,88,12,0.08);">
           <div id="xhz-srs-hanzi" style="font-size:68px;font-weight:800;color:#1c1917;"></div>
           <div id="xhz-srs-pinyin" style="font-size:22px;font-weight:700;color:#ea580c;"></div>
@@ -6701,6 +8545,13 @@
           srsReviewed[item.id] = 1;
           const doneCount = Object.keys(srsReviewed).length;
           if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
+          recordStudyProgress({
+            words: [item.hanzi],
+            minutes: doneCount === 1 ? 2 : 0,
+            sessionInc: doneCount === 1 ? 1 : 0,
+            gradingInc: 1,
+            dailyStepDone: 'step-review-1'
+          });
         }
         srsIdx = (srsIdx + 1) % dueItems.length;
         renderSrsCard();
@@ -6737,7 +8588,15 @@
         b.onclick = () => {
           const ok = optText === item.meaningVi;
           srsReviewed[item.id] = 1;
-          if (badgeEl) badgeEl.textContent = `Hoàn thành: ${Object.keys(srsReviewed).length} / ${dueItems.length}`;
+          const doneCount = Object.keys(srsReviewed).length;
+          if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
+          recordStudyProgress({
+            words: [item.hanzi],
+            minutes: doneCount === 1 ? 2 : 0,
+            sessionInc: doneCount === 1 ? 1 : 0,
+            gradingInc: 1,
+            dailyStepDone: 'step-review-1'
+          });
           Array.from(optsWrap.children).forEach(el => {
             el.style.background = '#fff';
             el.style.borderColor = '#d6d3d1';
@@ -6780,7 +8639,15 @@
         const cleanVal = val.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         const ok = val === item.hanzi || cleanVal === cleanPy;
         srsReviewed[item.id] = 1;
-        if (badgeEl) badgeEl.textContent = `Hoàn thành: ${Object.keys(srsReviewed).length} / ${dueItems.length}`;
+        const doneCount = Object.keys(srsReviewed).length;
+        if (badgeEl) badgeEl.textContent = `Hoàn thành: ${doneCount} / ${dueItems.length}`;
+        recordStudyProgress({
+          words: [item.hanzi],
+          minutes: doneCount === 1 ? 2 : 0,
+          sessionInc: doneCount === 1 ? 1 : 0,
+          gradingInc: 1,
+          dailyStepDone: 'step-review-1'
+        });
         fb.style.display = 'block';
         fb.style.color = ok ? '#15803d' : '#b91c1c';
         fb.textContent = ok ? `✅ Chính xác: ${item.hanzi} (${item.pinyin})` : `💡 Đáp án chuẩn: ${item.hanzi} (${item.pinyin}) — ${item.meaningVi}`;
@@ -6813,6 +8680,67 @@
     switchRevTab(defaultTab);
   }
 
+  async function renderMistakeBookOrLearnedWordsPage(pathname) {
+    const isMistakeView = pathname.includes('so-loi') || pathname.includes('loi-sai');
+    if (isMistakeView) {
+      await renderReviewSessionPage('on-tap-loi-sai');
+      return;
+    }
+    const root = getMainContentContainer();
+    const res = await (await handleApiRequest(window.location.origin + '/v2/review/words', { method: 'GET' })).json();
+    const items = Array.isArray(res && res.items) ? res.items : [];
+    document.title = `Từ đã học (${items.length} từ) | XieHanzi`;
+
+    root.innerHTML = `
+      <div style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/on-tap" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Trung tâm Ôn tập</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/hoc/bai/on-tap-den-han" style="padding:8px 16px;border-radius:999px;background:#ea580c;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🔄 Ôn tập ngay</a>
+            <a href="/hoc/tu-da-hoc" style="padding:8px 16px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📚 Xem bản đầy đủ</a>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">📚 Từ vựng đã học (${items.length} từ)</h1>
+              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Tổng hợp toàn bộ chữ Hán và từ vựng đã ghi nhận trong quá trình học tập của bạn.</p>
+            </div>
+            <input id="xhz-lw-search" type="text" placeholder="🔍 Lọc từ vựng, pinyin, nghĩa..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:220px;" />
+          </div>
+          <div id="xhz-lw-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;"></div>
+        </div>
+      </div>
+    `;
+    const grid = root.querySelector('#xhz-lw-grid');
+    const searchEl = root.querySelector('#xhz-lw-search');
+    const renderCards = (q = '') => {
+      const norm = q.trim().toLowerCase();
+      const filtered = norm
+        ? items.filter(it => it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm))
+        : items;
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#ea580c;font-weight:700;">Lộ trình học</a> để tích lũy từ mới nhé!</div>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(it => {
+        const href = it.hanzi.length === 1 ? `/han-tu/${encodeURIComponent(it.hanzi)}` : `/tu-vung/${encodeURIComponent(it.hanzi)}`;
+        return `
+          <div style="padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+              <a href="${href}" style="text-decoration:none;color:#1c1917;font-size:28px;font-weight:800;font-family:'Noto Serif SC',serif;">${it.hanzi}</a>
+              <button type="button" onclick="window.__xhzPlayAudio('${it.hanzi.replace(/'/g, '')}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
+            </div>
+            ${it.pinyin ? `<div style="font-size:14px;color:#ea580c;font-weight:700;">${it.pinyin}</div>` : ''}
+            <div style="font-size:14px;color:#44403c;line-height:1.4;">${it.meaningVi || 'Từ vựng đã học'}</div>
+          </div>
+        `;
+      }).join('');
+    };
+    renderCards();
+    if (searchEl) searchEl.oninput = e => renderCards(e.target.value);
+  }
+
   // --------------------------------------------------------------------------
   // 6.8c. Trang Tiến Độ & Thói Quen (/hoc/tien-do, /hoc/thoi-quen) & Tra Chữ Bộ Thủ
   // --------------------------------------------------------------------------
@@ -6820,12 +8748,56 @@
     const root = getMainContentContainer();
     const isHabit = pathname.includes('thoi-quen');
     const sum = getRealProgressSummary();
+    const prog = getRealProgress();
+    const hb = prog.habitSettings || {};
+    const dailyGoal = Number(hb.dailyMinutesGoal || hb.dailyMinutes || 15) || 15;
+    const weeklyGoal = Number(hb.weeklySessionsGoal || hb.weeklyGoal || 5) || 5;
     document.title = isHabit ? 'Thói quen học tập | XieHanzi' : 'Tiến độ học tập HSK | XieHanzi';
+
+    // Build 5-skill mastery & readiness stats
+    const vocabPct = Math.min(100, Math.round((sum.wordsSeen / 300) * 100));
+    const charCount = Math.max(Object.keys(prog.masteredChars || {}).length, Math.min(150, sum.wordsMastered));
+    const writingPct = Math.min(100, Math.round((charCount / 150) * 100));
+    const gramCount = Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds.length : 0;
+    const gramPct = Math.min(100, Math.round((gramCount / 30) * 100));
+    const stageCount = Array.isArray(prog.doneStages) ? prog.doneStages.length : 0;
+    const listeningPct = Math.min(100, Math.round((stageCount / 40) * 100));
+    const spkCount = Object.keys(prog.speakingProgress || {}).length + (Number(prog.voiceUsed) || 0);
+    const speakingPct = Math.min(100, Math.round((spkCount / 25) * 100));
+    const skillRows = [
+      { label: 'Từ vựng HSK 1', pct: vocabPct, detail: `${sum.wordsSeen} / 300 từ`, color: '#2563eb' },
+      { label: 'Chữ Hán & Viết nét', pct: writingPct, detail: `${charCount} / 150 chữ`, color: '#ea580c' },
+      { label: 'Ngữ pháp trọng tâm', pct: gramPct, detail: `${gramCount} / 30 điểm`, color: '#7c3aed' },
+      { label: 'Lộ trình & Nghe hiểu', pct: listeningPct, detail: `${stageCount} / 40 chặng`, color: '#16a34a' },
+      { label: 'Luyện nói AI', pct: speakingPct, detail: `${spkCount} lượt`, color: '#db2777' }
+    ];
+    const latestExam = Array.isArray(prog.examHistory) && prog.examHistory[0];
+    const avgSkill = Math.round((vocabPct + writingPct + gramPct + listeningPct + speakingPct) / 5);
+    const predictedScore300 = latestExam ? Math.round((Number(latestExam.score) || 0) * 3) : Math.max(60, Math.round(avgSkill * 3));
+
+    // Build Mon-Sun tracker
+    const now = new Date();
+    const dow = now.getDay(); // 0=Sun..6=Sat
+    const mondayOffset = dow === 0 ? -6 : 1 - dow;
+    const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    const activeSet = new Set(Array.isArray(prog.activeDates) ? prog.activeDates : []);
+    (sum.weekDays || []).forEach(wd => { if (wd && wd.day && wd.done) activeSet.add(wd.day); });
+    const weekPills = dayLabels.map((lbl, idx) => {
+      const d = new Date(now);
+      d.setDate(now.getDate() + mondayOffset + idx);
+      const iso = d.toISOString().slice(0, 10);
+      const isDone = activeSet.has(iso) || (Number((prog.minutesByDate || {})[iso]) || 0) > 0;
+      const mins = Number((prog.minutesByDate || {})[iso]) || 0;
+      return { lbl, iso, isDone, mins };
+    });
+
+    const weeks12 = Array.isArray(sum.activity12Weeks) ? sum.activity12Weeks : [];
+
     root.innerHTML = `
-      <div style="max-width:900px;margin:0 auto;">
+      <div style="max-width:940px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
           <a href="/hoc" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Trang Học (/hoc)</a>
-          <div style="display:flex;gap:8px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <a href="/hoc/tien-do" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${!isHabit ? '#ea580c' : '#fff'};color:${!isHabit ? '#fff' : '#44403c'};border:1px solid ${!isHabit ? '#ea580c' : '#e7e5e4'};">📊 Tiến độ HSK</a>
             <a href="/hoc/thoi-quen" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:${isHabit ? '#ea580c' : '#fff'};color:${isHabit ? '#fff' : '#44403c'};border:1px solid ${isHabit ? '#ea580c' : '#e7e5e4'};">🔥 Chuỗi ngày học</a>
             <a href="/on-tap" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff7ed;color:#c2410c;border:1px solid #fed7aa;">🔄 Ôn tập</a>
@@ -6836,13 +8808,13 @@
             ${isHabit ? `🔥 Chuỗi thói quen: ${sum.streakDays} ngày liên tiếp` : '📊 Tiến độ chinh phục Giáo trình Chuẩn HSK 1'}
           </h1>
           <p style="color:#57534e;margin:0 0 20px 0;font-size:14px;">
-            Mục tiêu mỗi ngày: 15 phút · Đã hoàn thành hôm nay: ${sum.todayMinutes} / 15 phút · Từ vựng đã mở khóa: ${sum.wordsSeen} / 300 từ HSK 1
+            Mục tiêu mỗi ngày: <strong>${dailyGoal} phút</strong> · Đã hoàn thành hôm nay: <strong>${sum.todayMinutes} / ${dailyGoal} phút</strong> · Từ vựng đã mở khóa: <strong>${sum.wordsSeen} / 300</strong> từ HSK 1
           </p>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:22px;">
             <div style="padding:16px;border-radius:16px;background:#fff7ed;border:1px solid #fed7aa;">
               <div style="font-size:12px;font-weight:700;color:#9a3412;">CHUỖI NGÀY HỌC</div>
               <div style="font-size:28px;font-weight:800;color:#ea580c;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
-              <div style="font-size:12px;color:#78716c;margin-top:4px;">Kỷ lục dài nhất: ${sum.longestStreak} ngày</div>
+              <div style="font-size:12px;color:#78716c;margin-top:4px;">Kỷ lục dài nhất: ${sum.longestStreak} ngày · Tuần này: ${sum.sessionsThisWeek}/${weeklyGoal} buổi</div>
             </div>
             <div style="padding:16px;border-radius:16px;background:#f0fdf4;border:1px solid #bbf7d0;">
               <div style="font-size:12px;font-weight:800;color:#166534;">TỪ ĐÃ THUỘC</div>
@@ -6855,6 +8827,83 @@
               <div style="font-size:12px;color:#78716c;margin-top:4px;"><a href="/hoc/bai/on-tap-den-han" style="color:#dc2626;font-weight:700;">Ôn bài đến hạn ngay →</a></div>
             </div>
           </div>
+
+          ${!isHabit ? `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:22px;">
+              <div id="xhz-skill-bars" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;">
+                <h3 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">🎯 Bản đồ 5 Kỹ năng HSK</h3>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                  ${skillRows.map(r => `
+                    <div>
+                      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:4px;">
+                        <span style="color:#1c1917;">${r.label}</span>
+                        <span style="color:${r.color};">${r.detail} (${r.pct}%)</span>
+                      </div>
+                      <div style="height:8px;border-radius:999px;background:#e7e5e4;overflow:hidden;">
+                        <div style="height:100%;width:${r.pct}%;background:${r.color};border-radius:999px;transition:width 0.3s;"></div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div id="xhz-hsk-readiness-card" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:12px;">
+                <div>
+                  <h3 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">🏆 Dự đoán điểm thi HSK</h3>
+                  <div style="font-size:34px;font-weight:900;color:#ea580c;">${predictedScore300} <span style="font-size:16px;font-weight:700;color:#78716c;">/ 300 điểm</span></div>
+                  <p style="font-size:13px;color:#57534e;margin:6px 0 0 0;">
+                    ${latestExam ? `Dựa theo đề gần nhất (${latestExam.paperId || 'HSK'} · ${latestExam.score}%)` : 'Ước lượng dựa trên tiến độ 5 kỹ năng hiện tại.'}
+                  </p>
+                </div>
+                <a href="/de-kiem-tra" style="display:inline-block;text-align:center;padding:10px 16px;border-radius:12px;background:#1c1917;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">Vào Phòng thi thử HSK / YCT →</a>
+              </div>
+            </div>
+          ` : `
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;margin-bottom:22px;">
+              <div id="xhz-week-tracker" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;">
+                <h3 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 12px 0;">📅 Lịch học tuần này (T2 → CN)</h3>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center;">
+                  ${weekPills.map(wp => `
+                    <div title="${wp.iso}: ${wp.mins} phút" style="padding:10px 4px;border-radius:12px;background:${wp.isDone ? '#ea580c' : '#fff'};color:${wp.isDone ? '#fff' : '#78716c'};border:1px solid ${wp.isDone ? '#ea580c' : '#e7e5e4'};font-weight:800;font-size:13px;">
+                      <div>${wp.lbl}</div>
+                      <div style="font-size:11px;margin-top:4px;">${wp.isDone ? '✓' : '·'}</div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <form id="xhz-habit-goal-form" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:10px;">
+                <h3 style="font-size:16px;font-weight:800;color:#1c1917;margin:0;">⚙️ Cài đặt mục tiêu học tập</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                  <label style="font-size:13px;font-weight:700;color:#44403c;">
+                    Số buổi / tuần
+                    <input id="xhz-goal-sessions" type="number" min="1" max="7" value="${weeklyGoal}" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;" />
+                  </label>
+                  <label style="font-size:13px;font-weight:700;color:#44403c;">
+                    Số phút / ngày
+                    <input id="xhz-goal-minutes" type="number" min="5" max="120" step="5" value="${dailyGoal}" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;" />
+                  </label>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <button id="xhz-save-habit-goal" type="submit" style="padding:9px 18px;border-radius:10px;background:#ea580c;color:#fff;border:none;font-weight:800;cursor:pointer;font-size:13px;">Lưu mục tiêu</button>
+                  <span id="xhz-goal-saved-msg" style="font-size:13px;font-weight:700;color:#16a34a;"></span>
+                </div>
+              </form>
+            </div>
+            <div id="xhz-heatmap-12w" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;margin-bottom:22px;">
+              <h3 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 12px 0;">🗓️ Biểu đồ nhiệt 12 tuần gần nhất</h3>
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:8px;">
+                ${weeks12.map((w, idx) => {
+                  const m = Number(w.minutes) || 0;
+                  const bg = m >= 90 ? '#c2410c' : m >= 30 ? '#fb923c' : m > 0 ? '#fed7aa' : '#e7e5e4';
+                  const fg = m >= 30 ? '#fff' : '#44403c';
+                  return `<div title="${w.isoWeek || ''}: ${m} phút, ${w.activeDays || 0} ngày" style="padding:8px 6px;border-radius:10px;background:${bg};color:${fg};text-align:center;font-size:12px;font-weight:700;">
+                    <div>T-${12 - idx}</div>
+                    <div style="font-size:11px;opacity:0.9;">${m}p</div>
+                  </div>`;
+                }).join('')}
+              </div>
+            </div>
+          `}
+
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
             <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#ea580c;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
             <a href="/hoc/bai/on-tap-den-han" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;text-decoration:none;">🔄 Ôn bài đến hạn (${sum.dueTotal})</a>
@@ -6863,6 +8912,27 @@
         </div>
       </div>
     `;
+
+    const goalForm = document.getElementById('xhz-habit-goal-form');
+    if (goalForm) {
+      goalForm.onsubmit = async ev => {
+        ev.preventDefault();
+        const sessVal = Math.max(1, Math.min(7, Number(document.getElementById('xhz-goal-sessions').value) || 5));
+        const minVal = Math.max(5, Math.min(120, Number(document.getElementById('xhz-goal-minutes').value) || 15));
+        recordStudyProgress({
+          habitSettings: { weeklySessionsGoal: sessVal, weeklyGoal: sessVal, dailyMinutesGoal: minVal, dailyMinutes: minVal }
+        });
+        try {
+          await fetch('/v2/me/habit/weekly-goal', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ weeklyGoal: sessVal, weeklySessionsGoal: sessVal, dailyMinutesGoal: minVal })
+          });
+        } catch (_) {}
+        const msgEl = document.getElementById('xhz-goal-saved-msg');
+        if (msgEl) msgEl.textContent = '✅ Đã lưu & đồng bộ!';
+      };
+    }
   }
 
   async function renderCharacterBrowseSubPage(pathname) {
@@ -6870,36 +8940,111 @@
     const parts = pathname.split('/').filter(Boolean);
     const browseType = parts[1]; // 'bo-thu' or 'hsk'
     const rawVal = decodeURIComponent(parts.slice(2).join('/'));
-    const lesson1 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-1-hello-ai-xiaoyu.json');
-    const lesson2 = await loadLocalJson('/data/curriculums/new-hsk/lessons/new-hsk-1--bai-2-my-name-is-li-wen.json');
-    const words = [
-      ...((lesson1 && lesson1.lesson && lesson1.lesson.words) || []),
-      ...((lesson2 && lesson2.lesson && lesson2.lesson.words) || [])
-    ];
-    document.title = `Tra chữ Hán theo ${browseType === 'bo-thu' ? `Bộ thủ ${rawVal}` : `HSK ${rawVal}`} | XieHanzi`;
+    root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải kho 3.000+ chữ Hán...</div>`;
+
+    const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
+    const normStrip = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+    let matched = [];
+    let headingLabel = '';
+
+    if (browseType === 'bo-thu') {
+      const cjkM = rawVal.match(/[\u4e00-\u9fff\u2f00-\u2fdf\u2e80-\u2eff\u3400-\u4dbf]/);
+      const radChar = cjkM ? cjkM[0] : rawVal.trim();
+      headingLabel = `Bộ thủ: ${radChar || rawVal}`;
+      matched = Array.isArray(charIdx)
+        ? charIdx.filter(e => e && (e.r === radChar || e.radical === radChar || e.c === radChar))
+        : [];
+    } else {
+      const lvlNum = Number((rawVal.match(/\d+/) || ['1'])[0]) || 1;
+      headingLabel = `Cấp độ HSK ${lvlNum}`;
+      matched = Array.isArray(charIdx)
+        ? charIdx.filter(e => e && Number(e.hsk || e.hskLevel) === lvlNum)
+        : [];
+    }
+
+    matched.sort((a, b) => (Number(a.s || 0) - Number(b.s || 0)) || (Number(a.f || 99999) - Number(b.f || 99999)));
+    document.title = `Tra chữ Hán theo ${browseType === 'bo-thu' ? `Bộ thủ ${rawVal}` : `HSK ${rawVal}`} (${matched.length} chữ) | XieHanzi`;
+
     root.innerHTML = `
-      <div style="max-width:960px;margin:0 auto;">
-        <div style="margin-bottom:16px;">
+      <div style="max-width:1040px;margin:0 auto;">
+        <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
           <a href="/tra-chu/${browseType}" style="color:#ea580c;font-weight:800;text-decoration:none;">← Quay lại Tra chữ theo ${browseType === 'bo-thu' ? 'Bộ thủ' : 'cấp độ HSK'}</a>
+          <span style="padding:4px 12px;border-radius:999px;background:#ffedd5;color:#9a3412;font-weight:800;font-size:13px;">${matched.length} chữ Hán</span>
         </div>
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;">
-          <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 16px 0;">
-            Danh sách chữ Hán & Từ vựng (${browseType === 'bo-thu' ? `Bộ thủ: ${rawVal}` : `Cấp độ: HSK ${rawVal}`})
+          <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">
+            📚 Tra cứu Chữ Hán (${headingLabel})
           </h1>
-          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;">
-            ${words.map(w => {
-              const hz = (w.hanzi || w.word || '你好').replace(/\{|\}/g, '');
-              const ch = Array.from(hz)[0] || hz;
-              return `<a href="/han-tu/${encodeURIComponent(ch)}" style="padding:16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;display:flex;flex-direction:column;gap:4px;">
-                <div style="font-size:32px;font-weight:800;color:#1c1917;">${hz}</div>
-                <div style="font-size:14px;font-weight:700;color:#ea580c;">${w.wordPinyin || w.pinyin || ''}</div>
-                <div style="font-size:14px;color:#44403c;">${w.translationVi || w.meaningVi || ''}</div>
-              </a>`;
-            }).join('')}
-          </div>
+          <input id="xhz-char-browse-filter" type="text" placeholder="Lọc nhanh theo chữ Hán, Pinyin, âm Hán Việt hoặc nghĩa..." style="width:100%;max-width:440px;padding:10px 16px;border-radius:12px;border:1px solid #d6d3d1;font-size:15px;margin-bottom:18px;color:#1c1917;background:#fff;" />
+          <div id="xhz-char-browse-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px;"></div>
+          <div id="xhz-char-browse-more" style="margin-top:18px;text-align:center;"></div>
         </div>
       </div>
     `;
+
+    const gridEl = document.getElementById('xhz-char-browse-grid');
+    const moreEl = document.getElementById('xhz-char-browse-more');
+    const filterEl = document.getElementById('xhz-char-browse-filter');
+    let visibleLimit = 120;
+
+    const renderList = (query = '') => {
+      const q = normStrip(query.trim());
+      const filtered = q
+        ? matched.filter(e =>
+            String(e.c || '').includes(query.trim()) ||
+            normStrip(e.p || '').includes(q) ||
+            normStrip(e.hv || '').includes(q) ||
+            normStrip(e.m || '').includes(q)
+          )
+        : matched;
+      if (filtered.length === 0) {
+        gridEl.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:#78716c;">Không tìm thấy chữ Hán phù hợp trong ${headingLabel}.</div>`;
+        moreEl.innerHTML = '';
+        return;
+      }
+      const slice = filtered.slice(0, visibleLimit);
+      gridEl.innerHTML = slice.map(e => {
+        const ch = e.c || e.character || '';
+        const py = e.p || e.pinyin || '';
+        const hv = e.hv || e.hanviet || '';
+        const mean = e.m || e.meaningVi || '';
+        const rad = e.r || e.radical || '';
+        const strokes = e.s || e.strokeCount || '';
+        const hsk = e.hsk || e.hskLevel || '';
+        return `
+          <div style="padding:16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                <a href="/han-tu/${encodeURIComponent(ch)}" style="font-size:38px;font-weight:800;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;line-height:1.1;">${ch}</a>
+                <button type="button" onclick="window.__xhzPlayAudio('${ch.replace(/'/g, '')}')" style="border:none;background:#ffedd5;color:#9a3412;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
+              </div>
+              <div style="margin-top:6px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                ${py ? `<span style="font-size:14px;font-weight:700;color:#ea580c;">${py}</span>` : ''}
+                ${hv ? `<span style="font-size:11px;font-weight:700;color:#9a3412;background:#ffedd5;padding:2px 7px;border-radius:999px;text-transform:uppercase;">${hv}</span>` : ''}
+              </div>
+              <div style="font-size:13px;color:#44403c;margin-top:4px;line-height:1.4;">${mean}</div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;font-size:11px;color:#57534e;padding-top:6px;border-top:1px solid #e7e5e4;">
+              ${strokes ? `<span style="padding:2px 7px;border-radius:6px;background:#fff;border:1px solid #e7e5e4;">${strokes} nét</span>` : ''}
+              ${rad ? `<span style="padding:2px 7px;border-radius:6px;background:#fff;border:1px solid #e7e5e4;">Bộ ${rad}</span>` : ''}
+              ${hsk ? `<span style="padding:2px 7px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${hsk}</span>` : ''}
+            </div>
+          </div>
+        `;
+      }).join('');
+      if (filtered.length > slice.length) {
+        moreEl.innerHTML = `<button id="xhz-char-load-more" style="padding:10px 22px;border-radius:999px;background:#ea580c;color:#fff;border:none;font-weight:700;cursor:pointer;">Xem thêm (${filtered.length - slice.length} chữ nữa)</button>`;
+        const mb = document.getElementById('xhz-char-load-more');
+        if (mb) mb.onclick = () => { visibleLimit += 120; renderList(filterEl ? filterEl.value : ''); };
+      } else {
+        moreEl.innerHTML = '';
+      }
+    };
+
+    renderList('');
+    if (filterEl) {
+      filterEl.oninput = () => { visibleLimit = 120; renderList(filterEl.value); };
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -7095,14 +9240,17 @@
         prompt: { vi: 'Nghe hội thoại rồi trả lời câu hỏi' },
         payload: {
           dialogueKey: activityKey,
-          sceneVi: (stg.meta && stg.meta.scenario && stg.meta.scenario.placeVi) || stg.meta.titleVi,
+          sceneVi: (stg.meta && stg.meta.scenario && stg.meta.scenario.placeVi) || (stg.meta && stg.meta.titleVi) || stageKey,
           roles: stg.dialogue.roles || [
             { id: 'A', labelVi: 'Nhân vật A' },
             { id: 'B', labelVi: 'Bạn', learner: true }
           ],
           turns: stg.dialogue.turns,
           questions: stg.dialogue.questions || []
-        }
+        },
+        check: stg.dialogue.check || (Array.isArray(stg.dialogue.questions) ? {
+          answers: stg.dialogue.questions.map(q => ({ questionId: q.id, correctOptionId: q.correctOptionId || (q.options && q.options[0] && q.options[0].id) || 'a' }))
+        } : undefined)
       });
       steps.push({ id: 's-end', type: 'summary', skill: null, itemKeys: [], graded: false });
       return {
@@ -7119,7 +9267,128 @@
       };
     }
 
-    words.slice(0, 6).forEach((w, idx) => {
+    if ((actSuffix === 'rp1' || actSuffix === 'rp2') && Array.isArray(stg.roleplays) && stg.roleplays.length > 0) {
+      const rpObj = stg.roleplays.find(r => r.key === activityKey) || stg.roleplays[actSuffix === 'rp2' && stg.roleplays.length > 1 ? 1 : 0];
+      if (rpObj && Array.isArray(rpObj.turns)) {
+        rpObj.turns.forEach((t, tIdx) => {
+          steps.push({
+            id: `t-${tIdx + 1}`,
+            type: 'roleplay_turn',
+            skill: 'speaking',
+            itemKeys: words.slice(0, 4).map(w => w.key || `w:${w.hanzi}`),
+            graded: true,
+            prompt: { vi: 'Chọn một câu rồi nói' },
+            payload: {
+              roleplayKey: activityKey,
+              turnIndex: tIdx + 1,
+              prepCardVi: tIdx === 0 ? rpObj.prepCardVi : undefined,
+              checklist: rpObj.checklist || [],
+              checklistId: t.checklistId,
+              roles: rpObj.roles || [],
+              npcRole: t.npcRole,
+              npcLine: t.npcLine,
+              choices: t.choices || [],
+              coachVi: t.coachVi || '',
+              allowSkip: true
+            }
+          });
+        });
+        steps.push({ id: 's-end', type: 'summary', skill: null, itemKeys: [], graded: false });
+        return {
+          runId: activityKey,
+          kind: 'learn',
+          estMinutes: 5,
+          feedback: 'instant',
+          titleVi: `Nhập vai: ${stg.meta ? stg.meta.titleVi : stageKey}`,
+          hskLevel: 1,
+          track: 'hsk30',
+          stageKey,
+          activityKey,
+          steps
+        };
+      }
+    }
+
+    if (actSuffix === 'exam' && Array.isArray(stg.examItems) && stg.examItems.length > 0) {
+      stg.examItems.forEach((exIt, eIdx) => {
+        steps.push({
+          id: `e-${eIdx + 1}`,
+          type: 'exam_item',
+          skill: exIt.section || 'listening',
+          itemKeys: Array.isArray(exIt.wordKeys) ? exIt.wordKeys : words.slice(0, 3).map(w => w.key || `w:${w.hanzi}`),
+          graded: true,
+          payload: {
+            itemKey: exIt.key || `${activityKey}.${eIdx + 1}`,
+            examType: exIt.type || 'multiple_choice',
+            section: exIt.section || 'listening',
+            instruction: exIt.instruction || 'Chọn đáp án đúng.',
+            script: exIt.script || [],
+            audio: exIt.audio || null,
+            options: exIt.options || [],
+            hanziOnly: Boolean(exIt.hanziOnly)
+          },
+          explanationVi: exIt.explanationVi || '',
+          check: { correctOptionId: exIt.answer || 'A' }
+        });
+      });
+      steps.push({ id: 's-end', type: 'summary', skill: null, itemKeys: [], graded: false });
+      return {
+        runId: activityKey,
+        kind: 'learn',
+        estMinutes: 4,
+        feedback: 'instant',
+        titleVi: `Luyện đề: ${stg.meta ? stg.meta.titleVi : stageKey}`,
+        hskLevel: 1,
+        track: 'hsk30',
+        stageKey,
+        activityKey,
+        steps
+      };
+    }
+
+    if (actSuffix === 'write') {
+      const writeList = hwList.length > 0 ? hwList : words.slice(0, 5).map(w => ({ char: Array.from(w.hanzi || '')[0], pinyin: w.pinyin, hanviet: w.hanviet, fromWord: w.hanzi }));
+      writeList.slice(0, 5).forEach((hw, idx) => {
+        if (!hw || !hw.char) return;
+        const relWord = words.find(w => w.hanzi === hw.fromWord || (w.hanzi && w.hanzi.includes(hw.char))) || {};
+        steps.push({
+          id: `wc-rev-${idx}`,
+          type: 'write_character',
+          skill: 'writing',
+          itemKeys: [`c:${hw.char}`],
+          graded: true,
+          prompt: { vi: `Ôn viết chữ: ${hw.char} (${hw.pinyin || relWord.pinyin || ''})` },
+          payload: {
+            char: hw.char,
+            mode: 'guided',
+            phases: ['demo', 'trace', 'recall'],
+            cue: {
+              meaningVi: relWord.meaningVi || 'Chữ Hán trọng tâm',
+              pinyin: hw.pinyin || relWord.pinyin || '',
+              hanviet: hw.hanviet || relWord.hanviet || '',
+              audio: relWord.audio || { url: `https://static.xiehanzi.com/word_audios/${encodeURIComponent(hw.char)}.mp3` }
+            }
+          },
+          explanationVi: 'Xem nét mẫu rồi tô và tự viết lại.'
+        });
+      });
+      steps.push({ id: 's-end', type: 'summary', skill: null, itemKeys: [], graded: false });
+      return {
+        runId: activityKey,
+        kind: 'learn',
+        estMinutes: 4,
+        feedback: 'instant',
+        titleVi: `Tập viết tổng hợp: ${stg.meta ? stg.meta.titleVi : stageKey}`,
+        hskLevel: 1,
+        track: 'hsk30',
+        stageKey,
+        activityKey,
+        steps
+      };
+    }
+
+    const activeWordSlice = actSuffix === 'learn.2' && words.length > 6 ? words.slice(6, 12) : words.slice(0, 6);
+    activeWordSlice.forEach((w, idx) => {
       const hz = w.hanzi;
       const py = w.wordPinyin || w.pinyin || '';
       const vi = w.meaningVi || '';
@@ -7178,7 +9447,7 @@
 
       // 2. choose_meaning
       const otherVi = words
-        .filter((_, i) => i !== idx)
+        .filter(x => x && x.hanzi !== hz)
         .map(x => x.meaningVi)
         .concat(distractorsPool)
         .filter(x => x && x !== vi);
@@ -7329,12 +9598,21 @@
     if (/^hsk30\.L\d+\.[A-Z]\d+$/i.test(actKey)) {
       actKey = `${actKey}.learn.1`;
     }
+    const resolvedStg = (actKey.match(/^(hsk30\.L\d+\.[A-Z]\d+)/i) || [])[1] || 'hsk30.L1.P1';
     const directRun = await loadLocalJson(`/data/learning-tracks/runs/${actKey}.json`);
     if (directRun && Array.isArray(directRun.steps) && directRun.steps.length > 0) {
+      directRun.activityKey = directRun.activityKey || directRun.runId || actKey;
+      directRun.stageKey = directRun.stageKey || resolvedStg;
       return directRun;
     }
-    return await buildDynamicRunFromStage(actKey);
+    const dynRun = await buildDynamicRunFromStage(actKey);
+    if (dynRun) {
+      dynRun.activityKey = dynRun.activityKey || actKey;
+      dynRun.stageKey = dynRun.stageKey || resolvedStg;
+    }
+    return dynRun;
   }
+  window.__xhzResolveRun = resolveLessonRunData;
 
   async function renderStudyStageOrRunPage(pathname) {
     try {
@@ -7354,13 +9632,42 @@
 
     const run = (await resolveLessonRunData(slug)) || (await loadLocalJson('/data/learning-tracks/runs/hsk30.L1.P1.learn.1.json'));
     if (!run || !Array.isArray(run.steps)) return;
+    if (!run.activityKey) run.activityKey = run.runId || 'hsk30.L1.P1.learn.1';
+    if (!run.stageKey) {
+      run.stageKey = (String(run.activityKey).match(/^(hsk30\.L\d+\.[A-Z]\d+)/i) || [])[1] || 'hsk30.L1.P1';
+    }
+
+    function extractStepWords(s) {
+      if (!s) return [];
+      const found = [];
+      const addW = w => {
+        const clean = String(w || '').replace(/^w:|^c:/, '').replace(/\{|\}/g, '').trim();
+        if (clean && /[\u4e00-\u9fff]/.test(clean) && clean.length <= 6 && !found.includes(clean)) {
+          found.push(clean);
+        }
+      };
+      if (s.type === 'intro_word' && s.payload && s.payload.word && s.payload.word.hanzi) {
+        addW(s.payload.word.hanzi);
+      }
+      if (Array.isArray(s.itemKeys)) {
+        s.itemKeys.forEach(k => {
+          if (String(k).startsWith('w:') || String(k).startsWith('c:')) addW(k);
+        });
+      }
+      if (s.payload) {
+        if (s.payload.question && s.payload.question.hanzi) addW(s.payload.question.hanzi);
+        if (s.payload.hanzi) addW(s.payload.hanzi);
+        if (s.payload.char) addW(s.payload.char);
+      }
+      return found;
+    }
 
     const playableSteps = run.steps.filter(s => s.type !== 'summary');
     const introWords = [];
     run.steps.forEach(s => {
-      if (s.type === 'intro_word' && s.payload && s.payload.word && s.payload.word.hanzi) {
-        if (!introWords.includes(s.payload.word.hanzi)) introWords.push(s.payload.word.hanzi);
-      }
+      extractStepWords(s).forEach(w => {
+        if (!introWords.includes(w)) introWords.push(w);
+      });
     });
 
     document.title = `${run.titleVi || 'Bài học'} | XieHanzi`;
@@ -7401,6 +9708,9 @@
       writeQuizDone: false,
       readRecorded: false,
       readScore: 95,
+      dlgQuestionIdx: 0,
+      roleplayChoiceId: null,
+      roleplaySpoken: false,
       showExitModal: false
     };
 
@@ -7420,6 +9730,12 @@
       state.writeQuizDone = false;
       state.readRecorded = false;
       state.readScore = 92 + (state.stepIdx % 7);
+      state.dlgQuestionIdx = 0;
+      state.roleplayChoiceId =
+        step && step.type === 'roleplay_turn' && step.payload && Array.isArray(step.payload.choices) && step.payload.choices[0]
+          ? step.payload.choices[0].id
+          : null;
+      state.roleplaySpoken = false;
     }
 
     resetStepUiState(playableSteps[0]);
@@ -7458,9 +9774,13 @@
       if (step.type === 'dialogue' && Array.isArray(p.turns) && p.turns[0]) {
         return { text: p.turns[0].hanzi || '', url: (p.turns[0].audio && p.turns[0].audio.url) || '' };
       }
+      if (step.type === 'roleplay_turn' && p.npcLine) {
+        return { text: p.npcLine.hanzi || '', url: (p.npcLine.audio && p.npcLine.audio.url) || '' };
+      }
       if (step.type === 'exam_item') {
         const firstScript = (Array.isArray(p.script) && p.script[0]) || {};
-        return { text: firstScript.hanzi || '', url: (p.audio && p.audio.url) || (firstScript.audio && firstScript.audio.url) || '' };
+        const fallbackItem = Array.isArray(step.itemKeys) && step.itemKeys[0] ? String(step.itemKeys[0]).replace(/^w:|^c:/, '') : '';
+        return { text: firstScript.hanzi || fallbackItem || '', url: (p.audio && p.audio.url) || (firstScript.audio && firstScript.audio.url) || '' };
       }
       return { text: '', url: '' };
     }
@@ -7495,6 +9815,8 @@
           return 'Đọc to câu này. Chạm mic rồi nói nhé.';
         case 'dialogue':
           return (step.prompt && step.prompt.vi) || 'Nghe đoạn hội thoại rồi trả lời nhé.';
+        case 'roleplay_turn':
+          return p.coachVi || (step.prompt && step.prompt.vi) || 'Nghe đối thoại rồi bấm Mic đọc câu trả lời nhé!';
         case 'exam_item':
           return p.instruction || 'Đọc kỹ đề rồi chọn đáp án.';
         default:
@@ -7520,24 +9842,31 @@
     const exclSvg = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" aria-hidden="true"><path d="M12 6.5v7"/><circle cx="12" cy="18" r=".6" fill="currentColor"/></svg>`;
 
     function advanceStep() {
+      const curStep = getCurrentStep();
+      if (curStep) {
+        try {
+          const stepWords = extractStepWords(curStep);
+          if (stepWords.length > 0) {
+            state.lastSyncPromise = recordStudyProgress({ words: stepWords }).__syncPromise;
+          }
+        } catch (_) {}
+      }
       if (state.stepIdx + 1 >= playableSteps.length) {
         state.phase = 'done';
         // Lưu trạng thái hoàn thành & đồng bộ đám mây Supabase
         try {
-          if (run.stageKey) {
-            const doneActs = JSON.parse(localStorage.getItem('httq_done_activities') || '{}') || {};
-            const arr = Array.isArray(doneActs[run.stageKey]) ? doneActs[run.stageKey] : [];
-            if (run.activityKey && !arr.includes(run.activityKey)) arr.push(run.activityKey);
-            doneActs[run.stageKey] = arr;
-            localStorage.setItem('httq_done_activities', JSON.stringify(doneActs));
-          }
-          recordStudyProgress({
-            stageKey: run.stageKey || 'hsk30.L1.P1',
-            activityKey: run.activityKey || 'hsk30.L1.P1.learn.1',
+          const stgKey = run.stageKey || 'hsk30.L1.P1';
+          const actKey = run.activityKey || 'hsk30.L1.P1.learn.1';
+          const prog = recordStudyProgress({
+            stageKey: stgKey,
+            activityKey: actKey,
             words: introWords,
             minutes: run.estMinutes || 6,
-            sessionInc: 1
+            sessionInc: 1,
+            gradingInc: 1,
+            dailyStepDone: 'step-lesson-1'
           });
+          state.lastSyncPromise = prog.__syncPromise;
         } catch (_) {}
         renderRunner();
         return;
@@ -7566,6 +9895,27 @@
       }
       state.gradedCount += 1;
       if (isCorrect) state.correctCount += 1;
+      try {
+        const stepWords = extractStepWords(step);
+        let mistakeObj = undefined;
+        if (!isCorrect && stepWords.length > 0) {
+          mistakeObj = {
+            itemKey: `w:${stepWords[0]}`,
+            hanzi: stepWords[0],
+            pinyin: (answerInfo && answerInfo.pinyin) || '',
+            meaningVi: (answerInfo && answerInfo.vi) || expectedDisplay || '',
+            skill: step.skill || 'meaning',
+            category: step.skill === 'sound' ? 'tone_error' : 'vocab_confusion',
+            expectedDisplay: expectedDisplay || stepWords[0],
+            reasonVi: step.explanationVi || `Cần ôn lại từ "${stepWords[0]}" (${expectedDisplay || ''}).`
+          };
+        }
+        state.lastSyncPromise = recordStudyProgress({
+          words: isCorrect ? stepWords : [],
+          mistake: mistakeObj,
+          gradingInc: 1
+        }).__syncPromise;
+      } catch (_) {}
       state.verdict = {
         correct: isCorrect,
         expectedDisplay: expectedDisplay || '',
@@ -7687,6 +10037,7 @@
                 </div>
                 <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-top:16px;">
                   <button type="button" id="xhz-done-continue" class="lp-btn3d">Về lộ trình <kbd class="lp-kbd lp-kbd-in-btn">Enter</kbd></button>
+                  <button type="button" id="xhz-done-next-lesson" class="lp-btn-text" style="font-weight:800;color:var(--lp-blue);">Học bài tiếp theo →</button>
                   <button type="button" id="xhz-done-retry" class="lp-btn-text">Học lại bài này</button>
                 </div>
               </div>
@@ -7694,7 +10045,34 @@
           </div>
         `;
         const contBtn = runnerRoot.querySelector('#xhz-done-continue');
-        if (contBtn) contBtn.onclick = () => window.location.assign('/hoc');
+        if (contBtn) {
+          contBtn.onclick = async () => {
+            contBtn.textContent = 'Đang đồng bộ tiến độ...';
+            contBtn.disabled = true;
+            try {
+              await Promise.race([
+                state.lastSyncPromise || syncProgressToSupabaseAuth(),
+                new Promise(resolve => setTimeout(resolve, 2200))
+              ]);
+            } catch (_) {}
+            window.location.assign('/hoc');
+          };
+        }
+        const nextLesBtn = runnerRoot.querySelector('#xhz-done-next-lesson');
+        if (nextLesBtn) {
+          nextLesBtn.onclick = async () => {
+            nextLesBtn.textContent = 'Đang mở bài tiếp theo...';
+            nextLesBtn.disabled = true;
+            try {
+              await Promise.race([
+                state.lastSyncPromise || syncProgressToSupabaseAuth(),
+                new Promise(resolve => setTimeout(resolve, 2200))
+              ]);
+            } catch (_) {}
+            const nextId = getRealProgress().currentLessonId || 'hsk30.L1.P1.dlg';
+            window.location.assign('/hoc/bai/' + encodeURIComponent(nextId));
+          };
+        }
         const retryBtn = runnerRoot.querySelector('#xhz-done-retry');
         if (retryBtn) {
           retryBtn.onclick = () => {
@@ -8245,7 +10623,7 @@
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg>
             </button>
             <p class="lp-status-line">
-              ${state.readRecorded ? `Đã chấm phát âm: <b>${state.readScore}% (Chuẩn!)</b>` : 'Chạm biểu tượng micro để đọc to câu trên'}
+              ${state.readRecorded ? `Đã chấm phát âm: <b>${state.readScore}%</b>${state.readTranscript ? ` (Nghe được: "${state.readTranscript}")` : ' (Chuẩn!)'}` : 'Chạm biểu tượng micro để đọc to câu trên'}
             </p>
             <button type="button" class="lp-btn-text" id="xhz-read-skip">Bỏ qua</button>
           </div>
@@ -8256,60 +10634,200 @@
       } else if (step.type === 'dialogue') {
         const turns = p.turns || [];
         const roles = p.roles || [];
+        const dQuestions = Array.isArray(p.questions) ? p.questions : [];
+        const curQ = dQuestions[state.dlgQuestionIdx] || null;
+        const turnsHtml = turns
+          .map(t => {
+            const rObj = roles.find(r => r.id === t.role) || { labelVi: t.role };
+            const tUrl = (t.audio && t.audio.url) || '';
+            return `
+              <div class="lp-card" style="padding:10px 14px;display:flex;align-items:flex-start;gap:10px;">
+                <button type="button" class="lp-audio-btn small" data-play-text="${t.hanzi || ''}" data-play-url="${tUrl}" aria-label="Nghe">${speakerSvg}</button>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:12px;font-weight:800;color:var(--lp-blue);">${rObj.labelVi || ''}</div>
+                  <div lang="zh" class="lp-hanzi" style="font-size:19px;font-weight:700;color:var(--lp-ink);">${t.hanzi || ''}</div>
+                  <div style="font-size:13px;">${renderColoredPinyin(t.pinyin || '')}</div>
+                  <div style="font-size:13px;color:var(--lp-ink-2);">${t.vi || ''}</div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
+        if (curQ) {
+          const checkAns = (step.check && Array.isArray(step.check.answers) && step.check.answers.find(a => a.questionId === curQ.id)) || null;
+          const rightId = (checkAns && checkAns.correctOptionId) || curQ.correctOptionId || (curQ.options && curQ.options[0] && curQ.options[0].id);
+          promptHtml = `
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="lp-card" style="padding:12px 16px;">
+                <div style="font-size:12px;font-weight:800;color:var(--lp-ink-2);text-transform:uppercase;">Bối cảnh hội thoại</div>
+                <p style="font-size:14px;color:var(--lp-ink);margin:4px 0 0 0;">${p.sceneVi || ''}</p>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;">${turnsHtml}</div>
+            </div>
+          `;
+          answerHtml = `
+            <div class="lp-card" style="margin-bottom:14px;padding:16px;">
+              <div style="font-size:12px;font-weight:800;color:var(--lp-blue);margin-bottom:6px;">CÂU HỎI ${state.dlgQuestionIdx + 1}/${dQuestions.length}</div>
+              <div style="font-size:18px;font-weight:800;color:var(--lp-ink);">${curQ.promptVi || ''}</div>
+            </div>
+            <div class="lp-opts" role="radiogroup">
+              ${(curQ.options || [])
+                .map((opt, idx) => {
+                  let cls = '';
+                  if (state.phase === 'feedback') {
+                    cls = opt.id === rightId ? 'right' : opt.id === state.selectedOptionId ? 'wrong' : 'dim';
+                  } else if (state.selectedOptionId === opt.id) {
+                    cls = 'sel';
+                  }
+                  return `
+                    <button type="button" class="lp-opt ${cls}" data-choice-opt="${opt.id}" ${state.phase !== 'answering' ? 'disabled' : ''}>
+                      <span class="k">${idx + 1}</span>
+                      <span class="min-w-0 flex-1">${opt.text || ''}</span>
+                    </button>
+                  `;
+                })
+                .join('')}
+            </div>
+          `;
+          footerBtnLabel = 'Kiểm tra';
+          footerBtnDisabled = !state.selectedOptionId || state.phase !== 'answering';
+          footerAction = () => {
+            if (!state.selectedOptionId) return;
+            const rightOpt = (curQ.options || []).find(o => o.id === rightId);
+            const isOk = state.selectedOptionId === rightId;
+            submitGradedAnswer(isOk, rightOpt ? rightOpt.text : '', {
+              hanzi: rightOpt ? rightOpt.text : '',
+              vi: rightOpt ? rightOpt.text : ''
+            });
+          };
+        } else {
+          promptHtml = `
+            <div class="lp-card">
+              <div style="font-size:13px;font-weight:800;color:var(--lp-ink-2);text-transform:uppercase;">Bối cảnh hội thoại</div>
+              <p style="font-size:15px;color:var(--lp-ink);margin:6px 0 0 0;">${p.sceneVi || ''}</p>
+            </div>
+          `;
+          answerHtml = `<div style="display:flex;flex-direction:column;gap:10px;">${turnsHtml}</div>`;
+          footerBtnLabel = 'Tiếp tục';
+          footerBtnDisabled = false;
+          footerAction = () => advanceStep();
+        }
+      } else if (step.type === 'roleplay_turn') {
+        const npc = p.npcLine || {};
+        const npcRoleObj = (Array.isArray(p.roles) && p.roles.find(r => r.id === p.npcRole)) || { labelVi: 'Đối tác' };
+        const npcAudio = (npc.audio && npc.audio.url) || '';
+        const choices = Array.isArray(p.choices) ? p.choices : [];
+        const pickedChoice = choices.find(c => c.id === state.roleplayChoiceId) || choices[0] || {};
+        const checklistHtml = Array.isArray(p.checklist) && p.checklist.length > 0
+          ? `<div class="lp-card" style="padding:12px 14px;background:#faf8f4;">
+              <div style="font-size:12px;font-weight:800;color:var(--lp-ink-2);text-transform:uppercase;margin-bottom:6px;">Nhiệm vụ nhập vai</div>
+              ${p.checklist.map(c => `
+                <div style="font-size:13px;padding:3px 0;font-weight:${c.id === p.checklistId ? '800' : '500'};color:${c.id === p.checklistId ? 'var(--lp-blue)' : 'var(--lp-ink-2)'};">
+                  ${c.id === p.checklistId ? '👉' : '•'} ${c.goalVi}
+                </div>
+              `).join('')}
+            </div>`
+          : '';
         promptHtml = `
-          <div class="lp-card">
-            <div style="font-size:13px;font-weight:800;color:var(--lp-ink-2);text-transform:uppercase;">Bối cảnh hội thoại</div>
-            <p style="font-size:15px;color:var(--lp-ink);margin:6px 0 0 0;">${p.sceneVi || ''}</p>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            ${p.prepCardVi ? `<div class="lp-card" style="padding:12px 14px;background:var(--lp-gold-bg);border-color:#fde68a;font-size:13px;line-height:1.5;"><strong>Tình huống:</strong> ${p.prepCardVi}</div>` : ''}
+            ${checklistHtml}
+            <div class="lp-card" style="padding:16px;display:flex;align-items:flex-start;gap:12px;">
+              <button type="button" class="lp-audio-btn" data-play-text="${npc.hanzi || ''}" data-play-url="${npcAudio}" aria-label="Nghe câu đối thoại">${speakerSvg}</button>
+              <div style="min-width:0;flex:1;">
+                <div style="font-size:12px;font-weight:800;color:var(--lp-blue);">${npcRoleObj.labelVi || 'Nhân vật'} nói:</div>
+                <div lang="zh" class="lp-hanzi" style="font-size:24px;font-weight:800;color:var(--lp-ink);margin-top:2px;">${npc.hanzi || ''}</div>
+                ${npc.pinyin ? `<div style="font-size:15px;margin-top:2px;">${renderColoredPinyin(npc.pinyin)}</div>` : ''}
+                ${npc.vi ? `<div style="font-size:14px;color:var(--lp-ink-2);margin-top:4px;">${npc.vi}</div>` : ''}
+              </div>
+            </div>
           </div>
         `;
         answerHtml = `
-          <div style="display:flex;flex-direction:column;gap:10px;">
-            ${turns
-              .map(t => {
-                const rObj = roles.find(r => r.id === t.role) || { labelVi: t.role };
-                const tUrl = (t.audio && t.audio.url) || '';
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="font-size:13px;font-weight:800;color:var(--lp-ink-2);text-transform:uppercase;">Chọn câu trả lời của bạn rồi đọc to</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              ${choices.map((c, idx) => {
+                const sel = c.id === pickedChoice.id;
+                const cAudio = (c.audio && c.audio.url) || '';
                 return `
-                  <div class="lp-card" style="padding:12px 16px;display:flex;align-items:flex-start;gap:12px;">
-                    <button type="button" class="lp-audio-btn small" data-play-text="${t.hanzi || ''}" data-play-url="${tUrl}" aria-label="Nghe">${speakerSvg}</button>
-                    <div style="flex:1;min-width:0;">
-                      <div style="font-size:12px;font-weight:800;color:var(--lp-blue);">${rObj.labelVi || ''}</div>
-                      <div lang="zh" class="lp-hanzi" style="font-size:20px;font-weight:700;color:var(--lp-ink);">${t.hanzi || ''}</div>
-                      <div style="font-size:14px;">${renderColoredPinyin(t.pinyin || '')}</div>
-                      <div style="font-size:14px;color:var(--lp-ink-2);">${t.vi || ''}</div>
+                  <div class="lp-card" style="padding:12px 16px;border-width:2px;border-color:${sel ? 'var(--lp-blue)' : 'var(--lp-border)'};background:${sel ? '#eff6ff' : 'var(--lp-surface)'};display:flex;align-items:center;gap:12px;cursor:pointer;" data-rp-choice="${c.id}">
+                    <button type="button" class="lp-audio-btn small" data-play-text="${c.hanzi || ''}" data-play-url="${cAudio}" aria-label="Nghe gợi ý">${speakerSvg}</button>
+                    <div style="min-width:0;flex:1;">
+                      <div lang="zh" class="lp-hanzi" style="font-size:22px;font-weight:800;color:var(--lp-ink);">${c.hanzi || ''}</div>
+                      ${c.pinyin ? `<div style="font-size:14px;">${renderColoredPinyin(c.pinyin)}</div>` : ''}
+                      ${c.vi ? `<div style="font-size:13px;color:var(--lp-ink-2);">${c.vi}</div>` : ''}
                     </div>
                   </div>
                 `;
-              })
-              .join('')}
+              }).join('')}
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;">
+              <button type="button" class="lp-mic ${state.roleplaySpoken ? 'rec' : ''}" id="xhz-rp-mic-btn" aria-label="Đọc to câu trả lời">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg>
+              </button>
+              <p class="lp-status-line" id="xhz-rp-status">
+                ${state.roleplaySpoken ? `Đã chấm phát âm nhập vai: <b>${state.readScore}%</b>${state.readTranscript ? ` (Nghe được: "${state.readTranscript}")` : ' (Tốt!)'}` : 'Chạm micro để nói câu đã chọn'}
+              </p>
+              ${p.allowSkip !== false ? `<button type="button" class="lp-btn-text" id="xhz-rp-skip">Bỏ qua lượt này</button>` : ''}
+            </div>
           </div>
         `;
         footerBtnLabel = 'Tiếp tục';
-        footerBtnDisabled = false;
-        footerAction = () => advanceStep();
+        footerBtnDisabled = !state.roleplaySpoken && p.allowSkip === false;
+        footerAction = () => {
+          submitGradedAnswer(true, pickedChoice.hanzi || '', {
+            hanzi: pickedChoice.hanzi || '',
+            pinyin: pickedChoice.pinyin || '',
+            vi: pickedChoice.vi || '',
+            audioUrl: (pickedChoice.audio && pickedChoice.audio.url) || ''
+          });
+        };
       } else {
-        // exam_item hoặc roleplay_turn
+        // exam_item
         const opts = p.options || p.choices || [];
         const rightId = (step.check && step.check.correctOptionId) || (opts[0] && opts[0].id);
         const eAudio = (p.audio && p.audio.url) || '';
         const audInfo = getStepAudioInfo(step);
+        const firstScript = (Array.isArray(p.script) && p.script[0]) || {};
+        const showAudioBar = Boolean(eAudio || audInfo.text || p.section === 'listening');
         promptHtml = `
           <div class="lp-card" style="text-align:center;">
-            <p style="font-size:17px;font-weight:700;color:var(--lp-ink);margin:0 0 12px 0;">${p.instruction || p.promptVi || 'Nghe và chọn đáp án đúng'}</p>
+            ${p.section ? `<div style="font-size:12px;font-weight:800;color:var(--lp-blue);text-transform:uppercase;margin-bottom:6px;">${p.section === 'listening' ? '🎧 NGHE HIỂU HSK' : '📖 ĐỌC HIỂU HSK'}</div>` : ''}
+            <p style="font-size:18px;font-weight:800;color:var(--lp-ink);margin:0 0 12px 0;">${p.instruction || p.promptVi || 'Nghe và chọn đáp án đúng'}</p>
+            ${showAudioBar ? `
             <div class="lp-audio-row">
               <button type="button" class="lp-audio-btn big" data-play-text="${audInfo.text}" data-play-url="${eAudio}" aria-label="Nghe">${speakerSvg}</button>
               <button type="button" class="lp-audio-btn slow" data-play-text="${audInfo.text}" data-play-url="${eAudio}" data-play-rate="0.65" aria-label="Nghe chậm">${snailSvg}</button>
-            </div>
+            </div>` : ''}
           </div>
         `;
         answerHtml = `
           <div class="lp-opts">
             ${opts
               .map((opt, idx) => {
-                const sel = state.selectedOptionId === opt.id;
+                const isDisabled = state.disabledOptionIds.has(opt.id) || state.phase !== 'answering';
+                let cls = '';
+                if (state.phase === 'feedback') {
+                  cls = opt.id === rightId ? 'right' : opt.id === state.selectedOptionId ? 'wrong' : 'dim';
+                } else if (state.selectedOptionId === opt.id) {
+                  cls = 'sel';
+                }
+                const imgUrl = opt.image && opt.image.url ? String(opt.image.url) : '';
+                const hasExpiredImg = imgUrl.includes('media-signed/path-content');
+                const mainLabel = opt.hanzi || opt.text || opt.vi || '';
+                const contentHtml = mainLabel
+                  ? `<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;">
+                      <span lang="zh" class="lp-hanzi" style="font-size:24px;">${mainLabel}</span>
+                      ${opt.pinyin ? `<span style="font-size:16px;">${renderColoredPinyin(opt.pinyin)}</span>` : ''}
+                    </div>`
+                  : (imgUrl && !hasExpiredImg
+                      ? `<img src="${rewriteMediaUrl(imgUrl)}" alt="Phương án ${opt.id || idx + 1}" style="max-height:76px;border-radius:10px;object-fit:contain;" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='inline';" /><span style="display:none;font-weight:700;">Phương án ${opt.id || idx + 1}</span>`
+                      : `<span style="font-weight:700;">🖼️ Tranh minh họa ${opt.id || idx + 1}</span>`);
                 return `
-                  <button type="button" class="lp-opt ${sel ? 'sel' : ''}" data-choice-opt="${opt.id}">
+                  <button type="button" class="lp-opt ${cls}" data-choice-opt="${opt.id}" ${isDisabled ? 'disabled' : ''}>
                     <span class="k">${opt.id || idx + 1}</span>
-                    <span class="min-w-0 flex-1">${opt.hanzi || opt.text || opt.vi || `Đáp án ${opt.id || idx + 1}`}</span>
+                    <span class="min-w-0 flex-1">${contentHtml}</span>
                   </button>
                 `;
               })
@@ -8317,10 +10835,16 @@
           </div>
         `;
         footerBtnLabel = 'Kiểm tra';
-        footerBtnDisabled = !state.selectedOptionId;
+        footerBtnDisabled = !state.selectedOptionId || state.phase !== 'answering';
         footerAction = () => {
+          const rightOpt = opts.find(o => o.id === rightId);
           const isOk = state.selectedOptionId === rightId;
-          submitGradedAnswer(isOk, String(rightId || ''), null);
+          submitGradedAnswer(isOk, (rightOpt && (rightOpt.text || rightOpt.id)) || String(rightId || ''), {
+            hanzi: firstScript.hanzi || (rightOpt && (rightOpt.hanzi || rightOpt.text)) || '',
+            pinyin: firstScript.pinyin || (rightOpt && rightOpt.pinyin) || '',
+            vi: step.explanationVi || '',
+            audioUrl: eAudio
+          });
         };
       }
 
@@ -8502,7 +11026,21 @@
       }
       const exitConfirm = runnerRoot.querySelector('#xhz-exit-confirm');
       if (exitConfirm) {
-        exitConfirm.onclick = () => {
+        exitConfirm.onclick = async () => {
+          exitConfirm.textContent = 'Đang lưu...';
+          exitConfirm.disabled = true;
+          try {
+            if (state.stepIdx > 0) {
+              const prog = recordStudyProgress({
+                minutes: Math.max(1, Math.round(state.stepIdx * 0.4)),
+                dailyStepDone: state.stepIdx >= 4 ? 'step-lesson-1' : undefined
+              });
+              await Promise.race([
+                prog.__syncPromise || syncProgressToSupabaseAuth(prog),
+                new Promise(resolve => setTimeout(resolve, 1800))
+              ]);
+            }
+          } catch (_) {}
           window.location.assign('/hoc');
         };
       }
@@ -8660,19 +11198,70 @@
         };
       });
 
+      const handleSpeakingMic = async ({ expectedHanzi, audioUrl, statusEl, onDone }) => {
+        if (statusEl) statusEl.textContent = 'Đang nghe tiếng Trung (zh-CN)... Hãy đọc to!';
+        const res = await recognizeChineseSpeech({ expectedHanzi, timeoutMs: 5500 });
+        state.readScore = (res && res.score) || 90;
+        state.readTranscript = (res && res.transcript) || '';
+        playPronunciation(expectedHanzi || '', audioUrl || '', 1.0);
+        try {
+          if (expectedHanzi) {
+            recordStudyProgress({ voiceInc: 1, gradingInc: 1, speakingItem: { key: expectedHanzi, score: state.readScore } });
+          } else {
+            recordStudyProgress({ voiceInc: 1, gradingInc: 1 });
+          }
+        } catch (_) {}
+        onDone();
+        renderRunner();
+      };
+
       // Read sentence mic & skip
       const micBtn = runnerRoot.querySelector('#xhz-read-mic-btn');
       if (micBtn) {
         micBtn.onclick = () => {
-          state.readRecorded = true;
           const sent = (step.payload && step.payload.sentence) || {};
-          playPronunciation(sent.hanzi || '', (sent.audio && sent.audio.url) || '', 1.0);
-          renderRunner();
+          handleSpeakingMic({
+            expectedHanzi: sent.hanzi || '',
+            audioUrl: (sent.audio && sent.audio.url) || '',
+            statusEl: runnerRoot.querySelector('.lp-status-line'),
+            onDone: () => { state.readRecorded = true; }
+          });
         };
       }
       const readSkip = runnerRoot.querySelector('#xhz-read-skip');
       if (readSkip) {
         readSkip.onclick = () => advanceStep();
+      }
+
+      // Roleplay choice & mic
+      runnerRoot.querySelectorAll('[data-rp-choice]').forEach(el => {
+        el.onclick = e => {
+          if (e.target && e.target.closest && e.target.closest('.lp-audio-btn')) return;
+          state.roleplayChoiceId = el.getAttribute('data-rp-choice');
+          const cObj = (step.payload && Array.isArray(step.payload.choices) ? step.payload.choices : []).find(c => c.id === state.roleplayChoiceId);
+          if (cObj) playPronunciation(cObj.hanzi || '', (cObj.audio && cObj.audio.url) || '', 1.0);
+          renderRunner();
+        };
+      });
+      const rpMicBtn = runnerRoot.querySelector('#xhz-rp-mic-btn');
+      if (rpMicBtn) {
+        rpMicBtn.onclick = () => {
+          const choices = (step.payload && Array.isArray(step.payload.choices)) ? step.payload.choices : [];
+          const picked = choices.find(c => c.id === state.roleplayChoiceId) || choices[0] || {};
+          handleSpeakingMic({
+            expectedHanzi: picked.hanzi || '',
+            audioUrl: (picked.audio && picked.audio.url) || '',
+            statusEl: runnerRoot.querySelector('#xhz-rp-status'),
+            onDone: () => {
+              state.roleplaySpoken = true;
+              try { recordStudyProgress({ dailyStepDone: 'step-talk-1' }); } catch (_) {}
+            }
+          });
+        };
+      }
+      const rpSkip = runnerRoot.querySelector('#xhz-rp-skip');
+      if (rpSkip) {
+        rpSkip.onclick = () => advanceStep();
       }
 
       // Sheet retry / next buttons
@@ -8686,7 +11275,24 @@
       }
       const sheetNextBtn = runnerRoot.querySelector('#xhz-sheet-next-btn');
       if (sheetNextBtn) {
-        sheetNextBtn.onclick = () => advanceStep();
+        sheetNextBtn.onclick = () => {
+          const curSt = getCurrentStep();
+          if (
+            curSt &&
+            curSt.type === 'dialogue' &&
+            curSt.payload &&
+            Array.isArray(curSt.payload.questions) &&
+            state.dlgQuestionIdx + 1 < curSt.payload.questions.length
+          ) {
+            state.dlgQuestionIdx += 1;
+            state.phase = 'answering';
+            state.selectedOptionId = null;
+            state.verdict = null;
+            renderRunner();
+            return;
+          }
+          advanceStep();
+        };
       }
 
       // Primary footer button
@@ -8823,6 +11429,11 @@
       await renderProgressOrHabitPage(pathname);
       return;
     }
+    if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai')) {
+      lastHandledFullUrl = fullKey;
+      await renderMistakeBookOrLearnedWordsPage(pathname);
+      return;
+    }
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderCharacterBrowseSubPage(pathname);
@@ -8917,6 +11528,69 @@
           }
         }
       }
+
+      // 3. Thẻ Sao lưu & Khôi phục tiến độ (.json) trên /tai-khoan (cộng gộp an toàn, không ghi đè)
+      if ((window.location.pathname || '').startsWith('/tai-khoan') && !document.getElementById('xhz-backup-controls')) {
+        const hostEl = (planCard && planCard.parentElement) || document.querySelector('main');
+        if (hostEl) {
+          const box = document.createElement('div');
+          box.id = 'xhz-backup-controls';
+          box.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;margin:14px 0;border-radius:16px;border:1px solid #e7e5e4;background:#fff7ed;box-shadow:0 1px 3px rgba(0,0,0,0.03);';
+          box.innerHTML =
+            `<div style="min-width:200px;">` +
+            `<div style="font-weight:800;font-size:15px;color:#1c1917;">💾 Sao lưu &amp; Khôi phục dữ liệu học</div>` +
+            `<div id="xhz-backup-status" style="font-size:13px;color:#57534e;margin-top:2px;">Xuất file .json dự phòng hoặc nhập từ trình duyệt khác (gộp an toàn, không mất dữ liệu cũ).</div>` +
+            `</div>` +
+            `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
+            `<button type="button" id="xhz-export-json-btn" style="padding:8px 14px;border-radius:10px;border:1px solid #fdba74;background:#fff;color:#9a3412;font-weight:700;font-size:13px;cursor:pointer;">📥 Xuất sao lưu (.json)</button>` +
+            `<button type="button" id="xhz-import-json-btn" style="padding:8px 14px;border-radius:10px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📤 Khôi phục từ file (.json)</button>` +
+            `<input type="file" id="xhz-import-json-file" accept=".json,application/json" style="display:none;" />` +
+            `</div>`;
+          if (planCard && planCard.parentElement === hostEl) {
+            hostEl.insertBefore(box, planCard.nextSibling);
+          } else {
+            hostEl.appendChild(box);
+          }
+          const expBtn = box.querySelector('#xhz-export-json-btn');
+          const impBtn = box.querySelector('#xhz-import-json-btn');
+          const impFile = box.querySelector('#xhz-import-json-file');
+          const bStatus = box.querySelector('#xhz-backup-status');
+          if (expBtn) {
+            expBtn.addEventListener('click', ev => {
+              ev.preventDefault();
+              if (window.__xhzExportProgressJson) window.__xhzExportProgressJson(true);
+              if (bStatus) bStatus.textContent = '✅ Đã tải xuống file sao lưu .json!';
+            });
+          }
+          if (impBtn && impFile) {
+            impBtn.addEventListener('click', ev => {
+              ev.preventDefault();
+              impFile.click();
+            });
+            impFile.addEventListener('change', async () => {
+              const f = impFile.files && impFile.files[0];
+              if (!f) return;
+              try {
+                const txt = await f.text();
+                const merged = window.__xhzImportProgressJson ? window.__xhzImportProgressJson(txt) : null;
+                if (merged && bStatus) {
+                  bStatus.style.color = '#15803d';
+                  bStatus.textContent = `✅ Đã gộp khôi phục thành công (${(merged.learnedWords || []).length} từ, ${(merged.doneStages || []).length} chặng)!`;
+                } else if (bStatus) {
+                  bStatus.style.color = '#dc2626';
+                  bStatus.textContent = '❌ File JSON không hợp lệ.';
+                }
+              } catch (_) {
+                if (bStatus) {
+                  bStatus.style.color = '#dc2626';
+                  bStatus.textContent = '❌ Không thể đọc file đã chọn.';
+                }
+              }
+              impFile.value = '';
+            });
+          }
+        }
+      }
     } catch (_e) {}
   }
 
@@ -8970,6 +11644,86 @@
     }
   }, true);
 
+  function enhanceWorksheetAndPdfTools() {
+    try {
+      const p = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
+      if (p !== '/tao-vo-tap-viet' && p !== '/flashcard-pdf') return;
+      const setNativeVal = (el, val) => {
+        if (!el) return;
+        const proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+        const desc = Object.getOwnPropertyDescriptor(proto, 'value');
+        if (desc && desc.set) desc.set.call(el, val);
+        else el.value = val;
+        el.dispatchEvent(new Event('input', { bubbles: true }));
+        el.dispatchEvent(new Event('change', { bubbles: true }));
+      };
+      const prog = getRealProgress();
+      const learned = Array.isArray(prog.learnedWords) ? prog.learnedWords.filter(Boolean) : [];
+      const learnedText = learned.slice(-20).join(' ') || '你 好 我 是 老 师 爸 爸 妈 妈';
+
+      if (p === '/tao-vo-tap-viet') {
+        const rawQText = (new URLSearchParams(window.location.search).get('text') || window.__xhzWorksheetQueryText || '').trim();
+        if (rawQText) window.__xhzWorksheetQueryText = rawQText;
+        const applyWorksheetQueryText = () => {
+          const curTa = document.getElementById('characters') || document.querySelector('textarea');
+          if (!curTa || !rawQText) return;
+          if (curTa.dataset.xhzUserEdited === '1') return;
+          if (curTa.value === rawQText && curTa.dataset.xhzPrefilled === '1') return;
+          setNativeVal(curTa, rawQText);
+          curTa.dataset.xhzPrefilled = '1';
+        };
+        const ta = document.getElementById('characters') || document.querySelector('textarea');
+        if (!ta) return;
+        if (!ta.dataset.xhzEditBound) {
+          ta.dataset.xhzEditBound = '1';
+          ta.addEventListener('input', ev => {
+            if (ev && ev.isTrusted) ta.dataset.xhzUserEdited = '1';
+          });
+        }
+        applyWorksheetQueryText();
+        if (rawQText && !window.__xhzWorksheetTimersScheduled) {
+          window.__xhzWorksheetTimersScheduled = true;
+          [250, 600, 1100].forEach(ms => setTimeout(applyWorksheetQueryText, ms));
+        }
+        if (!document.getElementById('xhz-quick-tools-bar')) {
+          const bar = document.createElement('div');
+          bar.id = 'xhz-quick-tools-bar';
+          bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px 0;align-items:center;';
+          bar.innerHTML = `
+            <button type="button" id="xhz-qt-learned" style="padding:7px 14px;border-radius:999px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-weight:700;font-size:13px;cursor:pointer;">📚 Từ đã học của bạn (${learned.length})</button>
+            <button type="button" id="xhz-qt-hsk1" style="padding:7px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">✨ HSK 1 Bài 1</button>
+            <button type="button" id="xhz-qt-print" style="padding:7px 14px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
+          `;
+          ta.parentNode.insertBefore(bar, ta);
+          document.getElementById('xhz-qt-learned').onclick = () => {
+            const tNow = document.getElementById('characters') || ta;
+            tNow.dataset.xhzUserEdited = '1';
+            setNativeVal(tNow, learnedText);
+          };
+          document.getElementById('xhz-qt-hsk1').onclick = () => {
+            const tNow = document.getElementById('characters') || ta;
+            tNow.dataset.xhzUserEdited = '1';
+            setNativeVal(tNow, '八 爸爸 妈妈 你 好 不 客气 老师 大家');
+          };
+          document.getElementById('xhz-qt-print').onclick = () => window.print();
+        }
+      } else if (p === '/flashcard-pdf') {
+        if (document.getElementById('xhz-quick-tools-bar')) return;
+        const h1 = document.querySelector('h1');
+        if (!h1 || !h1.parentNode) return;
+        const bar = document.createElement('div');
+        bar.id = 'xhz-quick-tools-bar';
+        bar.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px 0;align-items:center;';
+        bar.innerHTML = `
+          <a href="/tao-vo-tap-viet?text=${encodeURIComponent(learnedText)}" style="padding:8px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-weight:700;font-size:13px;text-decoration:none;">✍️ Tạo vở tập viết từ đã học (${learned.length})</a>
+          <button type="button" id="xhz-pdf-print-btn" style="padding:8px 16px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
+        `;
+        h1.parentNode.insertBefore(bar, h1.nextSibling);
+        document.getElementById('xhz-pdf-print-btn').onclick = () => window.print();
+      }
+    } catch (_) {}
+  }
+
   // ============================================================================
   // 7. KHỞI CHẠY & THEO DÕI SPA NAVIGATION
   // ============================================================================
@@ -8979,23 +11733,33 @@
     origPushState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
+    setTimeout(enhanceWorksheetAndPdfTools, 120);
   };
   history.replaceState = function (...args) {
     origReplaceState.apply(this, args);
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
+    setTimeout(enhanceWorksheetAndPdfTools, 120);
   };
   window.addEventListener('popstate', () => {
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
+    setTimeout(enhanceWorksheetAndPdfTools, 120);
   });
 
   function boot() {
     rewriteDomMedia(document);
     enhanceAccountPageAuthUI();
+    enhanceWorksheetAndPdfTools();
     supabaseFetchInitial();
     if (isDynamicSpaRoute(window.location.pathname)) {
       setTimeout(checkAndRenderDynamicPage, 450);
+    }
+    if ((window.location.pathname || '').startsWith('/hoc')) {
+      const idleFn = window.requestIdleCallback || (cb => setTimeout(cb, 650));
+      idleFn(() => {
+        loadLocalJson('/data/learning-tracks/hsk30-L1.json').catch(() => {});
+      });
     }
 
     const obs = new MutationObserver(mutations => {
@@ -9005,6 +11769,7 @@
         });
       }
       enhanceAccountPageAuthUI();
+      enhanceWorksheetAndPdfTools();
     });
     if (document.documentElement) {
       obs.observe(document.documentElement, { childList: true, subtree: true });

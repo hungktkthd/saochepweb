@@ -1,1 +1,144 @@
-{"levels":[]}
+{
+  "levels": [
+    {
+      "level": 1,
+      "items": [
+        {
+          "testId": "yct-1-01",
+          "title": "Đề luyện YCT 1 · Đề 01 (Từ vựng & Giao tiếp nền tảng)",
+          "level": 1,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 1 — Đề chuẩn 01", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 1", "shortLabel": "YCT 1" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 30,
+          "hasAudio": true,
+          "needsReview": false
+        },
+        {
+          "testId": "yct-1-02",
+          "title": "Đề luyện YCT 1 · Đề 02 (Gia đình, Tuổi tác & Thời gian)",
+          "level": 1,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 1 — Đề chuẩn 02", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 1", "shortLabel": "YCT 1" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 30,
+          "hasAudio": true,
+          "needsReview": false
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "items": [
+        {
+          "testId": "yct-2-01",
+          "title": "Đề luyện YCT 2 · Đề 01 (Sinh hoạt & Đồ dùng học tập)",
+          "level": 2,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 2 — Đề chuẩn 01", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 2", "shortLabel": "YCT 2" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 35,
+          "hasAudio": true,
+          "needsReview": false
+        },
+        {
+          "testId": "yct-2-02",
+          "title": "Đề luyện YCT 2 · Đề 02 (Mua sắm & Thời tiết)",
+          "level": 2,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 2 — Đề chuẩn 02", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 2", "shortLabel": "YCT 2" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 35,
+          "hasAudio": true,
+          "needsReview": false
+        }
+      ]
+    },
+    {
+      "level": 3,
+      "items": [
+        {
+          "testId": "yct-3-01",
+          "title": "Đề luyện YCT 3 · Đề 01 (Trường lớp & Thể thao)",
+          "level": 3,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 3 — Đề chuẩn 01", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 3", "shortLabel": "YCT 3" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 40,
+          "hasAudio": true,
+          "needsReview": false
+        },
+        {
+          "testId": "yct-3-02",
+          "title": "Đề luyện YCT 3 · Đề 02 (Sinh nhật & Hoạt động hàng ngày)",
+          "level": 3,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 3 — Đề chuẩn 02", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 3", "shortLabel": "YCT 3" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 40,
+          "hasAudio": true,
+          "needsReview": false
+        }
+      ]
+    },
+    {
+      "level": 4,
+      "items": [
+        {
+          "testId": "yct-4-01",
+          "title": "Đề luyện YCT 4 · Đề 01 (Giao tiếp mở rộng & Lớp học)",
+          "level": 4,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 4 — Đề chuẩn 01", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 4", "shortLabel": "YCT 4" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 45,
+          "hasAudio": true,
+          "needsReview": false
+        },
+        {
+          "testId": "yct-4-02",
+          "title": "Đề luyện YCT 4 · Đề 02 (Đi lại & Dự báo thời tiết)",
+          "level": 4,
+          "examType": "yct",
+          "standard": "YCT",
+          "source": { "title": "YCT Cấp 4 — Đề chuẩn 02", "publisher": "XieHanzi YCT", "kind": "practice", "label": "Đề chuẩn YCT 4", "shortLabel": "YCT 4" },
+          "questionCount": 20,
+          "listeningQuestionCount": 10,
+          "readingQuestionCount": 10,
+          "writingQuestionCount": 0,
+          "durationMinutes": 45,
+          "hasAudio": true,
+          "needsReview": false
+        }
+      ]
+    }
+  ]
+}

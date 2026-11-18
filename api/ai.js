@@ -306,6 +306,10 @@ module.exports = async function handler(req, res) {
       }
 
       const gtx = await googleTranslateFallback(text, source, target, script);
+      const bdArr = Array.isArray(body.breakdown) ? body.breakdown : [];
+      const autoNote = body.fallbackNote || (bdArr.length > 0
+        ? "Chiết tự & từ ghép: " + bdArr.slice(0, 6).map(b => `${b.word || b.character || ""}${b.hanviet ? ` [${b.hanviet}]` : ""}: ${b.meaningVi || ""}`).join(" · ")
+        : null);
       return res.status(200).json({
         ok: true,
         status: "ok",
@@ -316,8 +320,8 @@ module.exports = async function handler(req, res) {
         translatedText: gtx.translation,
         translation: gtx.translation,
         pinyin: gtx.pinyin || body.fallbackPinyin || null,
-        note: body.fallbackNote || null,
-        breakdown: body.breakdown || [],
+        note: autoNote,
+        breakdown: bdArr,
         source: "ai"
       });
     }

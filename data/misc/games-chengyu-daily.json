@@ -1,10 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot GET /api/v1/games/chengyu-daily</pre>
-</body>
-</html>
+{
+  "game": "chengyu",
+  "date": "2026-11-18",
+  "dayKey": "2026-11-18",
+  "plays": 0,
+  "bestScore": null,
+  "totalPlayers": 64,
+  "challenge": {
+    "id": "chengyu-daily-2026-11-18",
+    "chengyu": "画蛇添足",
+    "pinyin": "huà shé tiān zú",
+    "hanviet": "họa xà thiêm túc",
+    "meaningVi": "Vẽ rắn thêm chân (làm thừa thãi, phản tác dụng)",
+    "chars": ["画", "蛇", "添", "足"],
+    "examples": [
+      {
+        "hanzi": "文章已经写得很好了，不要再画蛇添足。",
+        "pinyin": "Wénzhāng yǐjīng xiě de hěn hǎo le, bú yào zài huà shé tiān zú.",
+        "vietnamese": "Bài viết đã rất hay rồi, đừng vẽ rắn thêm chân nữa."
+      }
+    ]
+  }
+}

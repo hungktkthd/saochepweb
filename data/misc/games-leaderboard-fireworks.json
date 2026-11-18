@@ -1,10 +1,19 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<title>Error</title>
-</head>
-<body>
-<pre>Cannot GET /api/v1/games/leaderboard</pre>
-</body>
-</html>
+{
+  "game": "fireworks",
+  "weekKey": "2026-W47",
+  "date": "2026-11-18",
+  "dayKey": "2026-11-18",
+  "entries": [
+    { "rank": 1, "userId": "u1", "displayName": "Quang Huy", "score": 990, "durationMs": 17500, "difficulty": "hard" },
+    { "rank": 2, "userId": "u2", "displayName": "Khánh Linh", "score": 950, "durationMs": 20300, "difficulty": "hard" },
+    { "rank": 3, "userId": "u3", "displayName": "Gia Bảo", "score": 915, "durationMs": 23700, "difficulty": "normal" },
+    { "rank": 4, "userId": "u4", "displayName": "Thùy Dương", "score": 880, "durationMs": 26500, "difficulty": "normal" },
+    { "rank": 5, "userId": "u5", "displayName": "Đức Minh", "score": 845, "durationMs": 29900, "difficulty": "easy" }
+  ],
+  "items": [
+    { "rank": 1, "userId": "u1", "displayName": "Quang Huy", "score": 990, "durationMs": 17500, "difficulty": "hard" },
+    { "rank": 2, "userId": "u2", "displayName": "Khánh Linh", "score": 950, "durationMs": 20300, "difficulty": "hard" },
+    { "rank": 3, "userId": "u3", "displayName": "Gia Bảo", "score": 915, "durationMs": 23700, "difficulty": "normal" }
+  ],
+  "me": { "rank": 4, "score": 880 }
+}
