@@ -60,10 +60,10 @@
   pointer-events: none; transition: width .12s linear;
 }
 #htq-toast-stack {
-  position: fixed; right: 18px; bottom: 20px; z-index: 99990;
+  position: fixed; right: 18px; top: 76px; z-index: 99990;
   display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: min(340px, calc(100vw - 36px));
 }
-@media (max-width: 768px) { #htq-toast-stack { bottom: 80px; right: 12px; } }
+@media (max-width: 768px) { #htq-toast-stack { top: 68px; right: 12px; } }
 .htq-toast {
   pointer-events: auto; padding: 10px 14px; border-radius: 14px; font-size: 13px; font-weight: 700;
   color: #f8fafc; background: rgba(15,23,42,.92); border: 1px solid rgba(129,140,248,.35);
@@ -120,8 +120,11 @@
   box-shadow: 0 12px 28px -18px rgba(79,70,229,.25);
 }
 .dark .htq-flip-face { background: rgba(21,27,49,.94); border-color: rgba(129,140,248,.26); color: #f8fafc; }
-.htq-flip-back { transform: rotateY(180deg); background: linear-gradient(135deg, #f5f3ff, #f0fdfa); }
+.htq-flip-front { pointer-events: auto; }
+.htq-flip-back { transform: rotateY(180deg); background: linear-gradient(135deg, #f5f3ff, #f0fdfa); pointer-events: none; visibility: hidden; }
 .dark .htq-flip-back { background: linear-gradient(135deg, #1b1e3f, #112a30); }
+.htq-flip-wrap.is-flipped .htq-flip-front { pointer-events: none; visibility: hidden; }
+.htq-flip-wrap.is-flipped .htq-flip-back { pointer-events: auto; visibility: visible; }
 
 /* Home Hero Strip + Upgraded Skill Card Artwork */
 .htq-home-hero-strip {
@@ -238,22 +241,53 @@ body {
 .htq-stat-box:hover, .htq-stamp-card:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 24px -14px rgba(79,70,229,.32); }
 .htq-quick-item:hover { transform: translateY(-2px) scale(1.02) !important; }
 
-/* Floating Cute Study Buddy Dock (#htq-buddy-dock) — bottom-left so ZERO overlap with right chat/toast */
+/* Compact Sidebar Fit on 800px Desktop + Dark-Mode Backup Card + Zero-Overlap Buddy Dock */
+@media (min-width: 1180px) {
+  #htq-studio-sidebar { padding: 10px 12px 72px !important; }
+  .htq-sb-brand { padding: 4px 8px 8px !important; margin-bottom: 4px !important; }
+  .htq-sb-emblem { width: 32px !important; height: 32px !important; font-size: 15px !important; }
+  .htq-sb-group { margin-top: 6px !important; }
+  .htq-sb-label { padding: 0 8px 3px !important; font-size: 9.5px !important; }
+  .htq-sb-link { padding: 4.5px 9px !important; font-size: 12.5px !important; margin-bottom: 1px !important; }
+  #htq-sb-cmdk-btn { padding: 6px 9px !important; margin-bottom: 6px !important; font-size: 12px !important; }
+  .htq-sb-footer { padding-top: 7px !important; margin-top: 8px !important; gap: 4px !important; }
+  .htq-sb-footer .htq-sb-btn { padding: 6px 9px !important; font-size: 12px !important; }
+}
+.htq-backup-card {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 16px 20px; margin: 14px 0; border-radius: 18px;
+  border: 1px solid #fed7aa; background: #fff7ed; color: #1c1917;
+  box-shadow: 0 2px 10px -4px rgba(234,88,12,.12);
+}
+.htq-backup-card .htq-backup-title { font-weight: 800; font-size: 15px; color: #1c1917; }
+.htq-backup-card .htq-backup-desc { font-size: 13px; color: #57534e; margin-top: 2px; }
+.htq-backup-card .htq-backup-export-btn {
+  padding: 8px 14px; border-radius: 10px; border: 1px solid #fdba74; background: #ffffff;
+  color: #9a3412; font-weight: 700; font-size: 13px; cursor: pointer;
+}
+.dark .htq-backup-card {
+  border-color: rgba(129,140,248,.26); background: rgba(24,29,52,.92); color: #f8fafc;
+  box-shadow: 0 10px 28px -12px rgba(0,0,0,.55);
+}
+.dark .htq-backup-card .htq-backup-title { color: #f8fafc; }
+.dark .htq-backup-card .htq-backup-desc { color: #cbd5e1; }
+.dark .htq-backup-card .htq-backup-export-btn {
+  background: rgba(30,41,59,.95); border-color: rgba(251,146,60,.45); color: #fdba74;
+}
+
+/* Floating Cute Study Buddy Dock (#htq-buddy-dock) — tucked INSIDE sidebar gutter on desktop (>=1180px) so ZERO overlap with main content */
 #htq-buddy-dock {
-  position: fixed; bottom: 20px; left: 16px; z-index: 64;
+  position: fixed; bottom: 12px; left: 14px; z-index: 82;
   display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
   pointer-events: none;
 }
-@media (min-width: 1180px) {
-  body:not([data-htq-immersive="1"]) #htq-buddy-dock { left: 268px; }
-}
-@media (max-width: 768px) {
+@media (max-width: 1179px) {
   #htq-buddy-dock { bottom: 76px; left: 12px; }
 }
 .htq-buddy-fab {
-  pointer-events: auto; position: relative; width: 56px; height: 56px; padding: 0; border-radius: 999px;
+  pointer-events: auto; position: relative; width: 48px; height: 48px; padding: 0; border-radius: 999px;
   border: 2.5px solid #fff; cursor: pointer; background: linear-gradient(135deg, #fde68a, #fbcfe8 55%, #a5f3fc);
-  box-shadow: 0 12px 28px -8px rgba(79,70,229,.42), 0 0 0 3px rgba(99,102,241,.16);
+  box-shadow: 0 10px 24px -6px rgba(79,70,229,.42), 0 0 0 3px rgba(99,102,241,.16);
   display: grid; place-items: center; overflow: visible;
   transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
 }
@@ -7107,7 +7141,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
     };
     const tryWordAudioOrSpeak = () => {
-      if (cleanHz && cleanHz.length >= 1 && cleanHz.length <= 4) {
+      if (audioUrl !== 'tts' && cleanHz && cleanHz.length >= 2 && cleanHz.length <= 4) {
         try {
           const a = new window.Audio(rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(cleanHz)}.mp3`));
           if (rate) a.playbackRate = rate;
@@ -7118,7 +7152,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
       speakFallback();
     };
-    if (audioUrl && !audioUrl.includes('media-signed/')) {
+    if (audioUrl && audioUrl !== 'tts' && !audioUrl.includes('media-signed/')) {
       try {
         const a = new window.Audio(rewriteMediaUrl(audioUrl));
         if (rate) a.playbackRate = rate;
@@ -12969,14 +13003,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         if (hostEl) {
           const box = document.createElement('div');
           box.id = 'xhz-backup-controls';
-          box.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;margin:14px 0;border-radius:16px;border:1px solid #e7e5e4;background:#fff7ed;box-shadow:0 1px 3px rgba(0,0,0,0.03);';
+          box.className = 'htq-backup-card';
           box.innerHTML =
             `<div style="min-width:200px;">` +
-            `<div style="font-weight:800;font-size:15px;color:#1c1917;">💾 Sao lưu &amp; Khôi phục dữ liệu học</div>` +
-            `<div id="xhz-backup-status" style="font-size:13px;color:#57534e;margin-top:2px;">Xuất file .json dự phòng hoặc nhập từ trình duyệt khác (gộp an toàn, không mất dữ liệu cũ).</div>` +
+            `<div class="htq-backup-title">💾 Sao lưu &amp; Khôi phục dữ liệu học</div>` +
+            `<div id="xhz-backup-status" class="htq-backup-desc">Xuất file .json dự phòng hoặc nhập từ trình duyệt khác (gộp an toàn, không mất dữ liệu cũ).</div>` +
             `</div>` +
             `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
-            `<button type="button" id="xhz-export-json-btn" style="padding:8px 14px;border-radius:10px;border:1px solid #fdba74;background:#fff;color:#9a3412;font-weight:700;font-size:13px;cursor:pointer;">📥 Xuất sao lưu (.json)</button>` +
+            `<button type="button" id="xhz-export-json-btn" class="htq-backup-export-btn">📥 Xuất sao lưu (.json)</button>` +
             `<button type="button" id="xhz-import-json-btn" style="padding:8px 14px;border-radius:10px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📤 Khôi phục từ file (.json)</button>` +
             `<input type="file" id="xhz-import-json-file" accept=".json,application/json" style="display:none;" />` +
             `</div>`;
@@ -13028,7 +13062,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } catch (_e) {}
   }
 
-  // Capture-phase click handler for Command Palette triggers, Google OAuth buttons & internal <a> links
+  // Helper to bind Studio UI click handlers at window capture phase (immune to React 19 hydration event replay traps on /)
+  function bindStudioClick(el, handler) {
+    if (!el || typeof handler !== 'function') return;
+    el.__htqClickHandler = handler;
+    el.setAttribute('data-htq-click', '1');
+  }
+
+  // Capture-phase click handler for Studio UI controls, Command Palette triggers, Google OAuth buttons & internal <a> links
   window.addEventListener('click', function (e) {
     if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
     const cmdkTrigger = e.target && e.target.closest ? e.target.closest('#htq-sb-cmdk-btn, #htq-ws-cmdk-btn, [data-htq-cmdk-trigger]') : null;
@@ -13037,6 +13078,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       e.stopPropagation();
       openCommandPalette();
       return;
+    }
+    const studioClickEl = e.target && e.target.closest ? e.target.closest('[data-htq-click="1"]') : null;
+    if (studioClickEl && typeof studioClickEl.__htqClickHandler === 'function') {
+      const innerLink = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!innerLink || innerLink === studioClickEl || !studioClickEl.contains(innerLink)) {
+        e.preventDefault();
+        e.stopPropagation();
+        try { studioClickEl.__htqClickHandler(e); } catch (_) {}
+        return;
+      }
     }
     const btn = e.target && e.target.closest ? e.target.closest('button, a') : null;
     if (btn) {
@@ -13650,10 +13701,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
     const themeBtn = document.getElementById('htq-sb-theme-btn');
     if (themeBtn) {
-      themeBtn.onclick = () => {
+      bindStudioClick(themeBtn, () => {
         toggleStudioTheme();
         setTimeout(() => buildStudioSidebar(window.location.pathname), 60);
-      };
+      });
     }
   }
 
@@ -13787,7 +13838,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const item = HTQ_DAILY_HANZI_POOL[curDailyIdx % HTQ_DAILY_HANZI_POOL.length];
       cardWrap.classList.remove('is-flipped');
       cardInner.innerHTML =
-        '<div class="htq-flip-face">' +
+        '<div class="htq-flip-face htq-flip-front">' +
           '<div style="display:flex;align-items:center;gap:14px;">' +
             '<div class="htq-mizige" style="width:82px;height:82px;font-size:44px;font-weight:800;color:#4f46e5;flex-shrink:0;">' + escapeHtml(item.hanzi) + '</div>' +
             '<div style="min-width:0;flex:1;">' +
@@ -13816,15 +13867,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '</div>';
 
       cardInner.querySelectorAll('[data-daily-act="speak"]').forEach(btn => {
-        btn.addEventListener('click', ev => {
-          ev.stopPropagation();
-          try { playPronunciation(item.hanzi, ''); } catch (_) {}
+        bindStudioClick(btn, () => {
+          try { playPronunciation(item.hanzi, 'tts'); } catch (_) {}
           HTQ_STUDIO_FX.toast('🔊 Đang đọc: ' + item.hanzi + ' (' + item.pinyin + ')');
         });
       });
       cardInner.querySelectorAll('[data-daily-act="save"]').forEach(btn => {
-        btn.addEventListener('click', async ev => {
-          ev.stopPropagation();
+        bindStudioClick(btn, async () => {
           try {
             await fetch('/v1/notebook', {
               method: 'POST',
@@ -13837,15 +13886,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           } catch (_) {}
         });
       });
-      cardInner.querySelectorAll('[data-daily-act="nav"]').forEach(a => {
-        a.addEventListener('click', ev => ev.stopPropagation());
-      });
     };
     if (cardWrap) {
-      cardWrap.addEventListener('click', () => cardWrap.classList.toggle('is-flipped'));
+      bindStudioClick(cardWrap, () => cardWrap.classList.toggle('is-flipped'));
     }
     if (nextBtn) {
-      nextBtn.addEventListener('click', () => {
+      bindStudioClick(nextBtn, () => {
         curDailyIdx = (curDailyIdx + 1) % HTQ_DAILY_HANZI_POOL.length;
         renderDailyCard();
         if (cardWrap) { cardWrap.classList.add('htq-pop'); setTimeout(() => cardWrap.classList.remove('htq-pop'), 260); }
@@ -13955,7 +14001,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           '<button type="button" id="htq-stage-expand-btn" class="htq-stage-chip-btn">Mở rộng hoạt động ▾</button>' +
         '</div></div>';
       const expBtn = wrap.querySelector('#htq-stage-expand-btn');
-      if (expBtn) expBtn.onclick = () => { try { sessionStorage.setItem('htq_stage_collapsed', '0'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); };
+      if (expBtn) bindStudioClick(expBtn, () => { try { sessionStorage.setItem('htq_stage_collapsed', '0'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); });
       return;
     }
 
@@ -14015,7 +14061,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       '</div>';
 
     const colBtn = wrap.querySelector('#htq-stage-collapse-btn');
-    if (colBtn) colBtn.onclick = () => { try { sessionStorage.setItem('htq_stage_collapsed', '1'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); };
+    if (colBtn) bindStudioClick(colBtn, () => { try { sessionStorage.setItem('htq_stage_collapsed', '1'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); });
 
     const host = wrap.querySelector('#htq-stage-activity-host');
     if (!host) return;
@@ -14080,7 +14126,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         host.innerHTML =
           '<div class="htq-flip-wrap" id="htq-srs-mini-flip">' +
             '<div class="htq-flip-inner" style="min-height:132px;">' +
-              '<div class="htq-flip-face">' +
+              '<div class="htq-flip-face htq-flip-front">' +
                 '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
                   '<div style="display:flex;align-items:center;gap:12px;">' +
                     '<div class="htq-mizige" style="width:66px;height:66px;font-size:32px;font-weight:800;color:#4f46e5;">' + escapeHtml(it.hanzi) + '</div>' +
@@ -14102,8 +14148,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '</div>' +
           '</div>';
         const fw = host.querySelector('#htq-srs-mini-flip');
-        if (fw) fw.addEventListener('click', () => fw.classList.toggle('is-flipped'));
-        host.querySelectorAll('[data-srs-act="speak"]').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); try { playPronunciation(it.hanzi, ''); } catch (_) {} }));
+        if (fw) bindStudioClick(fw, () => fw.classList.toggle('is-flipped'));
+        host.querySelectorAll('[data-srs-act="speak"]').forEach(b => bindStudioClick(b, () => { try { playPronunciation(it.hanzi, 'tts'); } catch (_) {} }));
         const sendGrade = async (outcome, btn) => {
           try {
             await fetch('/v2/review/signals', {
@@ -14121,8 +14167,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           idx = (idx + 1) % deck.length;
           renderFlash();
         };
-        host.querySelectorAll('[data-srs-act="good"]').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); sendGrade('correct', b); }));
-        host.querySelectorAll('[data-srs-act="again"]').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); sendGrade('wrong', b); }));
+        host.querySelectorAll('[data-srs-act="good"]').forEach(b => bindStudioClick(b, () => sendGrade('correct', b)));
+        host.querySelectorAll('[data-srs-act="again"]').forEach(b => bindStudioClick(b, () => sendGrade('wrong', b)));
       };
       renderFlash();
       return;
@@ -14162,10 +14208,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '</div>';
       const eqEl = host.querySelector('#htq-dict-eq .htq-eq');
       host.querySelectorAll('[data-tone-hz]').forEach(btn => {
-        btn.addEventListener('click', () => {
+        bindStudioClick(btn, () => {
           const hz = btn.getAttribute('data-tone-hz');
           const py = btn.getAttribute('data-tone-py');
-          try { playPronunciation(hz, ''); } catch (_) {}
+          try { playPronunciation(hz, 'tts'); } catch (_) {}
           HTQ_STUDIO_FX.pulseEq(eqEl, 1300);
           btn.classList.add('htq-pop'); setTimeout(() => btn.classList.remove('htq-pop'), 260);
           HTQ_STUDIO_FX.toast('🔊 Thanh điệu: ' + hz + ' (' + py + ')');
@@ -14624,22 +14670,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '</button>';
 
       const fab = dock.querySelector('#htq-buddy-fab');
-      if (fab) fab.onclick = () => { isOpen = !isOpen; renderDock(); };
+      if (fab) bindStudioClick(fab, () => { isOpen = !isOpen; renderDock(); });
       const cl = dock.querySelector('#htq-buddy-close');
-      if (cl) cl.onclick = () => { isOpen = false; renderDock(); };
+      if (cl) bindStudioClick(cl, () => { isOpen = false; renderDock(); });
       const spk = dock.querySelector('#htq-buddy-speak');
-      if (spk) spk.onclick = () => {
-        try { playPronunciation(ch.zh, ''); } catch (_) {}
+      if (spk) bindStudioClick(spk, () => {
+        try { playPronunciation(ch.zh, 'tts'); } catch (_) {}
         HTQ_STUDIO_FX.toast('🔊 ' + ch.zh + ' — ' + ch.vi);
-      };
+      });
       const chr = dock.querySelector('#htq-buddy-cheer');
-      if (chr) chr.onclick = () => {
+      if (chr) bindStudioClick(chr, () => {
         cheerIdx = (cheerIdx + 1) % HTQ_CUTE_CHEERS.length;
         HTQ_STUDIO_FX.confetti(chr, 28);
         renderDock();
-      };
+      });
       const swp = dock.querySelector('#htq-buddy-swap');
-      if (swp) swp.onclick = () => {
+      if (swp) bindStudioClick(swp, () => {
         const curIdx = HTQ_COMPANIONS_LIST.findIndex(x => x.id === curComp.id);
         const nxt = HTQ_COMPANIONS_LIST[(curIdx + 1) % HTQ_COMPANIONS_LIST.length];
         try { localStorage.setItem('httq_companion_id', nxt.id); } catch (_) {}
@@ -14647,7 +14693,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         HTQ_STUDIO_FX.confetti(swp, 20);
         HTQ_STUDIO_FX.toast((nxt.emoji || '🐾') + ' Chào bạn! Mình là ' + nxt.name + ' sẽ học cùng bạn nha!', 'success');
         renderDock();
-      };
+      });
     };
 
     document.body.appendChild(dock);
@@ -14932,12 +14978,47 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
   }, true);
 
+  function isReactHydrated() {
+    try {
+      const probes = [
+        document.querySelector('main#noi-dung-chinh'),
+        document.querySelector('header[data-site-header="true"]'),
+        document.querySelector('main')
+      ].filter(Boolean);
+      if (!probes.length) return true;
+      return probes.some(el => Object.keys(el).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$')));
+    } catch (_) {
+      return true;
+    }
+  }
+
   function scheduleScrubPasses() {
-    [750, 1150, 1900].forEach(ms => {
-      setTimeout(() => {
-        runPostHydrationEnhancers();
-      }, ms);
-    });
+    let settledOnce = false;
+    const triggerSafe = () => {
+      if (settledOnce) return;
+      settledOnce = true;
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          runPostHydrationEnhancers();
+          if (isDynamicSpaRoute(window.location.pathname)) {
+            checkAndRenderDynamicPage();
+          }
+        }, 120);
+      });
+    };
+    let tries = 0;
+    const poll = setInterval(() => {
+      tries++;
+      if (isReactHydrated() || tries >= 10) {
+        clearInterval(poll);
+        triggerSafe();
+      }
+    }, 110);
+    setTimeout(() => {
+      clearInterval(poll);
+      triggerSafe();
+      setTimeout(runPostHydrationEnhancers, 600);
+    }, 1250);
   }
 
   const origPushState = history.pushState;
@@ -14970,24 +15051,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   window.addEventListener('load', () => {
     setTimeout(() => {
-      runPostHydrationEnhancers();
-      if (isDynamicSpaRoute(window.location.pathname)) {
-        checkAndRenderDynamicPage();
+      if (isReactHydrated()) {
+        runPostHydrationEnhancers();
+        if (isDynamicSpaRoute(window.location.pathname)) {
+          checkAndRenderDynamicPage();
+        }
       }
-    }, 450);
+    }, 350);
   });
 
   function boot() {
     supabaseFetchInitial();
     scheduleScrubPasses();
-    if (document.readyState === 'complete') {
-      setTimeout(() => {
-        runPostHydrationEnhancers();
-        if (isDynamicSpaRoute(window.location.pathname)) {
-          checkAndRenderDynamicPage();
-        }
-      }, 450);
-    }
     if ((window.location.pathname || '').startsWith('/hoc')) {
       const idleFn = window.requestIdleCallback || (cb => setTimeout(cb, 650));
       idleFn(() => {
