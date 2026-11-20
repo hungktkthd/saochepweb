@@ -243,8 +243,8 @@ body {
 
 /* Compact Sidebar Fit on 800px Desktop + Dark-Mode Backup Card + Zero-Overlap Buddy Dock */
 @media (min-width: 1180px) {
-  #htq-studio-sidebar { padding: 10px 12px 72px !important; }
-  .htq-sb-brand { padding: 4px 8px 8px !important; margin-bottom: 4px !important; }
+  #htq-studio-sidebar { padding: 10px 12px 14px !important; }
+  .htq-sb-brand { padding: 4px 48px 8px 8px !important; margin-bottom: 4px !important; }
   .htq-sb-emblem { width: 32px !important; height: 32px !important; font-size: 15px !important; }
   .htq-sb-group { margin-top: 6px !important; }
   .htq-sb-label { padding: 0 8px 3px !important; font-size: 9.5px !important; }
@@ -275,19 +275,19 @@ body {
   background: rgba(30,41,59,.95); border-color: rgba(251,146,60,.45); color: #fdba74;
 }
 
-/* Floating Cute Study Buddy Dock (#htq-buddy-dock) — tucked INSIDE sidebar gutter on desktop (>=1180px) so ZERO overlap with main content */
+/* Floating Cute Study Buddy Dock (#htq-buddy-dock) — nestled cleanly in sidebar header top-right on desktop (>=1180px), ZERO overlap anywhere */
 #htq-buddy-dock {
-  position: fixed; bottom: 12px; left: 14px; z-index: 82;
-  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  position: fixed; top: 11px; left: 196px; z-index: 82;
+  display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 10px;
   pointer-events: none;
 }
 @media (max-width: 1179px) {
-  #htq-buddy-dock { bottom: 76px; left: 12px; }
+  #htq-buddy-dock { top: auto; bottom: 76px; left: 12px; flex-direction: column; }
 }
 .htq-buddy-fab {
-  pointer-events: auto; position: relative; width: 48px; height: 48px; padding: 0; border-radius: 999px;
-  border: 2.5px solid #fff; cursor: pointer; background: linear-gradient(135deg, #fde68a, #fbcfe8 55%, #a5f3fc);
-  box-shadow: 0 10px 24px -6px rgba(79,70,229,.42), 0 0 0 3px rgba(99,102,241,.16);
+  pointer-events: auto; position: relative; width: 40px; height: 40px; padding: 0; border-radius: 999px;
+  border: 2px solid #fff; cursor: pointer; background: linear-gradient(135deg, #fde68a, #fbcfe8 55%, #a5f3fc);
+  box-shadow: 0 8px 20px -6px rgba(79,70,229,.42), 0 0 0 2.5px rgba(99,102,241,.18);
   display: grid; place-items: center; overflow: visible;
   transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
 }
@@ -14980,45 +14980,47 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   function isReactHydrated() {
     try {
-      const probes = [
-        document.querySelector('main#noi-dung-chinh'),
-        document.querySelector('header[data-site-header="true"]'),
-        document.querySelector('main')
-      ].filter(Boolean);
-      if (!probes.length) return true;
-      return probes.some(el => Object.keys(el).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$')));
+      const mainEl = document.querySelector('main#noi-dung-chinh') || document.querySelector('main');
+      if (!mainEl) return true;
+      const mainReady = Object.keys(mainEl).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$'));
+      if (!mainReady) return false;
+      const firstChild = mainEl.firstElementChild;
+      if (!firstChild) return true;
+      return Object.keys(firstChild).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$'));
     } catch (_) {
       return true;
     }
   }
 
   function scheduleScrubPasses() {
+    const tBoot = Date.now();
     let settledOnce = false;
     const triggerSafe = () => {
       if (settledOnce) return;
       settledOnce = true;
+      const remain = Math.max(180, 900 - (Date.now() - tBoot));
       requestAnimationFrame(() => {
         setTimeout(() => {
           runPostHydrationEnhancers();
           if (isDynamicSpaRoute(window.location.pathname)) {
             checkAndRenderDynamicPage();
           }
-        }, 120);
+        }, remain);
       });
     };
     let tries = 0;
     const poll = setInterval(() => {
       tries++;
-      if (isReactHydrated() || tries >= 10) {
+      if ((document.readyState === 'complete' && isReactHydrated()) || tries >= 14) {
         clearInterval(poll);
         triggerSafe();
       }
-    }, 110);
+    }, 120);
     setTimeout(() => {
       clearInterval(poll);
       triggerSafe();
-      setTimeout(runPostHydrationEnhancers, 600);
-    }, 1250);
+      setTimeout(runPostHydrationEnhancers, 900);
+    }, 1800);
   }
 
   const origPushState = history.pushState;
@@ -15051,13 +15053,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   window.addEventListener('load', () => {
     setTimeout(() => {
-      if (isReactHydrated()) {
+      if (htqHydrationSettled) {
         runPostHydrationEnhancers();
         if (isDynamicSpaRoute(window.location.pathname)) {
           checkAndRenderDynamicPage();
         }
       }
-    }, 350);
+    }, 1100);
   });
 
   function boot() {
