@@ -998,9 +998,74 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       gradingUsed: Math.max(Number(remoteP.gradingUsed) || 0, Number(localP.gradingUsed) || 0),
       voiceUsed: Math.max(Number(remoteP.voiceUsed) || 0, Number(localP.voiceUsed) || 0),
       longestStreak: Math.max(Number(remoteP.longestStreak) || 0, Number(localP.longestStreak) || 0),
+      examPlan: newer.examPlan !== undefined ? newer.examPlan : (localP.examPlan || remoteP.examPlan || null),
+      companionInboxReadIds: [...new Set([...(remoteP.companionInboxReadIds || []), ...(localP.companionInboxReadIds || [])])].filter(Boolean),
       currentStageKey: newer.currentStageKey || localP.currentStageKey || 'hsk30.L1.P1',
       currentLessonId: newer.currentLessonId || localP.currentLessonId || 'hsk30.L1.P1.learn.1',
       updatedAt: Math.max(Number(remoteP.updatedAt) || 0, Number(localP.updatedAt) || 0, Date.now())
+    };
+  }
+
+  function normalizePinyinQuery(str) {
+    return String(str || '')
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[üǖǘǚǜv]/g, 'u')
+      .replace(/[^a-z0-9]/g, '');
+  }
+
+  function computeRealSkillMetrics(sum) {
+    const prog = (sum && sum.prog) || getRealProgress();
+    const wordsSeen = Number(sum && sum.wordsSeen) || 0;
+    const wordsMastered = Number(sum && sum.wordsMastered) || 0;
+    const lessonsDone = Number(sum && sum.lessonsDone) || 0;
+    const stageCount = Array.isArray(prog.doneStages) ? prog.doneStages.length : 0;
+    const dictCount = Object.keys(prog.dictationProgress || {}).length;
+    const charCount = Math.max(Object.keys(prog.masteredChars || {}).length, Math.min(150, wordsMastered));
+    const gramCount = Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds.length : 0;
+    const spkCount = Object.keys(prog.speakingProgress || {}).length + (Number(prog.voiceUsed) || 0);
+    const examList = Array.isArray(prog.examHistory) ? prog.examHistory : [];
+
+    const listening = Math.min(100, Math.round((stageCount / 40) * 75 + Math.min(25, dictCount * 5) + (stageCount === 0 && dictCount === 0 && lessonsDone > 0 ? Math.min(20, lessonsDone * 4) : 0)));
+    const reading = Math.min(100, Math.round((wordsSeen / 300) * 100));
+    const writing = Math.min(100, Math.round((charCount / 150) * 100));
+    const speaking = Math.min(100, Math.round((spkCount / 25) * 100));
+    const grammar = Math.min(100, Math.round((gramCount / 30) * 100));
+    const avgSkill = Math.round((listening + reading + writing + speaking + grammar) / 5);
+
+    const latestExam = examList[0];
+    let predictedScore200 = 0;
+    if (latestExam && (Number(latestExam.score) > 0 || Number(latestExam.pct) > 0)) {
+      const examPct = Number(latestExam.pct) || Math.min(100, Number(latestExam.score) || 0);
+      predictedScore200 = Math.min(200, Math.max(0, Math.round(examPct * 1.4 + avgSkill * 0.6)));
+    } else if (lessonsDone > 0 || wordsSeen > 0 || gramCount > 0 || spkCount > 0 || dictCount > 0) {
+      predictedScore200 = Math.min(200, Math.max(20, Math.round(avgSkill * 2)));
+    }
+
+    const targetLevel = (prog.examPlan && prog.examPlan.targetLevel)
+      ? `HSK ${prog.examPlan.targetLevel}`
+      : 'HSK 1';
+
+    return {
+      level: targetLevel,
+      wordsSeen,
+      wordsTotal: 300,
+      charCount,
+      gramCount,
+      stageCount,
+      dictCount,
+      spkCount,
+      examCount: examList.length,
+      avgSkill,
+      predictedScore200,
+      skills: [
+        { skill: 'listening', labelVi: 'Nghe hiểu', score: listening },
+        { skill: 'reading', labelVi: 'Đọc hiểu & Từ vựng', score: reading },
+        { skill: 'writing', labelVi: 'Chữ Hán & Viết', score: writing },
+        { skill: 'speaking', labelVi: 'Phát âm & Nói', score: speaking },
+        { skill: 'grammar', labelVi: 'Ngữ pháp', score: grammar }
+      ]
     };
   }
 
@@ -1723,6 +1788,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const sm = await (await fetch('/site.webmanifest')).json();
         const mm = await (await fetch('/manifest.webmanifest')).json();
         return Boolean(sm && sm.start_url === '/hoc/' && mm && mm.start_url === '/hoc/' && Array.isArray(sm.icons) && !JSON.stringify(sm.icons).includes('web-app-manifest-192'));
+      });
+      await runCheck('api-skill-map-real', async () => {
+        const sm = await (await fetch('/v2/me/skill-map')).json();
+        const sp = await (await fetch('/v2/me/score-prediction')).json();
+        const sh = await (await fetch('/v2/me/shadowing/summary')).json();
+        return Boolean(sm && Array.isArray(sm.skills) && sm.skills.length === 5 && typeof sm.grammarDone === 'number' && sp && typeof sp.predictedScore === 'number' && sh && sh.enabled === true);
+      });
+      await runCheck('api-exam-plan-crud', async () => {
+        const postRes = await (await fetch('/v2/me/exam-plan', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ targetLevel: 3, targetDate: '2027-06-15', dailyMinutes: 25 })
+        })).json();
+        const getRes = await (await fetch('/v2/me/exam-plan')).json();
+        const delRes = await (await fetch('/v2/me/exam-plan', { method: 'DELETE' })).json();
+        return Boolean(postRes && postRes.ok && getRes && getRes.status === 'active' && getRes.plan && getRes.plan.targetLevel === 3 && delRes && delRes.status === 'none');
+      });
+      await runCheck('api-companion-memory', async () => {
+        const mem = await (await fetch('/v2/companion/memory')).json();
+        const inb1 = await (await fetch('/v2/companion/inbox')).json();
+        const rd = await (await fetch('/v2/companion/inbox/read', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) })).json();
+        const inb2 = await (await fetch('/v2/companion/inbox')).json();
+        return Boolean(mem && Array.isArray(mem.items) && mem.items.length >= 1 && inb1 && Array.isArray(inb1.items) && rd && rd.ok && inb2 && inb2.unreadCount === 0);
+      });
+      await runCheck('api-generated-tests-yct', async () => {
+        const fr = await (await fetch('/v1/generated-tests/freshness')).json();
+        const hskGen = await (await fetch('/v1/generated-tests/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ examType: 'hsk', level: 1 }) })).json();
+        const yctGen = await (await fetch('/v1/generated-tests/create', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ examType: 'yct', level: 1 }) })).json();
+        return Boolean(fr && Array.isArray(fr.levels) && fr.levels.length >= 6 && hskGen && hskGen.deId && hskGen.deId !== 'hsk30-1' && yctGen && /^yct-1-/.test(yctGen.deId) && Array.isArray(yctGen.questions) && yctGen.questions.length === 20);
+      });
+      await runCheck('api-search-pinyin-toneless', async () => {
+        const pyRes = await (await fetch('/v1/search?q=nihao')).json();
+        const hzRes = await (await fetch('/v1/search?q=' + encodeURIComponent('你好'))).json();
+        const foundNihao = Array.isArray(pyRes.words) && pyRes.words.some(w => w.w === '你好');
+        const foundChars = Array.isArray(hzRes.characters) && hzRes.characters.some(c => c.c === '你') && hzRes.characters.some(c => c.c === '好');
+        return Boolean(foundNihao && foundChars);
+      });
+      await runCheck('api-grammar-fallback', async () => {
+        const lv4 = await (await fetch('/v1/grammar/levels/4?curriculum=new-hsk')).json();
+        const lvList = await (await fetch('/v1/grammar/levels?curriculum=new-hsk')).json();
+        const lv4Meta = lvList && Array.isArray(lvList.levels) && lvList.levels.find(x => String(x.level) === '4');
+        return Boolean(lv4 && Array.isArray(lv4.items) && lv4.items.length > 0 && lv4.fallbackFrom === 'hsk' && lv4Meta && Number(lv4Meta.count) > 0);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -3403,13 +3510,95 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ unlockedIds: ['capy', 'tieu-man', 'ha-vu', 'luc-than', 'duong-duong', 'mai'], newlyUnlocked: [] });
     }
     if (p === '/v2/companion/memory') {
-      return jsonResponse({ items: [], summaryVi: 'Đang học lộ trình HSK 1 rất chăm chỉ.' });
+      await ensureInitialCloudPull();
+      const sum = getRealProgressSummary();
+      const prog = sum.prog || getRealProgress();
+      const recentWords = (prog.learnedWords || []).slice(-5);
+      const gramCount = (prog.learnedGrammarIds || []).length;
+      const items = [];
+      if (sum.wordsMastered > 0) {
+        items.push({ id: 'mem-vocab', kind: 'vocab', textVi: `Đã học ${sum.wordsMastered} từ vựng${recentWords.length ? ` (gần đây: ${recentWords.join('、')})` : ''}.` });
+      }
+      if (sum.streakDays > 0) {
+        items.push({ id: 'mem-streak', kind: 'habit', textVi: `Đang giữ chuỗi học ${sum.streakDays} ngày liên tiếp (kỷ lục ${sum.longestStreak} ngày).` });
+      }
+      if (gramCount > 0) {
+        items.push({ id: 'mem-grammar', kind: 'grammar', textVi: `Đã nắm ${gramCount} điểm ngữ pháp HSK.` });
+      }
+      if (prog.examPlan && prog.examPlan.targetLevel) {
+        items.push({ id: 'mem-exam', kind: 'goal', textVi: `Mục tiêu thi HSK ${prog.examPlan.targetLevel}${prog.examPlan.targetDate ? ` vào ngày ${prog.examPlan.targetDate}` : ''}.` });
+      }
+      if (sum.mistakesCount > 0) {
+        items.push({ id: 'mem-mistakes', kind: 'review', textVi: `Còn ${sum.mistakesCount} mục trong sổ lỗi cần ôn kỹ lại.` });
+      }
+      const summaryVi = sum.wordsMastered > 0 || sum.stagesDone > 0
+        ? `Đã hoàn thành ${sum.stagesDone} chặng, học ${sum.wordsMastered} từ và duy trì chuỗi ${sum.streakDays} ngày.`
+        : 'Đang bắt đầu lộ trình HSK 1 — hãy hoàn thành bài học đầu tiên hôm nay!';
+      return jsonResponse({ items, summaryVi });
     }
     if (p === '/v2/companion/inbox') {
-      return jsonResponse({ items: [], unreadCount: 0, celebrate: [] });
+      await ensureInitialCloudPull();
+      const sum = getRealProgressSummary();
+      const prog = sum.prog || getRealProgress();
+      const readSet = new Set(Array.isArray(prog.companionInboxReadIds) ? prog.companionInboxReadIds : []);
+      const todayStr = new Date().toISOString().slice(0, 10);
+      const rawItems = [];
+      if (sum.dueTotal > 0) {
+        rawItems.push({
+          id: `due-${todayStr}`,
+          kind: 'review',
+          titleVi: `Bạn có ${sum.dueTotal} thẻ đến hạn ôn SRS`,
+          bodyVi: 'Ôn 3–5 phút để giữ trí nhớ dài hạn không bị đứt quãng.',
+          href: '/on-tap/',
+          createdAt: new Date().toISOString()
+        });
+      }
+      if (sum.mistakesCount > 0) {
+        rawItems.push({
+          id: `mistakes-${todayStr}`,
+          kind: 'mistake',
+          titleVi: `${sum.mistakesCount} lỗi sai đang chờ khắc phục`,
+          bodyVi: 'Luyện nhanh sổ lỗi giúp tránh mất điểm oan khi làm đề HSK.',
+          href: '/on-tap/',
+          createdAt: new Date().toISOString()
+        });
+      }
+      if (prog.examPlan && prog.examPlan.targetDate) {
+        const diffDays = Math.ceil((new Date(prog.examPlan.targetDate).getTime() - Date.now()) / 86400000);
+        if (Number.isFinite(diffDays) && diffDays >= 0) {
+          rawItems.push({
+            id: `exam-plan-${prog.examPlan.targetDate}`,
+            kind: 'goal',
+            titleVi: `Còn ${diffDays} ngày tới kỳ thi HSK ${prog.examPlan.targetLevel || 1}`,
+            bodyVi: `Mục tiêu mỗi ngày ${prog.examPlan.dailyMinutes || 15} phút để về đích đúng hẹn.`,
+            href: '/kiem-tra-hsk/',
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
+      const celebrate = [];
+      if (sum.wordsMastered >= 10) celebrate.push({ id: 'milestone-10-words', labelVi: `Đạt mốc ${sum.wordsMastered} từ vựng!` });
+      if (sum.streakDays >= 3) celebrate.push({ id: `milestone-streak-${sum.streakDays}`, labelVi: `Chuỗi ${sum.streakDays} ngày học liên tiếp!` });
+      const items = rawItems.map(it => ({ ...it, read: readSet.has(it.id) }));
+      const unreadCount = items.filter(it => !it.read).length;
+      return jsonResponse({ items, unreadCount, celebrate });
     }
     if (p === '/v2/companion/inbox/read') {
-      return jsonResponse({ ok: true, unreadCount: 0 });
+      const body = await parseRequestBody(init);
+      const prog = getRealProgress();
+      const readSet = new Set(Array.isArray(prog.companionInboxReadIds) ? prog.companionInboxReadIds : []);
+      const todayStr = new Date().toISOString().slice(0, 10);
+      if (Array.isArray(body.ids)) body.ids.forEach(id => { if (id) readSet.add(String(id)); });
+      else if (body.id) readSet.add(String(body.id));
+      else {
+        readSet.add(`due-${todayStr}`);
+        readSet.add(`mistakes-${todayStr}`);
+        if (prog.examPlan && prog.examPlan.targetDate) readSet.add(`exam-plan-${prog.examPlan.targetDate}`);
+      }
+      prog.companionInboxReadIds = Array.from(readSet).slice(-60);
+      saveRealProgress(prog);
+      supabaseUpsert(getLocalState()).catch(() => {});
+      return jsonResponse({ ok: true, unreadCount: 0, readIds: prog.companionInboxReadIds });
     }
     if (p === '/v2/companion/tts/stream') {
       return jsonResponse({ error: { code: 'not_found', message: 'Use standard TTS' } }, 404);
@@ -3829,33 +4018,65 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
     }
     if (p === '/v2/me/exam-plan') {
-      return jsonResponse({ status: 'none', plan: null });
+      await ensureInitialCloudPull();
+      const prog = getRealProgress();
+      if (method === 'DELETE') {
+        prog.examPlan = null;
+        saveRealProgress(prog);
+        supabaseUpsert(getLocalState()).catch(() => {});
+        return jsonResponse({ ok: true, status: 'none', plan: null });
+      }
+      if (method === 'POST' || method === 'PATCH' || method === 'PUT') {
+        const body = await parseRequestBody(init);
+        const targetLevel = Math.max(1, Math.min(9, Number(body.targetLevel || body.level || (prog.examPlan && prog.examPlan.targetLevel) || 1) || 1));
+        const dailyMinutes = Math.max(5, Math.min(180, Number(body.dailyMinutes || body.minutesPerDay || (prog.examPlan && prog.examPlan.dailyMinutes) || 15) || 15));
+        const examType = String(body.examType || (prog.examPlan && prog.examPlan.examType) || 'hsk').toLowerCase();
+        const targetDate = typeof body.targetDate === 'string' && body.targetDate.trim()
+          ? body.targetDate.trim().slice(0, 10)
+          : ((prog.examPlan && prog.examPlan.targetDate) || null);
+        prog.examPlan = {
+          ...(prog.examPlan || {}),
+          examType,
+          targetLevel,
+          targetDate,
+          dailyMinutes,
+          goalScore: Number(body.goalScore) || (targetLevel <= 2 ? 160 : 220),
+          status: 'active',
+          updatedAt: new Date().toISOString()
+        };
+        saveRealProgress(prog);
+        supabaseUpsert(getLocalState()).catch(() => {});
+        return jsonResponse({ ok: true, status: 'active', plan: prog.examPlan });
+      }
+      const plan = prog.examPlan || null;
+      return jsonResponse({ status: plan ? (plan.status || 'active') : 'none', plan });
     }
     if (p === '/v2/me/skill-map') {
       await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
-      const baseScore = sum.lessonsDone > 0 ? Math.min(95, 50 + sum.lessonsDone * 5) : 0;
+      const m = computeRealSkillMetrics(sum);
       return jsonResponse({
-        level: 'HSK 1',
-        wordsSeen: sum.wordsSeen,
-        wordsTotal: 300,
-        skills: [
-          { skill: 'listening', labelVi: 'Nghe hiểu', score: baseScore ? Math.min(100, baseScore + 3) : 0 },
-          { skill: 'reading', labelVi: 'Đọc hiểu', score: baseScore ? Math.min(100, baseScore + 6) : 0 },
-          { skill: 'writing', labelVi: 'Chữ Hán & Viết', score: baseScore },
-          { skill: 'speaking', labelVi: 'Phát âm & Nói', score: baseScore ? Math.min(100, baseScore + 2) : 0 },
-          { skill: 'grammar', labelVi: 'Ngữ pháp', score: baseScore ? Math.min(100, baseScore + 4) : 0 }
-        ]
+        level: m.level,
+        wordsSeen: m.wordsSeen,
+        wordsTotal: m.wordsTotal,
+        grammarDone: m.gramCount,
+        dictationDone: m.dictCount,
+        speakingSessions: m.spkCount,
+        avgScore: m.avgSkill,
+        skills: m.skills
       });
     }
     if (p === '/v2/me/score-prediction') {
       await ensureInitialCloudPull();
       const sum = getRealProgressSummary();
+      const m = computeRealSkillMetrics(sum);
       return jsonResponse({
-        level: 'HSK 1',
-        predictedScore: sum.lessonsDone > 0 ? Math.min(200, 100 + sum.lessonsDone * 10) : 0,
+        level: m.level,
+        predictedScore: m.predictedScore200,
         maxScore: 200,
-        passScore: 120
+        passScore: 120,
+        readinessPct: m.avgSkill,
+        examCount: m.examCount
       });
     }
     if (p === '/v2/me/reports/weekly') {
@@ -4364,7 +4585,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ ok: true });
     }
     if (p === '/v2/me/shadowing/summary') {
-      return jsonResponse({ enabled: false, todayCard: false, checkpoint: { due: false } });
+      await ensureInitialCloudPull();
+      const sum = getRealProgressSummary();
+      const prog = sum.prog || getRealProgress();
+      const spkCount = Object.keys(prog.speakingProgress || {}).length + (Number(prog.voiceUsed) || 0);
+      const dictCount = Object.keys(prog.dictationProgress || {}).length;
+      const completedCount = spkCount + dictCount;
+      const hasPractice = sum.wordsMastered > 0 || completedCount > 0;
+      return jsonResponse({
+        enabled: true,
+        todayCard: hasPractice,
+        completedCount,
+        speakingCount: spkCount,
+        dictationCount: dictCount,
+        checkpoint: { due: completedCount >= 5 && completedCount % 5 === 0, completedCount }
+      });
     }
     if (p === '/v2/today' || p === '/v2/today/session' || p.startsWith('/v2/today/session/steps/')) {
       await ensureInitialCloudPull();
@@ -5050,18 +5285,50 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse(data || { levels: [] });
     }
     if (p === '/v1/generated-tests/freshness') {
+      await ensureInitialCloudPull();
+      const prog = getRealProgress();
       const data = await loadLocalJson('/data/tests/generated-tests-options.json');
-      const levels = (data && Array.isArray(data.levels) ? data.levels : []).map(l => ({
-        ...l,
-        unseenCount: l.questionCount || l.total || 40,
-        totalCount: l.questionCount || l.total || 40
-      }));
+      const takenIds = new Set(
+        (Array.isArray(prog.examHistory) ? prog.examHistory : [])
+          .map(h => String((h && (h.paperId || h.testId || h.id)) || '').trim().toLowerCase())
+          .filter(Boolean)
+      );
+      const levels = (data && Array.isArray(data.levels) ? data.levels : []).map(l => {
+        const lvlNum = Number(l.level) || 1;
+        const total = Number(l.questionCount || l.total) || 40;
+        const testCount = Math.max(1, Number(l.testCount) || 11);
+        const candidates = [`hsk30-${lvlNum}`, ...Array.from({ length: 10 }, (_, i) => `xh30-${lvlNum}-${String(i + 1).padStart(2, '0')}`)];
+        const donePapers = candidates.filter(id => takenIds.has(id));
+        const avgPerTest = Math.round(total / testCount);
+        const unseenCount = Math.max(0, total - donePapers.length * avgPerTest);
+        return {
+          ...l,
+          unseenCount,
+          totalCount: total,
+          completedTests: donePapers.length,
+          takenPaperIds: donePapers
+        };
+      });
       return jsonResponse({ levels });
     }
     if (p.includes('/v1/generated-tests/create') || p.includes('/v1/generated-tests/start') || (p.includes('/v1/generated-tests') && method === 'POST')) {
+      await ensureInitialCloudPull();
+      const prog = getRealProgress();
       const body = await parseRequestBody(init);
-      const level = body.level || body.hskLevel || 1;
-      const deId = `hsk30-${level}`;
+      const examType = String(body.examType || body.family || 'hsk').toLowerCase();
+      const rawLevel = Number(body.level || body.hskLevel || (Array.isArray(body.levels) && body.levels[0]) || 1) || 1;
+      const level = examType === 'yct' ? Math.max(1, Math.min(4, rawLevel)) : Math.max(1, Math.min(6, rawLevel));
+      const takenIds = new Set(
+        (Array.isArray(prog.examHistory) ? prog.examHistory : [])
+          .map(h => String((h && (h.paperId || h.testId || h.id)) || '').trim().toLowerCase())
+          .filter(Boolean)
+      );
+      const candidates = examType === 'yct'
+        ? [`yct-${level}-01`, `yct-${level}-02`]
+        : [`hsk30-${level}`, ...Array.from({ length: 10 }, (_, i) => `xh30-${level}-${String(i + 1).padStart(2, '0')}`)];
+      const unseenId = candidates.find(id => !takenIds.has(id));
+      const deId = unseenId || candidates[0];
+      const repeatedLevels = unseenId ? [] : [level];
       const fullPaper = await loadTestPaperById(deId, level);
       if (fullPaper) {
         return jsonResponse({
@@ -5069,12 +5336,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           deId,
           id: deId,
           testId: fullPaper.testId || deId,
-          questionCount: fullPaper.questionCount || 40,
-          repeatedLevels: [],
+          examType,
+          level,
+          questionCount: fullPaper.questionCount || (Array.isArray(fullPaper.questions) ? fullPaper.questions.length : 40),
+          repeatedLevels,
           durationMinutes: fullPaper.durationMinutes || 40
         });
       }
-      return jsonResponse({ deId: 'hsk30-1', id: 'hsk30-1', testId: 'hsk30-1', questionCount: 40, repeatedLevels: [], questions: [] });
+      return jsonResponse({ deId: 'hsk30-1', id: 'hsk30-1', testId: 'hsk30-1', examType: 'hsk', level: 1, questionCount: 40, repeatedLevels: [], questions: [] });
     }
     if (p.startsWith('/v1/generated-tests/') && method === 'GET') {
       const deId = decodeURIComponent(p.slice('/v1/generated-tests/'.length).split('/')[0] || 'hsk30-1');
@@ -5231,19 +5500,37 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const lvl = decodeURIComponent(p.slice('/v1/grammar/levels/'.length).split('/')[0] || '1');
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
       const prefix = curr === 'new-hsk' ? 'new-hsk-level-' : 'hsk-level-';
-      const data = await loadLocalJson(`/data/grammar/${prefix}${lvl}.json`);
-      return jsonResponse(data || { curriculum: curr, level: lvl, total: 0, items: [] });
+      let data = await loadLocalJson(`/data/grammar/${prefix}${lvl}.json`);
+      let fallbackFrom = null;
+      if (!data && curr === 'new-hsk') {
+        data = await loadLocalJson(`/data/grammar/hsk-level-${lvl}.json`);
+        if (data) fallbackFrom = 'hsk';
+      }
+      return jsonResponse(data ? { ...data, curriculum: curr, level: lvl, ...(fallbackFrom ? { fallbackFrom } : {}) } : { curriculum: curr, level: lvl, total: 0, items: [] });
     }
     if (p.includes('/v1/grammar/levels')) {
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
       const data = await loadLocalJson(`/data/grammar/levels-${curr}.json`);
+      if (data && curr === 'new-hsk' && Array.isArray(data.levels)) {
+        const hskLevels = await loadLocalJson('/data/grammar/levels-hsk.json');
+        const hskMap = new Map((hskLevels && Array.isArray(hskLevels.levels) ? hskLevels.levels : []).map(x => [String(x.level), Number(x.count) || 0]));
+        const mergedLevels = data.levels.map(lv => {
+          const cnt = Number(lv.count) || 0;
+          const fb = hskMap.get(String(lv.level)) || 0;
+          return cnt > 0 ? lv : (fb > 0 ? { ...lv, count: fb, fallbackFrom: 'hsk' } : lv);
+        });
+        return jsonResponse({ ...data, levels: mergedLevels });
+      }
       return jsonResponse(data || { levels: [] });
     }
     if (p.includes('/v1/grammar/points')) {
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
       const lvl = urlObj.searchParams.get('level') || '1';
       const prefix = curr === 'new-hsk' ? 'new-hsk-level-' : 'hsk-level-';
-      const data = await loadLocalJson(`/data/grammar/${prefix}${lvl}.json`);
+      let data = await loadLocalJson(`/data/grammar/${prefix}${lvl}.json`);
+      if (!data && curr === 'new-hsk') {
+        data = await loadLocalJson(`/data/grammar/hsk-level-${lvl}.json`);
+      }
       return jsonResponse(data || { items: [] });
     }
 
@@ -5743,16 +6030,54 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse(hvData || {});
     }
     if (p.includes('/v1/search') || p.includes('/v1/lookup')) {
-      const q = (urlObj.searchParams.get('q') || urlObj.searchParams.get('query') || '').trim().toLowerCase();
+      const rawQ = (urlObj.searchParams.get('q') || urlObj.searchParams.get('query') || '').trim();
+      const q = rawQ.toLowerCase();
+      const qNorm = normalizePinyinQuery(rawQ);
+      const hasHanzi = /[\u4e00-\u9fff]/.test(rawQ);
       const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
       const vocabIdx = (await loadLocalJson('/data/vocabulary/index.json')) || [];
-      const chars = (Array.isArray(charIdx) ? charIdx : [])
-        .filter(c => (c.c || '').includes(q) || (c.p || '').toLowerCase().includes(q) || (c.hv || '').toLowerCase().includes(q) || (c.m || '').toLowerCase().includes(q))
-        .slice(0, 12);
-      const words = (Array.isArray(vocabIdx) ? vocabIdx : [])
-        .filter(w => (w.w || '').includes(q) || (w.p || '').toLowerCase().includes(q) || (w.hv || '').toLowerCase().includes(q) || (w.m || '').toLowerCase().includes(q))
-        .slice(0, 12);
-      return jsonResponse({ characters: chars, words, items: [...chars, ...words] });
+
+      const scoreChar = c => {
+        const ch = String((c && c.c) || '');
+        const py = String((c && c.p) || '').toLowerCase();
+        const pyNorm = normalizePinyinQuery(py);
+        const hv = String((c && c.hv) || '').toLowerCase();
+        const mv = String((c && c.m) || '').toLowerCase();
+        if (ch === rawQ) return 100;
+        if (hasHanzi && ch && rawQ.includes(ch)) return 90;
+        if (qNorm && pyNorm === qNorm) return 80;
+        if (hv && hv === q) return 70;
+        if (ch.includes(rawQ) || py.includes(q) || (qNorm.length >= 2 && pyNorm.startsWith(qNorm))) return 50;
+        if (q.length >= 2 && (hv.includes(q) || mv.includes(q) || (qNorm.length >= 3 && pyNorm.includes(qNorm)))) return 25;
+        return 0;
+      };
+      const scoreWord = w => {
+        const hw = String((w && w.w) || '').replace(/\{|\}/g, '');
+        const py = String((w && w.p) || '').toLowerCase();
+        const pyNorm = normalizePinyinQuery(py);
+        const hv = String((w && w.hv) || '').toLowerCase();
+        const mv = String((w && w.m) || '').toLowerCase();
+        if (hw === rawQ) return 100;
+        if (qNorm && pyNorm === qNorm) return 88;
+        if (hw && hw.includes(rawQ)) return 75;
+        if (py.includes(q) || (qNorm.length >= 2 && pyNorm.startsWith(qNorm))) return 55;
+        if (q.length >= 2 && (hv.includes(q) || mv.includes(q) || (qNorm.length >= 3 && pyNorm.includes(qNorm)))) return 25;
+        return 0;
+      };
+
+      const chars = rawQ ? (Array.isArray(charIdx) ? charIdx : [])
+        .map(c => ({ c, s: scoreChar(c) }))
+        .filter(x => x.s > 0)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 12)
+        .map(x => x.c) : [];
+      const words = rawQ ? (Array.isArray(vocabIdx) ? vocabIdx : [])
+        .map(w => ({ w: { ...w, w: String((w && w.w) || '').replace(/\{|\}/g, '') }, s: scoreWord(w) }))
+        .filter(x => x.s > 0)
+        .sort((a, b) => b.s - a.s)
+        .slice(0, 12)
+        .map(x => x.w) : [];
+      return jsonResponse({ characters: chars, words, items: [...words, ...chars] });
     }
 
     // ------------------------------------------------------------------------
@@ -13100,28 +13425,45 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const cIdx = Array.isArray(loaded && loaded[0]) ? loaded[0] : [];
         const vIdx = Array.isArray(loaded && loaded[1]) ? loaded[1] : [];
         const hasHanzi = /[\u4e00-\u9fff]/.test(q);
+        const qNorm = normalizePinyinQuery(q);
         const vHits = vIdx
-          .filter(v => {
+          .map(v => {
             const hw = String((v && v.w) || '').replace(/\{|\}/g, '');
             const py = String((v && v.p) || '').toLowerCase();
+            const pyNorm = normalizePinyinQuery(py);
             const mv = String((v && v.m) || '').toLowerCase();
-            return (hw && hw.includes(q)) || py.includes(ql) || (ql.length >= 2 && mv.includes(ql));
+            let score = 0;
+            if (hw && hw === q) score = 100;
+            else if (qNorm && pyNorm === qNorm) score = 90;
+            else if (hw && hw.includes(q)) score = 75;
+            else if (py.includes(ql) || (qNorm.length >= 2 && pyNorm.startsWith(qNorm))) score = 55;
+            else if (ql.length >= 2 && (mv.includes(ql) || (qNorm.length >= 3 && pyNorm.includes(qNorm)))) score = 25;
+            return { v, hw, score };
           })
+          .filter(x => x.score > 0)
+          .sort((a, b) => b.score - a.score)
           .slice(0, 6)
-          .map(v => {
-            const hw = String(v.w || '').replace(/\{|\}/g, '');
-            return { kind: 'word', hanzi: hw, pinyin: String(v.p || ''), hv: String(v.hv || ''), meaning: String(v.m || ''), href: `/tu-vung/${encodeURIComponent(hw)}` };
-          });
+          .map(x => ({ kind: 'word', hanzi: x.hw, pinyin: String(x.v.p || ''), hv: String(x.v.hv || ''), meaning: String(x.v.m || ''), href: `/tu-vung/${encodeURIComponent(x.hw)}` }));
         const cHits = cIdx
-          .filter(c => {
+          .map(c => {
             const ch = String((c && c.c) || '');
             const py = String((c && c.p) || '').toLowerCase();
+            const pyNorm = normalizePinyinQuery(py);
             const hv = String((c && c.hv) || '').toLowerCase();
             const mv = String((c && c.m) || '').toLowerCase();
-            return (ch && (ch.includes(q) || (hasHanzi && q.includes(ch)))) || py.includes(ql) || hv === ql || (ql.length >= 2 && mv.includes(ql));
+            let score = 0;
+            if (ch && ch === q) score = 100;
+            else if (hasHanzi && ch && q.includes(ch)) score = 90;
+            else if (qNorm && pyNorm === qNorm) score = 80;
+            else if (hv && hv === ql) score = 70;
+            else if ((ch && ch.includes(q)) || py.includes(ql) || (qNorm.length >= 2 && pyNorm.startsWith(qNorm))) score = 50;
+            else if (ql.length >= 2 && (mv.includes(ql) || (qNorm.length >= 3 && pyNorm.includes(qNorm)))) score = 25;
+            return { c, score };
           })
+          .filter(x => x.score > 0)
+          .sort((a, b) => b.score - a.score)
           .slice(0, 5)
-          .map(c => ({ kind: 'char', hanzi: String(c.c || ''), pinyin: String(c.p || ''), hv: String(c.hv || ''), meaning: String(c.m || ''), href: `/han-tu/${encodeURIComponent(c.c)}` }));
+          .map(x => ({ kind: 'char', hanzi: String(x.c.c || ''), pinyin: String(x.c.p || ''), hv: String(x.c.hv || ''), meaning: String(x.c.m || ''), href: `/han-tu/${encodeURIComponent(x.c.c)}` }));
         dictRows = [...vHits, ...cHits];
       } catch (_) {}
       if (seq !== searchSeq) return;

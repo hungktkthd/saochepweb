@@ -1,5 +1,5 @@
-// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v13.0)
-const CACHE_NAME = 'htq-studio-v13';
+// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v13.1)
+const CACHE_NAME = 'htq-studio-v13.1';
 const SHELL_PRECACHE = [
   '/',
   '/hoc/',
@@ -45,18 +45,36 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-First for immutable JSON datasets and Next static assets
-  if (url.pathname.startsWith('/data/') || url.pathname.startsWith('/_next/static/')) {
+  // Stale-While-Revalidate for JSON datasets so they stay fast AND receive data fixes
+  if (url.pathname.startsWith('/data/')) {
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) =>
+        cache.match(req).then((cached) => {
+          const networkFetch = fetch(req).then((res) => {
+            if (res && res.ok) {
+              const ct = res.headers.get('content-type') || '';
+              if (!url.pathname.endsWith('.json') || !ct.includes('text/html')) {
+                cache.put(req, res.clone()).catch(() => {});
+              }
+            }
+            return res;
+          }).catch(() => cached);
+          return cached || networkFetch;
+        })
+      )
+    );
+    return;
+  }
+
+  // Cache-First for hashed Next static assets
+  if (url.pathname.startsWith('/_next/static/')) {
     event.respondWith(
       caches.match(req).then((cached) => {
         if (cached) return cached;
         return fetch(req).then((res) => {
           if (res && res.ok) {
-            const ct = res.headers.get('content-type') || '';
-            if (!url.pathname.endsWith('.json') || !ct.includes('text/html')) {
-              const copy = res.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
-            }
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
           }
           return res;
         });

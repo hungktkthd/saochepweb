@@ -1,4 +1,4 @@
-# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v13.0
+# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v13.1
 
 - **Production URL**: https://hoctiengtrungquoc.vercel.app
 - **GitHub Repository**: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`)
@@ -68,6 +68,16 @@
 19. **Nâng cấp bộ tự kiểm tra `window.__xhzRunDiagnostics()` lên 28/28 kiểm thử không phá hủy dữ liệu**.
 20. **Cập nhật tài liệu bàn giao v13.0, đẩy `origin/main` & kiểm thử thực tế trên Vercel**.
 
+### Đợt 3 (v13.1 — Hoàn thiện lõi thực dụng, không rườm rà)
+1. **Gỡ sạch iOS Smart App Banner cũ (`apple-itunes-app` / `app-id=6824317704`)** trên cả `<head>` lẫn `self.__next_f` của toàn bộ 285 file HTML (0 hydration mismatch, không còn hiện banner mời tải app cũ trên Safari iPhone/iPad).
+2. **Tối ưu HTTP Cache & Service Worker (`vercel.json` + [`sw.js`](./sw.js) `htq-studio-v13.1`)**: thêm `Cache-Control: public, max-age=0, must-revalidate` + `Service-Worker-Allowed: /` cho `/sw.js` & `*.webmanifest`, đổi `/data/(.*)` sang `max-age=3600, stale-while-revalidate=86400` và nâng cấp SW `/data/` sang Stale-While-Revalidate để dữ liệu vừa nhanh vừa luôn nhận bản vá mới.
+3. **Thật hóa 4 API cá nhân hóa còn lại (`/v2/me/skill-map`, `/v2/me/score-prediction`, `/v2/me/exam-plan` CRUD, `/v2/me/shadowing/summary`)**: tính 5 kỹ năng từ tiến độ thực (`learnedWords`, `masteredChars`, `learnedGrammarIds`, `dictationProgress`, `speakingProgress`, `examHistory`), lưu kế hoạch thi `examPlan` an toàn trong `httq_progress_v2` & đồng bộ cloud.
+4. **Thật hóa bộ nhớ & hộp thư Trợ lý Học tập (`/v2/companion/memory`, `/v2/companion/inbox`, `/v2/companion/inbox/read`)**: sinh nhắc ôn thẻ SRS, sổ lỗi, đếm ngược kỳ thi & mốc thành tích thực tế, lưu trạng thái đã đọc theo tài khoản.
+5. **Nâng cấp Bộ sinh đề thi thông minh (`/v1/generated-tests/freshness`, `POST /v1/generated-tests/create`)**: trừ đề đã làm từ `examHistory`, ưu tiên chọn đề chưa thi trong 66 đề HSK + hỗ trợ `examType: 'yct'`.
+6. **Tìm kiếm Pinyin không dấu & chiết chữ Hán (`/v1/search`, `/v1/lookup`, Command Palette `Ctrl+K`)**: chuẩn hóa dấu thanh (`nihao` → `你好`, `xiexie` → `谢谢`), lọc sạch dấu `{}` và trả kèm từng chữ Hán cấu thành.
+7. **Fallback Ngữ pháp New HSK 4–6 (`/v1/grammar/levels/:lvl`, `/v1/grammar/points`)**: tự động nối sang `hsk-level-4..6.json` khi chưa có file `new-hsk-level-4..6.json`, tránh trang rỗng.
+8. **Nâng cấp `window.__xhzRunDiagnostics()` lên 34/34 kiểm thử không phá hủy dữ liệu**.
+
 ---
 
 ## 3. Kiến trúc & Lệnh nhanh cho máy mới
@@ -90,11 +100,11 @@ node scripts/dev-server.mjs
 ## 4. Prompt dán nhanh khi tiếp tục trên trình duyệt / phiên AI khác
 
 ```text
-Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v13.0) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
+Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v13.1) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
 
 Hãy thực hiện các bước sau trước khi bắt đầu:
 1. Clone hoặc cập nhật nhánh `main`:
    git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git (hoặc `git pull origin main`).
 2. Đọc `PROJECT_HANDOVER.md`, `xiehanzi-runtime.js`, `api/ai.js`, `sw.js`, `site.webmanifest`, `vercel.json`. Giữ nguyên 100% giao diện Hanzi Studio v4, cơ chế tách kho theo tài khoản (`initializeScopedStorage`) và không làm mất dữ liệu trong `httq_progress_v2`, `xhz-seen-words-v1`, `xhz-practice-v1`, `httq_state`.
-3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `28/28`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
+3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `34/34`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
 ```
