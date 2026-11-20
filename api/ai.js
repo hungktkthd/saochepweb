@@ -29,34 +29,51 @@ function detectToneFromPinyin(py) {
   return numMatch ? Number(numMatch[0]) : 5;
 }
 
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  const controller = typeof AbortController !== "undefined" ? new AbortController() : null;
+  const timer = controller ? setTimeout(() => { try { controller.abort(); } catch (_) {} }, timeoutMs) : null;
+  try {
+    return await fetch(url, controller ? { ...options, signal: controller.signal } : options);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
 async function callLlmJson(systemPrompt, userPrompt, clientApiKey) {
   const geminiKey = clientApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (geminiKey) {
-    try {
-      const resp = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${encodeURIComponent(geminiKey)}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [{ role: "user", parts: [{ text: userPrompt }] }],
-            generationConfig: { responseMimeType: "application/json", temperature: 0.25 }
-          })
+    const models = [...new Set([process.env.GEMINI_MODEL, "gemini-2.0-flash", "gemini-1.5-flash"].filter(Boolean))];
+    for (const model of models) {
+      try {
+        const resp = await fetchWithTimeout(
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiKey)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [{ role: "user", parts: [{ text: String(userPrompt || "").slice(0, 4000) }] }],
+              generationConfig: { responseMimeType: "application/json", temperature: 0.25 }
+            })
+          },
+          8000
+        );
+        if (resp.ok) {
+          const data = await resp.json();
+          const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+          if (raw) {
+            const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+            return JSON.parse(cleaned);
+          }
         }
-      );
-      if (resp.ok) {
-        const data = await resp.json();
-        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (raw) return JSON.parse(raw);
-      }
-    } catch (_) {}
+      } catch (_) {}
+    }
   }
 
   const openaiKey = process.env.OPENAI_API_KEY;
   if (openaiKey) {
     try {
-      const resp = await fetch("https://api.openai.com/v1/chat/completions", {
+      const resp = await fetchWithTimeout("https://api.openai.com/v1/chat/completions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -67,11 +84,11 @@ async function callLlmJson(systemPrompt, userPrompt, clientApiKey) {
           response_format: { type: "json_object" },
           messages: [
             { role: "system", content: systemPrompt },
-            { role: "user", content: userPrompt }
+            { role: "user", content: String(userPrompt || "").slice(0, 4000) }
           ],
           temperature: 0.25
         })
-      });
+      }, 8000);
       if (resp.ok) {
         const data = await resp.json();
         const raw = data?.choices?.[0]?.message?.content;
@@ -83,14 +100,15 @@ async function callLlmJson(systemPrompt, userPrompt, clientApiKey) {
 }
 
 async function googleTranslateFallback(text, sourceLang, targetLang, script) {
+  const safeText = String(text || "").slice(0, 1500);
   const sl = sourceLang === "zh" ? "zh-CN" : sourceLang === "vi" ? "vi" : "auto";
   const tl = targetLang === "zh" ? (script === "traditional" ? "zh-TW" : "zh-CN") : "vi";
   const url =
     `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&dt=rm&q=` +
-    encodeURIComponent(text);
-  const resp = await fetch(url, {
+    encodeURIComponent(safeText);
+  const resp = await fetchWithTimeout(url, {
     headers: { "User-Agent": "Mozilla/5.0" }
-  });
+  }, 6000);
   if (!resp.ok) throw new Error("GTX status " + resp.status);
   const data = await resp.json();
   let translation = "";
@@ -103,7 +121,7 @@ async function googleTranslateFallback(text, sourceLang, targetLang, script) {
     }
   }
   return {
-    translation: translation.trim() || text,
+    translation: translation.trim() || safeText,
     pinyin: translit.trim() || null
   };
 }
@@ -144,12 +162,15 @@ module.exports = async function handler(req, res) {
     // 1. COMPANION CHAT (Dương Dương / Capy / Tiểu Mãn / Hạ Vũ / Lục Thần / Mai)
     // ------------------------------------------------------------------------
     if (action === "companion-chat") {
-      const msg = String(body.message || body.text || "").trim();
+      const msg = String(body.message || body.text || "").trim().slice(0, 1500);
       const characterName = String(body.characterName || "Dương Dương").trim();
       const pagePath = String(body.pagePath || "").trim();
       const pageTitle = String(body.pageTitle || "").trim();
       const pageWord = body.pageWord || null;
-      const dictMatches = Array.isArray(body.dictMatches) ? body.dictMatches : [];
+      const dictMatches = Array.isArray(body.dictMatches) ? body.dictMatches.slice(0, 8) : [];
+      const history = Array.isArray(body.history)
+        ? body.history.slice(-6).map(h => ({ role: h && h.role === "user" ? "user" : "assistant", text: String((h && (h.text || h.content)) || "").slice(0, 300) }))
+        : [];
 
       if (!msg) {
         return res.status(200).json({
@@ -159,8 +180,8 @@ module.exports = async function handler(req, res) {
       }
 
       const llmRes = await callLlmJson(
-        `Bạn là ${characterName}, người bạn đồng hành dạy tiếng Trung thân thiện, thông minh trên nền tảng XieHanzi. Hãy trả lời trực tiếp, tự nhiên, chính xác bằng tiếng Việt (kèm chữ Hán, Pinyin có dấu thanh và nghĩa khi đưa ví dụ tiếng Trung). Dựa vào ngữ cảnh trang hiện tại (nếu có) và câu hỏi của học viên để giải đáp rõ ràng. Trả về JSON: { "reply": "..." }.`,
-        JSON.stringify({ message: msg, pagePath, pageTitle, pageWord, dictMatches }),
+        `Bạn là ${characterName}, người bạn đồng hành dạy tiếng Trung thân thiện, thông minh trên nền tảng Học Tiếng Trung (Hán Ngữ Studio). Hãy trả lời trực tiếp, tự nhiên, chính xác bằng tiếng Việt (kèm chữ Hán, Pinyin có dấu thanh và nghĩa khi đưa ví dụ tiếng Trung). Dựa vào lịch sử hội thoại gần nhất, ngữ cảnh trang hiện tại (nếu có) và câu hỏi của học viên để giải đáp rõ ràng. Trả về JSON: { "reply": "..." }.`,
+        JSON.stringify({ message: msg, history, pagePath, pageTitle, pageWord, dictMatches }),
         clientApiKey
       );
 
@@ -188,11 +209,11 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({
           ok: true,
           reply:
-            `Trên XieHanzi có đầy đủ các công cụ học tiếng Trung từ cơ bản đến nâng cao cho bạn nhé:${contextLine}\n\n` +
-            `1. **Lộ trình Học (/hoc):** Học theo từng chặng HSK 3.0 (Cấp 1–9) với bài tập tương tác 4 kỹ năng.\n` +
-            `2. **Từ điển (/tu-dien):** Tra từ vựng, chữ Hán, âm Hán Việt kèm thứ tự nét viết và ví dụ.\n` +
-            `3. **Luyện tập:** Nghe chép chính tả video, Luyện nghe, Luyện nói AI, Tập viết chữ Hán & Tạo vở tập viết PDF.\n` +
-            `4. **Ngữ pháp & Thi thử HSK:** Kho ngữ pháp HSK 1–6, Kiểm tra ngữ pháp và Phòng thi thử HSK.\n` +
+            `Trên Học Tiếng Trung (Hán Ngữ Studio) có đầy đủ các công cụ học tiếng Trung từ cơ bản đến nâng cao cho bạn nhé:${contextLine}\n\n` +
+            `1. **Lộ trình Học (/hoc):** Học theo từng chặng HSK 3.0 (Cấp 1–9), YCT & Boya với bài tập tương tác 4 kỹ năng.\n` +
+            `2. **Từ điển (/tra-chu):** Tra từ vựng, chữ Hán, âm Hán Việt kèm thứ tự nét viết và ví dụ.\n` +
+            `3. **Luyện tập:** Nghe chép chính tả video, Luyện nghe, Luyện nói AI, Luyện gõ Pinyin & Tạo vở tập viết PDF.\n` +
+            `4. **Ngữ pháp & Thi thử HSK:** Kho ngữ pháp HSK 1–6, Kiểm tra ngữ pháp và Phòng thi thử HSK/YCT.\n` +
             `5. **Ôn tập SRS (/on-tap):** Tự động nhắc các từ đến hạn ôn và sổ lỗi hay sai.\n\n` +
             `Bạn muốn mình giải thích từ vựng nào hay dịch câu gì sang tiếng Trung cứ nhắn trực tiếp cho mình nha!`
         });

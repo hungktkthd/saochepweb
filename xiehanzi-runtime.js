@@ -27,7 +27,7 @@
         st.id = 'htq-v3-master-css';
         root.appendChild(st);
       }
-      var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:45;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n";
+      var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:45;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n\n/* === HTQ RESPONSIVE MAIN & MOBILE BOTTOM NAV === */\nmain, main#noi-dung-chinh, #xhz-dynamic-page-root{\n  min-width:0 !important;\n  width:100% !important;\n  box-sizing:border-box !important;\n}\n#htq-mobile-nav{display:none;}\n@media (max-width:768px){\n  body:not([data-htq-immersive=\"1\"]){padding-bottom:68px !important;}\n  body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:55;\n    padding:6px 4px calc(6px + env(safe-area-inset-bottom, 0px));\n    background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);\n    border-top:1px solid rgba(79,70,229,.16);box-shadow:0 -8px 24px rgba(15,23,42,.08);\n  }\n  .dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav, html.dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    background:rgba(13,16,30,.95);border-top-color:rgba(129,140,248,.22);box-shadow:0 -8px 24px rgba(0,0,0,.55);\n  }\n  .htq-mnav-item{\n    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;\n    text-decoration:none;color:#475569;font-size:10.5px;font-weight:700;padding:4px 2px;border-radius:10px;\n  }\n  .dark .htq-mnav-item{color:#cbd5e1;}\n  .htq-mnav-item.is-active{color:#4f46e5;background:rgba(79,70,229,.10);}\n  .dark .htq-mnav-item.is-active{color:#a5b4fc;background:rgba(129,140,248,.16);}\n}\n";
       if (st.textContent !== cssText) st.textContent = cssText;
     } catch (_e) {}
   }
@@ -465,7 +465,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const origBeacon = navigator.sendBeacon.bind(navigator);
       navigator.sendBeacon = function (url, data) {
         const s = String(url || '');
-        if (s.includes('/monitoring') || s.includes('xiehanzi.com') || s.includes('/v1/') || s.includes('/v2/')) {
+        if (
+          s.includes('/monitoring') ||
+          s.includes('xiehanzi.com') ||
+          s.includes('/v1/') ||
+          s.includes('/v2/') ||
+          /google-analytics\.com|analytics\.google\.com|googletagmanager\.com|doubleclick\.net|sentry\.io|posthog|umami|clarity\.ms|\/g\/collect/i.test(s)
+        ) {
           return true;
         }
         return origBeacon(url, data);
@@ -1446,6 +1452,112 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
   };
 
+  function getGuestMigrationSummary() {
+    try {
+      const user = typeof getSavedUser === 'function' ? getSavedUser() : null;
+      const rawGuestProg = localStorage.getItem('httq_progress_v2:httq_state:guest');
+      const rawGuestState = localStorage.getItem('httq_state:guest');
+      const guestProg = rawGuestProg ? JSON.parse(rawGuestProg) : null;
+      const guestState = rawGuestState ? JSON.parse(rawGuestState) : null;
+      const wordsCount = guestProg && Array.isArray(guestProg.learnedWords) ? guestProg.learnedWords.length : 0;
+      const stagesCount = guestProg && Array.isArray(guestProg.doneStages) ? guestProg.doneStages.length : 0;
+      const grammarCount = guestProg && Array.isArray(guestProg.learnedGrammarIds) ? guestProg.learnedGrammarIds.length : 0;
+      const reviewCardsCount = guestState && guestState.collections && Array.isArray(guestState.collections.reviewCards) ? guestState.collections.reviewCards.length : 0;
+      const savedWordsCount = guestState && guestState.savedWords && typeof guestState.savedWords === 'object' ? Object.keys(guestState.savedWords).length : 0;
+      const hasData = (wordsCount + stagesCount + grammarCount + reviewCardsCount + savedWordsCount) > 0;
+      const migFlagKey = user && user.id ? `httq_guest_migrated_for_${user.id}` : '';
+      const alreadyMigrated = Boolean(migFlagKey && localStorage.getItem(migFlagKey));
+      return { hasData, wordsCount, stagesCount, grammarCount, reviewCardsCount, savedWordsCount, alreadyMigrated };
+    } catch (_e) {
+      return { hasData: false, wordsCount: 0, stagesCount: 0, grammarCount: 0, reviewCardsCount: 0, savedWordsCount: 0, alreadyMigrated: false };
+    }
+  }
+
+  async function importGuestProgressIntoAccount() {
+    const user = typeof getSavedUser === 'function' ? getSavedUser() : null;
+    if (!user || !user.id) return { ok: false, reason: 'not_signed_in' };
+    try {
+      const rawGuestProg = localStorage.getItem('httq_progress_v2:httq_state:guest');
+      const rawGuestState = localStorage.getItem('httq_state:guest');
+      const guestProg = rawGuestProg ? JSON.parse(rawGuestProg) : null;
+      const guestState = rawGuestState ? JSON.parse(rawGuestState) : null;
+      if (!guestProg && !guestState) return { ok: false, reason: 'no_guest_data' };
+      let mergedProg = getRealProgress();
+      if (guestProg && typeof guestProg === 'object') {
+        mergedProg = mergeProgressObjects(mergedProg, guestProg);
+        saveRealProgress(mergedProg);
+      }
+      let mergedState = getLocalState();
+      if (guestState && typeof guestState === 'object') {
+        mergedState = mergeStudyState(guestState, mergedState);
+        saveLocalState(mergedState);
+      }
+      try { localStorage.setItem(`httq_guest_migrated_for_${user.id}`, String(Date.now())); } catch (_) {}
+      if (!window.__xhzDiagRunning) {
+        try { await syncProgressToSupabaseAuth(mergedProg); } catch (_) {}
+        try { await supabaseUpsert(mergedState); } catch (_) {}
+      }
+      return {
+        ok: true,
+        wordsTotal: (mergedProg.learnedWords || []).length,
+        stagesTotal: (mergedProg.doneStages || []).length,
+        grammarTotal: (mergedProg.learnedGrammarIds || []).length,
+        reviewCardsTotal: (mergedState.collections && Array.isArray(mergedState.collections.reviewCards) ? mergedState.collections.reviewCards.length : 0)
+      };
+    } catch (_e) {
+      return { ok: false, reason: 'merge_error' };
+    }
+  }
+  window.__xhzGetGuestMigrationSummary = getGuestMigrationSummary;
+  window.__xhzImportGuestProgressIntoAccount = importGuestProgressIntoAccount;
+
+  window.__xhzExportVocabularyCsv = async function (triggerDownload = false) {
+    const prog = getRealProgress();
+    const state = getLocalState();
+    const cards = (state.collections && Array.isArray(state.collections.reviewCards)) ? state.collections.reviewCards : [];
+    const cardByHz = new Map();
+    cards.forEach(c => {
+      if (c && c.itemKey && /^[cw]:/.test(c.itemKey)) {
+        const hz = c.itemKey.replace(/^[cw]:/, '');
+        if (!cardByHz.has(hz)) cardByHz.set(hz, c);
+      }
+    });
+    const allHz = [...new Set([
+      ...(Array.isArray(prog.learnedWords) ? prog.learnedWords : []),
+      ...Array.from(cardByHz.keys())
+    ].map(w => String(w || '').replace(/^w:|^c:/, '').trim()).filter(Boolean))];
+    const vIdx = (await loadLocalJson('/data/vocabulary/index.json')) || [];
+    const cIdx = (await loadLocalJson('/data/characters/index.json')) || [];
+    const vMap = new Map((Array.isArray(vIdx) ? vIdx : []).map(x => [String(x.w || '').replace(/\{|\}/g, ''), x]));
+    const cMap = new Map((Array.isArray(cIdx) ? cIdx : []).map(x => [x.c || x.character, x]));
+    const escCsv = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
+    const rows = ['Hanzi,Pinyin,HanViet,MeaningVi,Status'];
+    for (const hz of allHz) {
+      const card = cardByHz.get(hz);
+      const v = vMap.get(hz);
+      const c = cMap.get(hz);
+      const py = (card && card.content && card.content.pinyin) || (v && v.p) || (c && c.p) || '';
+      const hv = (v && v.hv) || (c && c.hv) || '';
+      const mv = (card && card.content && card.content.meaningVi) || (v && v.m) || (c && c.m) || '';
+      const st = card && card.state === 'review' ? 'Đã thuộc' : 'Đang học';
+      rows.push([hz, py, hv, mv, st].map(escCsv).join(','));
+    }
+    const csv = '\uFEFF' + rows.join('\r\n');
+    if (triggerDownload && typeof Blob !== 'undefined') {
+      try {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `hoctiengtrungquoc-tu-vung-${new Date().toISOString().slice(0, 10)}.csv`;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { try { URL.revokeObjectURL(url); a.remove(); } catch (_) {} }, 500);
+      } catch (_) {}
+    }
+    return csv;
+  };
+
   window.__xhzRunDiagnostics = async function () {
     const studyKey = typeof getStudyStateStorageKey === 'function' ? getStudyStateStorageKey() : 'httq_state:guest';
     const diagKeys = [
@@ -1504,7 +1616,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         await fetch('/v2/review/signals', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ signals: [{ signalId: 'diag-m', itemKey: 'w:书', skill: 'meaning', outcome: 'wrong' }] })
+          body: JSON.stringify({ signals: [{ signalId: 'diag-m-' + Date.now(), itemKey: 'w:书', skill: 'meaning', outcome: 'wrong' }] })
         });
         const d = await (await fetch('/v2/review/mistakes')).json();
         return Boolean(d && Array.isArray(d.mistakes) && d.mistakes.some(m => m.hanzi === '书'));
@@ -1556,8 +1668,61 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
       await runCheck('dynamic-run-resolve', async () => {
         const r = window.__xhzResolveRun ? await window.__xhzResolveRun('hsk30.L1.S05.learn.1') : null;
-        const stub = await loadLocalJson('/data/dictation/videos/6a0f4ee00a345b96919efd1e-detail.json');
-        return Boolean(r && Array.isArray(r.steps) && r.steps.length >= 5 && stub === null);
+        const htmlReject = await loadLocalJson('/index.html');
+        const vidDetail = await loadLocalJson('/data/dictation/videos/6a0f4ee00a345b96919efd1e-detail.json');
+        return Boolean(r && Array.isArray(r.steps) && r.steps.length >= 5 && htmlReject === null && vidDetail && vidDetail.id === '6a0f4ee00a345b96919efd1e');
+      });
+      await runCheck('data-dictation-details', async () => {
+        const d = await loadLocalJson('/data/dictation/videos/6ade7cf5a90e9d319b7d4abf-detail.json');
+        return Boolean(d && d.id === '6ade7cf5a90e9d319b7d4abf' && Number(d.segmentCount) >= 10 && d.hasSegments === true);
+      });
+      await runCheck('data-hollow-lessons-fixed', async () => {
+        const b = await loadLocalJson('/data/curriculums/boya/levels/boya-elementary-1-lessons.json');
+        const h4 = await loadLocalJson('/data/curriculums/new-hsk/levels/new-hsk-4-lessons.json');
+        return Boolean(b && Array.isArray(b.lessons) && b.lessons.length === 30 && h4 && Array.isArray(h4.lessons) && h4.lessons.length === 37);
+      });
+      await runCheck('api-tracks-multilevel', async () => {
+        const l2 = await (await fetch('/v2/learning-tracks/hsk30/levels/L2')).json();
+        const y1 = await (await fetch('/v2/learning-tracks/yct/levels/L1')).json();
+        const b1 = await (await fetch('/v2/learning-tracks/boya/levels/E1')).json();
+        const run2 = window.__xhzResolveRun ? await window.__xhzResolveRun('hsk30.L2.S01.learn.1') : null;
+        return Boolean(l2 && l2.stages && l2.stages.length > 0 && y1 && y1.stages && y1.stages.length > 0 && b1 && b1.stages && b1.stages.length > 0 && run2 && Array.isArray(run2.steps) && run2.steps.length >= 4);
+      });
+      await runCheck('api-stage-talks-dynamic', async () => {
+        const p1 = await (await fetch('/v2/learning-tracks/hsk30/stage-talks/hsk30.L1.P1')).json();
+        const s1 = await (await fetch('/v2/learning-tracks/hsk30/stage-talks/hsk30.L1.S01')).json();
+        return Boolean(p1 && s1 && p1.titleVi !== s1.titleVi && Array.isArray(s1.missions) && s1.missions.length === 2);
+      });
+      await runCheck('api-typing-hsk-filter', async () => {
+        const t1 = await (await fetch('/v1/typing-word-set?hsk=1&limit=8')).json();
+        const t2 = await (await fetch('/v1/typing-word-set?hsk=2&limit=8')).json();
+        const tc = await (await fetch('/v1/typing/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ words: ['汉字'], minutes: 1 }) })).json();
+        return Boolean(t1 && t2 && t1.set && t2.set && t1.set.length === 8 && t2.set.length === 8 && t1.set[0].hanzi !== t2.set[0].hanzi && tc && tc.ok);
+      });
+      await runCheck('api-thay-do-real', async () => {
+        const toi = await (await fetch('/v1/thay-do/lop/toi')).json();
+        const bv = await (await fetch('/v1/thay-do/bang-vang/dau')).json();
+        return Boolean(toi && toi.ok && toi.tienDo && bv && bv.ok && bv.bang && Array.isArray(bv.bang['chuyen-can']));
+      });
+      await runCheck('api-forgot-password-guard', async () => {
+        const r = await fetch('/v1/auth/forgot-password', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'bad-email' }) });
+        return r && r.status === 400;
+      });
+      await runCheck('export-vocab-csv', async () => {
+        const csv = window.__xhzExportVocabularyCsv ? await window.__xhzExportVocabularyCsv(false) : '';
+        return Boolean(typeof csv === 'string' && csv.includes('Hanzi,Pinyin,HanViet,MeaningVi,Status'));
+      });
+      await runCheck('guest-migration-helper', async () => {
+        const s = window.__xhzGetGuestMigrationSummary ? window.__xhzGetGuestMigrationSummary() : null;
+        return Boolean(s && typeof s.hasData === 'boolean' && typeof window.__xhzImportGuestProgressIntoAccount === 'function');
+      });
+      await runCheck('command-palette-ready', async () => {
+        return Boolean(typeof window.__xhzOpenCommandPalette === 'function' && typeof window.__xhzCloseCommandPalette === 'function');
+      });
+      await runCheck('pwa-manifest-valid', async () => {
+        const sm = await (await fetch('/site.webmanifest')).json();
+        const mm = await (await fetch('/manifest.webmanifest')).json();
+        return Boolean(sm && sm.start_url === '/hoc/' && mm && mm.start_url === '/hoc/' && Array.isArray(sm.icons) && !JSON.stringify(sm.icons).includes('web-app-manifest-192'));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -3073,33 +3238,6 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (p.includes('/v1/speaking/sample-consent')) {
       return jsonResponse({ ok: true, granted: false, decided: true, deleted: 0 });
     }
-    if (p.includes('/v1/study-time/sync')) {
-      const body = method === 'POST' ? await parseRequestBody(init) : {};
-      let savedBlocks = {};
-      try {
-        savedBlocks = JSON.parse(localStorage.getItem('httq_study_time_blocks') || '{}') || {};
-      } catch (_) {}
-      let addedSec = Number(body.seconds) || 0;
-      const incomingBlocks = Array.isArray(body.blocks)
-        ? body.blocks
-        : (body.blocks && typeof body.blocks === 'object' ? Object.values(body.blocks) : []);
-      if (incomingBlocks.length > 0) {
-        incomingBlocks.forEach((blk, idx) => {
-          if (!blk || typeof blk !== 'object') return;
-          const bKey = blk.id || blk.key || `${blk.day || 'd'}-${blk.bucket || idx}`;
-          const prevSec = Number((savedBlocks[bKey] && savedBlocks[bKey].seconds) || 0);
-          const nextSec = Number(blk.seconds || blk.durationSec || 0);
-          if (nextSec > prevSec) addedSec += (nextSec - prevSec);
-          savedBlocks[bKey] = { ...blk, seconds: Math.max(prevSec, nextSec) };
-        });
-        try { localStorage.setItem('httq_study_time_blocks', JSON.stringify(savedBlocks)); } catch (_) {}
-      }
-      const addMins = Number(body.minutes) || (addedSec >= 30 ? Math.max(1, Math.round(addedSec / 60)) : 0);
-      if (addMins > 0) {
-        recordStudyProgress({ minutes: addMins });
-      }
-      return jsonResponse({ ok: true, blocks: Object.values(savedBlocks) });
-    }
     if (p.includes('/auth/logout')) {
       clearAuthSession();
       return jsonResponse({ ok: true });
@@ -3137,20 +3275,46 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (p.includes('/v1/users/me/avatar')) {
       return updateSupabaseProfile(await parseRequestBody(init), 'avatar', method);
     }
+    if (p.includes('/v1/auth/forgot-password') || p.includes('/v1/auth/reset-password')) {
+      const body = await parseRequestBody(init);
+      const email = typeof body.email === 'string' ? body.email.trim() : '';
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        return authErrorResponse({ status: 400, code: 'invalid_email', message: 'Vui lòng nhập địa chỉ email hợp lệ để nhận liên kết đặt lại mật khẩu.' });
+      }
+      try {
+        await requestSupabaseAuth(`recover?redirect_to=${encodeURIComponent(window.location.origin + '/tai-khoan')}`, {
+          method: 'POST',
+          body: JSON.stringify({ email })
+        });
+        return jsonResponse({ ok: true, message: 'Đã gửi liên kết đặt lại mật khẩu tới email của bạn.' });
+      } catch (error) {
+        return authErrorResponse(error);
+      }
+    }
     if (p.includes('/v1/users/me/password')) {
       const body = await parseRequestBody(init);
-      if (typeof body.currentPassword !== 'string' || !body.currentPassword) return authErrorResponse({ status: 400, code: 'current_password_required', message: 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu.' });
       if (typeof body.newPassword !== 'string' || body.newPassword.length < 6) return authErrorResponse({ status: 400, code: 'weak_password', message: 'Mật khẩu mới phải có ít nhất 6 ký tự.' });
       const revision = authSessionRevision;
       const session = await getSupabaseSession();
       if (!session) return authErrorResponse({ status: 401, code: 'unauthorized', message: 'Vui lòng đăng nhập để đổi mật khẩu.' });
+      const hasExistingPassword = Boolean(session.user && session.user.hasPassword !== false);
+      const isInitialOAuthSet = !hasExistingPassword && (!body.currentPassword || body.mode === 'set');
+      if (!isInitialOAuthSet && (typeof body.currentPassword !== 'string' || !body.currentPassword)) {
+        return authErrorResponse({ status: 400, code: 'current_password_required', message: 'Vui lòng nhập mật khẩu hiện tại để đổi mật khẩu.' });
+      }
       const stillCurrent = () => revision === authSessionRevision && (getSavedUser() || {}).id === session.user.id;
       try {
-        const verified = await requestSupabaseAuth('token?grant_type=password', { method: 'POST', body: JSON.stringify({ email: session.user.email, password: body.currentPassword }) });
-        if (!stillCurrent() || !verified.user || verified.user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
-        const user = await requestSupabaseAuth('user', { method: 'PUT', headers: { Authorization: `Bearer ${verified.access_token}` }, body: JSON.stringify({ password: body.newPassword, data: { xhz_has_password: true } }) });
+        let activeAccess = session.access_token;
+        let activeRefresh = session.refresh_token;
+        if (!isInitialOAuthSet) {
+          const verified = await requestSupabaseAuth('token?grant_type=password', { method: 'POST', body: JSON.stringify({ email: session.user.email, password: body.currentPassword }) });
+          if (!stillCurrent() || !verified.user || verified.user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
+          activeAccess = verified.access_token;
+          activeRefresh = verified.refresh_token;
+        }
+        const user = await requestSupabaseAuth('user', { method: 'PUT', headers: { Authorization: `Bearer ${activeAccess}` }, body: JSON.stringify({ password: body.newPassword, data: { xhz_has_password: true } }) });
         if (!stillCurrent() || user.id !== session.user.id) return authErrorResponse({ status: 409, code: 'session_changed', message: 'Phiên đăng nhập đã thay đổi. Vui lòng thử lại.' });
-        if (!saveAuthSession(verified.access_token, verified.refresh_token, user)) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Vui lòng đăng nhập lại bằng mật khẩu mới.' });
+        if (!saveAuthSession(activeAccess, activeRefresh, user)) return authErrorResponse({ status: 401, code: 'invalid_session', message: 'Vui lòng đăng nhập lại bằng mật khẩu mới.' });
         return jsonResponse({ ok: true });
       } catch (error) { return authErrorResponse(error); }
     }
@@ -3430,7 +3594,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                   return m === qClean || m.startsWith(qClean + ',') || m.startsWith(qClean + ';') || m.includes(', ' + qClean);
                 }).slice(0, 3);
                 dictMatches = found.map(f => ({
-                  hanzi: f.h,
+                  hanzi: String(f.w || f.h || '').replace(/\{|\}/g, ''),
                   pinyin: f.p,
                   hanViet: f.hv || '',
                   meaningVi: f.m || ''
@@ -3444,6 +3608,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         try {
           const aiRes = await callAiEndpoint('companion-chat', {
             message: msg,
+            history: savedTurns.slice(-7, -1).map(t => ({ role: t.role, text: t.text })),
             characterId: reqCharId,
             characterName: reqCharId === 'duong-duong' ? 'Dương Dương 洋洋' : 'Bạn đồng hành AI',
             pagePath: window.location.pathname,
@@ -3775,6 +3940,83 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       ];
       return jsonResponse({ tracks, paths: tracks });
     }
+    async function synthesizeTrackLevel(trackSlug, levelCode) {
+      const cleanTrack = trackSlug === 'hsk30-1' ? 'hsk30' : (trackSlug || 'hsk30');
+      const cleanLvl = String(levelCode || (cleanTrack === 'boya' ? 'E1' : 'L1')).toUpperCase();
+      if (cleanTrack === 'hsk30' && cleanLvl === 'L1') {
+        const l1 = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+        if (l1) return { ...l1, track: 'hsk30', level: 'L1' };
+      }
+      const numMatch = cleanLvl.match(/\d+/);
+      const lvlNum = numMatch ? Number(numMatch[0]) : 1;
+      let curr = 'new-hsk';
+      let levelSlug = lvlNum >= 7 ? 'new-hsk-7-9' : `new-hsk-${Math.max(1, Math.min(6, lvlNum))}`;
+      if (cleanTrack === 'yct') {
+        curr = 'yct';
+        levelSlug = `yct-${Math.max(1, Math.min(4, lvlNum))}`;
+      } else if (cleanTrack === 'boya') {
+        curr = 'boya';
+        levelSlug = `boya-elementary-${lvlNum >= 2 ? 2 : 1}`;
+      }
+      const lvlData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`);
+      const lessData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}-lessons.json`);
+      const rawLessons = (lessData && Array.isArray(lessData.lessons) && lessData.lessons.length > 0)
+        ? lessData.lessons
+        : ((lvlData && lvlData.level && Array.isArray(lvlData.level.lessons) && lvlData.level.lessons.length > 0)
+          ? lvlData.level.lessons
+          : ((lvlData && lvlData.level && Array.isArray(lvlData.level.topics)) ? lvlData.level.topics : []));
+      if (!rawLessons.length) {
+        const fb = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+        return fb ? { ...fb, track: cleanTrack, level: cleanLvl } : null;
+      }
+      const chapters = [];
+      const perChapter = 5;
+      for (let ci = 0; ci < rawLessons.length; ci += perChapter) {
+        const chIdx = Math.floor(ci / perChapter) + 1;
+        const chKey = `${cleanTrack}.${cleanLvl}.C${String(chIdx).padStart(2, '0')}`;
+        const slice = rawLessons.slice(ci, ci + perChapter);
+        const stages = slice.map((item, si) => {
+          const stgNum = ci + si + 1;
+          const stgKey = `${cleanTrack}.${cleanLvl}.S${String(stgNum).padStart(2, '0')}`;
+          const srcSlug = item.lessonSlug || item.topicSlug || item.slug || '';
+          const isTopic = !item.lessonSlug && Boolean(item.topicSlug);
+          const titleVi = item.titleVi || item.topic || item.titleZh || `Bài ${stgNum}`;
+          return {
+            stageKey: stgKey,
+            kind: 'scene',
+            order: stgNum,
+            titleVi,
+            meta: { titleVi, titleZh: item.titleZh || '', wordCount: Number(item.wordCount) || 12 },
+            sourceCurr: curr,
+            sourceLevelSlug: levelSlug,
+            sourceSlug: srcSlug,
+            sourceKind: isTopic ? 'topic' : 'lesson',
+            activities: [
+              { activityKey: `${stgKey}.learn.1`, kind: 'learn', titleVi: `Từ mới: ${titleVi}`, estMinutes: 6 },
+              { activityKey: `${stgKey}.dlg`, kind: 'dialogue', titleVi: `Hội thoại: ${titleVi}`, estMinutes: 4 },
+              { activityKey: `${stgKey}.rp1`, kind: 'roleplay', titleVi: `Nhập vai: ${titleVi}`, estMinutes: 5 },
+              { activityKey: `${stgKey}.exam`, kind: 'exam', titleVi: `Kiểm tra chặng ${stgNum}`, estMinutes: 5 }
+            ]
+          };
+        });
+        chapters.push({
+          chapterKey: chKey,
+          order: chIdx,
+          titleVi: `Chương ${chIdx}: ${stages[0].titleVi}`,
+          stages
+        });
+      }
+      return {
+        track: cleanTrack,
+        level: cleanLvl,
+        titleVi: (lvlData && lvlData.level && lvlData.level.name) || `${cleanTrack.toUpperCase()} ${cleanLvl}`,
+        wordCount: (lvlData && lvlData.level && lvlData.level.wordCount) || rawLessons.reduce((a, x) => a + (Number(x.wordCount) || 10), 0),
+        chapters,
+        stages: chapters.flatMap(c => c.stages)
+      };
+    }
+    window.__xhzSynthesizeTrackLevel = synthesizeTrackLevel;
+
     if (p.startsWith('/v2/learning-tracks/') || p.startsWith('/v2/paths/')) {
       await ensureInitialCloudPull();
       const parts = p.split('/').filter(Boolean);
@@ -3783,7 +4025,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (sub === 'activities' && parts[5] === 'runs') {
         const activityKey = decodeURIComponent(parts[4] || 'hsk30.L1.P1.learn.1');
         localStorage.setItem('httq_current_lesson_id', activityKey);
-        const stgMatch = activityKey.match(/^(hsk30\.L\d+\.[A-Z]\d+)/i);
+        const stgMatch = activityKey.match(/^([a-z0-9-]+\.[A-Z]\d+\.[A-Z]\d+)/i);
         if (stgMatch && stgMatch[1]) {
           localStorage.setItem('httq_current_stage_key', stgMatch[1]);
         }
@@ -3828,66 +4070,124 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const stageKey = decodeURIComponent(parts[4] || 'hsk30.L1.P1');
         const action = parts[5] || '';
         const subAction = parts[6] || '';
+        // Resolve real stage title & vocabulary dynamically for stageKey
+        let stgTitle = 'Chào hỏi & Làm quen';
+        let stgWords = [
+          { hanzi: '你好', pinyin: 'nǐ hǎo', meaningVi: 'xin chào' },
+          { hanzi: '谢谢', pinyin: 'xièxie', meaningVi: 'cảm ơn' },
+          { hanzi: '高兴', pinyin: 'gāoxìng', meaningVi: 'vui mừng' }
+        ];
+        try {
+          const skParts = stageKey.split('.');
+          const skTrack = skParts[0] || track || 'hsk30';
+          const skLevel = skParts[1] || 'L1';
+          const lvlObj = await synthesizeTrackLevel(skTrack, skLevel);
+          let foundChKey = '';
+          let foundStgMeta = null;
+          if (lvlObj && Array.isArray(lvlObj.chapters)) {
+            for (const ch of lvlObj.chapters) {
+              const hit = (ch.stages || []).find(s => s.stageKey === stageKey);
+              if (hit) {
+                foundChKey = ch.chapterKey;
+                foundStgMeta = hit;
+                break;
+              }
+            }
+          }
+          if (foundStgMeta && (foundStgMeta.titleVi || (foundStgMeta.meta && foundStgMeta.meta.titleVi))) {
+            stgTitle = foundStgMeta.titleVi || foundStgMeta.meta.titleVi;
+          }
+          if (foundChKey && skTrack === 'hsk30' && skLevel === 'L1') {
+            const chB = await loadLocalJson(`/data/learning-tracks/chapters/${foundChKey}.json`);
+            const fullStg = chB && Array.isArray(chB.stages) && chB.stages.find(s => s.stageKey === stageKey);
+            if (fullStg && Array.isArray(fullStg.words) && fullStg.words.length > 0) {
+              if (fullStg.meta && fullStg.meta.titleVi) stgTitle = fullStg.meta.titleVi;
+              stgWords = fullStg.words.slice(0, 6).map(w => ({
+                hanzi: String(w.hanzi || w.word || '').replace(/\{|\}/g, ''),
+                pinyin: w.pinyin || '',
+                meaningVi: w.meaningVi || w.translationVi || ''
+              })).filter(w => w.hanzi);
+            }
+          } else if (foundStgMeta && foundStgMeta.sourceSlug) {
+            const fDir = foundStgMeta.sourceKind === 'topic' ? 'topics' : 'lessons';
+            const det = await loadLocalJson(`/data/curriculums/${foundStgMeta.sourceCurr}/${fDir}/${foundStgMeta.sourceLevelSlug}--${foundStgMeta.sourceSlug}.json`);
+            const wl = (det && det.lesson && det.lesson.words) || (det && det.topic && det.topic.words) || [];
+            if (wl.length > 0) {
+              stgWords = wl.slice(0, 6).map(w => ({
+                hanzi: String(w.hanzi || w.word || '').replace(/\{|\}/g, ''),
+                pinyin: w.pinyin || w.wordPinyin || '',
+                meaningVi: w.meaningVi || w.translationVi || w.meaning || ''
+              })).filter(w => w.hanzi);
+            }
+          }
+        } catch (_) {}
+
+        const w0 = stgWords[0] || { hanzi: '你好', pinyin: 'nǐ hǎo', meaningVi: 'xin chào' };
+        const w1 = stgWords[1] || stgWords[0] || { hanzi: '谢谢', pinyin: 'xièxie', meaningVi: 'cảm ơn' };
+        const phrase1Hz = stgWords.length >= 2 ? `${w0.hanzi}，${w1.hanzi}！` : `${w0.hanzi}！`;
+        const phrase1Py = stgWords.length >= 2 ? `${w0.pinyin}, ${w1.pinyin}!` : `${w0.pinyin}!`;
+        const phrase1Vi = stgWords.length >= 2 ? `${w0.meaningVi}, ${w1.meaningVi}` : w0.meaningVi;
+
         if (action === 'restart' && method === 'POST') {
           window.__xhzVoiceTurnIdx = 0;
           return jsonResponse({ ok: true });
         }
         if (action === 'recap' && subAction === 'say' && method === 'POST') {
+          const body = await parseRequestBody(init);
+          const spoken = String((body && (body.text || body.transcript || body.spokenText)) || phrase1Hz).trim();
+          recordStudyProgress({
+            words: stgWords.slice(0, 4).map(w => w.hanzi),
+            voiceInc: 1,
+            gradingInc: 1,
+            minutes: 2,
+            dailyStepDone: 'step-talk-1'
+          });
           return jsonResponse({
             ok: true,
             score: 94,
             passed: true,
-            heardText: '你好，认识你很高兴！',
-            heardPinyin: 'Nǐ hǎo, rènshi nǐ hěn gāoxìng!'
+            heardText: spoken || phrase1Hz,
+            heardPinyin: phrase1Py
           });
         }
         if (action === 'recap') {
           return jsonResponse({
-            summaryVi: 'Bạn đã hoàn thành tốt cuộc hội thoại theo chặng! Phát âm rõ ràng, phản xạ tự nhiên với các mẫu câu chào hỏi và giới thiệu tên.',
+            stageKey,
+            summaryVi: `Bạn đã hoàn thành tốt cuộc hội thoại chặng "${stgTitle}"! Phát âm rõ ràng và vận dụng tự nhiên các từ trọng tâm.`,
             strengthsVi: [
-              'Phát âm chuẩn các thanh điệu cơ bản trong câu chào hỏi',
-              'Vận dụng tốt mẫu câu 我叫... và 认识你很高兴'
+              `Phát âm chuẩn các từ khóa chủ đề "${stgTitle}" (${stgWords.slice(0, 3).map(w => w.hanzi).join(', ')})`,
+              'Tốc độ phản xạ tốt, giữ đúng thanh điệu cơ bản'
             ],
-            nextFocusVi: 'Thử mở rộng câu trả lời bằng cách hỏi ngược lại người đối diện với 呢 (ne).',
-            phrases: [
-              { hanzi: '你好，认识你很高兴', pinyin: 'Nǐ hǎo, rènshi nǐ hěn gāoxìng', meaningVi: 'Xin chào, rất vui được làm quen với bạn', mastered: true },
-              { hanzi: '我是越南人', pinyin: 'Wǒ shì Yuènán rén', meaningVi: 'Tôi là người Việt Nam', mastered: true }
-            ]
+            nextFocusVi: `Thử đặt thêm câu giao tiếp mở rộng kết hợp "${w0.hanzi}" và "${w1.hanzi}" trong tình huống thực tế.`,
+            phrases: stgWords.slice(0, 4).map(w => ({ hanzi: w.hanzi, pinyin: w.pinyin, meaningVi: w.meaningVi, mastered: true }))
           });
         }
         return jsonResponse({
           stageKey,
-          titleVi: 'Luyện nói phản xạ: Chào hỏi & Làm quen',
+          titleVi: `Luyện nói phản xạ: ${stgTitle}`,
           maxTurns: 10,
           voiceTurnsLeft: 10,
           missions: [
             {
               id: 'm1',
-              titleVi: 'Chào hỏi và giới thiệu tên bằng tiếng Trung',
+              titleVi: `Sử dụng từ "${w0.hanzi}" (${w0.meaningVi}) trong lượt nói đầu tiên`,
               done: (window.__xhzVoiceTurnIdx || 0) >= 1,
               hints: {
-                pinyin: 'Nǐ hǎo, wǒ jiào Míng Ān.',
-                hanzi: '你好，我叫明安。',
-                vi: 'Xin chào, tôi tên là Minh Anh.',
-                words: [
-                  { hanzi: '你好', pinyin: 'nǐ hǎo', meaningVi: 'xin chào' },
-                  { hanzi: '我叫', pinyin: 'wǒ jiào', meaningVi: 'tôi tên là' },
-                  { hanzi: '高兴', pinyin: 'gāoxìng', meaningVi: 'vui mừng' }
-                ]
+                pinyin: phrase1Py,
+                hanzi: phrase1Hz,
+                vi: phrase1Vi,
+                words: stgWords.slice(0, 3)
               }
             },
             {
               id: 'm2',
-              titleVi: 'Nói quốc tịch hoặc bày tỏ rất vui được làm quen',
+              titleVi: `Phản hồi tự nhiên cho chủ đề "${stgTitle}" với "${w1.hanzi}"`,
               done: (window.__xhzVoiceTurnIdx || 0) >= 2,
               hints: {
-                pinyin: 'Wǒ shì Yuènán rén, rènshi nǐ hěn gāoxìng!',
-                hanzi: '我是越南人，认识你很高兴！',
-                vi: 'Tôi là người Việt Nam, rất vui được làm quen với bạn!',
-                words: [
-                  { hanzi: '越南人', pinyin: 'Yuènán rén', meaningVi: 'người Việt Nam' },
-                  { hanzi: '认识', pinyin: 'rènshi', meaningVi: 'làm quen, quen biết' }
-                ]
+                pinyin: w1.pinyin || phrase1Py,
+                hanzi: w1.hanzi || phrase1Hz,
+                vi: w1.meaningVi || phrase1Vi,
+                words: stgWords.slice(1, 4)
               }
             }
           ],
@@ -3900,16 +4200,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         });
       }
       if (sub === 'levels') {
-        const level = parts[4] || 'L1';
-        const levelData = await loadLocalJson(`/data/learning-tracks/hsk30-${level}.json`) || await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+        const level = parts[4] || (track === 'boya' ? 'E1' : 'L1');
+        const levelData = await synthesizeTrackLevel(track, level);
         if (levelData) {
           return jsonResponse({ ...levelData, track, level });
         }
       }
       if (sub === 'progress') {
         const sum = getRealProgressSummary();
-        const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
-        const savedStageKey = sum.prog.currentStageKey || localStorage.getItem('httq_current_stage_key') || 'hsk30.L1.P1';
+        const reqLevel = urlObj.searchParams.get('level') || (track === 'boya' ? 'E1' : 'L1');
+        const levelData = await synthesizeTrackLevel(track, reqLevel);
+        const defaultStg = (levelData && levelData.chapters && levelData.chapters[0] && levelData.chapters[0].stages && levelData.chapters[0].stages[0] && levelData.chapters[0].stages[0].stageKey) || 'hsk30.L1.P1';
+        const savedStageKey = sum.prog.currentStageKey || localStorage.getItem('httq_current_stage_key') || defaultStg;
         const doneStages = sum.prog.doneStages || [];
         const doneActivities = sum.prog.doneActivities || {};
         const allStages = [];
@@ -3925,11 +4227,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
         return jsonResponse({
           track: track === 'hsk30-1' ? 'hsk30' : track,
-          level: 'L1',
+          level: reqLevel,
           enrollment: {
             track: track === 'hsk30-1' ? 'hsk30' : track,
             current: true,
-            currentLevel: 'L1',
+            currentLevel: reqLevel,
             startStageKey: savedStageKey,
             stagesDone: doneStages.length,
             stagesTotal: allStages.length,
@@ -3951,10 +4253,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (sub === 'chapters') {
         const chapterKey = decodeURIComponent(parts[4] || 'hsk30.L1.C00');
         const normKey = chapterKey.replace(/\.C(\d)$/, '.C0$1');
-        const chData =
+        let chData =
           (await loadLocalJson(`/data/learning-tracks/chapters/${normKey}.json`)) ||
-          (await loadLocalJson(`/data/learning-tracks/chapters/${chapterKey}.json`)) ||
-          (await loadLocalJson('/data/learning-tracks/chapters/hsk30.L1.C00.json'));
+          (await loadLocalJson(`/data/learning-tracks/chapters/${chapterKey}.json`));
+        if (!chData) {
+          const chParts = chapterKey.split('.');
+          const syn = await synthesizeTrackLevel(chParts[0] || track, chParts[1] || 'L1');
+          const foundCh = syn && Array.isArray(syn.chapters) && syn.chapters.find(c => c.chapterKey === normKey || c.chapterKey === chapterKey);
+          if (foundCh) chData = { track: syn.track, level: syn.level, ...foundCh };
+        }
+        if (!chData) chData = await loadLocalJson('/data/learning-tracks/chapters/hsk30.L1.C00.json');
         if (chData) {
           return jsonResponse(chData);
         }
@@ -4186,285 +4494,6 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         ]
       });
     }
-    if (p === '/v2/review/summary') {
-      await ensureInitialCloudPull();
-      const sum = getRealProgressSummary();
-      const today = Date.now();
-      const baseDue = sum.dueTotal || 0;
-      const forecast = [baseDue, Math.max(0, Math.round(baseDue * 0.7)), Math.max(0, Math.round(baseDue * 0.9)), Math.max(0, Math.round(baseDue * 0.5)), Math.max(0, Math.round(baseDue * 0.8)), Math.max(0, Math.round(baseDue * 0.4)), Math.max(0, Math.round(baseDue * 0.6))].map((due, idx) => ({
-        day: new Date(today + idx * 86400000).toISOString().slice(0, 10),
-        due,
-        minutes: due > 0 ? Math.max(1, Math.round(due / 3)) : 0,
-        heavy: due >= 15
-      }));
-      return jsonResponse({
-        dueNow: { meaning: sum.dueMeaning, pinyin: sum.duePinyin },
-        dueToday: { meaning: sum.dueMeaning, pinyin: sum.duePinyin },
-        errorsQueue: sum.mistakesCount,
-        totalCards: sum.totalCards,
-        openRun: null,
-        forecast
-      });
-    }
-    if (p === '/v2/review/sentence-cards') {
-      const sum = getRealProgressSummary();
-      return jsonResponse({
-        dueToday: sum.lessonsDone > 0 ? Math.min(5, sum.lessonsDone * 2) : 0,
-        total: sum.lessonsDone * 4,
-        upcoming: sum.lessonsDone > 0 ? 3 : 0,
-        measureWords: sum.lessonsDone > 0 ? 4 : 0,
-        newPerDay: 5
-      });
-    }
-    if (p === '/v2/review/mistakes' || p === '/v2/review/mistakes/dismiss') {
-      await ensureInitialCloudPull();
-      const prog = getRealProgress();
-      let dismissed = Array.isArray(prog.dismissedMistakes) ? [...prog.dismissedMistakes] : [];
-      if (p === '/v2/review/mistakes/dismiss' && method === 'POST') {
-        const body = await parseRequestBody(init);
-        if (body && body.itemKey) {
-          recordStudyProgress({ dismissMistakeKey: body.itemKey });
-        }
-        return jsonResponse({ ok: true });
-      }
-      const userMistakesRaw = Array.isArray(prog.userMistakes) ? prog.userMistakes : [];
-      const userMistakeItems = userMistakesRaw.map(m => {
-        const hz = m.hanzi || String(m.itemKey || '').replace(/^w:|^c:/, '');
-        return {
-          itemKey: m.itemKey || `w:${hz}`,
-          titleZh: hz,
-          word: {
-            hanzi: hz,
-            pinyin: m.pinyin || '',
-            wordPinyin: m.pinyin || '',
-            meaningVi: m.meaningVi || m.expectedDisplay || '',
-            audio: { url: rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`) }
-          },
-          hanzi: hz,
-          pinyin: m.pinyin || '',
-          meaningVi: m.meaningVi || m.expectedDisplay || '',
-          skill: m.skill || 'meaning',
-          category: m.category || 'vocab_confusion',
-          categoryLabelVi: m.categoryLabelVi || 'Nhầm nghĩa từ vựng',
-          sourceLabelVi: m.sourceLabelVi || 'Quá trình luyện tập của bạn',
-          givenDisplay: m.givenDisplay || 'Trả lời chưa đúng',
-          expectedDisplay: m.expectedDisplay || hz,
-          reasonVi: m.reasonVi || `Cần ôn lại từ "${hz}"`,
-          explanationVi: m.reasonVi || `Cần ôn lại từ "${hz}"`,
-          count: Number(m.count) || 1,
-          wrongCount: Number(m.count) || 1,
-          errorCount: Number(m.count) || 1,
-          lastWrongAt: m.lastWrongAt || new Date().toISOString(),
-          progress: { cleared: 0, needed: 2, nextCheckDay: new Date().toISOString().slice(0, 10) }
-        };
-      });
-      const defaultMistakes = [
-        {
-          itemKey: 'w:谢谢',
-          titleZh: '谢谢',
-          word: {
-            hanzi: '谢谢',
-            pinyin: 'xièxie',
-            wordPinyin: 'xièxie',
-            meaningVi: 'cảm ơn',
-            audio: { url: rewriteMediaUrl('https://static.xiehanzi.com/word_audios/谢谢.mp3') }
-          },
-          hanzi: '谢谢',
-          pinyin: 'xièxie',
-          meaningVi: 'cảm ơn',
-          skill: 'meaning',
-          category: 'vocab_confusion',
-          categoryLabelVi: 'Nhầm nghĩa từ vựng',
-          sourceLabelVi: 'Bài 1: AI Tiểu Ngữ, xin chào!',
-          givenDisplay: 'xin lỗi (对不起)',
-          expectedDisplay: 'cảm ơn (谢谢)',
-          reasonVi: '谢谢 (xièxie) nghĩa là cảm ơn, còn 对不起 (duìbuqǐ) mới là xin lỗi.',
-          explanationVi: '谢谢 (xièxie) nghĩa là cảm ơn, còn 对不起 (duìbuqǐ) mới là xin lỗi.',
-          count: 2,
-          wrongCount: 2,
-          errorCount: 2,
-          lastWrongAt: new Date().toISOString(),
-          progress: { cleared: 1, needed: 2, nextCheckDay: '2026-11-11' }
-        },
-        {
-          itemKey: 'w:不客气',
-          titleZh: '不客气',
-          word: {
-            hanzi: '不客气',
-            pinyin: 'bú kèqi',
-            wordPinyin: 'bú kèqi',
-            meaningVi: 'đừng khách sáo',
-            audio: { url: rewriteMediaUrl('https://static.xiehanzi.com/word_audios/不客气.mp3') }
-          },
-          hanzi: '不客气',
-          pinyin: 'bú kèqi',
-          meaningVi: 'đừng khách sáo',
-          skill: 'meaning',
-          category: 'vocab_confusion',
-          categoryLabelVi: 'Nhầm nghĩa từ vựng',
-          sourceLabelVi: 'Bài 1: AI Tiểu Ngữ, xin chào!',
-          givenDisplay: 'không sao đâu (没关系)',
-          expectedDisplay: 'đừng khách sáo (不客气)',
-          reasonVi: '不客气 dùng để đáp lại lời cảm ơn (谢谢), còn 没关系 dùng để đáp lại lời xin lỗi (对不起).',
-          explanationVi: '不客气 dùng để đáp lại lời cảm ơn (谢谢), còn 没关系 dùng để đáp lại lời xin lỗi (对不起).',
-          count: 1,
-          wrongCount: 1,
-          errorCount: 1,
-          lastWrongAt: new Date().toISOString(),
-          progress: { cleared: 0, needed: 2, nextCheckDay: '2026-11-11' }
-        },
-        {
-          itemKey: 'w:老师',
-          titleZh: '老师',
-          word: {
-            hanzi: '老师',
-            pinyin: 'lǎoshī',
-            wordPinyin: 'lǎoshī',
-            meaningVi: 'giáo viên, thầy cô',
-            audio: { url: rewriteMediaUrl('https://static.xiehanzi.com/word_audios/老师.mp3') }
-          },
-          hanzi: '老师',
-          pinyin: 'lǎoshī',
-          meaningVi: 'giáo viên, thầy cô',
-          skill: 'pinyin',
-          category: 'tone_error',
-          categoryLabelVi: 'Nhầm thanh điệu',
-          sourceLabelVi: 'Bài 2: Tôi tên là Lý Văn',
-          givenDisplay: 'lǎoshì (thanh 4)',
-          expectedDisplay: 'lǎoshī (thanh 1)',
-          reasonVi: 'Chữ 师 (shī) mang thanh 1 (âm ngang cao), rất dễ nhầm sang thanh 4 (shì).',
-          explanationVi: 'Chữ 师 (shī) mang thanh 1 (âm ngang cao), rất dễ nhầm sang thanh 4 (shì).',
-          count: 1,
-          wrongCount: 1,
-          errorCount: 1,
-          lastWrongAt: new Date().toISOString(),
-          progress: { cleared: 1, needed: 2, nextCheckDay: '2026-11-11' }
-        }
-      ];
-      const mergedMap = new Map();
-      [...userMistakeItems, ...defaultMistakes].forEach(m => {
-        if (!m || dismissed.includes(m.itemKey)) return;
-        if (!mergedMap.has(m.itemKey)) mergedMap.set(m.itemKey, m);
-      });
-      const allMistakes = Array.from(mergedMap.values());
-      const catFilter = urlObj.searchParams.get('category') || '';
-      const filtered = catFilter ? allMistakes.filter(m => m.category === catFilter) : allMistakes;
-      const catCounts = {};
-      allMistakes.forEach(m => {
-        const c = m.category || 'vocab_confusion';
-        if (!catCounts[c]) catCounts[c] = { category: c, labelVi: m.categoryLabelVi || 'Lỗi hay nhầm', titleVi: m.categoryLabelVi || 'Lỗi hay nhầm', count: 0 };
-        catCounts[c].count += 1;
-      });
-      return jsonResponse({
-        total: allMistakes.length,
-        categories: Object.values(catCounts),
-        mistakes: filtered
-      });
-    }
-    if (p === '/v2/review/words') {
-      const q = (urlObj.searchParams.get('q') || '').trim().toLowerCase();
-      const status = urlObj.searchParams.get('status') || 'all';
-      const sum = getRealProgressSummary();
-      const vocabMap = {
-        '八': { pinyin: 'bā', meaningVi: 'tám (số)' },
-        '爸爸': { pinyin: 'bàba', meaningVi: 'bố, ba' },
-        '妈妈': { pinyin: 'māma', meaningVi: 'mẹ, má' },
-        '你好': { pinyin: 'nǐ hǎo', meaningVi: 'xin chào' },
-        '谢谢': { pinyin: 'xièxie', meaningVi: 'cảm ơn' },
-        '不客气': { pinyin: 'bú kèqi', meaningVi: 'đừng khách sáo' },
-        '对不起': { pinyin: 'duìbuqǐ', meaningVi: 'xin lỗi' },
-        '没关系': { pinyin: 'méi guānxi', meaningVi: 'không sao đâu' },
-        '再见': { pinyin: 'zàijiàn', meaningVi: 'tạm biệt' },
-        '老师': { pinyin: 'lǎoshī', meaningVi: 'giáo viên' },
-        '学生': { pinyin: 'xuésheng', meaningVi: 'học sinh, sinh viên' },
-        '朋友': { pinyin: 'péngyou', meaningVi: 'bạn bè' },
-        '中国': { pinyin: 'Zhōngguó', meaningVi: 'Trung Quốc' },
-        '越南': { pinyin: 'Yuènán', meaningVi: 'Việt Nam' },
-        '喜欢': { pinyin: 'xǐhuan', meaningVi: 'thích, yêu thích' }
-      };
-      const vIdx = await loadLocalJson('/data/vocabulary/index.json');
-      const cIdx = await loadLocalJson('/data/characters/index.json');
-      const idxLookup = {};
-      if (Array.isArray(vIdx)) {
-        vIdx.forEach(e => {
-          const wKey = e && (e.w || e.word || e.hanzi || e.h);
-          if (wKey && !idxLookup[wKey]) idxLookup[wKey] = { pinyin: e.p || '', meaningVi: e.m || '' };
-        });
-      }
-      if (Array.isArray(cIdx)) {
-        cIdx.forEach(e => {
-          const cKey = e && (e.c || e.character);
-          if (cKey && !idxLookup[cKey]) idxLookup[cKey] = { pinyin: e.p || '', meaningVi: e.m || '' };
-        });
-      }
-      const learnedList = Array.isArray(sum.prog.wordsLearned) ? sum.prog.wordsLearned : [];
-      const allWords = learnedList.map((hz, idx) => {
-        const clean = String(hz).replace(/^w:|^c:/, '');
-        const info = vocabMap[clean] || idxLookup[clean] || { pinyin: '', meaningVi: 'Từ vựng đã học' };
-        return {
-          itemKey: clean,
-          word: clean,
-          hanzi: clean,
-          pinyin: info.pinyin,
-          meaningVi: info.meaningVi,
-          state: idx % 3 === 2 ? 'learning' : 'review',
-          dueAt: new Date().toISOString()
-        };
-      });
-      let items = allWords;
-      if (status === 'known') items = items.filter(x => x.state === 'review');
-      if (status === 'learning') items = items.filter(x => x.state === 'learning');
-      if (q) items = items.filter(x => x.word.includes(q) || x.pinyin.toLowerCase().includes(q) || x.meaningVi.toLowerCase().includes(q));
-      return jsonResponse({
-        items,
-        totals: {
-          known: allWords.filter(x => x.state === 'review').length,
-          learning: allWords.filter(x => x.state === 'learning').length
-        },
-        nextCursor: null
-      });
-    }
-    if (p === '/v2/review/signals') {
-      const body = await parseRequestBody(init);
-      const signals = Array.isArray(body && body.signals)
-        ? body.signals
-        : (Array.isArray(body && body.items) ? body.items : (Array.isArray(body) ? body : []));
-      const words = [];
-      const grammarIds = [];
-      let firstWrongMistake = null;
-      signals.forEach(sig => {
-        if (!sig || typeof sig !== 'object') return;
-        const ik = String(sig.itemKey || sig.key || '').trim();
-        if (ik.startsWith('g:')) {
-          const gid = ik.slice(2).trim();
-          if (gid) grammarIds.push(gid);
-        } else {
-          const rawW = ik.replace(/^w:|^c:/, '').trim() || String(sig.hanzi || sig.word || '').trim();
-          if (rawW && /[\u4e00-\u9fff]/.test(rawW)) {
-            words.push(rawW);
-            if (sig.outcome === 'wrong' && !firstWrongMistake) {
-              firstWrongMistake = {
-                itemKey: ik || `w:${rawW}`,
-                hanzi: rawW,
-                skill: sig.skill || 'meaning',
-                category: sig.skill === 'sound' || sig.skill === 'typing' ? 'tone_error' : 'vocab_confusion',
-                reasonVi: `Bạn vừa nhầm mục "${rawW}" trong lúc luyện tập.`
-              };
-            }
-          }
-        }
-      });
-      if (signals.length > 0) {
-        recordStudyProgress({
-          words: [...new Set(words)],
-          grammarIds: [...new Set(grammarIds)],
-          mistake: firstWrongMistake || undefined,
-          minutes: words.length > 0 ? 1 : 0,
-          gradingInc: signals.length
-        });
-      }
-      return jsonResponse({ ok: true, accepted: signals.length });
-    }
     if (p === '/v2/review/runs' || p.startsWith('/v2/lesson-runs') || p.includes('/runs')) {
       let targetRunId = 'hsk30.L1.P1.learn.1';
       let runKind = 'learn';
@@ -4527,33 +4556,46 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     // C. TRƯỜNG THẦY ĐỒ API (/v1/thay-do/*)
     // ------------------------------------------------------------------------
     if (p === '/v1/thay-do/bang-vang/dau' || p.startsWith('/v1/thay-do/bang-vang/tuan')) {
+      const sum = getRealProgressSummary();
+      const me = getSavedUser();
+      const myName = ((me && (me.displayName || me.name)) || 'Bạn') + ' (Bạn)';
+      const weekKey = getIsoWeekKey(new Date());
+      const injectMe = (baseList, myVal) => {
+        const merged = [...baseList, ...(myVal > 0 ? [{ ten: myName, so: myVal, isMe: true }] : [])]
+          .sort((a, b) => Number(b.so) - Number(a.so))
+          .map((item, idx) => ({ ...item, hang: idx + 1 }));
+        return merged;
+      };
+      const bestExam = (sum.prog.examHistory || []).reduce((mx, x) => Math.max(mx, Number(x && x.pct) || 0), 0);
       return jsonResponse({
-        nhan: '18/2026',
-        tuan: '2026-W18',
+        ok: true,
+        nhan: weekKey,
+        tuan: weekKey,
+        me: { ten: myName, minutes: sum.totalMinutes, words: sum.wordsMastered, streakDays: sum.streakDays },
         bang: {
-          'chuyen-can': [
-            { hang: 1, ten: 'Minh Anh', so: 42 },
-            { hang: 2, ten: 'Hoàng Long', so: 38 },
-            { hang: 3, ten: 'Thanh Thảo', so: 31 }
-          ],
-          'khoa-bang': [
-            { hang: 1, ten: 'Tuấn Kiệt', so: 98 },
-            { hang: 2, ten: 'Bảo Ngọc', so: 95 },
-            { hang: 3, ten: 'Đức Duy', so: 92 }
-          ],
-          'hoa-tay': [
-            { hang: 1, ten: 'Lan Hương', so: 96.5 },
-            { hang: 2, ten: 'Quốc Bảo', so: 94.2 },
-            { hang: 3, ten: 'Khánh Linh', so: 91.8 }
-          ],
-          'thu-vien': [
-            { hang: 1, ten: 'Thảo Vy', so: 12 },
-            { hang: 2, ten: 'Hữu Phước', so: 9 }
-          ],
-          'hieu-sach': [
-            { hang: 1, ten: 'Gia Hân', so: 95.4 },
-            { hang: 2, ten: 'Văn Nam', so: 92.1 }
-          ]
+          'chuyen-can': injectMe([
+            { ten: 'Minh Anh', so: 42 },
+            { ten: 'Hoàng Long', so: 38 },
+            { ten: 'Thanh Thảo', so: 31 }
+          ], sum.totalMinutes),
+          'khoa-bang': injectMe([
+            { ten: 'Tuấn Kiệt', so: 98 },
+            { ten: 'Bảo Ngọc', so: 95 },
+            { ten: 'Đức Duy', so: 92 }
+          ], bestExam || Math.min(100, sum.wordsMastered * 2)),
+          'hoa-tay': injectMe([
+            { ten: 'Lan Hương', so: 96.5 },
+            { ten: 'Quốc Bảo', so: 94.2 },
+            { ten: 'Khánh Linh', so: 91.8 }
+          ], Math.min(100, (sum.wordsMastered || 0) * 3)),
+          'thu-vien': injectMe([
+            { ten: 'Thảo Vy', so: 12 },
+            { ten: 'Hữu Phước', so: 9 }
+          ], sum.stagesDone),
+          'hieu-sach': injectMe([
+            { ten: 'Gia Hân', so: 95.4 },
+            { ten: 'Văn Nam', so: 92.1 }
+          ], (sum.prog.learnedGrammarIds || []).length)
         }
       });
     }
@@ -4561,19 +4603,42 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ ok: true, bang: [], ds: [] });
     }
     if (p === '/v1/thay-do/lop/muon') {
-      return jsonResponse({ n: { '4': 68, '5': 42, '6': 29 }, toi: [] });
+      const sum = getRealProgressSummary();
+      return jsonResponse({ n: { '4': 68, '5': 42, '6': 29 }, toi: sum.prog.doneStages || [] });
     }
     if (p === '/v1/thay-do/lop/toi') {
-      return jsonResponse({ tienDo: { buoi: [], cap: [] } });
+      const sum = getRealProgressSummary();
+      const buoi = (sum.prog.doneStages || []).map((sk, idx) => ({ id: sk, stt: idx + 1, done: true }));
+      const cap = [
+        { cap: 1, ten: 'HSK 3.0 Cấp 1', tienDoPct: sum.hsk1Pct, tuDaHoc: sum.wordsMastered, changXong: sum.stagesDone }
+      ];
+      return jsonResponse({
+        ok: true,
+        tienDo: {
+          buoi,
+          cap,
+          streakDays: sum.streakDays,
+          totalMinutes: sum.totalMinutes,
+          wordsMastered: sum.wordsMastered
+        }
+      });
     }
     if (p.startsWith('/v1/thay-do/lop/bang/')) {
-      return jsonResponse({ chu: [] });
+      const sum = getRealProgressSummary();
+      const chars = [...new Set((sum.prog.learnedWords || []).flatMap(w => Array.from(String(w || '').replace(/[^\u4e00-\u9fff]/g, ''))))];
+      return jsonResponse({ ok: true, chu: chars.map(c => ({ hanzi: c, mastered: true })) });
     }
     if (p === '/v1/thay-do/lop/canh') {
-      return jsonResponse({ ban: [] });
+      return jsonResponse({ ok: true, ban: [] });
     }
     if (p === '/v1/thay-do/khoa/mine') {
-      return jsonResponse({ khoa: [] });
+      const sum = getRealProgressSummary();
+      return jsonResponse({
+        ok: true,
+        khoa: [
+          { id: 'hsk30-L1', title: 'HSK 3.0 Cấp 1', progressPct: sum.hsk1Pct, wordsMastered: sum.wordsMastered, active: true }
+        ]
+      });
     }
     if (p.includes('/v1/thay-do/hi-vien/danh-muc')) {
       const data = await loadLocalJson('/data/misc/thay-do-hi-vien-danh-muc.json');
@@ -5418,21 +5483,30 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ dialogues: synthList });
     }
 
-    async function enrichCurriculumItemsWithProgress(items, curr, levelSlug) {
+    async function enrichCurriculumItemsWithProgress(items, curr, levelSlug, kindHint = '') {
       if (!Array.isArray(items) || items.length === 0) return [];
       const prog = getRealProgress();
       const learnedSet = new Set((prog.learnedWords || []).map(w => String(w || '').replace(/^w:|^c:/, '').trim()).filter(Boolean));
       const doneActs = (prog.doneActivities && (prog.doneActivities[`curr.thu-vien-${curr}`] || prog.doneActivities[`curr.${curr}`])) || [];
       return Promise.all(items.map(async (it) => {
         const copy = { ...(it || {}) };
+        const isTopicOnly = kindHint === 'topic' || copy.sourceType === 'topic' || (Boolean(copy.topicSlug) && !copy.lessonSlug);
         const slug = copy.lessonSlug || copy.topicSlug || copy.slug || '';
         const cleanSlug = slug && levelSlug && slug.startsWith(levelSlug + '-') ? slug.slice(levelSlug.length + 1) : slug;
         let wordList = Array.isArray(copy.words) ? copy.words : null;
         if (!wordList && slug) {
-          const detail =
-            (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)) ||
-            (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`)) ||
-            (cleanSlug ? await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${levelSlug}-${cleanSlug}.json`) : null);
+          let detail = null;
+          if (isTopicOnly) {
+            detail =
+              (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`)) ||
+              (cleanSlug && cleanSlug !== slug ? await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${levelSlug}-${cleanSlug}.json`) : null) ||
+              (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`));
+          } else {
+            detail =
+              (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)) ||
+              (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`)) ||
+              (cleanSlug && cleanSlug !== slug ? await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${levelSlug}-${cleanSlug}.json`) : null);
+          }
           wordList = (detail && detail.lesson && detail.lesson.words) || (detail && detail.topic && detail.topic.words) || (detail && detail.words) || null;
         }
         const total = Math.max(Number(copy.wordCount) || 0, Array.isArray(wordList) ? wordList.length : 0);
@@ -5478,10 +5552,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           const copy = JSON.parse(JSON.stringify(lvlData));
           if (copy.level && copy.level.image) copy.level.image = rewriteMediaUrl(copy.level.image);
           if (copy.level && Array.isArray(copy.level.topics)) {
-            copy.level.topics = await enrichCurriculumItemsWithProgress(copy.level.topics, curr, levelSlug);
+            copy.level.topics = await enrichCurriculumItemsWithProgress(copy.level.topics, curr, levelSlug, 'topic');
           }
           if (copy.level && Array.isArray(copy.level.lessons)) {
-            copy.level.lessons = await enrichCurriculumItemsWithProgress(copy.level.lessons, curr, levelSlug);
+            copy.level.lessons = await enrichCurriculumItemsWithProgress(copy.level.lessons, curr, levelSlug, 'lesson');
           }
           return jsonResponse(copy);
         }
@@ -5490,7 +5564,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts.length === 3) {
         const levelSlug = subParts[1];
         let lessonsData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}-lessons.json`);
+        let usedTopicFallback = false;
         if (!lessonsData || !Array.isArray(lessonsData.lessons) || lessonsData.lessons.length === 0) {
+          usedTopicFallback = true;
           const lvlData = await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}.json`);
           const topics = (lvlData && lvlData.level && lvlData.level.topics) || [];
           lessonsData = {
@@ -5511,7 +5587,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         } else {
           lessonsData = JSON.parse(JSON.stringify(lessonsData));
         }
-        lessonsData.lessons = await enrichCurriculumItemsWithProgress(lessonsData.lessons, curr, levelSlug);
+        lessonsData.lessons = await enrichCurriculumItemsWithProgress(lessonsData.lessons, curr, levelSlug, usedTopicFallback ? 'topic' : 'lesson');
         return jsonResponse(lessonsData);
       }
       if (subParts[0] === 'levels' && subParts[2] === 'lessons' && subParts[3]) {
@@ -5684,9 +5760,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     // ------------------------------------------------------------------------
     if (p === '/v1/typing-set') {
       const hsk = Number(urlObj.searchParams.get('hsk')) || 1;
+      const mode = urlObj.searchParams.get('mode') || '';
       const limit = Math.max(1, Math.min(100, Number(urlObj.searchParams.get('limit')) || 20));
       const index = (await loadLocalJson('/data/characters/index.json')) || [];
-      let pool = Array.isArray(index) ? index.filter(x => Number(x.hsk) === hsk && x.p) : [];
+      let pool = [];
+      if (mode === 'learned' || mode === 'mistakes') {
+        const prog = getRealProgress();
+        const srcChars = mode === 'mistakes'
+          ? (prog.userMistakes || []).flatMap(m => Array.from(String((m && m.hanzi) || '').replace(/[^\u4e00-\u9fff]/g, '')))
+          : (prog.learnedWords || []).flatMap(w => Array.from(String(w || '').replace(/[^\u4e00-\u9fff]/g, '')));
+        const uniq = [...new Set(srcChars)];
+        const byChar = new Map((Array.isArray(index) ? index : []).map(x => [x.c || x.character, x]));
+        pool = uniq.map(ch => byChar.get(ch)).filter(x => x && x.p);
+      }
+      if (pool.length === 0) {
+        pool = Array.isArray(index) ? index.filter(x => Number(x.hsk) === hsk && x.p) : [];
+      }
       if (pool.length === 0 && Array.isArray(index)) pool = index.filter(x => x.p).slice(0, 100);
       const set = pool.slice(0, limit).map(x => {
         const ch = x.c || x.character;
@@ -5699,26 +5788,96 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           audioUrl: rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${ch}.mp3`)
         };
       });
-      return jsonResponse({ hsk, set });
+      return jsonResponse({ hsk, mode: mode || 'hsk', set });
     }
     if (p === '/v1/typing-word-set') {
-      const hsk = Number(urlObj.searchParams.get('hsk')) || 1;
+      const hsk = Math.max(1, Math.min(6, Number(urlObj.searchParams.get('hsk')) || 1));
+      const mode = urlObj.searchParams.get('mode') || '';
       const limit = Math.max(1, Math.min(100, Number(urlObj.searchParams.get('limit')) || 20));
       const vocabIdx = (await loadLocalJson('/data/vocabulary/index.json')) || [];
-      const pool = Array.isArray(vocabIdx) ? vocabIdx.filter(x => x.p && (x.w || '').length >= 2) : [];
-      const set = pool.slice(0, limit).map(x => {
-        const hz = (x.w || '').replace(/\{|\}/g, '');
-        return {
-          word: hz,
-          hanzi: hz,
-          pinyin: x.p || 'nǐ hǎo',
-          hanviet: x.hv || '',
-          meaningVi: x.m || '',
-          hskLevel: hsk,
-          audioUrl: rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${hz}.mp3`)
-        };
-      });
-      return jsonResponse({ hsk, set });
+      let set = [];
+      if (mode === 'learned' || mode === 'mistakes') {
+        const prog = getRealProgress();
+        const rawList = mode === 'mistakes'
+          ? (prog.userMistakes || []).map(m => String((m && m.hanzi) || '').trim()).filter(Boolean)
+          : (prog.learnedWords || []).map(w => String(w || '').trim()).filter(Boolean);
+        const byWord = new Map((Array.isArray(vocabIdx) ? vocabIdx : []).map(x => [String(x.w || '').replace(/\{|\}/g, ''), x]));
+        const charIdx = (await loadLocalJson('/data/characters/index.json')) || [];
+        const byChar = new Map((Array.isArray(charIdx) ? charIdx : []).map(x => [x.c || x.character, x]));
+        set = [...new Set(rawList)].slice(0, limit).map(hz => {
+          const v = byWord.get(hz);
+          const c = byChar.get(hz);
+          return {
+            word: hz,
+            hanzi: hz,
+            pinyin: (v && v.p) || (c && c.p) || '',
+            hanviet: (v && v.hv) || (c && c.hv) || '',
+            meaningVi: (v && v.m) || (c && c.m) || '',
+            hskLevel: hsk,
+            audioUrl: rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`)
+          };
+        }).filter(x => x.hanzi && x.pinyin);
+      }
+      if (set.length < limit) {
+        const lvlSlug = `new-hsk-${hsk}`;
+        const lessFile = await loadLocalJson(`/data/curriculums/new-hsk/levels/${lvlSlug}-lessons.json`);
+        const lessons = (lessFile && Array.isArray(lessFile.lessons)) ? lessFile.lessons : [];
+        const seenW = new Set(set.map(x => x.hanzi));
+        for (const l of lessons.slice(0, 4)) {
+          if (set.length >= limit) break;
+          const slug = l.lessonSlug || l.topicSlug || '';
+          if (!slug) continue;
+          const folder = l.sourceType === 'topic' ? 'topics' : 'lessons';
+          const det = await loadLocalJson(`/data/curriculums/new-hsk/${folder}/${lvlSlug}--${slug}.json`);
+          const wl = (det && det.lesson && det.lesson.words) || (det && det.topic && det.topic.words) || (det && det.words) || [];
+          for (const w of wl) {
+            if (set.length >= limit) break;
+            const hz = String((w && (w.hanzi || w.word)) || '').replace(/\{|\}/g, '').trim();
+            const py = (w && (w.pinyin || w.wordPinyin)) || '';
+            if (!hz || !py || seenW.has(hz)) continue;
+            seenW.add(hz);
+            set.push({
+              word: hz,
+              hanzi: hz,
+              pinyin: py,
+              hanviet: (w && (w.hanviet || w.hanViet)) || '',
+              meaningVi: (w && (w.meaningVi || w.translationVi || w.meaning)) || '',
+              hskLevel: hsk,
+              audioUrl: rewriteMediaUrl((w && ((Array.isArray(w.audios) && w.audios[0]) || w.audioUrl)) || `https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`)
+            });
+          }
+        }
+      }
+      if (set.length < limit && Array.isArray(vocabIdx)) {
+        const seenW = new Set(set.map(x => x.hanzi));
+        const offset = (hsk - 1) * 180;
+        const pool = vocabIdx.filter(x => x.p && (x.w || '').length >= 2).slice(offset, offset + limit * 2);
+        for (const x of pool) {
+          if (set.length >= limit) break;
+          const hz = (x.w || '').replace(/\{|\}/g, '');
+          if (!hz || seenW.has(hz)) continue;
+          seenW.add(hz);
+          set.push({
+            word: hz,
+            hanzi: hz,
+            pinyin: x.p || 'nǐ hǎo',
+            hanviet: x.hv || '',
+            meaningVi: x.m || '',
+            hskLevel: hsk,
+            audioUrl: rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`)
+          });
+        }
+      }
+      return jsonResponse({ hsk, mode: mode || 'hsk', set });
+    }
+    if (p === '/v1/typing/complete' || p === '/v1/typing-progress') {
+      const body = method === 'POST' ? await parseRequestBody(init) : {};
+      const words = Array.isArray(body.words) ? body.words.map(w => String(w || '').trim()).filter(Boolean) : [];
+      const mins = Math.max(1, Number(body.minutes) || Math.ceil((Number(body.seconds) || 60) / 60));
+      const prog = method === 'POST'
+        ? recordStudyProgress({ words, minutes: mins, sessionInc: 1, gradingInc: Math.max(1, words.length) })
+        : getRealProgress();
+      return jsonResponse({ ok: true, wordsRecorded: words.length, totalLearned: (prog.learnedWords || []).length });
     }
     if (p === '/v1/typing-sentence-set') {
       const hsk = Number(urlObj.searchParams.get('hsk')) || 1;
@@ -6152,6 +6311,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       url = input.url || input.href || '';
     }
 
+    // 0. Silently swallow dead third-party analytics/telemetry requests
+    if (/google-analytics\.com|analytics\.google\.com|googletagmanager\.com|doubleclick\.net|sentry\.io|posthog|umami|clarity\.ms|\/g\/collect/i.test(url)) {
+      return new Response('', { status: 204 });
+    }
+    if (url === '/monitoring' || url.includes('/monitoring?')) {
+      return jsonResponse({ ok: true });
+    }
+
     // 1. Rewrite static media URLs
     if (url.includes('static.xiehanzi.com') || url.includes('audio.xiehanzi.com')) {
       const localMedia = rewriteMediaUrl(url);
@@ -6177,17 +6344,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return handleApiRequest(fullUrl, mergedInit);
     }
 
-    // 3. Intercept Next.js App Router _rsc requests on static export
+    // 3. Intercept Next.js App Router _rsc requests on static export cleanly without noisy DOMException logs
     if (url.includes('_rsc=')) {
       if (isPrefetchRequest(input, init)) {
-        return Promise.reject(new DOMException('Prefetch skipped on static export', 'AbortError'));
+        return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
       }
       try {
         const cleanU = new URL(url, window.location.origin);
         cleanU.searchParams.delete('_rsc');
         const targetHref = cleanU.pathname + cleanU.search + cleanU.hash;
         if (isDynamicSpaRoute(window.location.pathname) && cleanU.pathname === '/hoc/bat-dau') {
-          return Promise.reject(new DOMException('Prevented redirect away from active lesson', 'AbortError'));
+          return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
         }
         if (isDynamicSpaRoute(cleanU.pathname)) {
           origPushState.call(history, null, '', targetHref);
@@ -6198,7 +6365,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           return new Promise(() => {});
         }
       } catch (_) {}
-      return Promise.reject(new DOMException('RSC skipped', 'AbortError'));
+      return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
     }
 
     return ORIG_FETCH(input, init);
@@ -7261,8 +7428,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const rawItems = lessons.length > 0 ? lessons : topics;
       const learnedSet2 = new Set((getRealProgress().learnedWords || []).map(w => String(w || '').replace(/^w:|^c:/, '')));
       const items = await Promise.all(rawItems.map(async (it) => {
+        const isTopicOnly = Boolean(it.topicSlug) && !it.lessonSlug;
         const slug = it.lessonSlug || it.topicSlug || '';
-        const d = slug ? ((await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)) || (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`))) : null;
+        const d = slug
+          ? (isTopicOnly
+              ? ((await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`)) || (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)))
+              : ((await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${slug}.json`)) || (await loadLocalJson(`/data/curriculums/${curr}/topics/${levelSlug}--${slug}.json`))))
+          : null;
         const wl = (d && d.lesson && d.lesson.words) || (d && d.topic && d.topic.words) || (d && d.words) || [];
         const wc = Math.max(Number(it.wordCount) || 0, wl.length);
         const lc = wl.filter(w => { const hz = String((w && (w.hanzi || w.word)) || '').replace(/\{|\}/g, ''); return hz && learnedSet2.has(hz); }).length;
@@ -9160,8 +9332,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           </div><div style="margin-top:16px;font-size:13px;color:#115e59;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button></div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
-          ${[['again', 'Quên', '1 phút'], ['hard', 'Khó', '10 phút'], ['good', 'Tốt', `${goodDays} ngày`], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`]].map(([grade, label, interval]) => `<button class="xhz-srs-grade" data-grade="${grade}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval}</div></button>`).join('')}
-        </div>`;
+          ${[['again', 'Quên', '1 phút', '1'], ['hard', 'Khó', '10 phút', '2'], ['good', 'Tốt', `${goodDays} ngày`, '3'], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`, '4']].map(([grade, label, interval, keyHint]) => `<button class="xhz-srs-grade" data-grade="${grade}" data-key="${keyHint}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval} · [${keyHint}]</div></button>`).join('')}
+        </div>
+        <div id="xhz-srs-kbd-hint" style="margin-top:12px;font-size:12px;color:#78716c;">⌨️ Phím tắt: <strong>Space</strong> lật thẻ · <strong>R</strong> nghe lại · <strong>1–4</strong> chấm mức nhớ</div>`;
       const flip = () => {
         flipped = !flipped; srsPanel.querySelector('#xhz-srs-back').style.display = flipped ? 'block' : 'none';
         srsPanel.querySelector('.xhz-srs-pinyin').textContent = hidePinyin && !flipped ? '' : item.pinyin;
@@ -9206,17 +9379,23 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
           <a href="/on-tap" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trung tâm Ôn tập</a>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" id="xhz-lw-export-csv" style="padding:8px 14px;border-radius:999px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-weight:700;cursor:pointer;font-size:13px;">📥 Xuất CSV (Anki/Excel)</button>
             <a href="/hoc/bai/on-tap-den-han" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🔄 Ôn tập ngay</a>
             <a href="/hoc/tu-da-hoc" style="padding:8px 16px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📚 Xem bản đầy đủ</a>
           </div>
         </div>
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
-          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
             <div>
               <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">📚 Từ vựng đã học (${items.length} từ)</h1>
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Tổng hợp toàn bộ chữ Hán và từ vựng đã ghi nhận trong quá trình học tập của bạn.</p>
             </div>
             <input id="xhz-lw-search" type="text" placeholder="🔍 Lọc từ vựng, pinyin, nghĩa..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:220px;" />
+          </div>
+          <div id="xhz-lw-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+            <button type="button" data-status="all" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Tất cả (${items.length})</button>
+            <button type="button" data-status="known" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">Đã thuộc (${items.filter(i => i.state === 'review').length})</button>
+            <button type="button" data-status="learning" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">Đang học (${items.filter(i => i.state !== 'review').length})</button>
           </div>
           <div id="xhz-lw-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;"></div>
         </div>
@@ -9224,22 +9403,31 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     `;
     const grid = root.querySelector('#xhz-lw-grid');
     const searchEl = root.querySelector('#xhz-lw-search');
+    const exportBtn = root.querySelector('#xhz-lw-export-csv');
+    let activeStatus = 'all';
     const renderCards = (q = '') => {
       const norm = q.trim().toLowerCase();
-      const filtered = norm
-        ? items.filter(it => it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm))
-        : items;
+      const filtered = items.filter(it => {
+        if (activeStatus === 'known' && it.state !== 'review') return false;
+        if (activeStatus === 'learning' && it.state === 'review') return false;
+        if (!norm) return true;
+        return it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm);
+      });
       if (filtered.length === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#0d9488;font-weight:700;">Lộ trình học</a> để tích lũy từ mới nhé!</div>`;
         return;
       }
       grid.innerHTML = filtered.map(it => {
         const href = it.hanzi.length === 1 ? `/han-tu/${encodeURIComponent(it.hanzi)}` : `/tu-vung/${encodeURIComponent(it.hanzi)}`;
+        const isKnown = it.state === 'review';
         return `
           <div style="padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
               <a href="${href}" style="text-decoration:none;color:#1c1917;font-size:28px;font-weight:800;font-family:'Noto Serif SC',serif;">${it.hanzi}</a>
-              <button type="button" onclick="window.__xhzPlayAudio('${it.hanzi.replace(/'/g, '')}')" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:${isKnown ? '#dcfce7' : '#fef3c7'};color:${isKnown ? '#15803d' : '#92400e'};">${isKnown ? 'Thuộc' : 'Đang học'}</span>
+                <button type="button" onclick="window.__xhzPlayAudio('${it.hanzi.replace(/'/g, '')}')" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
+              </div>
             </div>
             ${it.pinyin ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${it.pinyin}</div>` : ''}
             <div style="font-size:14px;color:#44403c;line-height:1.4;">${it.meaningVi || 'Từ vựng đã học'}</div>
@@ -9249,6 +9437,26 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     };
     renderCards();
     if (searchEl) searchEl.oninput = e => renderCards(e.target.value);
+    root.querySelectorAll('.xhz-lw-filter').forEach(btn => {
+      btn.onclick = () => {
+        activeStatus = btn.getAttribute('data-status') || 'all';
+        root.querySelectorAll('.xhz-lw-filter').forEach(b => {
+          const on = b === btn;
+          b.style.background = on ? '#0d9488' : '#fff';
+          b.style.color = on ? '#fff' : '#1c1917';
+          b.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+        });
+        renderCards(searchEl ? searchEl.value : '');
+      };
+    });
+    if (exportBtn) {
+      exportBtn.onclick = async () => {
+        exportBtn.textContent = '⏳ Đang xuất...';
+        await window.__xhzExportVocabularyCsv(true);
+        exportBtn.textContent = '✅ Đã tải CSV!';
+        setTimeout(() => { exportBtn.textContent = '📥 Xuất CSV (Anki/Excel)'; }, 2000);
+      };
+    }
   }
 
   // --------------------------------------------------------------------------
@@ -9675,25 +9883,66 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   }
 
   async function buildDynamicRunFromStage(activityKey) {
-    const stgMatch = activityKey.match(/^(hsk30\.L\d+\.[A-Z]\d+)/i);
-    const stageKey = stgMatch ? stgMatch[1] : 'hsk30.L1.P1';
-    const actSuffix = activityKey.slice(stageKey.length + 1) || 'learn.1';
-    const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
-    let chapterKey = 'hsk30.L1.C00';
-    if (levelData && Array.isArray(levelData.chapters)) {
-      for (const ch of levelData.chapters) {
-        if ((ch.stages || []).some(s => s.stageKey === stageKey)) {
-          chapterKey = ch.chapterKey;
-          break;
+    const stgMatch = activityKey.match(/^([a-z0-9-]+)\.([A-Z]\d+)\.([A-Z]\d+)/i);
+    const trackName = stgMatch ? stgMatch[1].toLowerCase() : 'hsk30';
+    const levelCode = stgMatch ? stgMatch[2].toUpperCase() : 'L1';
+    const stageKey = stgMatch ? `${trackName}.${levelCode}.${stgMatch[3].toUpperCase()}` : 'hsk30.L1.P1';
+    const actSuffix = stgMatch ? (activityKey.slice(stgMatch[0].length + 1) || 'learn.1') : 'learn.1';
+
+    let stg = null;
+    if (trackName === 'hsk30' && levelCode === 'L1') {
+      const levelData = await loadLocalJson('/data/learning-tracks/hsk30-L1.json');
+      let chapterKey = 'hsk30.L1.C00';
+      if (levelData && Array.isArray(levelData.chapters)) {
+        for (const ch of levelData.chapters) {
+          if ((ch.stages || []).some(s => s.stageKey === stageKey)) {
+            chapterKey = ch.chapterKey;
+            break;
+          }
         }
       }
+      const chBundle =
+        (await loadLocalJson(`/data/learning-tracks/chapters/${chapterKey}.json`)) ||
+        (await loadLocalJson('/data/learning-tracks/chapters/hsk30.L1.C00.json'));
+      stg =
+        (chBundle && Array.isArray(chBundle.stages) && chBundle.stages.find(s => s.stageKey === stageKey)) ||
+        (chBundle && chBundle.stages && chBundle.stages[0]);
+    } else {
+      let syn = null;
+      if (typeof window.__xhzSynthesizeTrackLevel === 'function') {
+        syn = await window.__xhzSynthesizeTrackLevel(trackName, levelCode);
+      } else {
+        try {
+          const r = await handleApiRequest(window.location.origin + `/v2/learning-tracks/${trackName}/levels/${levelCode}`, { method: 'GET' });
+          if (r && r.ok) syn = await r.json();
+        } catch (_) {}
+      }
+      const found = syn && Array.isArray(syn.stages) && (syn.stages.find(s => s.stageKey === stageKey) || syn.stages[0]);
+      if (found) {
+        const folder = found.sourceKind === 'topic' ? 'topics' : 'lessons';
+        const altFolder = folder === 'topics' ? 'lessons' : 'topics';
+        const detail =
+          (await loadLocalJson(`/data/curriculums/${found.sourceCurr}/${folder}/${found.sourceLevelSlug}--${found.sourceSlug}.json`)) ||
+          (await loadLocalJson(`/data/curriculums/${found.sourceCurr}/${altFolder}/${found.sourceLevelSlug}--${found.sourceSlug}.json`));
+        const rawW = (detail && detail.lesson && detail.lesson.words) || (detail && detail.topic && detail.topic.words) || (detail && detail.words) || [];
+        const normWords = rawW.slice(0, 8).map(w => {
+          const hz = String((w && (w.hanzi || w.word)) || '').replace(/\{|\}/g, '').trim();
+          return {
+            key: `w:${hz}`,
+            hanzi: hz,
+            pinyin: (w && (w.pinyin || w.wordPinyin)) || '',
+            hanviet: (w && (w.hanviet || w.hanViet)) || '',
+            meaningVi: (w && (w.meaningVi || w.translationVi || w.meaning)) || '',
+            audioUrl: (w && ((Array.isArray(w.audios) && w.audios[0]) || w.audioUrl)) || `https://static.xiehanzi.com/word_audios/${encodeURIComponent(hz)}.mp3`
+          };
+        }).filter(w => w.hanzi);
+        stg = {
+          stageKey: found.stageKey,
+          meta: { titleVi: found.titleVi || found.stageKey, handwriting: normWords.slice(0, 3).map(w => Array.from(w.hanzi)[0]).filter(Boolean) },
+          words: normWords
+        };
+      }
     }
-    const chBundle =
-      (await loadLocalJson(`/data/learning-tracks/chapters/${chapterKey}.json`)) ||
-      (await loadLocalJson('/data/learning-tracks/chapters/hsk30.L1.C00.json'));
-    const stg =
-      (chBundle && Array.isArray(chBundle.stages) && chBundle.stages.find(s => s.stageKey === stageKey)) ||
-      (chBundle && chBundle.stages && chBundle.stages[0]);
     if (!stg) return await loadLocalJson('/data/learning-tracks/runs/hsk30.L1.P1.learn.1.json');
 
     const words = Array.isArray(stg.words) && stg.words.length > 0 ? stg.words : [];
@@ -11923,8 +12172,50 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   }
 
   function enhanceAccountPageAuthUI() {
+    if (!htqHydrationSettled) return;
     try {
       const path = (window.location.pathname || '').replace(/\/+$/, '');
+      if (path === '/xoa-tai-khoan' || path === '/xoa-tai-khoan.html') {
+        if (!document.getElementById('xhz-safe-delete-panel')) {
+          const host = document.querySelector('main') || document.body;
+          if (host) {
+            const panel = document.createElement('div');
+            panel.id = 'xhz-safe-delete-panel';
+            panel.style.cssText = 'max-width:720px;margin:20px auto;padding:20px 24px;border-radius:18px;border:1px solid #fecaca;background:#fff1f2;color:#881337;';
+            panel.innerHTML =
+              `<div style="font-weight:800;font-size:16px;margin-bottom:6px;">🛡️ Dọn dữ liệu an toàn trên thiết bị này</div>` +
+              `<p style="margin:0 0 12px;font-size:14px;color:#9f1239;line-height:1.6;">Trước khi đăng xuất hoặc xóa dữ liệu học trên trình duyệt, bạn nên tải bản sao lưu <code>.json</code> để có thể khôi phục bất cứ lúc nào.</p>` +
+              `<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">` +
+              `<button type="button" id="xhz-del-backup-btn" style="padding:9px 15px;border-radius:10px;border:1px solid #0d9488;background:#fff;color:#0f766e;font-weight:700;font-size:13px;cursor:pointer;">📥 Tải bản sao lưu (.json) trước</button>` +
+              `<button type="button" id="xhz-clear-local-data-btn" style="padding:9px 15px;border-radius:10px;border:none;background:#dc2626;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🗑️ Xóa dữ liệu cục bộ trên trình duyệt này</button>` +
+              `</div><div id="xhz-del-status" style="margin-top:10px;font-size:13px;font-weight:600;"></div>`;
+            host.appendChild(panel);
+            let armed = false;
+            panel.querySelector('#xhz-del-backup-btn').onclick = () => {
+              if (window.__xhzExportProgressJson) window.__xhzExportProgressJson(true);
+              panel.querySelector('#xhz-del-status').textContent = '✅ Đã tải xuống file sao lưu .json an toàn.';
+            };
+            const clrBtn = panel.querySelector('#xhz-clear-local-data-btn');
+            clrBtn.onclick = () => {
+              const st = panel.querySelector('#xhz-del-status');
+              if (!armed) {
+                armed = true;
+                clrBtn.textContent = '⚠️ Nhấn lần nữa để xác nhận xóa dữ liệu cục bộ';
+                st.textContent = 'Hành động này chỉ xóa tiến độ lưu trên trình duyệt này (dữ liệu đã đồng bộ lên Supabase không bị xóa).';
+                return;
+              }
+              const ownerKey = getStudyStateStorageKey();
+              const keysToDrop = Object.keys(localStorage).filter(k => k === ownerKey || k.endsWith(':' + ownerKey));
+              keysToDrop.forEach(k => localStorage.removeItem(k));
+              clearAuthSession(false);
+              clrBtn.disabled = true;
+              clrBtn.textContent = '✅ Đã dọn sạch dữ liệu cục bộ';
+              st.textContent = 'Hoàn tất. Bạn có thể quay về Trang chủ hoặc nhập lại từ file .json bất cứ lúc nào.';
+            };
+          }
+        }
+        return;
+      }
       if (path !== '/tai-khoan' && path !== '/tai-khoan.html') return;
 
       const googleIconHtml =
@@ -12002,6 +12293,51 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               ev.preventDefault();
               window.logoutXieHanzi();
             });
+          }
+        }
+      }
+
+      // 2b. Gợi ý gộp tiến độ Khách (opt-in, không bao giờ gộp âm thầm)
+      if (planCard && savedUser && !document.getElementById('xhz-guest-migration-card')) {
+        const gSum = getGuestMigrationSummary();
+        if (gSum && gSum.hasData && !gSum.alreadyMigrated && planCard.parentElement) {
+          const migCard = document.createElement('div');
+          migCard.id = 'xhz-guest-migration-card';
+          migCard.style.cssText = 'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;margin-bottom:14px;border-radius:14px;border:1px solid #99f6e4;background:#f0fdfa;color:#115e59;';
+          migCard.innerHTML =
+            `<div style="min-width:200px;">` +
+            `<div style="font-weight:800;font-size:14px;">📥 Phát hiện tiến độ học ở chế độ Khách trên máy này</div>` +
+            `<div id="xhz-guest-mig-desc" style="font-size:13px;color:#0f766e;margin-top:2px;">Có ${gSum.wordsCount} từ đã học, ${gSum.stagesCount} chặng, ${gSum.reviewCardsCount} thẻ ôn. Bạn có muốn gộp vào tài khoản ${escapeHtml(savedUser.email || '')} không?</div>` +
+            `</div>` +
+            `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
+            `<button type="button" id="xhz-btn-import-guest" style="padding:8px 14px;border-radius:10px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Gộp vào tài khoản này</button>` +
+            `<button type="button" id="xhz-btn-dismiss-guest" style="padding:8px 12px;border-radius:10px;border:1px solid #99f6e4;background:#fff;color:#115e59;font-weight:600;font-size:13px;cursor:pointer;">Bỏ qua</button>` +
+            `</div>`;
+          planCard.parentElement.insertBefore(migCard, planCard);
+          const impBtn = migCard.querySelector('#xhz-btn-import-guest');
+          const disBtn = migCard.querySelector('#xhz-btn-dismiss-guest');
+          const descEl = migCard.querySelector('#xhz-guest-mig-desc');
+          if (impBtn) {
+            impBtn.onclick = async () => {
+              impBtn.disabled = true;
+              impBtn.textContent = '⏳ Đang gộp...';
+              const res = await importGuestProgressIntoAccount();
+              if (res && res.ok && descEl) {
+                descEl.textContent = `✅ Đã gộp an toàn! Hiện tài khoản có ${res.wordsTotal} từ, ${res.stagesTotal} chặng, ${res.reviewCardsTotal} thẻ ôn.`;
+                impBtn.textContent = '✅ Đã gộp xong';
+                if (disBtn) disBtn.style.display = 'none';
+              } else if (descEl) {
+                descEl.textContent = 'Chưa thể gộp tiến độ Khách. Dữ liệu vẫn được giữ nguyên.';
+                impBtn.disabled = false;
+                impBtn.textContent = 'Thử lại';
+              }
+            };
+          }
+          if (disBtn) {
+            disBtn.onclick = () => {
+              try { localStorage.setItem(`httq_guest_migrated_for_${savedUser.id}`, 'dismissed'); } catch (_) {}
+              migCard.remove();
+            };
           }
         }
       }
@@ -12122,6 +12458,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   }, true);
 
   function enhanceWorksheetAndPdfTools() {
+    if (!htqHydrationSettled) return;
     try {
       const p = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
       if (p !== '/tao-vo-tap-viet' && p !== '/flashcard-pdf') return;
@@ -12422,12 +12759,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '<div class="htq-sb-emblem">汉</div>' +
         '<div><div class="htq-sb-title">Hán Ngữ Studio</div><div class="htq-sb-sub">Học Tiếng Trung v4</div></div>' +
       '</a>' +
+      '<button type="button" id="htq-sb-cmdk-btn" class="htq-sb-btn" style="margin-bottom:10px;width:100%;"><span>🔍 Tìm nhanh chữ / công cụ</span><span style="font-size:11px;opacity:.75;">Ctrl+K</span></button>' +
       navHtml +
       '<div class="htq-sb-footer">' +
         '<button type="button" id="htq-sb-theme-btn" class="htq-sb-btn"><span>' + (isDark ? '🌙 Giao diện Tối' : '☀️ Giao diện Sáng') + '</span><span>Đổi</span></button>' +
         '<a href="/tai-khoan/" class="htq-sb-link" style="margin-bottom:0"><span>👤</span><span>Tài khoản &amp; Đồng bộ</span></a>' +
       '</div>';
 
+    const cmdkBtn = document.getElementById('htq-sb-cmdk-btn');
+    if (cmdkBtn) {
+      cmdkBtn.onclick = () => { if (window.__xhzOpenCommandPalette) window.__xhzOpenCommandPalette(); };
+    }
     const themeBtn = document.getElementById('htq-sb-theme-btn');
     if (themeBtn) {
       themeBtn.onclick = () => {
@@ -12448,12 +12790,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (!traCuu || !traCuu.parentElement) return;
     if (existing) return;
 
-    let summary = { streakDays: 0, wordsMastered: 0, stagesDone: 0 };
+    let summary = { streakDays: 0, wordsMastered: 0, stagesDone: 0, dueTotal: 0, prog: {} };
+    let dueNowCount = 0;
     try {
       if (typeof getRealProgressSummary === 'function') {
         summary = getRealProgressSummary() || summary;
       }
+      const st = typeof getLocalState === 'function' ? getLocalState() : null;
+      const cards = (st && st.collections && Array.isArray(st.collections.reviewCards)) ? st.collections.reviewCards : [];
+      dueNowCount = cards.filter(c => c && Date.parse(c.dueAt) <= Date.now()).length || Number(summary.dueTotal || 0);
     } catch (_e) {}
+    const curLessonId = (summary.prog && summary.prog.currentLessonId) || localStorage.getItem('httq_current_lesson_id') || '';
+    const ctaHref = curLessonId ? `/hoc/bai/${encodeURIComponent(curLessonId)}` : '/hoc/';
+    const ctaLabel = curLessonId ? `▶ Tiếp tục: ${escapeHtml(curLessonId)}` : '▶ Vào bài học hôm nay';
 
     const skills = [
       ['🎧', 'Luyện Nghe Phản Xạ', 'Bài nghe hội thoại & đề thi HSK theo tốc độ tự chọn.', '/luyen-nghe/'],
@@ -12493,12 +12842,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '</div>' +
         '<div class="htq-ws-panel">' +
           '<div class="htq-ws-head"><h2 class="htq-ws-title">Tiến Độ &amp; Tiện Ích Nhanh</h2><span class="htq-ws-badge">Studio v4</span></div>' +
-          '<div class="htq-stat-row">' +
+          '<div class="htq-stat-row" style="grid-template-columns:repeat(2,1fr);">' +
             '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.streakDays || 0) + '</div><div class="htq-stat-lbl">Ngày liên tiếp</div></div>' +
             '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.wordsMastered || 0) + '</div><div class="htq-stat-lbl">Từ đã học</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(dueNowCount || 0) + '</div><div class="htq-stat-lbl">Thẻ cần ôn</div></div>' +
             '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.stagesDone || 0) + '</div><div class="htq-stat-lbl">Chặng xong</div></div>' +
           '</div>' +
-          '<a href="/hoc/" class="htq-cta-btn">▶ Vào bài học hôm nay</a>' +
+          '<a id="htq-home-cta" href="' + ctaHref + '" class="htq-cta-btn">' + ctaLabel + '</a>' +
+          (dueNowCount > 0 ? '<a id="htq-home-due-cta" href="/hoc/bai/on-tap-den-han" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 12px;border-radius:12px;font-weight:700;font-size:13px;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;text-decoration:none;margin-bottom:12px;">🔁 Ôn ' + dueNowCount + ' thẻ đến hạn ngay →</a>' : '') +
           '<div class="htq-quick-grid">' +
             '<a href="/tro-choi/ghep-chu/" class="htq-quick-item"><span>🧩</span><span>Ghép Chữ Hán</span></a>' +
             '<a href="/tro-choi/tim-chu-trong-chu/" class="htq-quick-item"><span>🔎</span><span>Tìm Chữ Trong Chữ</span></a>' +
@@ -12546,6 +12897,36 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     main.insertBefore(ribbon, main.firstChild);
   }
 
+  function buildMobileBottomNav(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-mobile-nav');
+    if (isImmersiveRoute(norm) || document.getElementById('xhz-lesson-runner-root')) {
+      if (existing) existing.remove();
+      return;
+    }
+    let nav = existing;
+    if (!nav) {
+      nav = document.createElement('nav');
+      nav.id = 'htq-mobile-nav';
+      nav.setAttribute('aria-label', 'Điều hướng nhanh di động');
+      document.body.appendChild(nav);
+    }
+    if (nav.getAttribute('data-htq-path') === norm) return;
+    nav.setAttribute('data-htq-path', norm);
+    const tabs = [
+      ['📖', 'Học', '/hoc/'],
+      ['🔁', 'Ôn tập', '/on-tap/'],
+      ['🔍', 'Tra chữ', '/tra-chu/'],
+      ['📝', 'Thi thử', '/kiem-tra-hsk/'],
+      ['👤', 'Tài khoản', '/tai-khoan/']
+    ];
+    nav.innerHTML = tabs.map(([ico, lbl, href]) => {
+      const hn = href.replace(/\/+$/, '');
+      const act = norm === hn || norm.startsWith(hn + '/');
+      return `<a href="${href}" class="htq-mnav-item${act ? ' is-active' : ''}"><span style="font-size:17px;line-height:1;">${ico}</span><span>${lbl}</span></a>`;
+    }).join('');
+  }
+
   function mountStudioLayout() {
     if (!htqHydrationSettled) return;
     try {
@@ -12553,15 +12934,209 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       buildStudioSidebar(p);
       buildHomeWorkspace(p);
       buildSubpageRibbon(p);
+      buildMobileBottomNav(p);
     } catch (_e) {}
   }
+
+  function ensurePwaWired() {
+    try {
+      if (document.head && !document.querySelector('link[rel="manifest"]')) {
+        const lnk = document.createElement('link');
+        lnk.rel = 'manifest';
+        lnk.href = '/manifest.webmanifest';
+        document.head.appendChild(lnk);
+      }
+      if (
+        !window.__xhzSwRegistered &&
+        typeof navigator !== 'undefined' &&
+        'serviceWorker' in navigator &&
+        (window.location.protocol === 'https:' || window.location.hostname === 'localhost')
+      ) {
+        window.__xhzSwRegistered = true;
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      }
+    } catch (_) {}
+  }
+
+  function runPostHydrationEnhancers() {
+    htqHydrationSettled = true;
+    ensurePwaWired();
+    rewriteDomMedia(document);
+    scrubBrandingAndLogos(document.body);
+    mountStudioLayout();
+    enhanceAccountPageAuthUI();
+    enhanceWorksheetAndPdfTools();
+  }
+
+  // Global Command Palette (Ctrl+K / Cmd+K) for instant Hanzi/Vocab/Tool search
+  const HTQ_QUICK_ROUTES = [
+    { icon: '📖', title: 'Lộ trình học HSK 3.0', desc: 'Tiếp tục bài học hôm nay', href: '/hoc/', keys: 'hoc lo trinh hsk' },
+    { icon: '🔁', title: 'Trung tâm Ôn tập SRS', desc: 'Ôn bài đến hạn, sổ lỗi & từ đã học', href: '/on-tap/', keys: 'on tap srs the nho loi sai' },
+    { icon: '📚', title: 'Từ vựng đã học & Xuất CSV', desc: 'Lọc từ đã thuộc và xuất Anki/Excel', href: '/on-tap/da-hoc', keys: 'tu da hoc csv anki' },
+    { icon: '🔍', title: 'Từ điển Chữ Hán & Bộ thủ', desc: 'Tra hơn 9.900 chữ Hán theo HSK/Bộ thủ', href: '/tra-chu/', keys: 'tu dien tra chu bo thu' },
+    { icon: '🌐', title: 'Dịch Trung - Việt AI', desc: 'Dịch câu kèm phân tích từ ghép & Hán Việt', href: '/dich-tieng-trung/', keys: 'dich translate ai' },
+    { icon: '🎧', title: 'Luyện nghe phản xạ', desc: 'Luyện nghe theo giáo trình HSK', href: '/luyen-nghe/', keys: 'luyen nghe listening' },
+    { icon: '🎙️', title: 'Luyện nói AI Thanh điệu', desc: 'Thu âm zh-CN và chấm phát âm', href: '/luyen-noi/', keys: 'luyen noi speaking mic' },
+    { icon: '⌨️', title: 'Luyện gõ Pinyin & Hán tự', desc: 'Rèn gõ nhanh theo cấp HSK 1–6', href: '/luyen-go/', keys: 'luyen go pinyin typing' },
+    { icon: '✍️', title: 'Nghe chép chính tả Video', desc: '91 video thực tế có phân đoạn chuẩn', href: '/luyen-chep-chinh-ta/', keys: 'chep chinh ta dictation video' },
+    { icon: '📝', title: 'Phòng thi thử HSK & YCT', desc: '66 bộ đề HSK 1–6, HSK 3.0 & YCT 1–4', href: '/kiem-tra-hsk/', keys: 'thi thu de kiem tra hsk yct' },
+    { icon: '⚖️', title: 'Kiểm tra Ngữ pháp', desc: 'Ôn luyện 480+ điểm ngữ pháp HSK', href: '/kiem-tra-ngu-phap/', keys: 'ngu phap grammar quiz' },
+    { icon: '🖨️', title: 'Tạo vở tập viết PDF', desc: 'Tạo tờ luyện viết chữ Hán in PDF', href: '/tao-vo-tap-viet/', keys: 'tap viet pdf worksheet' },
+    { icon: '🎮', title: 'Trò chơi Chữ Hán', desc: '6 mini-game ghép chữ, thành ngữ, pháo hoa', href: '/tro-choi/', keys: 'tro choi game ghep chu chengyu' },
+    { icon: '🏮', title: 'Trường Thầy Đồ', desc: 'Bảng vàng và lớp học tương tác', href: '/thay-do/', keys: 'thay do bang vang' },
+    { icon: '👤', title: 'Tài khoản, Đồng bộ & Sao lưu', desc: 'Google OAuth, Supabase & Xuất/Nhập JSON', href: '/tai-khoan/', keys: 'tai khoan google dong bo sao luu backup' }
+  ];
+
+  function closeCommandPalette() {
+    const ov = document.getElementById('htq-cmdk-overlay');
+    if (ov) ov.remove();
+  }
+
+  function openCommandPalette(initialQuery = '') {
+    closeCommandPalette();
+    const isDark = document.documentElement.classList.contains('dark');
+    const ov = document.createElement('div');
+    ov.id = 'htq-cmdk-overlay';
+    ov.setAttribute('role', 'dialog');
+    ov.setAttribute('aria-modal', 'true');
+    ov.setAttribute('aria-label', 'Tìm nhanh Hán Ngữ Studio');
+    ov.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(15,23,42,0.55);backdrop-filter:blur(6px);display:flex;align-items:flex-start;justify-content:center;padding:8vh 16px 24px;';
+    ov.innerHTML =
+      `<div id="htq-cmdk-box" style="width:100%;max-width:620px;border-radius:20px;background:${isDark ? '#111629' : '#ffffff'};color:${isDark ? '#f8fafc' : '#1c1917'};border:1px solid ${isDark ? 'rgba(129,140,248,0.28)' : '#e7e5e4'};box-shadow:0 24px 64px rgba(15,23,42,0.35);overflow:hidden;">` +
+        `<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid ${isDark ? 'rgba(148,163,184,0.18)' : '#e7e5e4'};">` +
+          `<span style="font-size:18px;">🔍</span>` +
+          `<input id="htq-cmdk-input" type="text" autocomplete="off" placeholder="Nhập chữ Hán, Pinyin, nghĩa Việt hoặc tên công cụ (vd: 你好, hsk, pdf)..." style="flex:1;border:none;outline:none;background:transparent;color:inherit;font-size:15px;font-weight:600;" />` +
+          `<button type="button" id="htq-cmdk-close" style="padding:4px 10px;border-radius:8px;border:1px solid ${isDark ? '#334155' : '#d6d3d1'};background:transparent;color:inherit;font-size:12px;font-weight:700;cursor:pointer;">ESC</button>` +
+        `</div>` +
+        `<div id="htq-cmdk-results" style="max-height:58vh;overflow-y:auto;padding:10px 12px 14px;display:flex;flex-direction:column;gap:6px;"></div>` +
+      `</div>`;
+    ov.addEventListener('click', ev => { if (ev.target === ov) closeCommandPalette(); });
+    document.body.appendChild(ov);
+    const inp = ov.querySelector('#htq-cmdk-input');
+    const resEl = ov.querySelector('#htq-cmdk-results');
+    ov.querySelector('#htq-cmdk-close').onclick = closeCommandPalette;
+
+    let searchSeq = 0;
+    const renderResults = async (qStr) => {
+      const seq = ++searchSeq;
+      const q = String(qStr || '').trim();
+      const ql = q.toLowerCase();
+      const matchedRoutes = HTQ_QUICK_ROUTES.filter(r =>
+        !ql || r.title.toLowerCase().includes(ql) || r.desc.toLowerCase().includes(ql) || r.keys.includes(ql)
+      ).slice(0, q ? 5 : 8);
+
+      let dictRows = [];
+      if (q.length >= 1) {
+        const [cIdx, vIdx] = await Promise.all([
+          loadLocalJson('/data/characters/index.json'),
+          loadLocalJson('/data/vocabulary/index.json')
+        ]);
+        if (seq !== searchSeq) return;
+        const cHits = (Array.isArray(cIdx) ? cIdx : [])
+          .filter(c => (c.c || '').includes(q) || (c.p || '').toLowerCase().includes(ql) || (c.hv || '').toLowerCase() === ql || (ql.length >= 2 && (c.m || '').toLowerCase().includes(ql)))
+          .slice(0, 5)
+          .map(c => ({ kind: 'char', hanzi: c.c, pinyin: c.p || '', hv: c.hv || '', meaning: c.m || '', href: `/han-tu/${encodeURIComponent(c.c)}` }));
+        const vHits = (Array.isArray(vIdx) ? vIdx : [])
+          .filter(v => {
+            const hw = String(v.w || '').replace(/\{|\}/g, '');
+            return hw.includes(q) || (v.p || '').toLowerCase().includes(ql) || (ql.length >= 2 && (v.m || '').toLowerCase().includes(ql));
+          })
+          .slice(0, 6)
+          .map(v => {
+            const hw = String(v.w || '').replace(/\{|\}/g, '');
+            return { kind: 'word', hanzi: hw, pinyin: v.p || '', hv: v.hv || '', meaning: v.m || '', href: `/tu-vung/${encodeURIComponent(hw)}` };
+          });
+        dictRows = [...cHits, ...vHits];
+      }
+      if (seq !== searchSeq) return;
+      const itemBg = isDark ? 'rgba(30,41,59,0.65)' : '#f8fafc';
+      let html = '';
+      if (dictRows.length > 0) {
+        html += `<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.65;padding:4px 6px;">Từ điển Chữ Hán &amp; Từ vựng (${dictRows.length})</div>`;
+        html += dictRows.map(d =>
+          `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:${itemBg};">` +
+            `<a href="${d.href}" class="htq-cmdk-link" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-decoration:none;color:inherit;">` +
+              `<span style="font-size:24px;font-weight:800;color:#4f46e5;min-width:44px;">${escapeHtml(d.hanzi)}</span>` +
+              `<div style="min-width:0;">` +
+                `<div style="font-size:13px;font-weight:700;color:#0d9488;">${escapeHtml(d.pinyin)}${d.hv ? ' · ' + escapeHtml(d.hv.toUpperCase()) : ''}</div>` +
+                `<div style="font-size:13px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.meaning)}</div>` +
+              `</div>` +
+            `</a>` +
+            `<button type="button" onclick="window.__xhzPlayAudio('${d.hanzi.replace(/'/g, '')}')" style="border:none;border-radius:999px;padding:6px 10px;background:#eef2ff;color:#4338ca;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>` +
+          `</div>`
+        ).join('');
+      }
+      if (matchedRoutes.length > 0) {
+        html += `<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.65;padding:6px 6px 4px;">Lối tắt nhanh</div>`;
+        html += matchedRoutes.map(r =>
+          `<a href="${r.href}" class="htq-cmdk-link" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:${itemBg};text-decoration:none;color:inherit;">` +
+            `<span style="font-size:20px;">${r.icon}</span>` +
+            `<div><div style="font-weight:700;font-size:14px;">${r.title}</div><div style="font-size:12px;opacity:.72;">${r.desc}</div></div>` +
+          `</a>`
+        ).join('');
+      }
+      if (!html) {
+        html = `<div style="padding:24px;text-align:center;opacity:.7;font-size:14px;">Không tìm thấy kết quả cho "${escapeHtml(q)}".</div>`;
+      }
+      resEl.innerHTML = html;
+      resEl.querySelectorAll('.htq-cmdk-link').forEach(a => a.addEventListener('click', closeCommandPalette));
+    };
+
+    if (initialQuery) inp.value = initialQuery;
+    inp.addEventListener('input', () => renderResults(inp.value));
+    inp.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeCommandPalette(); });
+    renderResults(initialQuery);
+    setTimeout(() => { try { inp.focus(); } catch (_) {} }, 20);
+  }
+
+  window.__xhzOpenCommandPalette = openCommandPalette;
+  window.__xhzCloseCommandPalette = closeCommandPalette;
+  window.addEventListener('keydown', function (ev) {
+    if ((ev.ctrlKey || ev.metaKey) && String(ev.key || '').toLowerCase() === 'k') {
+      ev.preventDefault();
+      if (document.getElementById('htq-cmdk-overlay')) closeCommandPalette();
+      else openCommandPalette();
+      return;
+    } else if (ev.key === 'Escape' && document.getElementById('htq-cmdk-overlay')) {
+      closeCommandPalette();
+      return;
+    }
+    // Global study keyboard shortcuts (never steal focus inside inputs/modals)
+    if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
+    if (document.getElementById('htq-cmdk-overlay')) return;
+    const ae = document.activeElement;
+    if (ae && (['INPUT', 'TEXTAREA', 'SELECT'].includes(ae.tagName) || ae.isContentEditable)) return;
+
+    const srsPanel = document.getElementById('xhz-rev-panel-srs');
+    if (srsPanel && srsPanel.style.display !== 'none') {
+      const k = String(ev.key || '');
+      if (k === ' ' || k === 'Spacebar') {
+        const flipBtn = document.getElementById('xhz-srs-flip');
+        if (flipBtn) { ev.preventDefault(); flipBtn.click(); }
+      } else if (k.toLowerCase() === 'r') {
+        const spkBtn = document.getElementById('xhz-srs-speak');
+        if (spkBtn) { ev.preventDefault(); spkBtn.click(); }
+      } else if (['1', '2', '3', '4'].includes(k)) {
+        const gBtn = srsPanel.querySelector(`.xhz-srs-grade[data-key="${k}"]:not([disabled])`);
+        if (gBtn) { ev.preventDefault(); gBtn.click(); }
+      }
+      return;
+    }
+
+    const fcCard = document.getElementById('xhz-fc-card');
+    if (fcCard && fcCard.offsetParent !== null) {
+      const k = String(ev.key || '');
+      if (k === ' ' || k === 'Spacebar') { ev.preventDefault(); fcCard.click(); }
+      else if (k === 'ArrowLeft') { const b = document.getElementById('xhz-fc-prev'); if (b) { ev.preventDefault(); b.click(); } }
+      else if (k === 'ArrowRight') { const b = document.getElementById('xhz-fc-next'); if (b) { ev.preventDefault(); b.click(); } }
+      else if (k.toLowerCase() === 'r') { const b = document.getElementById('xhz-fc-audio'); if (b) { ev.preventDefault(); b.click(); } }
+    }
+  });
 
   function scheduleScrubPasses() {
     [750, 1150, 1900].forEach(ms => {
       setTimeout(() => {
-        htqHydrationSettled = true;
-        scrubBrandingAndLogos(document.body);
-        mountStudioLayout();
+        runPostHydrationEnhancers();
       }, ms);
     });
   }
@@ -12570,6 +13145,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   const origReplaceState = history.replaceState;
   history.pushState = function (...args) {
     origPushState.apply(this, args);
+    htqHydrationSettled = true;
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
     setTimeout(enhanceWorksheetAndPdfTools, 120);
@@ -12578,6 +13154,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   };
   history.replaceState = function (...args) {
     origReplaceState.apply(this, args);
+    htqHydrationSettled = true;
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
     setTimeout(enhanceWorksheetAndPdfTools, 120);
@@ -12585,6 +13162,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 500);
   };
   window.addEventListener('popstate', () => {
+    htqHydrationSettled = true;
     setTimeout(checkAndRenderDynamicPage, 30);
     setTimeout(enhanceAccountPageAuthUI, 100);
     setTimeout(enhanceWorksheetAndPdfTools, 120);
@@ -12593,25 +13171,23 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   window.addEventListener('load', () => {
     setTimeout(() => {
-      htqHydrationSettled = true;
-      scrubBrandingAndLogos(document.body);
-      mountStudioLayout();
-    }, 380);
+      runPostHydrationEnhancers();
+      if (isDynamicSpaRoute(window.location.pathname)) {
+        checkAndRenderDynamicPage();
+      }
+    }, 450);
   });
 
   function boot() {
-    rewriteDomMedia(document);
-    enhanceAccountPageAuthUI();
-    enhanceWorksheetAndPdfTools();
     supabaseFetchInitial();
-    cleanDocumentTitle();
     scheduleScrubPasses();
-    if (isDynamicSpaRoute(window.location.pathname)) {
-      if (document.readyState === 'complete') {
-        setTimeout(checkAndRenderDynamicPage, 350);
-      } else {
-        window.addEventListener('load', () => setTimeout(checkAndRenderDynamicPage, 350), { once: true });
-      }
+    if (document.readyState === 'complete') {
+      setTimeout(() => {
+        runPostHydrationEnhancers();
+        if (isDynamicSpaRoute(window.location.pathname)) {
+          checkAndRenderDynamicPage();
+        }
+      }, 450);
     }
     if ((window.location.pathname || '').startsWith('/hoc')) {
       const idleFn = window.requestIdleCallback || (cb => setTimeout(cb, 650));
@@ -12622,6 +13198,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     let scrubRaf = 0;
     const obs = new MutationObserver(mutations => {
+      if (!htqHydrationSettled) return;
       cleanDocumentTitle();
       for (const m of mutations) {
         m.addedNodes.forEach(node => {
@@ -12630,7 +13207,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
       enhanceAccountPageAuthUI();
       enhanceWorksheetAndPdfTools();
-      if (htqHydrationSettled && !scrubRaf) {
+      if (!scrubRaf) {
         scrubRaf = requestAnimationFrame(() => {
           scrubRaf = 0;
           scrubBrandingAndLogos(document.body);

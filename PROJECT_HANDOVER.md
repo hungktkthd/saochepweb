@@ -1,77 +1,83 @@
-# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v12.0
+# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v13.0
 
 - **Production URL**: https://hoctiengtrungquoc.vercel.app
 - **GitHub Repository**: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`)
 - **Supabase Project**: `skxgzzdunqloxxombtuc` (`https://skxgzzdunqloxxombtuc.supabase.co`, Publishable Key: `sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18`)
-- **Kiến trúc tổng thể**: Giao diện **Hanzi Studio v4** (`?v=htq5`, Indigo `#4f46e5` + Imperial Teal `#0d9488`, đã loại bỏ branding cũ & thêm bảo vệ React hydration `#418`), lưu trữ tách riêng theo tài khoản (`initializeScopedStorage()`), hệ thống SRS thật + lớp Runtime trung tâm [`xiehanzi-runtime.js`](./xiehanzi-runtime.js) (intercept `window.fetch`, SPA routing, Capybara Lesson Runner, đồng bộ đa tầng) và API Serverless [`api/ai.js`](./api/ai.js).
+- **Kiến trúc tổng thể**: Giao diện **Hanzi Studio v4** (`?v=htq5`, Indigo `#4f46e5` + Imperial Teal `#0d9488`, Mobile Bottom Nav, Command Palette `Ctrl+K`, PWA `site.webmanifest`/`sw.js`), lưu trữ tách riêng theo tài khoản (`initializeScopedStorage()`), hệ thống SRS thật + lớp Runtime trung tâm [`xiehanzi-runtime.js`](./xiehanzi-runtime.js) và API Serverless [`api/ai.js`](./api/ai.js).
 
 ---
 
 ## 1. Hệ thống đồng bộ & lưu trữ dữ liệu đa tầng (Non-Destructive + Per-Account Scoped)
 
 1. **`localStorage` tách theo tài khoản & tương thích chéo 2 chiều (`initializeScopedStorage`)**:
-   - Mọi khóa cục bộ (`httq_state`, `httq_learned_grammar`, `httq_user_mistakes`, `httq_dictation_progress`, `httq_habit_settings`, `httq_game_high_scores`, `httq_speaking_progress`) được tách vùng theo người dùng đăng nhập (`:user:${id}` vs `:guest`) tránh trộn dữ liệu giữa các tài khoản trên cùng trình duyệt.
-   - `httq_progress_v2`: Khối tiến độ trung tâm (`doneStages`, `doneActivities`, `learnedWords`, `learnedGrammarIds`, `userMistakes`, `dismissedMistakes`, `savedWords`, `masteredChars`, `examHistory`, `dictationProgress`, `learningProfile`, `habitSettings`, `gameHighScores`, `speakingProgress`, `activeDates`, `minutesByDate`, `sessionsByDate`, `dailyStepsByDate`, `gradingUsed`, `voiceUsed`, `longestStreak`, `currentStageKey`, `currentLessonId`, `updatedAt`).
-   - `xhz-seen-words-v1` & `xhz-practice-v1`: Store SRS gốc của bundle Next.js, tự động đồng bộ 2 chiều qua `getRealProgress()` / `saveRealProgress()` / `recordStudyProgress()`.
+   - Mọi khóa cục bộ (`httq_state`, `httq_learned_grammar`, `httq_user_mistakes`, `httq_dictation_progress`, `httq_habit_settings`, `httq_game_high_scores`, `httq_speaking_progress`, `httq_progress_v2`...) được tách vùng theo người dùng đăng nhập (`:user:${id}` vs `:guest`) tránh trộn dữ liệu giữa các tài khoản trên cùng trình duyệt.
+   - Hỗ trợ **gộp tự nguyện (Opt-in Guest Migration)** từ chế độ Khách sang tài khoản đăng nhập trên `/tai-khoan` (`window.__xhzGetGuestMigrationSummary()`, `window.__xhzImportGuestProgressIntoAccount()`), không bao giờ gộp âm thầm.
+   - Đồng bộ 2 chiều tự động với store Next.js gốc (`xhz-seen-words-v1`, `xhz-practice-v1`).
 2. **Supabase Cloud Sync**:
-   - Đăng nhập Google OAuth qua Supabase (`/tai-khoan` hoặc `/tai-khoan-moi`) lưu phiên (`xiehanzi_access_token`, `sb_access_token`, `httq_user`, `httq_user_id`, `httq_real_auth`).
-   - Tiến độ được đồng bộ lên `auth/v1/user` (`user_metadata.xhz_progress`) và bảng `public.study_profiles` (`user_id, workspace: 'hoctiengtrungquoc', state, updated_at`, `on_conflict=user_id,workspace`).
-3. **Sao lưu & Khôi phục JSON thủ công**:
-   - UI trực tiếp trên `/tai-khoan` (`📥 Xuất sao lưu (.json)` / `📤 Khôi phục từ file (.json)`).
-   - Helper console: `window.__xhzExportProgressJson()` và `window.__xhzImportProgressJson(jsonStr)`.
+   - Google OAuth & Email/Password qua Supabase (`/tai-khoan`, `/dang-nhap`, `/dang-ky`, `/v1/auth/forgot-password`, `/v1/users/me/password`).
+   - Đồng bộ `auth/v1/user` (`user_metadata.xhz_progress`) và bảng `public.study_profiles` (`user_id, workspace: 'hoctiengtrungquoc'`), kèm fast-path cho phiên guest tránh Web Locks IPC thừa.
+3. **Sao lưu, Khôi phục & Xuất Anki/Excel**:
+   - Sao lưu JSON: UI trên `/tai-khoan` & `/xoa-tai-khoan` (`window.__xhzExportProgressJson()`, `window.__xhzImportProgressJson(jsonStr)`).
+   - Xuất CSV UTF-8 BOM (Anki/Excel): nút `📥 Xuất CSV` trên `/on-tap/da-hoc` & `window.__xhzExportVocabularyCsv()`.
 
 ---
 
-## 2. Tổng hợp 20 cải tiến đã triển khai & kiểm thử (v12.0)
+## 2. Tổng hợp 40 cải tiến đã triển khai & kiểm thử (Wave 1 v12.0 + Wave 2 v13.0)
 
-1. **Gỡ bỏ API bị che (shadowed) & nối Ngữ pháp / Hoạt động tuần / Gần đây**: `/v1/grammar-progress` (`GET`/`POST`/`DELETE`), `/v2/me/weekly-activity`, `/v2/me/recent-actions`.
-2. **Cầu nối 2 chiều sang Store Next.js & các API Sync**: Đồng bộ `xhz-seen-words-v1` & `xhz-practice-v1`; xử lý `/v2/review/signals`, `/v1/practice-progress`, `/v1/practice-progress/sync`, `/v1/study-time/sync`, `/v1/speaking-progress/sync`, `/v1/speaking/progress`, `/v1/speaking/assess`.
-3. **Capybara Lesson Runner đầy đủ cho Hội thoại (`dialogue`), Nhập vai (`roleplay_turn`) & Luyện đề (`exam_item`) + Fallback Audio**: Hỗ trợ chuỗi câu hỏi hội thoại, thẻ chuẩn bị & nhập vai mic, chuẩn hóa audio/hình ảnh.
-4. **Mở khóa toàn bộ 8 Chương / 40 Chặng HSK 3.0 L1**: Đọc động từ `data/learning-tracks/hsk30-L1.json`, mở rộng `advanceNextLessonInTrack` 40 chặng, sinh động `.learn.2`, `.dlg`, `.rp1`/`.rp2`, `.exam`, `.write`.
-5. **Sao lưu đám mây đa tầng & Xuất/Nhập JSON không mất dữ liệu**: Gộp không phá hủy mọi trường dữ liệu học tập + bảng `public.study_profiles` + tách kho theo từng tài khoản (`initializeScopedStorage`).
-6. **Ghi nhận Lỗi sai thực & Sổ lỗi / Từ đã học (`/on-tap/da-hoc`, `/on-tap/so-loi`)**: Ghi lỗi thật khi trả lời sai, tự động đưa vào lịch ôn SRS (`/v2/review/summary`) & sửa khóa tra cứu từ vựng (`e.w || e.word || e.hanzi`).
-7. **Khôi phục 6 file JSON Trò chơi (`data/misc/games-*.json`), Bộ đề YCT 1–4 & Kỷ lục điểm game (`gameHighScores`)**: Nạp danh sách & chi tiết đề YCT (`yct-1-01`..`yct-4-02`) từ kho `data/curriculums/yct/lessons/`.
-8. **Đồng bộ tiến độ Giáo trình (`/thu-vien-*`) & Tab Luyện gõ Pinyin/Chữ Hán**: API `/v1/curriculums/*/levels/*/lessons` trả `learnedCount` & `progressPct`; bổ sung tab thứ 3 `⌨️ Gõ Pinyin & Chữ Hán` tại `/luyen-tap`.
-9. **Tự động sinh hội thoại Luyện nói cho mọi chủ đề & Nhận diện giọng nói `zh-CN`**: API `/v1/speaking/dialogues/*` sinh hội thoại khi thiếu file tĩnh; tích hợp `SpeechRecognition`/`webkitSpeechRecognition` (`zh-CN`).
-10. **Nút "⭐ Lưu vào Sổ tay" trên `/han-tu/:slug` & `/tu-vung/:slug` + Làm giàu `/v1/notebook`**: Đồng bộ `httq_state` và bổ sung Pinyin/Hán Việt/Nghĩa từ index.
-11. **Phòng thi HSK 3.0, CTI & YCT (`/de-kiem-tra/lam-bai/:id`)**: Đồng hồ đếm ngược, bảng lưới câu hỏi (`#xhz-exam-nav-grid`), trung thực không chấm ảo câu CTI chưa có đáp án (`answerKey === null`), lưu lịch sử thi thật vào `/v2/me/exam-sittings` & `/v2/me/exam-readiness`.
-12. **Tra cứu đầy đủ 3.000+ chữ Hán theo Bộ thủ (`/tra-chu/bo-thu/:radical`) & Cấp độ HSK (`/tra-chu/hsk/:level`)**: Lọc nhanh theo chữ/pinyin/Hán Việt/nghĩa, xem nét viết & phát âm.
-13. **Biểu đồ 5 kỹ năng, Heatmap 12 tuần & Cài đặt mục tiêu (`/hoc/tien-do`, `/hoc/thoi-quen`)**: Bar chart 5 kỹ năng, dự đoán điểm HSK, lịch T2–CN, nhiệt đồ 12 tuần & form mục tiêu.
-14. **Tự động điền chữ Hán từ `?text=...` trên `/tao-vo-tap-viet` & Thanh công cụ in `/flashcard-pdf`**: Hỗ trợ điền React-safe qua hydration & lấy nhanh từ đã học.
-15. **Ghi nhận tiến độ & từ vựng khi Luyện chép chính tả (`/luyen-chep-chinh-ta/:id`)**: Cập nhật `dictationProgress` và từ vựng sau khi kiểm tra đáp án.
-16. **Phân tích từ ghép + Chiết tự chữ Hán tự động trong `/v1/translate` & `api/ai.js`**: Tách từ ghép 2–4 chữ qua `vocabulary/index.json` kèm âm Hán Việt & chiết tự.
-17. **Chuẩn hóa `tai-khoan-moi.html` (UTF-8 & chuyển hướng `/tai-khoan`) & Giao diện Xuất/Nhập sao lưu trên `/tai-khoan`**: Trải nghiệm đăng nhập Google & sao lưu file `.json` liền mạch.
-18. **Cơ chế `loadLocalJson` thông minh**: Bỏ qua file lỗi/HTML-stub, xóa cache lỗi để retry an toàn & preload ngầm `hsk30-L1.json` tại `/hoc`.
-19. **Bộ tự kiểm tra toàn diện `window.__xhzRunDiagnostics()`**: Chạy 17 kiểm thử toàn vẹn dữ liệu & API không làm thay đổi dữ liệu học viên.
-20. **Hợp nhất Hanzi Studio v4, chuẩn hóa tài liệu bàn giao v12.0 & Kiểm thử E2E trên môi trường thực Vercel**.
+### Đợt 1 (v12.0 — 20 cải tiến nền tảng)
+1. Gỡ bỏ API bị che & nối `/v1/grammar-progress`, `/v2/me/weekly-activity`, `/v2/me/recent-actions`.
+2. Cầu nối 2 chiều sang `xhz-seen-words-v1` / `xhz-practice-v1` & các API `/v2/review/signals`, `/v1/practice-progress/sync`, `/v1/study-time/sync`, `/v1/speaking-progress/sync`.
+3. Hoàn thiện Capybara Lesson Runner (`dialogue`, `roleplay_turn`, `exam_item`) & audio fallback.
+4. Mở khóa toàn bộ 8 Chương / 40 Chặng HSK 3.0 L1 từ `data/learning-tracks/hsk30-L1.json`.
+5. Sao lưu đám mây đa tầng + tách kho theo từng tài khoản (`initializeScopedStorage`).
+6. Ghi nhận lỗi sai thực, SRS thật (`/v2/review/summary`) & Sổ lỗi / Từ đã học (`/on-tap/da-hoc`, `/on-tap/so-loi`).
+7. Khôi phục 6 file JSON Trò chơi (`data/misc/games-*.json`), Bộ đề YCT 1–4 & `gameHighScores`.
+8. Đồng bộ tiến độ Giáo trình (`/thu-vien-*`) & bổ sung Tab `⌨️ Gõ Pinyin & Chữ Hán`.
+9. Tự sinh hội thoại Luyện nói & tích hợp nhận diện giọng nói `zh-CN`.
+10. Nút `"⭐ Lưu vào Sổ tay"` trên `/han-tu/:slug` & `/tu-vung/:slug` + làm giàu `/v1/notebook`.
+11. Phòng thi HSK 3.0, CTI & YCT (`#xhz-exam-nav-grid`, không chấm ảo câu CTI chưa có đáp án).
+12. Tra cứu 3.000+ chữ Hán theo Bộ thủ (`/tra-chu/bo-thu/:radical`) & Cấp HSK (`/tra-chu/hsk/:level`).
+13. Biểu đồ 5 kỹ năng, dự đoán điểm HSK, Heatmap 12 tuần & cài đặt mục tiêu (`/hoc/tien-do`, `/hoc/thoi-quen`).
+14. Tự động điền `?text=...` trên `/tao-vo-tap-viet` & thanh công cụ in `/flashcard-pdf`.
+15. Ghi nhận tiến độ & từ vựng khi Luyện chép chính tả (`/luyen-chep-chinh-ta/:id`).
+16. Phân tích từ ghép 2–4 chữ & chiết tự chữ Hán trong `/v1/translate` và `api/ai.js`.
+17. Chuẩn hóa `tai-khoan-moi.html` (UTF-8) & UI Xuất/Nhập sao lưu `.json` trên `/tai-khoan`.
+18. `loadLocalJson` loại bỏ HTML-stub/404 khỏi cache & preload ngầm `hsk30-L1.json`.
+19. Bộ tự kiểm tra không phá hủy `window.__xhzRunDiagnostics()` (bản đầu 17 kiểm thử).
+20. Hợp nhất giao diện Hanzi Studio v4 & kiểm thử thực tế trên Vercel.
+
+### Đợt 2 (v13.0 — 20 cải tiến chuyên sâu)
+1. **Triệt tiêu lỗi React Hydration `#418` / `#422` / `#423`** trên `/tai-khoan`, `/tao-vo-tap-viet`, `/xoa-tai-khoan`, `/` (chặn mọi DOM enhancer chạy trước `htqHydrationSettled`).
+2. **Tái tạo sạch 91/91 file `data/dictation/videos/*-detail.json`** bị hỏng HTML stub thành JSON chuẩn UTF-8 (`0` file stub còn lại trên toàn kho `data/`).
+3. **Triệt tiêu lỗi Console `_rsc=` Prefetch `DOMException` & chặn sạch request analytics/telemetry chết** (`google-analytics`, `sentry`, `umami`, `posthog`, `/g/collect`).
+4. **Dọn sạch 306 dòng API dead code bị che** (`/v1/study-time/sync`, `/v2/review/*` trùng lặp) & tối ưu chọn đúng `/topics/` vs `/lessons/` (triệt tiêu 404 thừa trên giáo trình).
+5. **Nhập tiến độ Khách vào Tài khoản đăng nhập tự nguyện (Opt-in Guest Migration)** trên `/tai-khoan`.
+6. **Chuẩn hóa `/v1/auth/forgot-password`, đặt mật khẩu lần đầu cho tài khoản OAuth (`/v1/users/me/password`) & trang `/xoa-tai-khoan`** (sao lưu `.json` + xác nhận 2 bước).
+7. **Mở rộng Lộ trình Học Đa cấp & Đa giáo trình (`HSK 3.0 L2–L6`, `YCT L1–L4`, `Boya E1–E2`)** qua `synthesizeTrackLevel` + `buildDynamicRunFromStage`.
+8. **Làm giàu 18/18 file `*-lessons.json` trống** (`boya`, `hanyu-jiaocheng`, `new-hsk-4..7-9`) ngay tại kho JSON chuẩn (`0` file `-lessons.json` trống).
+9. **Nâng cấp Luyện Gõ Pinyin & Hán Tự (`/v1/typing-set`, `/v1/typing-word-set`, `/v1/typing/complete`)** lọc chuẩn từng cấp HSK 1–6, hỗ trợ `mode=learned|mistakes` & lưu tiến độ thật.
+10. **Kích hoạt Trường Thầy Đồ (`/v1/thay-do/*`)** nối trực tiếp với tiến độ học & bảng vàng của học viên.
+11. **Nâng cấp AI Serverless [`api/ai.js`](./api/ai.js)**: `AbortController` timeout 8s, đa model dự phòng (`GEMINI_MODEL` → `gemini-2.0-flash` → `gemini-1.5-flash` → OpenAI → GTX), truyền lịch sử 6 lượt chat & sửa tra cứu từ Việt–Trung (`f.w`).
+12. **Nâng cấp Luyện nói theo chặng (`/v2/learning-tracks/:track/stage-talks/*`)** sinh chủ đề, nhiệm vụ & nhận xét khớp từng `stageKey` + ghi nhận tiến độ.
+13. **Lọc trạng thái (`Tất cả` / `Đã thuộc` / `Đang học`) & Xuất từ vựng CSV UTF-8 BOM (Anki/Excel)** trên `/on-tap/da-hoc`.
+14. **Command Palette tìm nhanh toàn trang (`Ctrl+K` / `⌘K`)** tra tức thì chữ Hán, từ vựng, phát âm 🔊 & 15 lối tắt công cụ.
+15. **Phím tắt học tập chuẩn mượt** (`Space` lật thẻ, `R` nghe lại, `1–4` chấm SRS, `←/→` chuyển thẻ) có bảo vệ ô nhập liệu.
+16. **Sửa lỗi co chiều rộng `<main>` (`min-width: 0; width: 100%`) & Thanh điều hướng Di động (`#htq-mobile-nav`)** cho màn hình `<= 768px`.
+17. **Nâng cấp PWA & Offline Cache thực sự** (`site.webmanifest`, `manifest.webmanifest` dùng icon thật `/apple-touch-icon.png` + `/favicon-48x48.png` + `/favicon.svg`, và [`sw.js`](./sw.js) `htq-studio-v13`).
+18. **Nâng cấp Bento Dashboard Trang chủ (`buildHomeWorkspace`)**: 4 chỉ số thật (`Chuỗi ngày`, `Từ đã học`, `Thẻ cần ôn`, `Chặng xong`), nút tiếp tục đúng bài đang dở & nút ôn thẻ đến hạn.
+19. **Nâng cấp bộ tự kiểm tra `window.__xhzRunDiagnostics()` lên 28/28 kiểm thử không phá hủy dữ liệu**.
+20. **Cập nhật tài liệu bàn giao v13.0, đẩy `origin/main` & kiểm thử thực tế trên Vercel**.
 
 ---
 
 ## 3. Kiến trúc & Lệnh nhanh cho máy mới
 
-```text
-GitHub (https://github.com/hungktkthd/saochepweb — nhánh main + 6 nhánh media-*)
-       │
-       ▼  (Tự động triển khai khi push lên nhánh `main`)
-Vercel (https://hoctiengtrungquoc.vercel.app)
-       │
-       ├──► xiehanzi-runtime.js — SPA Router, API Interceptor (/v1/*, /v2/*), SRS thật, Capybara Runner, Hanzi Studio v4
-       ├──► Supabase (https://skxgzzdunqloxxombtuc.supabase.co) — OAuth, public.study_profiles, user_metadata.xhz_progress
-       └──► AI APIs (/api/ai.js + Web Speech / TTS) — Chấm nói, chấm viết, dịch, gia sư AI
-```
-
 | Thành phần | Thông số / Giá trị chi tiết |
 | :--- | :--- |
 | **Kho GitHub duy nhất** | [`https://github.com/hungktkthd/saochepweb`](https://github.com/hungktkthd/saochepweb) |
 | **Tên miền chính thức (Vercel)** | **[`https://hoctiengtrungquoc.vercel.app`](https://hoctiengtrungquoc.vercel.app)** |
-| **Vercel Project** | Scope: `hungktkthd-7816` / Project Name: `hoctiengtrungquoc` |
-| **Supabase Project ID** | `skxgzzdunqloxxombtuc` (Google OAuth `external.google: true`) |
-| **Supabase URL & Key** | `https://skxgzzdunqloxxombtuc.supabase.co` / `sb_publishable_tyYxDk87Wa70dYxea2ljug_DCZEx-18` |
-| **Redirect URI sau đăng nhập** | `https://hoctiengtrungquoc.vercel.app/tai-khoan` |
-| **Bảng Supabase** | `public.study_profiles` (`workspace: 'hoctiengtrungquoc'`) + Auth `user_metadata.xhz_progress` |
+| **Supabase Project** | `skxgzzdunqloxxombtuc` (`https://skxgzzdunqloxxombtuc.supabase.co`, `public.study_profiles` + Auth `user_metadata.xhz_progress`) |
 | **7 nhánh lưu trữ (~3,27 GB)** | `main` (~250 MB code + JSON), `media-visuals`, `media-etymology`, `media-audios`, `media-hsk-audio`, `media-sentences-1`, `media-sentences-2` |
-
-Lệnh khởi chạy local trên máy mới:
 
 ```bash
 git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git
@@ -84,11 +90,11 @@ node scripts/dev-server.mjs
 ## 4. Prompt dán nhanh khi tiếp tục trên trình duyệt / phiên AI khác
 
 ```text
-Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
+Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v13.0) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
 
 Hãy thực hiện các bước sau trước khi bắt đầu:
 1. Clone hoặc cập nhật nhánh `main`:
    git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git (hoặc `git pull origin main`).
-2. Đọc `PROJECT_HANDOVER.md`, `xiehanzi-runtime.js`, `api/ai.js`, `tai-khoan-moi.html`, `vercel.json`. Giữ nguyên 100% giao diện Hanzi Studio v4, cơ chế tách kho theo tài khoản (`initializeScopedStorage`) và không làm mất dữ liệu trong `httq_progress_v2`, `xhz-seen-words-v1`, `xhz-practice-v1`, `httq_state`.
-3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `17/17`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
+2. Đọc `PROJECT_HANDOVER.md`, `xiehanzi-runtime.js`, `api/ai.js`, `sw.js`, `site.webmanifest`, `vercel.json`. Giữ nguyên 100% giao diện Hanzi Studio v4, cơ chế tách kho theo tài khoản (`initializeScopedStorage`) và không làm mất dữ liệu trong `httq_progress_v2`, `xhz-seen-words-v1`, `xhz-practice-v1`, `httq_state`.
+3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `28/28`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
 ```
