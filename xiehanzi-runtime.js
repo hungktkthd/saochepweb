@@ -349,9 +349,10 @@ body {
 @media (max-width: 768px) {
   #htq-buddy-dock { top: auto; bottom: 76px; left: 12px; flex-direction: column; }
 }
-header[data-site-header="true"] { z-index: 50 !important; }
-#xhz-dict-video-wrap { position: relative; isolation: isolate; z-index: 1; overflow: hidden; border-radius: 16px; background: #0f172a; }
-#xhz-dict-video-wrap iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; }
+header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(0); }
+#xhz-dynamic-page-root a, #xhz-dynamic-page-root button { scroll-margin-top: 96px; }
+#xhz-dict-video-wrap { position: relative; isolation: isolate; z-index: 1; contain: layout paint; transform: translateZ(0); overflow: hidden; border-radius: 16px; background: #0f172a; }
+#xhz-dict-video-wrap iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; z-index: 1 !important; }
 .dark #xhz-dynamic-page-root { color: #e2e8f0 !important; }
 .dark #xhz-dynamic-page-root h1,
 .dark #xhz-dynamic-page-root h2,
@@ -7404,6 +7405,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       window.removeEventListener('resize', window.__xhzDictResizeHandler);
       window.__xhzDictResizeHandler = null;
     }
+    if (window.__xhzDictYtPlayer && typeof window.__xhzDictYtPlayer.destroy === 'function') {
+      try { window.__xhzDictYtPlayer.destroy(); } catch (_) {}
+      window.__xhzDictYtPlayer = null;
+    }
     const customRoot = document.getElementById('xhz-dynamic-page-root');
     if (customRoot) {
       customRoot.remove();
@@ -9121,6 +9126,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       window.removeEventListener('resize', window.__xhzDictResizeHandler);
       window.__xhzDictResizeHandler = null;
     }
+    if (window.__xhzDictYtPlayer && typeof window.__xhzDictYtPlayer.destroy === 'function') {
+      try { window.__xhzDictYtPlayer.destroy(); } catch (_) {}
+      window.__xhzDictYtPlayer = null;
+    }
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải video nghe chép chính tả...</div>`;
     const all = (await loadLocalJson('/data/dictation/videos-all.json')) || [];
@@ -9489,6 +9498,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             }
           }
         });
+        window.__xhzDictYtPlayer = ytPlayer;
       };
       if (window.YT && window.YT.Player) {
         createPlayer();
@@ -13451,6 +13461,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
     const btn = e.target && e.target.closest ? e.target.closest('button, a') : null;
     if (btn) {
+      const aria = String(btn.getAttribute('aria-label') || '');
+      if (btn.closest('header[data-site-header="true"]') && isDynamicSpaRoute(window.location.pathname)) {
+        if (/giao diện (tối|sáng)/i.test(aria)) {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleStudioTheme();
+          setTimeout(() => buildStudioSidebar(window.location.pathname), 60);
+          return;
+        }
+        if (/tìm kiếm|search/i.test(aria)) {
+          e.preventDefault();
+          e.stopPropagation();
+          openCommandPalette();
+          return;
+        }
+      }
       const txt = (btn.textContent || '').trim();
       if (
         btn.hasAttribute('data-google-oauth') ||
@@ -13488,6 +13514,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       e.preventDefault();
       e.stopPropagation();
       origPushState.call(history, null, '', targetUrl.pathname + targetUrl.search + targetUrl.hash);
+      try { window.scrollTo(0, 0); } catch (_) {}
       Promise.resolve(checkAndRenderDynamicPage()).finally(() => {
         setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 40);
       });
