@@ -14,6 +14,65 @@
 (function () {
   'use strict';
 
+  // ============================================================================
+  // 0. REACT 19 SELECTIVE-HYDRATION CAPTURE SHIELD FOR RUNTIME-OWNED VANILLA DOM
+  // ============================================================================
+  // Next.js App Router mounts React 19 on `document` and attaches capture-phase
+  // listeners (`uO`/`uD`) that call `event.stopPropagation()` whenever a root
+  // or Suspense boundary remains dehydrated (e.g. rewritten dynamic SPA routes
+  // like `/luyen-chep-chinh-ta/:slug`, `/han-tu/:char`, `/hoc/bai/:id`).
+  // Guarding third-party capture listeners on document/html/body when the event
+  // originates inside our own vanilla-DOM roots ensures every native `.onclick`,
+  // `.onkeydown`, `.onchange`, `.oninput` fires reliably without affecting React.
+  const HTQ_VANILLA_ROOT_SEL =
+    '#xhz-dynamic-page-root, #xhz-lesson-runner-root, #htq-studio-sidebar, #htq-studio-workspace, #htq-page-stage, #htq-subpage-ribbon, #htq-buddy-dock, #htq-cmdk-overlay, #htq-mobile-nav, #xhz-backup-controls, #xhz-user-auth-banner, #xhz-guest-migration-card, #xhz-safe-delete-panel, #xhz-quick-tools-bar';
+  (function installReactCaptureShield() {
+    try {
+      if (typeof window === 'undefined' || typeof EventTarget === 'undefined') return;
+      if (window.__xhzCaptureShieldInstalled) return;
+      window.__xhzCaptureShieldInstalled = true;
+      const origAdd = EventTarget.prototype.addEventListener;
+      const origRemove = EventTarget.prototype.removeEventListener;
+      const listenerMap = new WeakMap();
+      EventTarget.prototype.addEventListener = function (type, listener, options) {
+        const isCapture = typeof options === 'boolean' ? options : Boolean(options && options.capture);
+        if (
+          isCapture &&
+          typeof listener === 'function' &&
+          !listener.__xhzRuntimeListener &&
+          (this === document || this === document.documentElement || this === document.body)
+        ) {
+          let wrapped = listenerMap.get(listener);
+          if (!wrapped) {
+            wrapped = function (ev) {
+              try {
+                const t = ev && ev.target;
+                const el = t && t.nodeType === 1 ? t : (t && t.parentElement ? t.parentElement : null);
+                if (el && typeof el.closest === 'function' && el.closest(HTQ_VANILLA_ROOT_SEL)) {
+                  return;
+                }
+              } catch (_) {}
+              return listener.call(this, ev);
+            };
+            listenerMap.set(listener, wrapped);
+          }
+          return origAdd.call(this, type, wrapped, options);
+        }
+        return origAdd.call(this, type, listener, options);
+      };
+      EventTarget.prototype.removeEventListener = function (type, listener, options) {
+        const isCapture = typeof options === 'boolean' ? options : Boolean(options && options.capture);
+        if (isCapture && typeof listener === 'function') {
+          const wrapped = listenerMap.get(listener);
+          if (wrapped) {
+            return origRemove.call(this, type, wrapped, options);
+          }
+        }
+        return origRemove.call(this, type, listener, options);
+      };
+    } catch (_) {}
+  })();
+
   function injectMasterV3Styles() {
     try {
       if (typeof document === 'undefined') return;
@@ -284,8 +343,47 @@ body {
   display: flex; flex-direction: column-reverse; align-items: flex-start; gap: 10px;
   pointer-events: none;
 }
-@media (max-width: 1179px) {
+@media (min-width: 769px) and (max-width: 1179px) {
+  #htq-buddy-dock { top: auto; bottom: 72px; right: 16px; left: auto; flex-direction: column; align-items: flex-end; }
+}
+@media (max-width: 768px) {
   #htq-buddy-dock { top: auto; bottom: 76px; left: 12px; flex-direction: column; }
+}
+header[data-site-header="true"] { z-index: 50 !important; }
+#xhz-dict-video-wrap { position: relative; isolation: isolate; z-index: 1; overflow: hidden; border-radius: 16px; background: #0f172a; }
+#xhz-dict-video-wrap iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; }
+.dark #xhz-dynamic-page-root { color: #e2e8f0 !important; }
+.dark #xhz-dynamic-page-root h1,
+.dark #xhz-dynamic-page-root h2,
+.dark #xhz-dynamic-page-root h3 { color: #f8fafc !important; }
+.dark #xhz-dynamic-page-root [style*="background:#fff"],
+.dark #xhz-dynamic-page-root [style*="background: #fff"],
+.dark #xhz-dynamic-page-root [style*="background:#ffffff"],
+.dark #xhz-dynamic-page-root [style*="background: #ffffff"] {
+  background: #13182b !important; color: #f1f5f9 !important; border-color: rgba(129,140,248,.22) !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#fafaf9"],
+.dark #xhz-dynamic-page-root [style*="background: #fafaf9"],
+.dark #xhz-dynamic-page-root [style*="background:#f5f5f4"],
+.dark #xhz-dynamic-page-root [style*="background: #f5f5f4"],
+.dark #xhz-dynamic-page-root [style*="background:#f2fbfa"],
+.dark #xhz-dynamic-page-root [style*="background: #f2fbfa"] {
+  background: #1a2138 !important; color: #e2e8f0 !important; border-color: rgba(148,163,184,.22) !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#f0fdfa"] {
+  background: rgba(13,148,136,.16) !important; color: #ccfbf1 !important; border-color: rgba(45,212,191,.35) !important;
+}
+.dark #xhz-dynamic-page-root [style*="color:#1c1917"],
+.dark #xhz-dynamic-page-root [style*="color: #1c1917"],
+.dark #xhz-dynamic-page-root [style*="color:#292524"],
+.dark #xhz-dynamic-page-root [style*="color: #292524"] { color: #f1f5f9 !important; }
+.dark #xhz-dynamic-page-root [style*="color:#44403c"],
+.dark #xhz-dynamic-page-root [style*="color:#57534e"],
+.dark #xhz-dynamic-page-root [style*="color:#78716c"] { color: #cbd5e1 !important; }
+.dark #xhz-dynamic-page-root input,
+.dark #xhz-dynamic-page-root textarea,
+.dark #xhz-dynamic-page-root select {
+  background: #0f1526 !important; color: #f8fafc !important; border-color: rgba(129,140,248,.34) !important;
 }
 .htq-buddy-fab {
   pointer-events: auto; position: relative; width: 40px; height: 40px; padding: 0; border-radius: 999px;
@@ -2260,6 +2358,51 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('studio-ambient-petals', () => {
         return Boolean(window.__xhzStudioFx && typeof window.__xhzStudioFx.syncAmbientPetals === 'function' && Array.isArray(window.__xhzLuckyFortunes) && window.__xhzLuckyFortunes.length >= 8);
       });
+      await runCheck('react-capture-shield', () => {
+        if (!window.__xhzCaptureShieldInstalled) return false;
+        const trap = ev => { ev.stopPropagation(); };
+        document.addEventListener('click', trap, true);
+        let fired = false;
+        const box = document.createElement('div');
+        box.id = 'xhz-dynamic-page-root';
+        const hadExisting = Boolean(document.getElementById('xhz-dynamic-page-root'));
+        const btn = document.createElement('button');
+        btn.onclick = () => { fired = true; };
+        if (hadExisting) {
+          document.getElementById('xhz-dynamic-page-root').appendChild(btn);
+        } else {
+          box.appendChild(btn);
+          document.body.appendChild(box);
+        }
+        try {
+          btn.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        } finally {
+          document.removeEventListener('click', trap, true);
+          if (hadExisting) btn.remove();
+          else box.remove();
+        }
+        return fired;
+      });
+      await runCheck('dictation-slug-and-segments', async () => {
+        const slug = 'luyen-chep-chinh-ta-hsk-1-gioi-thieu-ban-than-va-so-thich-bang-tieng-trung-phan-1';
+        const d = await (await fetch('/v1/dictation/videos/' + slug)).json();
+        return Boolean(d && d.id === '6ade7cf5a90e9d319b7d4abf' && Array.isArray(d.segments) && d.segments.length >= 40 && d.segments[0].hanzi);
+      });
+      await runCheck('lesson-capy-sprites-valid', async () => {
+        const imgs = ['/images/capy/lesson/celebrate.webp', '/images/capy/lesson/encouraging.webp', '/images/capy/lesson/thinking.webp'];
+        const rs = await Promise.all(imgs.map(u => originalFetch(u, { method: 'HEAD' }).catch(() => ({ ok: false }))));
+        return rs.every(r => r && r.ok);
+      });
+      await runCheck('test-paper-zero-404', async () => {
+        const p5 = await loadTestPaperById('xh30-5-01');
+        const pAlias = await loadTestPaperById('hsk1-1');
+        return Boolean(p5 && Array.isArray(p5.questions) && p5.questions.length > 0 && pAlias && Array.isArray(pAlias.questions) && pAlias.questions.length > 0);
+      });
+      await runCheck('route-lo-trinh-and-rsc-guard', async () => {
+        const loTrinhRes = await originalFetch('/lo-trinh', { method: 'HEAD' }).catch(() => ({ ok: false }));
+        const rscRes = await fetch('/luyen-chep-chinh-ta?_rsc=test123', { headers: { 'Next-Router-Prefetch': '1', 'RSC': '1' } });
+        return Boolean(loTrinhRes && loTrinhRes.ok && rscRes && rscRes.status === 404 && String(rscRes.url || '').includes('/luyen-chep-chinh-ta'));
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -3050,15 +3193,31 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const yctPaper = await buildYctTestPaper(cleanId, fallbackLevel);
       if (yctPaper) return yctPaper;
     }
-    const candidates = [
-      `/data/tests/papers/${cleanId}.json`,
-      `/data/tests/papers/level-1-${cleanId}.json`,
-      `/data/tests/papers/level-2-${cleanId}.json`,
-      `/data/tests/papers/level-3-${cleanId}.json`,
-      `/data/tests/papers/level-4-${cleanId}.json`,
-      `/data/tests/papers/level-5-${cleanId}.json`,
-      `/data/tests/papers/level-6-${cleanId}.json`
-    ];
+    const candidates = [];
+    const pushCand = p => { if (p && !candidates.includes(p)) candidates.push(p); };
+    const knownLvlMatch = cleanId.match(/^(?:hsk30|xh30)-(\d)(?:-|$)/i);
+    if (knownLvlMatch) {
+      pushCand(`/data/tests/papers/level-${knownLvlMatch[1]}-${cleanId}.json`);
+    }
+    const aliasMatch = cleanId.match(/^hsk(\d)-(\d+)$/i);
+    if (aliasMatch) {
+      const lv = aliasMatch[1];
+      const num = String(Number(aliasMatch[2]) || 1).padStart(2, '0');
+      pushCand(`/data/tests/papers/level-${lv}-xh30-${lv}-${num}.json`);
+      pushCand(`/data/tests/papers/level-${lv}-hsk30-${lv}.json`);
+    }
+    if (/^level-\d+-/i.test(cleanId)) {
+      pushCand(`/data/tests/papers/${cleanId}.json`);
+    } else {
+      const hintLvl = Number((cleanId.match(/\d/) || [fallbackLevel || 1])[0]) || 1;
+      if (hintLvl >= 1 && hintLvl <= 6) {
+        pushCand(`/data/tests/papers/level-${hintLvl}-${cleanId}.json`);
+      }
+      pushCand(`/data/tests/papers/${cleanId}.json`);
+      for (let lv = 1; lv <= 6; lv++) {
+        pushCand(`/data/tests/papers/level-${lv}-${cleanId}.json`);
+      }
+    }
     for (const c of candidates) {
       const data = await loadLocalJson(c);
       if (data && (Array.isArray(data.questions) || Array.isArray(data.sections))) {
@@ -7036,25 +7195,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     return false;
   }
 
-  function isPrefetchRequest(input, init) {
+  function getRequestHeaderValue(input, init, headerName) {
     try {
+      const target = String(headerName || '').toLowerCase();
       const h = (init && init.headers) || (input && input.headers);
-      if (!h) return false;
-      if (typeof h.get === 'function') {
-        if (h.get('Next-Router-Prefetch') || h.get('next-router-prefetch') || h.get('purpose') === 'prefetch') return true;
-      } else if (Array.isArray(h)) {
-        return h.some(([k, v]) => {
-          const kl = String(k).toLowerCase();
-          return kl === 'next-router-prefetch' || (kl === 'purpose' && v === 'prefetch');
-        });
-      } else if (typeof h === 'object') {
+      if (!h) return '';
+      if (typeof h.get === 'function') return String(h.get(headerName) || h.get(target) || '');
+      if (Array.isArray(h)) {
+        const pair = h.find(([k]) => String(k || '').toLowerCase() === target);
+        return pair ? String(pair[1] || '') : '';
+      }
+      if (typeof h === 'object') {
         for (const k of Object.keys(h)) {
-          const kl = k.toLowerCase();
-          if (kl === 'next-router-prefetch' || (kl === 'purpose' && h[k] === 'prefetch')) return true;
+          if (k.toLowerCase() === target) return String(h[k] || '');
         }
       }
     } catch (_) {}
-    return false;
+    return '';
+  }
+
+  function isPrefetchRequest(input, init) {
+    return Boolean(
+      getRequestHeaderValue(input, init, 'next-router-prefetch') ||
+      getRequestHeaderValue(input, init, 'purpose') === 'prefetch'
+    );
+  }
+
+  function isRscRequest(url, input, init) {
+    return Boolean(
+      (typeof url === 'string' && url.includes('_rsc=')) ||
+      getRequestHeaderValue(input, init, 'rsc') === '1'
+    );
+  }
+
+  function createSyntheticResponse(body, status, contentType, urlStr) {
+    const res = new Response(body, {
+      status,
+      headers: { 'Content-Type': contentType || 'text/plain; charset=utf-8' }
+    });
+    if (urlStr) {
+      try { Object.defineProperty(res, 'url', { value: urlStr, configurable: true }); } catch (_) {}
+    }
+    return res;
   }
 
   window.fetch = async function (input, init) {
@@ -7098,28 +7280,36 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return handleApiRequest(fullUrl, mergedInit);
     }
 
-    // 3. Intercept Next.js App Router _rsc requests on static export cleanly without noisy DOMException logs
-    if (url.includes('_rsc=')) {
-      if (isPrefetchRequest(input, init)) {
-        return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
-      }
+    // 3. Intercept Next.js App Router RSC requests on static export cleanly without Connection closed / Error Boundary crashes
+    if (isRscRequest(url, input, init)) {
+      let cleanUrlStr = window.location.href;
       try {
         const cleanU = new URL(url, window.location.origin);
         cleanU.searchParams.delete('_rsc');
+        cleanUrlStr = cleanU.toString();
+        if (isPrefetchRequest(input, init)) {
+          return createSyntheticResponse('', 404, 'text/plain; charset=utf-8', cleanUrlStr);
+        }
         const targetHref = cleanU.pathname + cleanU.search + cleanU.hash;
         if (isDynamicSpaRoute(window.location.pathname) && cleanU.pathname === '/hoc/bat-dau') {
-          return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+          return createSyntheticResponse('', 404, 'text/plain; charset=utf-8', cleanUrlStr);
         }
         if (isDynamicSpaRoute(cleanU.pathname)) {
           origPushState.call(history, null, '', targetHref);
-          setTimeout(checkAndRenderDynamicPage, 10);
+          setTimeout(() => { checkAndRenderDynamicPage(); setTimeout(mountStudioLayout, 50); }, 10);
           return new Promise(() => {});
-        } else if (cleanU.pathname !== window.location.pathname || cleanU.search !== window.location.search) {
+        }
+        const curNorm = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
+        const nextNorm = (cleanU.pathname || '/').replace(/\/+$/, '') || '/';
+        if (nextNorm !== curNorm || cleanU.search !== window.location.search) {
           window.location.assign(targetHref);
           return new Promise(() => {});
         }
+        // Same-route router.refresh() (e.g. clicking "Thử lại") -> real page reload instead of empty Flight stream
+        window.location.reload();
+        return new Promise(() => {});
       } catch (_) {}
-      return new Response('', { status: 200, headers: { 'Content-Type': 'text/plain; charset=utf-8' } });
+      return createSyntheticResponse('', 404, 'text/plain; charset=utf-8', cleanUrlStr);
     }
 
     return ORIG_FETCH(input, init);
@@ -7206,6 +7396,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   }
 
   function restoreOriginalMainIfStatic() {
+    if (window.__xhzDictSegPollTimer) {
+      clearInterval(window.__xhzDictSegPollTimer);
+      window.__xhzDictSegPollTimer = null;
+    }
+    if (window.__xhzDictResizeHandler) {
+      window.removeEventListener('resize', window.__xhzDictResizeHandler);
+      window.__xhzDictResizeHandler = null;
+    }
     const customRoot = document.getElementById('xhz-dynamic-page-root');
     if (customRoot) {
       customRoot.remove();
@@ -7252,15 +7450,26 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       speakFallback();
     };
     if (audioUrl && audioUrl !== 'tts' && !audioUrl.includes('media-signed/')) {
+      // Skip known-missing 1-character MP3 paths under word_audios/ (avoids 404/ORB console errors)
+      let isMissingSingleCharMp3 = false;
       try {
-        const a = new window.Audio(rewriteMediaUrl(audioUrl));
-        if (rate) a.playbackRate = rate;
-        a.onerror = tryWordAudioOrSpeak;
-        a.play().catch(tryWordAudioOrSpeak);
-        return;
-      } catch (_) {
-        tryWordAudioOrSpeak();
-        return;
+        const m = String(audioUrl).match(/\/word_audios\/([^/?#]+)\.mp3$/i);
+        if (m) {
+          const decodedStem = decodeURIComponent(m[1]).replace(/[^\u4e00-\u9fff]/g, '');
+          if (decodedStem.length < 2) isMissingSingleCharMp3 = true;
+        }
+      } catch (_) {}
+      if (!isMissingSingleCharMp3) {
+        try {
+          const a = new window.Audio(rewriteMediaUrl(audioUrl));
+          if (rate) a.playbackRate = rate;
+          a.onerror = tryWordAudioOrSpeak;
+          a.play().catch(tryWordAudioOrSpeak);
+          return;
+        } catch (_) {
+          tryWordAudioOrSpeak();
+          return;
+        }
       }
     }
     tryWordAudioOrSpeak();
@@ -7337,7 +7546,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const etymology = (data.etymology && (data.etymology.hintVi || data.etymology.hint)) || data.mnemonic || '';
     const commonWords = Array.isArray(data.commonWords) ? data.commonWords : [];
     const components = Array.isArray(data.components) ? data.components : [];
-    const audioSrc = rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${ch}.mp3`);
+    const audioSrc = String(ch || '').length >= 2 ? rewriteMediaUrl(`https://static.xiehanzi.com/word_audios/${encodeURIComponent(ch)}.mp3`) : 'tts';
 
     document.title = `Chữ ${ch} (${pinyin} - ${hanviet}) | Học Tiếng Trung`;
 
@@ -7685,20 +7894,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   async function renderGrammarDetailPage(levelSlug, pointId) {
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải chủ điểm ngữ pháp...</div>`;
-    const lvlNum = (levelSlug.match(/\d+/) || ['1'])[0];
-    const isNew = levelSlug.includes('new') || pointId.startsWith('new-');
+    const decodedPointId = (() => { try { return decodeURIComponent(pointId || ''); } catch (_) { return String(pointId || ''); } })();
+    const lvlNum = (String(levelSlug || '').match(/\d+/) || ['1'])[0];
+    const isNew = String(levelSlug || '').includes('new') || /_new_|^new-/.test(decodedPointId);
     const file = isNew ? `/data/grammar/new-hsk-level-${lvlNum}.json` : `/data/grammar/hsk-level-${lvlNum}.json`;
     let data = await loadLocalJson(file);
-    let item = data && Array.isArray(data.items) ? data.items.find(x => x.id === pointId || x.code === pointId) : null;
+    let item = data && Array.isArray(data.items) ? data.items.find(x => x.id === decodedPointId || x.code === decodedPointId) : null;
     if (!item) {
       const altData = await loadLocalJson(isNew ? `/data/grammar/hsk-level-${lvlNum}.json` : `/data/grammar/new-hsk-level-${lvlNum}.json`);
-      item = altData && Array.isArray(altData.items) ? altData.items.find(x => x.id === pointId || x.code === pointId) : null;
+      item = altData && Array.isArray(altData.items) ? altData.items.find(x => x.id === decodedPointId || x.code === decodedPointId) : null;
+      if (!data && altData) data = altData;
     }
     if (!item && data && Array.isArray(data.items)) {
       item = data.items[0];
     }
     if (!item) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chủ điểm ngữ pháp "${pointId}". <a href="/ngu-phap">Quay lại Ngữ pháp</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chủ điểm ngữ pháp "${escapeHtml(decodedPointId)}". <a href="/ngu-phap">Quay lại Ngữ pháp</a></div>`;
       return;
     }
 
@@ -7778,7 +7989,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     let allQuestions = [];
     for (const tr of tracksParam) {
       const cleanTrack = tr.replace(/^new-hsk-(\d+)$/, 'new-hsk$1').replace(/^hsk-(\d+)$/, 'hsk$1');
-      const qData = await loadLocalJson(`/data/grammar/quiz-${cleanTrack}.json`);
+      let qData = await loadLocalJson(`/data/grammar/quiz-${cleanTrack}.json`);
+      if (!qData && /^new-hsk(\d+)$/.test(cleanTrack)) {
+        const fbNum = cleanTrack.replace(/^new-hsk/, '');
+        qData = await loadLocalJson(`/data/grammar/quiz-hsk${fbNum}.json`);
+      }
       if (qData && Array.isArray(qData.questions)) {
         allQuestions.push(...qData.questions.filter(q => typesParam.includes(q.type)));
       }
@@ -7862,7 +8077,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
               <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #bde0dc;background:#ffffff;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
-              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 6px rgba(185,28,28,0.25);">Nộp bài</button>
+              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(13,148,136,0.28);">Nộp bài</button>
             </div>
           </div>
         </div>
@@ -7875,7 +8090,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div style="font-size:14px;font-weight:800;color:#1c1917;margin-bottom:12px;">Câu hỏi</div>
             <div id="xhz-gq-nav-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;"></div>
             <div style="margin-top:16px;padding-top:12px;border-top:1px solid #d3eae7;display:flex;flex-direction:column;gap:6px;font-size:12px;color:#57534e;">
-              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#b91c1c;display:inline-block;"></span> Đã trả lời</div>
+              <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#0d9488;display:inline-block;"></span> Đã trả lời</div>
               <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:3px;background:#d3eae7;display:inline-block;"></span> Chưa trả lời</div>
               <div style="display:flex;align-items:center;gap:8px;"><span style="width:10px;height:10px;border-radius:999px;background:#d97706;display:inline-block;"></span> Đã đánh dấu</div>
             </div>
@@ -8083,7 +8298,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         if (resultBanner) {
           resultBanner.style.display = 'block';
           resultBanner.innerHTML = `
-            <div style="background:#fff;border:2px solid #b91c1c;border-radius:18px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;box-shadow:0 8px 24px rgba(185,28,28,0.08);">
+            <div style="background:#fff;border:2px solid #0d9488;border-radius:18px;padding:20px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;box-shadow:0 8px 24px rgba(13,148,136,0.12);">
               <div>
                 <div style="font-size:13px;font-weight:800;color:#0d9488;text-transform:uppercase;">Kết quả bài kiểm tra ngữ pháp</div>
                 <div style="font-size:26px;font-weight:800;color:#1c1917;margin-top:4px;">Đúng ${totalRight} / ${questions.length} câu (${pct}%)</div>
@@ -8611,7 +8826,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.innerHTML = `
       <style>
         .xhz-curr-hero {
-          margin: -24px calc(50% - 50vw) 24px calc(50% - 50vw);
+          margin: 0 0 24px 0;
+          border-radius: 22px;
           background: linear-gradient(135deg, #0d9488 0%, #0f766e 52%, #312e81 100%);
           color: #fff;
           padding: 28px 24px 22px;
@@ -8784,8 +9000,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (learnedPillCnt) learnedPillCnt.textContent = String(inLessonLearned);
     };
 
+    const normPyQuery = s => String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/ü/gi, 'v').toLowerCase().replace(/[^a-z0-9]/g, '');
     const renderGrid = () => {
       const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+      const qPy = normPyQuery(q);
       gridEl.innerHTML = '';
 
       words.forEach(w => {
@@ -8797,7 +9015,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const isLearned = learnedSet.has(hz);
 
         if (activeFilter === 'learned' && !isLearned) return;
-        if (q && !hz.toLowerCase().includes(q) && !py.toLowerCase().includes(q) && !vi.toLowerCase().includes(q)) return;
+        if (activeFilter === 'audio' && !audioUrl && !hz) return;
+        if (q && !hz.toLowerCase().includes(q) && !py.toLowerCase().includes(q) && (!qPy || !normPyQuery(py).includes(qPy)) && !vi.toLowerCase().includes(q)) return;
 
         const toneColor = detectToneColor(py);
         const link = hz.length === 1 ? `/han-tu/${encodeURIComponent(hz)}` : `/tu-vung/${encodeURIComponent(hz)}`;
@@ -8894,10 +9113,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   //      Chuẩn 1:1 theo giao diện gốc xiehanzi.com (page-0fed561cd433dd9b.js)
   // --------------------------------------------------------------------------
   async function renderDictationDetailPage(slugOrId) {
+    if (window.__xhzDictSegPollTimer) {
+      clearInterval(window.__xhzDictSegPollTimer);
+      window.__xhzDictSegPollTimer = null;
+    }
+    if (window.__xhzDictResizeHandler) {
+      window.removeEventListener('resize', window.__xhzDictResizeHandler);
+      window.__xhzDictResizeHandler = null;
+    }
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải video nghe chép chính tả...</div>`;
     const all = (await loadLocalJson('/data/dictation/videos-all.json')) || [];
-    const decoded = decodeURIComponent(slugOrId);
+    const decoded = (() => { try { return decodeURIComponent(slugOrId || '').trim(); } catch (_) { return String(slugOrId || '').trim(); } })();
     const video =
       all.find(v => v.id === decoded || v._id === decoded || v.slug === decoded || v.slugVi === decoded || toSlugVi(v.title || v.titleVi) === decoded) ||
       all[0];
@@ -8908,6 +9135,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
 
     const vidId = video.id || video._id;
+    const siblingParts = video.youtubeId
+      ? all.filter(v => v.youtubeId === video.youtubeId).sort((a, b) => (Number(a.part) || 1) - (Number(b.part) || 1))
+      : [];
     const segData = (await loadLocalJson(`/data/dictation/videos/${vidId}-segments.json`)) || {};
     const segments = Array.isArray(segData.items)
       ? segData.items
@@ -9027,14 +9257,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <!-- Header giống bản gốc xiehanzi.com -->
         <div style="margin-bottom:16px;">
           <div style="display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:12px;color:#78716c;">
-            <a href="/luyen-chep-chinh-ta" style="color:#57534e;text-decoration:none;font-weight:600;">← Tất cả video</a>
+            <a href="/luyen-chep-chinh-ta" style="color:#0d9488;text-decoration:none;font-weight:700;">← Tất cả video</a>
             <span>·</span>
             <span style="padding:2px 8px;border-radius:6px;font-weight:700;${hskBadgeStyle}">HSK ${video.hskLevel || 1}</span>
             ${video.partCount && video.partCount > 1 ? `<span style="padding:2px 8px;border-radius:6px;background:#f5f5f4;color:#44403c;font-weight:600;">Phần ${video.part || 1}/${video.partCount}</span>` : ''}
-            <span>kênh ${video.channelName || 'Chinese'} · ${segments.length} câu</span>
+            <span>kênh ${escapeHtml(video.channelName || 'Chinese')} · ${segments.length} câu</span>
+            ${siblingParts.length > 1 ? `<span style="display:inline-flex;gap:4px;margin-left:auto;">${siblingParts.map(sp => {
+              const spHref = `/luyen-chep-chinh-ta/${encodeURIComponent(sp.slugVi || sp.id)}`;
+              const isCurPart = (sp.id || sp._id) === vidId;
+              return `<a href="${spHref}" style="padding:2px 8px;border-radius:999px;text-decoration:none;font-weight:700;font-size:11px;${isCurPart ? 'background:#0d9488;color:#fff;' : 'background:#f5f5f4;color:#44403c;border:1px solid #e7e5e4;'}">Phần ${sp.part || 1}</a>`;
+            }).join('')}</span>` : ''}
           </div>
-          <h1 style="margin:6px 0 0 0;font-size:20px;font-weight:800;color:#1c1917;">${video.seoTitle || video.title}</h1>
-          ${video.seoDescription ? `<p style="margin:4px 0 0 0;font-size:13px;line-height:1.6;color:#57534e;">${video.seoDescription}</p>` : ''}
+          <h1 style="margin:6px 0 0 0;font-size:20px;font-weight:800;color:#1c1917;">${escapeHtml(video.seoTitle || video.title || '')}</h1>
+          ${video.seoDescription ? `<p style="margin:4px 0 0 0;font-size:13px;line-height:1.6;color:#57534e;">${escapeHtml(video.seoDescription)}</p>` : ''}
         </div>
 
         <!-- 2-Column Layout: Left (Video + Dictation Workspace) | Right (Danh sách câu) -->
@@ -9046,15 +9281,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               <div id="xhz-dict-listen-banner" style="display:none;align-items:center;justify-content:center;gap:12px;border-radius:16px;border:1px solid #99f6e4;background:#f0fdfa;padding:28px 16px;text-align:center;">
                 <span style="font-size:28px;">🎧</span>
                 <div style="text-align:left;">
-                  <p style="margin:0;font-size:14px;font-weight:700;color:#78350f;">Đang ở chế độ chỉ nghe</p>
-                  <p style="margin:2px 0 0 0;font-size:12px;color:#92400e;">Video được ẩn để tập trung tai nghe — bấm sang chế độ khác để hiện lại.</p>
+                  <p style="margin:0;font-size:14px;font-weight:700;color:#115e59;">Đang ở chế độ chỉ nghe</p>
+                  <p style="margin:2px 0 0 0;font-size:12px;color:#0f766e;">Video được ẩn để tập trung tai nghe — bấm sang chế độ khác để hiện lại.</p>
                 </div>
               </div>
-              <div id="xhz-dict-video-wrap" style="position:relative;overflow:hidden;border-radius:16px;background:#000;box-shadow:0 4px 16px rgba(0,0,0,0.12);aspect-ratio:16/9;width:100%;">
-                <div id="xhz-yt-player" style="width:100%;height:100%;"></div>
-                <div id="xhz-dict-sub-mask" style="display:none;pointer-events:none;position:absolute;left:0;right:0;bottom:0;height:22%;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
+              <div id="xhz-dict-video-wrap" style="position:relative;isolation:isolate;z-index:1;overflow:hidden;border-radius:16px;background:#0f172a;box-shadow:0 4px 16px rgba(0,0,0,0.12);aspect-ratio:16/9;width:100%;">
+                <div id="xhz-yt-player" style="position:absolute;inset:0;width:100%;height:100%;"></div>
+                <div id="xhz-dict-sub-mask" style="display:none;pointer-events:none;position:absolute;left:0;right:0;bottom:0;height:22%;z-index:3;background:rgba(0,0,0,0.82);backdrop-filter:blur(8px);align-items:center;justify-content:center;">
                   <span style="font-size:11px;color:#d6d3d1;">Phụ đề trong video đã được che</span>
                 </div>
+              </div>
+              <div id="xhz-dict-yt-fallback" style="display:none;margin-top:8px;border-radius:10px;border:1px solid #fde68a;background:#fffbeb;padding:8px 12px;font-size:12px;color:#92400e;">
+                ⚠️ Video YouTube đang bị chặn hoặc tải chậm — nút <strong>▶ Phát câu này</strong> và <strong>🔊 Đọc mẫu</strong> sẽ tự động dùng giọng đọc chuẩn tiếng Trung (zh-CN).
               </div>
 
               <!-- Player Toolbar -->
@@ -9074,11 +9312,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                     <input type="checkbox" id="xhz-dict-chk-mask" style="accent-color:#0d9488;" />
                     Ẩn phụ đề
                   </label>
+                  ${ytId ? `<a href="https://www.youtube.com/watch?v=${encodeURIComponent(ytId)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:700;text-decoration:none;font-size:11px;">↗ YouTube</a>` : ''}
                 </div>
                 <div style="display:flex;align-items:center;gap:4px;" id="xhz-dict-speed-bar">
                   <span style="color:#78716c;margin-right:2px;">Tốc độ:</span>
                   ${[0.5, 0.75, 1, 1.25, 1.5].map(r => `
-                    <button type="button" data-rate="${r}" class="xhz-rate-btn" style="border-radius:6px;padding:3px 7px;border:none;font-weight:700;cursor:pointer;font-size:11px;background:${r === 1 ? '#d97706' : '#f5f5f4'};color:${r === 1 ? '#fff' : '#57534e'};">${r}×</button>
+                    <button type="button" data-rate="${r}" class="xhz-rate-btn" style="border-radius:6px;padding:3px 7px;border:none;font-weight:700;cursor:pointer;font-size:11px;background:${r === 1 ? '#0d9488' : '#f5f5f4'};color:${r === 1 ? '#fff' : '#57534e'};">${r}×</button>
                   `).join('')}
                 </div>
               </div>
@@ -9140,13 +9379,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         ${video.seoIntroVi ? `
           <section style="margin-top:32px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;padding:20px;font-size:14px;line-height:1.7;color:#44403c;">
             <h2 style="margin:0 0 8px 0;font-size:16px;font-weight:800;color:#1c1917;">Giới thiệu bài nghe</h2>
-            <p style="margin:0;white-space:pre-line;">${video.seoIntroVi}</p>
+            <p style="margin:0;white-space:pre-line;">${escapeHtml(video.seoIntroVi)}</p>
           </section>
         ` : ''}
       </div>
     `;
 
-    // Adjust desktop 2-col proportion on wide screens
+    // Adjust desktop 2-col proportion on wide screens (cleaned up on re-render)
     const applyGridCols = () => {
       const gridEl = root.querySelector('#xhz-dict-left-col') && root.querySelector('#xhz-dict-left-col').parentElement;
       if (gridEl) {
@@ -9154,6 +9393,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
     };
     applyGridCols();
+    window.__xhzDictResizeHandler = applyGridCols;
     window.addEventListener('resize', applyGridCols);
 
     // YouTube IFrame API Segment Playback
@@ -9161,6 +9401,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (segPollTimer) {
         clearInterval(segPollTimer);
         segPollTimer = null;
+      }
+      if (window.__xhzDictSegPollTimer) {
+        clearInterval(window.__xhzDictSegPollTimer);
+        window.__xhzDictSegPollTimer = null;
       }
       isPlayingSeg = false;
       updatePlayBtnLabel();
@@ -9201,11 +9445,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               stopSegPoll();
             }
           }, 80);
+          window.__xhzDictSegPollTimer = segPollTimer;
           return;
         } catch (_) {}
       }
-      // Fallback: pronounce Chinese text via TTS if YT player not yet ready
-      playPronunciation(seg.hanzi || '', '');
+      // Fallback: pronounce Chinese text via TTS if YT player not yet ready or blocked
+      playPronunciation(seg.hanzi || '', 'tts', rate);
     }
 
     function initYouTubePlayer() {
@@ -9213,6 +9458,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const createPlayer = () => {
         if (!document.getElementById('xhz-yt-player')) return;
         ytPlayer = new window.YT.Player('xhz-yt-player', {
+          width: '100%',
+          height: '100%',
           videoId: ytId,
           playerVars: {
             autoplay: 0,
@@ -9221,7 +9468,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             modestbranding: 1,
             playsinline: 1,
             cc_load_policy: 0,
-            iv_load_policy: 3
+            iv_load_policy: 3,
+            origin: window.location.origin
           },
           events: {
             onReady: () => {
@@ -9233,6 +9481,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                   ytPlayer.pauseVideo();
                 } catch (_) {}
               }
+            },
+            onError: () => {
+              ytReady = false;
+              const fb = document.getElementById('xhz-dict-yt-fallback');
+              if (fb) fb.style.display = 'block';
             }
           }
         });
@@ -9261,7 +9514,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (btnTtsSeg) {
       btnTtsSeg.onclick = () => {
         const seg = segments[currentIndex];
-        if (seg) playPronunciation(seg.hanzi || '', '');
+        if (seg) playPronunciation(seg.hanzi || '', 'tts', playbackRate);
       };
     }
     const chkLoop = document.getElementById('xhz-dict-chk-loop');
@@ -9535,6 +9788,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           persistDictState();
           recordDictationAttempt(seg, ok);
           renderAllDictationUI();
+          if (ok && window.__xhzStudioFx) {
+            window.__xhzStudioFx.sparkle(document.getElementById('xhz-dict-stage'));
+            window.__xhzStudioFx.toast('✨ Chính xác! Bạn nghe chép rất chuẩn.', 'success');
+          }
         };
         if (blankInputs.length && !isSubmitted) {
           blankInputs[0].focus();
@@ -9580,7 +9837,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               </div>
             ` : ''}
             <div>
-              <textarea id="xhz-dict-full-input" rows="2" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'Gõ phiên âm Pinyin bạn nghe được (ví dụ: da jia hao)... (Enter để kiểm tra)' : 'Gõ câu tiếng Trung bạn nghe được... (Enter để kiểm tra)'}" style="width:100%;border-radius:12px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:16px;color:#1c1917;outline:none;resize:vertical;">${curState.input || ''}</textarea>
+              <textarea id="xhz-dict-full-input" rows="2" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'Gõ phiên âm Pinyin bạn nghe được (ví dụ: da jia hao)... (Enter để kiểm tra)' : 'Gõ câu tiếng Trung bạn nghe được... (Enter để kiểm tra)'}" style="width:100%;border-radius:12px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:16px;color:#1c1917;outline:none;resize:vertical;">${escapeHtml(curState.input || '')}</textarea>
             </div>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -9607,6 +9864,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           persistDictState();
           recordDictationAttempt(seg, ok);
           renderAllDictationUI();
+          if (ok && window.__xhzStudioFx) {
+            window.__xhzStudioFx.sparkle(document.getElementById('xhz-dict-stage'));
+            window.__xhzStudioFx.toast('✨ Chính xác! Bạn nghe chép rất chuẩn.', 'success');
+          }
         };
         if (fullInput && !isSubmitted) {
           fullInput.onkeydown = e => {
@@ -11300,7 +11561,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     function getCapySprite(step) {
       if (state.phase === 'feedback' && state.verdict) {
-        return state.verdict.correct ? '/images/capy/lesson/cheering.webp' : '/images/capy/lesson/encouraging.webp';
+        return state.verdict.correct ? '/images/capy/lesson/celebrate.webp' : '/images/capy/lesson/encouraging.webp';
       }
       if (state.phase === 'hint') {
         return '/images/capy/lesson/encouraging.webp';
@@ -11488,7 +11749,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div class="lp lp-runner" data-testid="lesson-runner">
             <div class="lp-runner-inner overflow-y-auto">
               <div class="lp-done">
-                <img src="/images/capy/lesson/celebrating.webp" alt="Capy" style="width:180px;height:180px;object-fit:contain;" />
+                <img src="/images/capy/lesson/celebrate.webp" alt="Capy" style="width:180px;height:180px;object-fit:contain;" />
                 <h2>Hoàn thành xuất sắc!</h2>
                 <p class="sub">${run.titleVi || 'Bài học'} · Đã lưu vào tiến độ lộ trình HSK 3.0</p>
                 <div class="lp-stats">
@@ -13227,7 +13488,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       e.preventDefault();
       e.stopPropagation();
       origPushState.call(history, null, '', targetUrl.pathname + targetUrl.search + targetUrl.hash);
-      checkAndRenderDynamicPage();
+      Promise.resolve(checkAndRenderDynamicPage()).finally(() => {
+        setTimeout(() => { scrubBrandingAndLogos(document.body); mountStudioLayout(); }, 40);
+      });
     } else {
       e.preventDefault();
       e.stopPropagation();
@@ -14158,7 +14421,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/bai\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/bai\/|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/test\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -15264,7 +15527,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   window.__xhzOpenCommandPalette = openCommandPalette;
   window.__xhzCloseCommandPalette = closeCommandPalette;
-  document.addEventListener('keydown', function (ev) {
+  const htqGlobalKeydownHandler = function (ev) {
     if ((ev.ctrlKey || ev.metaKey) && String(ev.key || '').toLowerCase() === 'k') {
       ev.preventDefault();
       ev.stopImmediatePropagation();
@@ -15307,7 +15570,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       else if (k === 'ArrowRight') { const b = document.getElementById('xhz-fc-next'); if (b) { ev.preventDefault(); b.click(); } }
       else if (k.toLowerCase() === 'r') { const b = document.getElementById('xhz-fc-audio'); if (b) { ev.preventDefault(); b.click(); } }
     }
-  }, true);
+  };
+  htqGlobalKeydownHandler.__xhzRuntimeListener = true;
+  document.addEventListener('keydown', htqGlobalKeydownHandler, true);
 
   function isReactHydrated() {
     try {

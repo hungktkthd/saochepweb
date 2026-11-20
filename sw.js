@@ -1,5 +1,5 @@
-// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v15.0)
-const CACHE_NAME = 'htq-studio-v15';
+// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v15.1)
+const CACHE_NAME = 'htq-studio-v16';
 const SHELL_PRECACHE = [
   '/',
   '/hoc/',
@@ -40,7 +40,8 @@ self.addEventListener('fetch', (event) => {
     url.pathname.startsWith('/v1/') ||
     url.pathname.startsWith('/v2/') ||
     url.pathname.startsWith('/monitoring') ||
-    url.search.includes('_rsc=')
+    url.search.includes('_rsc=') ||
+    (req.headers && (req.headers.get('RSC') === '1' || req.headers.get('Next-Router-Prefetch')))
   ) {
     return;
   }
