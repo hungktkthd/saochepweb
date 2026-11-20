@@ -350,6 +350,10 @@ body {
   #htq-buddy-dock { top: auto; bottom: 76px; left: 12px; flex-direction: column; }
 }
 header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(0); }
+@media (min-width: 1180px) {
+  body:not([data-htq-immersive="1"]) > div:has(> header[data-site-header="true"]) { padding-left: 252px !important; }
+  body:not([data-htq-immersive="1"]) > #xhz-dynamic-page-root { padding-left: 268px !important; }
+}
 #xhz-dynamic-page-root a, #xhz-dynamic-page-root button { scroll-margin-top: 96px; }
 #xhz-dict-video-wrap { position: relative; isolation: isolate; z-index: 1; contain: layout paint; transform: translateZ(0); overflow: hidden; border-radius: 16px; background: #0f172a; }
 #xhz-dict-video-wrap iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; z-index: 1 !important; }
@@ -7383,8 +7387,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       customRoot.id = 'xhz-dynamic-page-root';
       customRoot.className = 'mx-auto max-w-5xl px-4 py-8';
       customRoot.style.color = 'inherit';
+      const siteHdr = document.querySelector('header[data-site-header="true"]');
       if (main && main.parentNode) {
         main.parentNode.insertBefore(customRoot, main);
+      } else if (siteHdr && siteHdr.parentNode) {
+        siteHdr.parentNode.insertBefore(customRoot, siteHdr.nextSibling);
       } else {
         document.body.appendChild(customRoot);
       }
@@ -10689,9 +10696,36 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const level = (value.match(/\d+/) || [null])[0] ? Number((value.match(/\d+/) || [])[0]) : null;
     const radM = value.match(/[\u4e00-\u9fff\u2f00-\u2fdf\u2e80-\u2eff\u3400-\u4dbf]/);
     const radChar = radM ? radM[0] : value.trim();
+    const RADICAL_VARIANT_MAP = {
+      '亻': ['人'], '⺅': ['人'], '氵': ['水'], '⺡': ['水'], '氺': ['水'], '扌': ['手'], '⺘': ['手'],
+      '讠': ['言'], '訁': ['言'], '钅': ['金'], '釒': ['金'], '纟': ['糸'], '糹': ['糸'],
+      '艹': ['艸'], '⺾': ['艸'], '⺿': ['艸'], '⻀': ['艸'], '忄': ['心'], '⺖': ['心'], '⺗': ['心'],
+      '辶': ['辵'], '⻌': ['辵'], '⻍': ['辵'], '阝': ['阜', '邑'], '⻖': ['阜'], '⻏': ['邑'],
+      '犭': ['犬'], '⺨': ['犬'], '灬': ['火'], '礻': ['示'], '⺭': ['示'], '⺬': ['示'],
+      '衤': ['衣'], '⻂': ['衣'], '刂': ['刀'], '⺉': ['刀'], '攵': ['攴'], '⺙': ['攴'],
+      '牜': ['牛'], '⺧': ['牛'], '王': ['玉', '王'], '⺩': ['玉'], '月': ['月', '肉'], '⺼': ['肉'],
+      '罒': ['网'], '⺫': ['网'], '罓': ['网'], '⺳': ['网'], '⺮': ['竹'], '⻊': ['足'],
+      '耂': ['老'], '⺹': ['老'], '爫': ['爪'], '⺤': ['爪'], '⺥': ['爪'], '户': ['戶'], '戸': ['戶'],
+      '长': ['長'], '镸': ['長'], '门': ['門'], '见': ['見'], '页': ['頁'], '贝': ['貝'],
+      '马': ['馬'], '飞': ['飛'], '风': ['風'], '车': ['車'], '鱼': ['魚'], '鸟': ['鳥'],
+      '麦': ['麥'], '韦': ['韋'], '黄': ['黃'], '齿': ['齒'], '龙': ['龍'], '龟': ['龜'],
+      '齐': ['齊'], '卤': ['鹵'], '黾': ['黽'], '饣': ['食'], '飠': ['食'], '⻟': ['食'],
+      '西': ['襾'], '覀': ['襾'], '⻃': ['襾'], '川': ['巛'], '彑': ['彐'], '⺕': ['彐'],
+      '母': ['毋'], '歺': ['歹'], '⺆': ['冂'], '⺇': ['几'], '⺋': ['卩'], '⺍': ['小'],
+      '⺎': ['尢'], '尣': ['尢'], '⺐': ['尢'], '⺑': ['尢'], '⺣': ['火'], '⺦': ['爿'],
+      '⺶': ['羊'], '⺷': ['羊'], '⺸': ['羊'], '⺻': ['聿'], '肀': ['聿'], '⻁': ['虍'],
+      '⻗': ['雨'], '斗': ['斗', '鬥']
+    };
+    const radTargets = new Set();
+    if (radChar) {
+      radTargets.add(radChar);
+      try { radTargets.add(radChar.normalize('NFKC')); } catch (_) {}
+      (RADICAL_VARIANT_MAP[radChar] || []).forEach(c => radTargets.add(c));
+      try { (RADICAL_VARIANT_MAP[radChar.normalize('NFKC')] || []).forEach(c => radTargets.add(c)); } catch (_) {}
+    }
     const entries = Array.isArray(index) ? index.filter(item => type === 'hsk'
       ? level !== null && Number(item.hsk) === level
-      : type === 'bo-thu' && (item.r === radChar || item.c === radChar)) : [];
+      : type === 'bo-thu' && (radTargets.has(item.r) || radTargets.has(item.c))) : [];
     const title = type === 'hsk' ? `Chữ Hán HSK ${level || value} (HSK 2.0)` : `Chữ Hán bộ ${radChar || value}`;
     document.title = `${title} | Học Tiếng Trung`;
     root.innerHTML = `<style>
@@ -13466,8 +13500,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         if (/giao diện (tối|sáng)/i.test(aria)) {
           e.preventDefault();
           e.stopPropagation();
-          toggleStudioTheme();
-          setTimeout(() => buildStudioSidebar(window.location.pathname), 60);
+          toggleStudioTheme(true);
           return;
         }
         if (/tìm kiếm|search/i.test(aria)) {
@@ -14070,17 +14103,28 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     { full: '一心一意', blankIdx: 1, answer: '心', opts: ['心', '手', '眼', '天'], pinyin: 'yī xīn yī yì', meaning: 'Một lòng một dạ, toàn tâm toàn ý' }
   ];
 
-  function toggleStudioTheme() {
-    const hdrBtn = document.querySelector('header[data-site-header="true"] button[aria-label*="giao diện"]');
+  function toggleStudioTheme(directOnly) {
+    const wasDark = document.documentElement.classList.contains('dark');
+    const applyDirect = () => {
+      const nextDark = !wasDark;
+      document.documentElement.classList.toggle('dark', nextDark);
+      document.documentElement.classList.toggle('light', !nextDark);
+      document.documentElement.style.colorScheme = nextDark ? 'dark' : 'light';
+      try { localStorage.setItem('theme', nextDark ? 'dark' : 'light'); } catch (_e) {}
+    };
+    const hdrBtn = !directOnly && !isDynamicSpaRoute(window.location.pathname)
+      ? document.querySelector('header[data-site-header="true"] button[aria-label*="giao diện"]')
+      : null;
     if (hdrBtn) {
       hdrBtn.click();
     } else {
-      const isDark = !document.documentElement.classList.contains('dark');
-      document.documentElement.classList.toggle('dark', isDark);
-      try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (_e) {}
+      applyDirect();
     }
     setTimeout(() => {
       try {
+        if (hdrBtn && document.documentElement.classList.contains('dark') === wasDark) {
+          applyDirect();
+        }
         const isDarkNow = document.documentElement.classList.contains('dark');
         document.querySelectorAll('img[data-htq-light-src][data-htq-dark-src]').forEach(img => {
           img.src = isDarkNow ? img.getAttribute('data-htq-dark-src') : img.getAttribute('data-htq-light-src');
@@ -14088,8 +14132,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const oldStage = document.getElementById('htq-page-stage');
         if (oldStage) oldStage.remove();
         buildPageExperienceStage(window.location.pathname || '/');
+        buildStudioSidebar(window.location.pathname || '/');
       } catch (_) {}
-    }, 80);
+    }, 50);
   }
 
   function buildStudioSidebar(curPath) {
