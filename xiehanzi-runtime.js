@@ -179,8 +179,11 @@
   .htq-stage-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr); }
 }
 .htq-stage-visual {
-  position: relative; min-height: 172px; max-height: 236px; overflow: hidden;
+  position: relative; min-height: 176px; max-height: 220px; overflow: hidden;
   display: flex; align-items: flex-end; background: #1e1b4b;
+}
+@media (min-width: 880px) {
+  .htq-stage-visual { max-height: none; height: 100%; min-height: 210px; }
 }
 .htq-stage-visual > img.htq-stage-bg {
   position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
