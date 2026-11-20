@@ -1,5 +1,5 @@
-// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v13.1)
-const CACHE_NAME = 'htq-studio-v13.1';
+// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v14.0)
+const CACHE_NAME = 'htq-studio-v14';
 const SHELL_PRECACHE = [
   '/',
   '/hoc/',
@@ -45,8 +45,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-While-Revalidate for JSON datasets so they stay fast AND receive data fixes
-  if (url.pathname.startsWith('/data/')) {
+  // Stale-While-Revalidate for JSON datasets and Studio artwork so they stay fast AND receive updates
+  if (url.pathname.startsWith('/data/') || url.pathname.startsWith('/images/studio/')) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) =>
         cache.match(req).then((cached) => {

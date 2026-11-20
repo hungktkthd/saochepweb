@@ -29,6 +29,262 @@
       }
       var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:60;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n\n/* === HTQ RESPONSIVE MAIN & MOBILE BOTTOM NAV === */\nhtml, body{max-width:100vw;overflow-x:clip;}\nmain, main#noi-dung-chinh, #xhz-dynamic-page-root, .htq-ws-grid, .htq-ws-panel, .htq-ws-head{\n  min-width:0 !important;\n  max-width:100% !important;\n  width:100% !important;\n  box-sizing:border-box !important;\n}\n.htq-skill-grid{grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)) !important;}\n#htq-mobile-nav{display:none;}\n@media (max-width:768px){\n  body:not([data-htq-immersive=\"1\"]){padding-bottom:68px !important;}\n  body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:55;\n    padding:6px 4px calc(6px + env(safe-area-inset-bottom, 0px));\n    background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);\n    border-top:1px solid rgba(79,70,229,.16);box-shadow:0 -8px 24px rgba(15,23,42,.08);\n  }\n  .dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav, html.dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    background:rgba(13,16,30,.95);border-top-color:rgba(129,140,248,.22);box-shadow:0 -8px 24px rgba(0,0,0,.55);\n  }\n  .htq-mnav-item{\n    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;\n    text-decoration:none;color:#475569;font-size:10.5px;font-weight:700;padding:4px 2px;border-radius:10px;\n  }\n  .dark .htq-mnav-item{color:#cbd5e1;}\n  .htq-mnav-item.is-active{color:#4f46e5;background:rgba(79,70,229,.10);}\n  .dark .htq-mnav-item.is-active{color:#a5b4fc;background:rgba(129,140,248,.16);}\n}\n";
       if (st.textContent !== cssText) st.textContent = cssText;
+      injectStudioV14FxStyles();
+    } catch (_e) {}
+  }
+
+  function injectStudioV14FxStyles() {
+    try {
+      if (typeof document === 'undefined') return;
+      var root = document.head || document.documentElement;
+      if (!root) return;
+      var st = document.getElementById('htq-v14-fx-css');
+      if (!st) {
+        st = document.createElement('style');
+        st.id = 'htq-v14-fx-css';
+        root.appendChild(st);
+      }
+      var fxCss = `
+/* === HTQ STUDIO v14 — VISUAL ARTWORK, INTERACTIVE STAGES & MOTION FX === */
+@keyframes htqFadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes htqFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+@keyframes htqShimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+@keyframes htqPulseSoft { 0%, 100% { box-shadow: 0 0 0 0 rgba(79,70,229,.28); } 60% { box-shadow: 0 0 0 8px rgba(79,70,229,0); } }
+@keyframes htqEqBar { 0%, 100% { transform: scaleY(.28); } 50% { transform: scaleY(1); } }
+@keyframes htqShake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+@keyframes htqPop { 0% { transform: scale(.92); } 55% { transform: scale(1.06); } 100% { transform: scale(1); } }
+
+#htq-scroll-progress {
+  position: fixed; top: 0; left: 0; height: 2.5px; width: 0; z-index: 9998;
+  background: linear-gradient(90deg, #4f46e5 0%, #0d9488 55%, #e11d48 100%);
+  pointer-events: none; transition: width .12s linear;
+}
+#htq-toast-stack {
+  position: fixed; right: 18px; bottom: 20px; z-index: 99990;
+  display: flex; flex-direction: column; gap: 8px; pointer-events: none; max-width: min(340px, calc(100vw - 36px));
+}
+@media (max-width: 768px) { #htq-toast-stack { bottom: 80px; right: 12px; } }
+.htq-toast {
+  pointer-events: auto; padding: 10px 14px; border-radius: 14px; font-size: 13px; font-weight: 700;
+  color: #f8fafc; background: rgba(15,23,42,.92); border: 1px solid rgba(129,140,248,.35);
+  box-shadow: 0 14px 32px -10px rgba(15,23,42,.45); backdrop-filter: blur(12px);
+  animation: htqFadeUp .28s cubic-bezier(.22,1,.36,1) both;
+}
+.htq-toast.is-success { background: linear-gradient(135deg, rgba(13,148,136,.95), rgba(15,118,110,.95)); border-color: rgba(153,246,228,.45); }
+.htq-toast.is-warn { background: linear-gradient(135deg, rgba(217,119,6,.95), rgba(180,83,9,.95)); border-color: rgba(253,230,138,.45); }
+
+.htq-anim-up { animation: htqFadeUp .42s cubic-bezier(.22,1,.36,1) both; }
+.htq-float { animation: htqFloat 3.6s ease-in-out infinite; }
+.htq-pulse-soft { animation: htqPulseSoft 2.4s ease-out infinite; }
+.htq-shake { animation: htqShake .28s ease-in-out; }
+.htq-pop { animation: htqPop .26s cubic-bezier(.22,1,.36,1); }
+.htq-shimmer-bar {
+  background-image: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,.32) 50%, rgba(255,255,255,0) 100%);
+  background-size: 200% 100%; animation: htqShimmer 2.8s linear infinite;
+}
+
+/* Audio Equalizer 5 Bars */
+.htq-eq { display: inline-flex; align-items: flex-end; gap: 2.5px; height: 15px; vertical-align: middle; }
+.htq-eq i { display: block; width: 3px; height: 100%; border-radius: 99px; background: currentColor; transform: scaleY(.32); transform-origin: bottom; transition: transform .2s ease; }
+.htq-eq.is-active i { animation: htqEqBar .65s ease-in-out infinite; }
+.htq-eq.is-active i:nth-child(2) { animation-delay: .12s; }
+.htq-eq.is-active i:nth-child(3) { animation-delay: .24s; }
+.htq-eq.is-active i:nth-child(4) { animation-delay: .16s; }
+.htq-eq.is-active i:nth-child(5) { animation-delay: .06s; }
+
+/* Mi-Zi-Ge Calligraphy Grid Square */
+.htq-mizige {
+  position: relative; display: grid; place-items: center; border-radius: 16px;
+  border: 1.5px solid rgba(79,70,229,.35); background-color: #fffdf8;
+  background-image:
+    linear-gradient(to right, transparent 49.2%, rgba(79,70,229,.18) 49.2%, rgba(79,70,229,.18) 50.8%, transparent 50.8%),
+    linear-gradient(to bottom, transparent 49.2%, rgba(79,70,229,.18) 49.2%, rgba(79,70,229,.18) 50.8%, transparent 50.8%),
+    linear-gradient(45deg, transparent 49.4%, rgba(13,148,136,.12) 49.4%, rgba(13,148,136,.12) 50.6%, transparent 50.6%),
+    linear-gradient(-45deg, transparent 49.4%, rgba(13,148,136,.12) 49.4%, rgba(13,148,136,.12) 50.6%, transparent 50.6%);
+}
+.dark .htq-mizige {
+  background-color: #151b31; border-color: rgba(129,140,248,.38);
+}
+
+/* 3D Flashcard Flip */
+.htq-flip-wrap { perspective: 950px; cursor: pointer; user-select: none; }
+.htq-flip-inner {
+  position: relative; width: 100%; min-height: 158px;
+  transform-style: preserve-3d; transition: transform .5s cubic-bezier(.22,1,.36,1);
+}
+.htq-flip-wrap.is-flipped .htq-flip-inner { transform: rotateY(180deg); }
+.htq-flip-face {
+  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
+  border-radius: 18px; padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between;
+  background: rgba(255,255,255,.94); border: 1px solid rgba(79,70,229,.20);
+  box-shadow: 0 12px 28px -18px rgba(79,70,229,.25);
+}
+.dark .htq-flip-face { background: rgba(21,27,49,.94); border-color: rgba(129,140,248,.26); color: #f8fafc; }
+.htq-flip-back { transform: rotateY(180deg); background: linear-gradient(135deg, #f5f3ff, #f0fdfa); }
+.dark .htq-flip-back { background: linear-gradient(135deg, #1b1e3f, #112a30); }
+
+/* Home Hero Strip + Upgraded Skill Card Artwork */
+.htq-home-hero-strip {
+  display: grid; grid-template-columns: 1fr; gap: 1.15rem; margin-bottom: 1.25rem;
+}
+@media (min-width: 960px) {
+  .htq-home-hero-strip { grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr); }
+}
+.htq-hero-art-card {
+  position: relative; border-radius: 22px; overflow: hidden; min-height: 196px;
+  border: 1px solid rgba(79,70,229,.22); box-shadow: 0 18px 42px -22px rgba(79,70,229,.30);
+  display: flex; align-items: flex-end; background: #1e1b4b;
+}
+.htq-hero-art-card > img.htq-hero-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transition: transform .6s cubic-bezier(.22,1,.36,1);
+}
+.htq-hero-art-card:hover > img.htq-hero-bg { transform: scale(1.03); }
+.htq-hero-art-scrim {
+  position: relative; z-index: 2; width: 100%; padding: 16px 18px;
+  background: linear-gradient(180deg, rgba(15,23,42,.08) 0%, rgba(15,23,42,.68) 46%, rgba(15,23,42,.90) 100%);
+  display: flex; align-items: flex-end; justify-content: space-between; gap: 14px; color: #fff;
+}
+.htq-skill-card-art {
+  display: flex; align-items: flex-start; gap: 11px;
+}
+.htq-skill-thumb {
+  width: 46px; height: 46px; border-radius: 12px; object-fit: cover; flex-shrink: 0;
+  border: 1px solid rgba(79,70,229,.16); background: rgba(79,70,229,.06);
+  transition: transform .22s cubic-bezier(.22,1,.36,1);
+}
+.htq-skill-card:hover .htq-skill-thumb { transform: scale(1.07) rotate(-2deg); }
+
+/* Subpage Editorial Stage (#htq-page-stage) */
+#htq-page-stage {
+  max-width: 1320px; margin: .75rem auto .35rem; padding: 0 1rem;
+  animation: htqFadeUp .38s cubic-bezier(.22,1,.36,1) both;
+}
+.htq-stage-shell {
+  border-radius: 22px; overflow: hidden;
+  background: rgba(255,255,255,.88); border: 1px solid rgba(79,70,229,.18);
+  box-shadow: 0 18px 40px -26px rgba(15,23,42,.18); backdrop-filter: blur(14px);
+}
+.dark .htq-stage-shell {
+  background: rgba(18,22,38,.90); border-color: rgba(129,140,248,.22);
+  box-shadow: 0 20px 44px -22px rgba(0,0,0,.62);
+}
+.htq-stage-grid {
+  display: grid; grid-template-columns: 1fr; gap: 0;
+}
+@media (min-width: 880px) {
+  .htq-stage-grid { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr); }
+}
+.htq-stage-visual {
+  position: relative; min-height: 172px; max-height: 236px; overflow: hidden;
+  display: flex; align-items: flex-end; background: #1e1b4b;
+}
+.htq-stage-visual > img.htq-stage-bg {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  transition: transform .65s cubic-bezier(.22,1,.36,1);
+}
+.htq-stage-shell:hover .htq-stage-visual > img.htq-stage-bg { transform: scale(1.035); }
+.htq-stage-visual-scrim {
+  position: relative; z-index: 2; width: 100%; padding: 14px 16px;
+  background: linear-gradient(180deg, rgba(15,23,42,.06) 0%, rgba(15,23,42,.64) 48%, rgba(15,23,42,.90) 100%);
+  color: #fff; display: flex; align-items: flex-end; justify-content: space-between; gap: 12px;
+}
+.htq-stage-body {
+  padding: 14px 18px; display: flex; flex-direction: column; justify-content: center; gap: 10px;
+}
+.htq-stage-chip-btn {
+  display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 700; cursor: pointer; text-decoration: none;
+  border: 1.5px solid rgba(99,102,241,.24); background: rgba(255,250,244,.92); color: #3730a3;
+  box-shadow: 0 2px 8px -4px rgba(79,70,229,.18);
+  transition: transform .22s cubic-bezier(.34,1.56,.64,1), background .18s ease, border-color .18s ease, color .18s ease, box-shadow .18s ease;
+}
+.dark .htq-stage-chip-btn { color: #c7d2fe; background: rgba(30,36,64,.85); border-color: rgba(129,140,248,.30); }
+.htq-stage-chip-btn:hover { transform: translateY(-2px) scale(1.03); background: linear-gradient(135deg, #4f46e5, #0d9488); color: #fff; border-color: transparent; box-shadow: 0 8px 18px -6px rgba(79,70,229,.42); }
+.htq-stage-chip-btn.is-active { background: linear-gradient(135deg, #4f46e5, #0d9488); color: #fff; border-color: transparent; }
+.htq-stage-toggle-btn {
+  position: absolute; top: 10px; right: 10px; z-index: 5;
+  padding: 4px 11px; border-radius: 999px; border: 1px solid rgba(255,255,255,.38);
+  background: rgba(15,23,42,.56); color: #fff; font-size: 11px; font-weight: 700;
+  cursor: pointer; backdrop-filter: blur(8px); transition: transform .18s ease;
+}
+.htq-stage-toggle-btn:hover { transform: scale(1.05); }
+.htq-stage-collapsed-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 9px 14px;
+  font-size: 13px; font-weight: 700; color: #312e81;
+}
+.dark .htq-stage-collapsed-bar { color: #e0e7ff; }
+
+/* Cozy Warm Cute Polish (v14.1) */
+body {
+  background-color: #fcf8f2 !important;
+  background-image:
+    radial-gradient(58% 44% at 14% -4%, rgba(251,146,60,.11), transparent 70%),
+    radial-gradient(52% 44% at 92% 4%, rgba(99,102,241,.10), transparent 68%),
+    radial-gradient(46% 42% at 55% 96%, rgba(20,184,166,.09), transparent 72%) !important;
+}
+.dark body, html.dark body {
+  background-color: #0b0e1a !important;
+  background-image:
+    radial-gradient(58% 44% at 14% -4%, rgba(99,102,241,.18), transparent 70%),
+    radial-gradient(52% 44% at 92% 6%, rgba(20,184,166,.13), transparent 68%),
+    radial-gradient(46% 42% at 58% 96%, rgba(244,114,182,.09), transparent 72%) !important;
+}
+.htq-ws-panel, .htq-stage-shell { border-radius: 24px !important; }
+.htq-skill-card, .htq-stat-box, .htq-quick-item, .htq-stamp-card {
+  transition: transform .24s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease !important;
+}
+.htq-skill-card:hover { transform: translateY(-3px) scale(1.01) !important; }
+.htq-stat-box:hover, .htq-stamp-card:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 24px -14px rgba(79,70,229,.32); }
+.htq-quick-item:hover { transform: translateY(-2px) scale(1.02) !important; }
+
+/* Floating Cute Study Buddy Dock (#htq-buddy-dock) — bottom-left so ZERO overlap with right chat/toast */
+#htq-buddy-dock {
+  position: fixed; bottom: 20px; left: 16px; z-index: 64;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+  pointer-events: none;
+}
+@media (min-width: 1180px) {
+  body:not([data-htq-immersive="1"]) #htq-buddy-dock { left: 268px; }
+}
+@media (max-width: 768px) {
+  #htq-buddy-dock { bottom: 76px; left: 12px; }
+}
+.htq-buddy-fab {
+  pointer-events: auto; position: relative; width: 56px; height: 56px; padding: 0; border-radius: 999px;
+  border: 2.5px solid #fff; cursor: pointer; background: linear-gradient(135deg, #fde68a, #fbcfe8 55%, #a5f3fc);
+  box-shadow: 0 12px 28px -8px rgba(79,70,229,.42), 0 0 0 3px rgba(99,102,241,.16);
+  display: grid; place-items: center; overflow: visible;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease;
+}
+.dark .htq-buddy-fab { border-color: #312e81; box-shadow: 0 12px 30px -6px rgba(0,0,0,.68), 0 0 0 3px rgba(129,140,248,.28); }
+.htq-buddy-fab:hover { transform: translateY(-3px) scale(1.08) rotate(-3deg); }
+.htq-buddy-fab > img { width: 100%; height: 100%; border-radius: 999px; object-fit: cover; display: block; }
+.htq-buddy-dot {
+  position: absolute; top: -3px; right: -3px; width: 20px; height: 20px; border-radius: 999px;
+  background: linear-gradient(135deg, #f43f5e, #f59e0b); color: #fff; font-size: 11px;
+  display: grid; place-items: center; border: 2px solid #fff; box-shadow: 0 3px 8px rgba(244,63,94,.45);
+}
+.htq-buddy-bubble {
+  pointer-events: auto; width: min(312px, calc(100vw - 28px)); border-radius: 22px; padding: 14px 15px;
+  background: rgba(255,253,249,.96); color: #1e1b4b;
+  border: 1.5px solid rgba(99,102,241,.24);
+  box-shadow: 0 20px 48px -14px rgba(15,23,42,.28); backdrop-filter: blur(16px);
+  animation: htqFadeUp .28s cubic-bezier(.34,1.56,.64,1) both;
+}
+.dark .htq-buddy-bubble {
+  background: rgba(20,24,44,.96); color: #f8fafc; border-color: rgba(129,140,248,.34);
+  box-shadow: 0 22px 52px -12px rgba(0,0,0,.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble {
+    animation: none !important; transition: none !important;
+  }
+  .htq-flip-inner { transition: none !important; }
+}
+`;
+      if (st.textContent !== fxCss) st.textContent = fxCss;
     } catch (_e) {}
   }
   injectMasterV3Styles();
@@ -1313,6 +1569,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (delta.advanceTrack !== false) {
         advanceNextLessonInTrack(prog, delta.stageKey, delta.activityKey);
       }
+      if (!window.__xhzDiagRunning && window.__xhzStudioFx && typeof window.__xhzStudioFx.confetti === 'function') {
+        try { window.__xhzStudioFx.confetti(null, 26); } catch (_) {}
+      }
     }
     if (Array.isArray(delta.words) && delta.words.length > 0) {
       const cleanWords = delta.words
@@ -1830,6 +2089,43 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const lvList = await (await fetch('/v1/grammar/levels?curriculum=new-hsk')).json();
         const lv4Meta = lvList && Array.isArray(lvList.levels) && lvList.levels.find(x => String(x.level) === '4');
         return Boolean(lv4 && Array.isArray(lv4.items) && lv4.items.length > 0 && lv4.fallbackFrom === 'hsk' && lv4Meta && Number(lv4Meta.count) > 0);
+      });
+      await runCheck('studio-assets-available', async () => {
+        const banners = [
+          '/images/studio/hero-hanzi-studio.jpg',
+          '/images/studio/banner-dictionary-calligraphy.jpg',
+          '/images/studio/banner-listening-speaking.jpg',
+          '/images/studio/banner-exam-hall.jpg',
+          '/images/studio/banner-review-srs.jpg',
+          '/images/studio/banner-games-arcade.jpg',
+          '/images/studio/cute-capy-study.jpg',
+          '/images/studio/cute-panda-dict.jpg',
+          '/images/studio/cute-music-buddy.jpg',
+          '/images/studio/cute-lantern-party.jpg'
+        ];
+        const resList = await Promise.all(banners.map(u => originalFetch(u, { method: 'HEAD' }).catch(() => ({ ok: false }))));
+        return resList.every(r => r && r.ok);
+      });
+      await runCheck('studio-fx-engine', () => {
+        const fx = window.__xhzStudioFx;
+        return Boolean(fx && typeof fx.confetti === 'function' && typeof fx.toast === 'function' && typeof fx.animateCountUp === 'function' && typeof fx.pulseEq === 'function');
+      });
+      await runCheck('studio-stage-resolver', () => {
+        if (typeof window.__xhzResolvePageStageConfig !== 'function') return false;
+        const probes = ['/hoc', '/on-tap', '/tra-chu', '/thu-vien-new-hsk', '/luyen-nghe', '/luyen-go', '/kiem-tra-hsk', '/tro-choi', '/tao-vo-tap-viet', '/tai-khoan'];
+        const allResolved = probes.every(p => {
+          const cfg = window.__xhzResolvePageStageConfig(p);
+          return Boolean(cfg && cfg.id && cfg.banner && cfg.title);
+        });
+        const excluded = window.__xhzResolvePageStageConfig('/hoc/bai/hsk30.L1.P1.learn.1') === null && window.__xhzResolvePageStageConfig('/thay-do') === null;
+        return allResolved && excluded;
+      });
+      await runCheck('studio-home-daily-hanzi', () => {
+        const pool = window.__xhzDailyHanziPool;
+        return Boolean(Array.isArray(pool) && pool.length >= 20 && pool.every(x => x.hanzi && x.pinyin && x.meaning));
+      });
+      await runCheck('studio-cute-buddy', () => {
+        return Boolean(typeof window.__xhzBuildCuteBuddyDock === 'function' && Array.isArray(window.__xhzCuteCheers) && window.__xhzCuteCheers.length >= 8);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -13005,15 +13301,265 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     return /^\/(thay-do|truong-thay-do|kho-du-lieu)/.test(p || '/');
   }
 
+  // === HTQ STUDIO v14 — MOTION FX ENGINE & CURATED LEARNING POOLS ===
+  const HTQ_STUDIO_FX = (() => {
+    const prefersReducedMotion = () => {
+      try { return Boolean(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches); } catch (_) { return false; }
+    };
+    const toast = (msg, tone = 'info') => {
+      try {
+        if (!document.body || !msg) return;
+        let stack = document.getElementById('htq-toast-stack');
+        if (!stack) {
+          stack = document.createElement('div');
+          stack.id = 'htq-toast-stack';
+          stack.setAttribute('aria-live', 'polite');
+          document.body.appendChild(stack);
+        }
+        const el = document.createElement('div');
+        el.className = 'htq-toast' + (tone === 'success' ? ' is-success' : tone === 'warn' ? ' is-warn' : '');
+        el.textContent = String(msg);
+        stack.appendChild(el);
+        setTimeout(() => {
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(6px)';
+          el.style.transition = 'opacity .22s ease, transform .22s ease';
+          setTimeout(() => { try { el.remove(); } catch (_) {} }, 240);
+        }, 2700);
+      } catch (_) {}
+    };
+    const confetti = (anchorEl = null, count = 26) => {
+      try {
+        if (prefersReducedMotion() || !document.body || window.__xhzDiagRunning) return;
+        const canvas = document.createElement('canvas');
+        canvas.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;pointer-events:none;z-index:99998;';
+        const dpr = Math.min(2, window.devicePixelRatio || 1);
+        canvas.width = Math.floor(window.innerWidth * dpr);
+        canvas.height = Math.floor(window.innerHeight * dpr);
+        document.body.appendChild(canvas);
+        const ctx = canvas.getContext('2d');
+        if (!ctx) { canvas.remove(); return; }
+        ctx.scale(dpr, dpr);
+        let ox = window.innerWidth * 0.5;
+        let oy = window.innerHeight * 0.34;
+        if (anchorEl && typeof anchorEl.getBoundingClientRect === 'function') {
+          const r = anchorEl.getBoundingClientRect();
+          if (r.width > 0 || r.height > 0) {
+            ox = r.left + r.width / 2;
+            oy = r.top + r.height / 2;
+          }
+        }
+        const colors = ['#4f46e5', '#0d9488', '#f59e0b', '#e11d48', '#8b5cf6', '#10b981'];
+        const particles = Array.from({ length: Math.min(48, Math.max(10, count)) }, (_, i) => {
+          const angle = (-Math.PI / 2) + (Math.random() - 0.5) * 1.9;
+          const speed = 3.2 + Math.random() * 5.2;
+          return {
+            x: ox, y: oy,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 1.4,
+            w: 5 + Math.random() * 5,
+            h: 4 + Math.random() * 4,
+            rot: Math.random() * Math.PI * 2,
+            vrot: (Math.random() - 0.5) * 0.24,
+            color: colors[i % colors.length],
+            alpha: 1
+          };
+        });
+        const t0 = performance.now();
+        const step = (now) => {
+          const dt = now - t0;
+          ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+          let alive = 0;
+          for (const p of particles) {
+            p.x += p.vx;
+            p.y += p.vy;
+            p.vy += 0.22;
+            p.vx *= 0.99;
+            p.rot += p.vrot;
+            p.alpha = Math.max(0, 1 - dt / 1250);
+            if (p.alpha > 0.02) {
+              alive++;
+              ctx.save();
+              ctx.globalAlpha = p.alpha;
+              ctx.translate(p.x, p.y);
+              ctx.rotate(p.rot);
+              ctx.fillStyle = p.color;
+              ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+              ctx.restore();
+            }
+          }
+          if (alive > 0 && dt < 1350) requestAnimationFrame(step);
+          else { try { canvas.remove(); } catch (_) {} }
+        };
+        requestAnimationFrame(step);
+      } catch (_) {}
+    };
+    const animateCountUp = (el, targetVal) => {
+      try {
+        if (!el) return;
+        const target = Math.max(0, Math.round(Number(targetVal) || 0));
+        if (prefersReducedMotion() || target === 0 || el.getAttribute('data-htq-counted') === String(target)) {
+          el.textContent = String(target);
+          el.setAttribute('data-htq-counted', String(target));
+          return;
+        }
+        el.setAttribute('data-htq-counted', String(target));
+        const t0 = performance.now();
+        const dur = 520;
+        const tick = (now) => {
+          const prog = Math.min(1, (now - t0) / dur);
+          const eased = 1 - Math.pow(1 - prog, 3);
+          el.textContent = String(Math.round(target * eased));
+          if (prog < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      } catch (_) {}
+    };
+    const pulseEq = (el, durationMs = 1400) => {
+      try {
+        if (!el) return;
+        el.classList.add('is-active');
+        clearTimeout(el.__htqEqTimer);
+        el.__htqEqTimer = setTimeout(() => el.classList.remove('is-active'), durationMs);
+      } catch (_) {}
+    };
+    const initScrollHairline = () => {
+      try {
+        if (!document.body) return;
+        let bar = document.getElementById('htq-scroll-progress');
+        if (!bar) {
+          bar = document.createElement('div');
+          bar.id = 'htq-scroll-progress';
+          bar.setAttribute('aria-hidden', 'true');
+          document.body.appendChild(bar);
+        }
+        if (window.__xhzScrollHairlineBound) return;
+        window.__xhzScrollHairlineBound = true;
+        const update = () => {
+          const b = document.getElementById('htq-scroll-progress');
+          if (!b) return;
+          const docH = Math.max(1, (document.documentElement.scrollHeight || 0) - window.innerHeight);
+          const pct = Math.min(100, Math.max(0, (window.scrollY / docH) * 100));
+          b.style.width = pct.toFixed(1) + '%';
+        };
+        window.addEventListener('scroll', update, { passive: true });
+        update();
+      } catch (_) {}
+    };
+    return { prefersReducedMotion, toast, confetti, animateCountUp, pulseEq, initScrollHairline };
+  })();
+  window.__xhzStudioFx = HTQ_STUDIO_FX;
+
+  const HTQ_DAILY_HANZI_POOL = [
+    { hanzi: '学', pinyin: 'xué', hv: 'HỌC', meaning: 'học tập, nghiên cứu', example: '我每天学习中文。(Tôi học tiếng Trung mỗi ngày.)' },
+    { hanzi: '好', pinyin: 'hǎo', hv: 'HẢO', meaning: 'tốt, khỏe, hay', example: '你好，很高兴认识你！(Xin chào, rất vui được biết bạn!)' },
+    { hanzi: '书', pinyin: 'shū', hv: 'THƯ', meaning: 'sách, chữ viết', example: '我喜欢看中文书。(Tôi thích đọc sách tiếng Trung.)' },
+    { hanzi: '茶', pinyin: 'chá', hv: 'TRÀ', meaning: 'trà, nước chè', example: '请喝一杯热茶。(Mời uống một tách trà nóng.)' },
+    { hanzi: '友', pinyin: 'yǒu', hv: 'HỮU', meaning: 'bạn bè, thân thiện', example: '他是我的好朋友。(Anh ấy là bạn tốt của tôi.)' },
+    { hanzi: '家', pinyin: 'jiā', hv: 'GIA', meaning: 'nhà, gia đình', example: '欢迎来我家做客。(Chào mừng đến nhà tôi chơi.)' },
+    { hanzi: '爱', pinyin: 'ài', hv: 'ÁI', meaning: 'yêu thương, thích', example: '我爱我的家人。(Tôi yêu gia đình của mình.)' },
+    { hanzi: '心', pinyin: 'xīn', hv: 'TÂM', meaning: 'trái tim, tấm lòng', example: '学习要有耐心。(Học tập cần có sự kiên nhẫn.)' },
+    { hanzi: '明', pinyin: 'míng', hv: 'MINH', meaning: 'sáng sủa, rõ ràng, ngày mai', example: '明天见！(Hẹn gặp ngày mai!)' },
+    { hanzi: '时', pinyin: 'shí', hv: 'THỜI', meaning: 'thời gian, giờ khắc', example: '现在几点钟？(Bây giờ là mấy giờ?)' },
+    { hanzi: '水', pinyin: 'shuǐ', hv: 'THỦY', meaning: 'nước, dòng nước', example: '多喝温水对身体好。(Uống nhiều nước ấm tốt cho sức khỏe.)' },
+    { hanzi: '山', pinyin: 'shān', hv: 'SƠN', meaning: 'núi, ngọn núi', example: '这座山风景很美。(Ngọn núi này phong cảnh rất đẹp.)' },
+    { hanzi: '月', pinyin: 'yuè', hv: 'NGUYỆT', meaning: 'mặt trăng, tháng', example: '今晚的月亮真圆。(Trăng tối nay thật tròn.)' },
+    { hanzi: '风', pinyin: 'fēng', hv: 'PHONG', meaning: 'gió, phong cách', example: '秋天的风很凉爽。(Gió mùa thu rất mát mẻ.)' },
+    { hanzi: '花', pinyin: 'huā', hv: 'HOA', meaning: 'hoa, bông hoa; tiêu tốn', example: '春天的花都开了。(Hoa mùa xuân đều nở rồi.)' },
+    { hanzi: '语', pinyin: 'yǔ', hv: 'NGỮ', meaning: 'ngôn ngữ, lời nói', example: '汉语越来越受欢迎。(Tiếng Hán ngày càng được yêu thích.)' },
+    { hanzi: '听', pinyin: 'tīng', hv: 'THÍNH', meaning: 'nghe, lắng nghe', example: '请仔细听录音。(Xin hãy nghe kỹ đoạn ghi âm.)' },
+    { hanzi: '说', pinyin: 'shuō', hv: 'THUYẾT', meaning: 'nói, trò chuyện', example: '你会说汉语吗？(Bạn biết nói tiếng Trung không?)' },
+    { hanzi: '写', pinyin: 'xiě', hv: 'TẢ', meaning: 'viết, chép', example: '这个汉字怎么写？(Chữ Hán này viết thế nào?)' },
+    { hanzi: '读', pinyin: 'dú', hv: 'ĐỘC', meaning: 'đọc, đọc to', example: '请跟我一起读。(Xin hãy đọc theo tôi.)' },
+    { hanzi: '笑', pinyin: 'xiào', hv: 'TIẾU', meaning: 'cười, mỉm cười', example: '她笑得很开心。(Cô ấy cười rất vui vẻ.)' },
+    { hanzi: '梦', pinyin: 'mèng', hv: 'MỘNG', meaning: 'giấc mơ, ước mơ', example: '坚持你的梦想。(Hãy kiên trì với ước mơ của bạn.)' },
+    { hanzi: '乐', pinyin: 'lè', hv: 'LẠC', meaning: 'vui vẻ, hạnh phúc', example: '祝你每天快乐！(Chúc bạn mỗi ngày đều vui vẻ!)' },
+    { hanzi: '福', pinyin: 'fú', hv: 'PHÚC', meaning: 'phúc lành, may mắn', example: '新年幸福安康。(Năm mới hạnh phúc an khang.)' }
+  ];
+  window.__xhzDailyHanziPool = HTQ_DAILY_HANZI_POOL;
+
+  const HTQ_COMPANIONS_LIST = [
+    { id: 'capy', name: 'Capy', zh: '卡皮', emoji: '🦫', role: 'Điềm tĩnh · Học đều mỗi ngày', quote: 'Chậm mà chắc — mỗi ngày 10 phút là đủ tiến xa lắm luôn đó!' },
+    { id: 'banh-bao', name: 'Bánh Bao', zh: '小包', emoji: '🥟', role: 'Dễ thương · Thích thưởng kẹo', quote: 'Học xong bài này tự thưởng một ly trà sữa nha bạn ơi! 🧋' },
+    { id: 'tieu-man', name: 'Tiểu Mãn', zh: '小满', emoji: '🌸', role: 'Nhiệt tình · Cổ vũ chuỗi ngày', quote: 'Tuyệt lắm! Cố thêm một bài nhỏ nữa để giữ lửa streak nhé ✨' },
+    { id: 'ha-vu', name: 'Hạ Vũ', zh: '夏雨', emoji: '☔', role: 'Chuyên ôn thi HSK 1–6', quote: 'Nắm chắc từ lõi và ngữ pháp sẽ giúp bạn đỗ HSK nhẹ tênh.' },
+    { id: 'luc-than', name: 'Lục Thần', zh: '陆辰', emoji: '🌿', role: 'Phản xạ giao tiếp thực tế', quote: 'Đọc to thành tiếng giúp não nhớ thanh điệu nhanh gấp đôi!' },
+    { id: 'duong-duong', name: 'Dương Dương', zh: '洋洋', emoji: '☀️', role: 'Vui vẻ · Học qua trò chơi', quote: 'Học chữ Hán cũng vui như chơi trò ghép hình vậy đó!' },
+    { id: 'mai', name: 'Mai', zh: '阿梅', emoji: '🌺', role: 'Chiết tự & Ghi nhớ sâu', quote: 'Hiểu bộ thủ là chìa khóa mở khóa hàng nghìn chữ Hán.' },
+    { id: 'mac-ngon', name: 'Mặc Ngôn', zh: '墨言', emoji: '🖋️', role: 'Thư pháp & Văn hóa Trung Hoa', quote: 'Mỗi nét bút Hán tự đều mang theo một câu chuyện thật đẹp.' }
+  ];
+
+  const HTQ_CUTE_CHEERS = [
+    { zh: '加油！你真棒！', py: 'Jiāyóu! Nǐ zhēn bàng!', vi: 'Cố lên! Bạn giỏi quá trời luôn!' },
+    { zh: '今天也要开心学习哦！', py: 'Jīntiān yě yào kāixīn xuéxí o!', vi: 'Hôm nay cũng học thật vui vẻ nhé!' },
+    { zh: '每天进步一点点！', py: 'Měitiān jìnbù yīdiǎndiǎn!', vi: 'Mỗi ngày tiến bộ thêm một chút xíu!' },
+    { zh: '喝杯奶茶休息一下吧！', py: 'Hē bēi nǎichá xiūxi yīxià ba!', vi: 'Uống ly trà sữa nghỉ ngơi chút nhé!' },
+    { zh: '太厉害了，继续保持！', py: 'Tài lìhai le, jìxù bǎochí!', vi: 'Đỉnh quá đi, giữ phong độ nha!' },
+    { zh: '汉字越来越简单啦！', py: 'Hànzì yuèláiyuè jiǎndān la!', vi: 'Chữ Hán ngày càng dễ nhớ rồi nè!' },
+    { zh: '别放弃，我一直陪着你！', py: 'Bié fàngqì, wǒ yīzhí péizhe nǐ!', vi: 'Đừng bỏ cuộc, mình luôn đồng hành cùng bạn!' },
+    { zh: '祝你今天顺顺利利！', py: 'Zhù nǐ jīntiān shùnshùnlìlì!', vi: 'Chúc bạn hôm nay mọi việc suôn sẻ!' }
+  ];
+  window.__xhzCuteCheers = HTQ_CUTE_CHEERS;
+
+  const HTQ_TONE_DRILL_POOL = [
+    { hanzi: '妈', pinyin: 'mā', tone: 1, meaning: 'mẹ' },
+    { hanzi: '麻', pinyin: 'má', tone: 2, meaning: 'cây gai / tê' },
+    { hanzi: '马', pinyin: 'mǎ', tone: 3, meaning: 'con ngựa' },
+    { hanzi: '骂', pinyin: 'mà', tone: 4, meaning: 'mắng' },
+    { hanzi: '书', pinyin: 'shū', tone: 1, meaning: 'sách' },
+    { hanzi: '茶', pinyin: 'chá', tone: 2, meaning: 'trà' },
+    { hanzi: '好', pinyin: 'hǎo', tone: 3, meaning: 'tốt' },
+    { hanzi: '爱', pinyin: 'ài', tone: 4, meaning: 'yêu' },
+    { hanzi: '天', pinyin: 'tiān', tone: 1, meaning: 'trời / ngày' },
+    { hanzi: '人', pinyin: 'rén', tone: 2, meaning: 'người' },
+    { hanzi: '水', pinyin: 'shuǐ', tone: 3, meaning: 'nước' },
+    { hanzi: '去', pinyin: 'qù', tone: 4, meaning: 'đi' }
+  ];
+
+  const HTQ_PINYIN_SPRINT_POOL = [
+    { hanzi: '你好', pinyin: 'nǐ hǎo', meaning: 'xin chào' },
+    { hanzi: '谢谢', pinyin: 'xièxie', meaning: 'cảm ơn' },
+    { hanzi: '老师', pinyin: 'lǎoshī', meaning: 'giáo viên' },
+    { hanzi: '中国', pinyin: 'Zhōngguó', meaning: 'Trung Quốc' },
+    { hanzi: '学习', pinyin: 'xuéxí', meaning: 'học tập' },
+    { hanzi: '朋友', pinyin: 'péngyou', meaning: 'bạn bè' },
+    { hanzi: '今天', pinyin: 'jīntiān', meaning: 'hôm nay' },
+    { hanzi: '汉语', pinyin: 'Hànyǔ', meaning: 'tiếng Hán' },
+    { hanzi: '高兴', pinyin: 'gāoxìng', meaning: 'vui vẻ' },
+    { hanzi: '喜欢', pinyin: 'xǐhuan', meaning: 'thích' }
+  ];
+
+  const HTQ_CHENGYU_POOL = [
+    { full: '一石二鸟', blankIdx: 1, answer: '石', opts: ['石', '木', '山', '水'], pinyin: 'yī shí èr niǎo', meaning: 'Một mũi tên trúng hai đích' },
+    { full: '画蛇添足', blankIdx: 3, answer: '足', opts: ['手', '足', '头', '口'], pinyin: 'huà shé tiān zú', meaning: 'Vẽ rắn thêm chân (làm thừa thãi)' },
+    { full: '半途而废', blankIdx: 0, answer: '半', opts: ['全', '半', '一', '多'], pinyin: 'bàn tú ér fèi', meaning: 'Bỏ cuộc giữa chừng' },
+    { full: '井底之蛙', blankIdx: 3, answer: '蛙', opts: ['鱼', '鸟', '蛙', '马'], pinyin: 'jǐng dǐ zhī wā', meaning: 'Ếch ngồi đáy giếng' },
+    { full: '对牛弹琴', blankIdx: 1, answer: '牛', opts: ['马', '羊', '牛', '虎'], pinyin: 'duì niú tán qín', meaning: 'Đàn gảy tai trâu' },
+    { full: '马马虎虎', blankIdx: 2, answer: '虎', opts: ['龙', '虎', '猫', '兔'], pinyin: 'mǎmǎhūhū', meaning: 'Qua loa, tàm tạm' },
+    { full: '守株待兔', blankIdx: 3, answer: '兔', opts: ['狗', '鸡', '兔', '鹿'], pinyin: 'shǒu zhū dài tù', meaning: 'Ôm cây đợi thỏ' },
+    { full: '一心一意', blankIdx: 1, answer: '心', opts: ['心', '手', '眼', '天'], pinyin: 'yī xīn yī yì', meaning: 'Một lòng một dạ, toàn tâm toàn ý' }
+  ];
+
   function toggleStudioTheme() {
     const hdrBtn = document.querySelector('header[data-site-header="true"] button[aria-label*="giao diện"]');
     if (hdrBtn) {
       hdrBtn.click();
-      return;
+    } else {
+      const isDark = !document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', isDark);
+      try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (_e) {}
     }
-    const isDark = !document.documentElement.classList.contains('dark');
-    document.documentElement.classList.toggle('dark', isDark);
-    try { localStorage.setItem('theme', isDark ? 'dark' : 'light'); } catch (_e) {}
+    setTimeout(() => {
+      try {
+        const isDarkNow = document.documentElement.classList.contains('dark');
+        document.querySelectorAll('img[data-htq-light-src][data-htq-dark-src]').forEach(img => {
+          img.src = isDarkNow ? img.getAttribute('data-htq-dark-src') : img.getAttribute('data-htq-light-src');
+        });
+        const oldStage = document.getElementById('htq-page-stage');
+        if (oldStage) oldStage.remove();
+        buildPageExperienceStage(window.location.pathname || '/');
+      } catch (_) {}
+    }, 80);
   }
 
   function buildStudioSidebar(curPath) {
@@ -13122,6 +13668,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (!traCuu || !traCuu.parentElement) return;
     if (existing) return;
 
+    const isDark = document.documentElement.classList.contains('dark');
     let summary = { streakDays: 0, wordsMastered: 0, stagesDone: 0, dueTotal: 0, prog: {} };
     let dueNowCount = 0;
     try {
@@ -13136,13 +13683,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const ctaHref = curLessonId ? `/hoc/bai/${encodeURIComponent(curLessonId)}` : '/hoc/';
     const ctaLabel = curLessonId ? `▶ Tiếp tục: ${escapeHtml(curLessonId)}` : '▶ Vào bài học hôm nay';
 
+    const compId = localStorage.getItem('httq_companion_id') || 'capy';
+    const compObj = HTQ_COMPANIONS_LIST.find(c => c.id === compId) || HTQ_COMPANIONS_LIST[0];
+    const hr = new Date().getHours();
+    const greetVi = hr < 12 ? 'Chào buổi sáng' : hr < 18 ? 'Chào buổi chiều' : 'Chào buổi tối';
+
+    const dayIndex = Math.floor(Date.now() / 86400000) % HTQ_DAILY_HANZI_POOL.length;
+    let curDailyIdx = dayIndex;
+
     const skills = [
-      ['🎧', 'Luyện Nghe Phản Xạ', 'Bài nghe hội thoại & đề thi HSK theo tốc độ tự chọn.', '/luyen-nghe/'],
-      ['🎙️', 'Luyện Nói AI Thanh Điệu', 'Chấm điểm phát âm từng âm tiết và thanh 1-4.', '/luyen-noi/'],
-      ['⌨️', 'Luyện Gõ Pinyin', 'Rèn phản xạ bàn phím chữ Hán nhanh và chuẩn xác.', '/luyen-go/'],
-      ['✍️', 'Chép Chính Tả Video', 'Nghe câu thật từ video và gõ lại toàn bộ chữ Hán.', '/luyen-chep-chinh-ta/'],
-      ['📝', 'Phòng Thi HSK 1–6 & 3.0', 'Kho đề chính thức và đề luyện tự chấm điểm tức thì.', '/kiem-tra-hsk/'],
-      ['⚖️', 'Kiểm Tra Ngữ Pháp', 'Hơn 480 điểm ngữ pháp từ HSK 1 đến HSK 3.0.', '/kiem-tra-ngu-phap/']
+      ['listening', 'Luyện Nghe Phản Xạ', 'Bài nghe hội thoại & đề thi HSK theo tốc độ tự chọn.', '/luyen-nghe/'],
+      ['speaking_practice', 'Luyện Nói AI Thanh Điệu', 'Chấm điểm phát âm từng âm tiết và thanh 1-4.', '/luyen-noi/'],
+      ['type', 'Luyện Gõ Pinyin', 'Rèn phản xạ bàn phím chữ Hán nhanh và chuẩn xác.', '/luyen-go/'],
+      ['dictation', 'Chép Chính Tả Video', 'Nghe câu thật từ video và gõ lại toàn bộ chữ Hán.', '/luyen-chep-chinh-ta/'],
+      ['test', 'Phòng Thi HSK 1–6 & 3.0', 'Kho đề chính thức và đề luyện tự chấm điểm tức thì.', '/kiem-tra-hsk/'],
+      ['grammar_test', 'Kiểm Tra Ngữ Pháp', 'Hơn 480 điểm ngữ pháp từ HSK 1 đến HSK 3.0.', '/kiem-tra-ngu-phap/']
     ];
     const curriculums = [
       ['HSK 3.0 Mới', '/thu-vien-new-hsk/'],
@@ -13155,18 +13710,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const sec = document.createElement('section');
     sec.id = 'htq-studio-workspace';
+    sec.className = 'htq-anim-up';
     sec.setAttribute('aria-label', 'Bảng điều khiển học tập Hán Ngữ Studio');
     sec.innerHTML =
+      '<div class="htq-home-hero-strip" id="htq-home-hero-strip">' +
+        '<div class="htq-hero-art-card">' +
+          '<img class="htq-hero-bg" src="/images/studio/cute-capy-study.jpg" alt="Capybara chăm chỉ học chữ Hán cùng trà sữa" loading="eager" />' +
+          '<div class="htq-hero-art-scrim">' +
+            '<div style="min-width:0;">' +
+              '<div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fde68a;margin-bottom:4px;">' + greetVi + ' · ' + (compObj.emoji || '✨') + ' ' + escapeHtml(compObj.name) + ' đồng hành</div>' +
+              '<div style="font-size:19px;font-weight:800;line-height:1.25;margin-bottom:6px;">Góc Học Hán Ngữ Ấm Áp Của Bạn</div>' +
+              '<div style="font-size:13px;color:rgba(255,251,235,.92);line-height:1.45;">' + escapeHtml(compObj.quote) + '</div>' +
+            '</div>' +
+            '<img src="/images/companion/' + encodeURIComponent(compObj.id) + '/splash/hero.webp" alt="' + escapeHtml(compObj.name) + '" class="htq-float" style="width:74px;height:74px;border-radius:18px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 12px 26px rgba(15,23,42,.45);" />' +
+          '</div>' +
+        '</div>' +
+        '<div class="htq-ws-panel" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+            '<span style="font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#4f46e5;">✨ Chữ Hán Hôm Nay</span>' +
+            '<button type="button" id="htq-daily-next-btn" class="htq-stage-chip-btn" style="padding:4px 10px;font-size:11.5px;">🎲 Đổi chữ</button>' +
+          '</div>' +
+          '<div class="htq-flip-wrap" id="htq-daily-hanzi-card" title="Bấm để lật xem Pinyin và Nghĩa">' +
+            '<div class="htq-flip-inner" id="htq-daily-flip-inner"></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
       '<div class="htq-ws-grid">' +
         '<div class="htq-ws-panel">' +
           '<div class="htq-ws-head"><h2 class="htq-ws-title">Trung Tâm Luyện Tập 6 Kỹ Năng &amp; Khảo Thí HSK</h2><span class="htq-ws-badge">Mở miễn phí 100%</span></div>' +
           '<div class="htq-skill-grid">' +
-            skills.map(([ico, title, desc, href]) =>
-              '<a href="' + href + '" class="htq-skill-card">' +
-                '<div class="htq-skill-top"><span>' + ico + '</span><span>' + title + '</span></div>' +
-                '<p class="htq-skill-desc">' + desc + '</p>' +
-              '</a>'
-            ).join('') +
+            skills.map(([imgKey, title, desc, href]) => {
+              const lightSrc = '/images/home/' + imgKey + '.webp';
+              const darkSrc = '/images/home/dark/' + imgKey + '.webp';
+              return '<a href="' + href + '" class="htq-skill-card">' +
+                '<div class="htq-skill-card-art">' +
+                  '<img class="htq-skill-thumb" src="' + (isDark ? darkSrc : lightSrc) + '" data-htq-light-src="' + lightSrc + '" data-htq-dark-src="' + darkSrc + '" alt="' + escapeHtml(title) + '" loading="lazy" />' +
+                  '<div style="min-width:0;">' +
+                    '<div class="htq-skill-top" style="margin-bottom:3px;"><span>' + title + '</span></div>' +
+                    '<p class="htq-skill-desc">' + desc + '</p>' +
+                  '</div>' +
+                '</div>' +
+              '</a>';
+            }).join('') +
           '</div>' +
           '<div class="htq-curr-row">' +
             curriculums.map(([lbl, href]) => '<a href="' + href + '" class="htq-curr-pill">' + lbl + '</a>').join('') +
@@ -13175,13 +13760,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '<div class="htq-ws-panel">' +
           '<div class="htq-ws-head"><h2 class="htq-ws-title">Tiến Độ &amp; Tiện Ích Nhanh</h2><button type="button" id="htq-ws-cmdk-btn" data-htq-cmdk-trigger="1" class="htq-ws-badge" style="cursor:pointer;">🔍 Tìm nhanh (Ctrl+K)</button></div>' +
           '<div class="htq-stat-row" style="grid-template-columns:repeat(2,1fr);">' +
-            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.streakDays || 0) + '</div><div class="htq-stat-lbl">Ngày liên tiếp</div></div>' +
-            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.wordsMastered || 0) + '</div><div class="htq-stat-lbl">Từ đã học</div></div>' +
-            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(dueNowCount || 0) + '</div><div class="htq-stat-lbl">Thẻ cần ôn</div></div>' +
-            '<div class="htq-stat-box"><div class="htq-stat-num">' + Number(summary.stagesDone || 0) + '</div><div class="htq-stat-lbl">Chặng xong</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num" data-htq-count="' + Number(summary.streakDays || 0) + '">' + Number(summary.streakDays || 0) + '</div><div class="htq-stat-lbl">Ngày liên tiếp</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num" data-htq-count="' + Number(summary.wordsMastered || 0) + '">' + Number(summary.wordsMastered || 0) + '</div><div class="htq-stat-lbl">Từ đã học</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num" data-htq-count="' + Number(dueNowCount || 0) + '">' + Number(dueNowCount || 0) + '</div><div class="htq-stat-lbl">Thẻ cần ôn</div></div>' +
+            '<div class="htq-stat-box"><div class="htq-stat-num" data-htq-count="' + Number(summary.stagesDone || 0) + '">' + Number(summary.stagesDone || 0) + '</div><div class="htq-stat-lbl">Chặng xong</div></div>' +
           '</div>' +
           '<a id="htq-home-cta" href="' + ctaHref + '" class="htq-cta-btn">' + ctaLabel + '</a>' +
-          (dueNowCount > 0 ? '<a id="htq-home-due-cta" href="/hoc/bai/on-tap-den-han" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 12px;border-radius:12px;font-weight:700;font-size:13px;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;text-decoration:none;margin-bottom:12px;">🔁 Ôn ' + dueNowCount + ' thẻ đến hạn ngay →</a>' : '') +
+          (dueNowCount > 0 ? '<a id="htq-home-due-cta" href="/hoc/bai/on-tap-den-han" class="htq-pulse-soft" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 12px;border-radius:12px;font-weight:700;font-size:13px;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;text-decoration:none;margin-bottom:12px;">🔁 Ôn ' + dueNowCount + ' thẻ đến hạn ngay →</a>' : '') +
           '<div class="htq-quick-grid">' +
             '<a href="/tro-choi/ghep-chu/" class="htq-quick-item"><span>🧩</span><span>Ghép Chữ Hán</span></a>' +
             '<a href="/tro-choi/tim-chu-trong-chu/" class="htq-quick-item"><span>🔎</span><span>Tìm Chữ Trong Chữ</span></a>' +
@@ -13192,6 +13777,725 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       '</div>';
 
     traCuu.parentElement.insertBefore(sec, traCuu.nextSibling);
+
+    // Wire interactive 3D Daily Hanzi Flip Card
+    const cardWrap = sec.querySelector('#htq-daily-hanzi-card');
+    const cardInner = sec.querySelector('#htq-daily-flip-inner');
+    const nextBtn = sec.querySelector('#htq-daily-next-btn');
+    const renderDailyCard = () => {
+      if (!cardInner) return;
+      const item = HTQ_DAILY_HANZI_POOL[curDailyIdx % HTQ_DAILY_HANZI_POOL.length];
+      cardWrap.classList.remove('is-flipped');
+      cardInner.innerHTML =
+        '<div class="htq-flip-face">' +
+          '<div style="display:flex;align-items:center;gap:14px;">' +
+            '<div class="htq-mizige" style="width:82px;height:82px;font-size:44px;font-weight:800;color:#4f46e5;flex-shrink:0;">' + escapeHtml(item.hanzi) + '</div>' +
+            '<div style="min-width:0;flex:1;">' +
+              '<div style="font-size:18px;font-weight:800;color:#0d9488;">' + escapeHtml(item.pinyin) + ' <span style="font-size:11px;padding:2px 7px;border-radius:999px;background:rgba(79,70,229,.12);color:#4338ca;vertical-align:middle;">' + escapeHtml(item.hv) + '</span></div>' +
+              '<div style="font-size:13px;opacity:.78;margin-top:6px;">Chạm vào thẻ để lật xem nghĩa &amp; câu ví dụ ↻</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;">' +
+            '<button type="button" class="htq-stage-chip-btn" data-daily-act="speak">🔊 Nghe phát âm</button>' +
+            '<a href="/han-tu/' + encodeURIComponent(item.hanzi) + '" class="htq-stage-chip-btn" data-daily-act="nav">Chiết tự →</a>' +
+          '</div>' +
+        '</div>' +
+        '<div class="htq-flip-face htq-flip-back">' +
+          '<div>' +
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+              '<strong style="font-size:16px;">' + escapeHtml(item.hanzi) + ' · ' + escapeHtml(item.pinyin) + ' (' + escapeHtml(item.hv) + ')</strong>' +
+              '<span style="font-size:11px;opacity:.7;">Chạm để lật lại ↺</span>' +
+            '</div>' +
+            '<div style="font-size:14px;font-weight:700;color:#0d9488;margin:4px 0;">Nghĩa: ' + escapeHtml(item.meaning) + '</div>' +
+            '<div style="font-size:12.5px;opacity:.85;line-height:1.4;">' + escapeHtml(item.example) + '</div>' +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:6px;">' +
+            '<button type="button" class="htq-stage-chip-btn is-active" data-daily-act="save">⭐ Lưu sổ tay</button>' +
+            '<a href="/tao-vo-tap-viet?text=' + encodeURIComponent(item.hanzi) + '" class="htq-stage-chip-btn" data-daily-act="nav">✍️ Tập viết</a>' +
+          '</div>' +
+        '</div>';
+
+      cardInner.querySelectorAll('[data-daily-act="speak"]').forEach(btn => {
+        btn.addEventListener('click', ev => {
+          ev.stopPropagation();
+          try { playPronunciation(item.hanzi, ''); } catch (_) {}
+          HTQ_STUDIO_FX.toast('🔊 Đang đọc: ' + item.hanzi + ' (' + item.pinyin + ')');
+        });
+      });
+      cardInner.querySelectorAll('[data-daily-act="save"]').forEach(btn => {
+        btn.addEventListener('click', async ev => {
+          ev.stopPropagation();
+          try {
+            await fetch('/v1/notebook', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ word: item.hanzi, pinyin: item.pinyin, meaningVi: item.meaning })
+            });
+            recordStudyProgress({ words: [item.hanzi] });
+            HTQ_STUDIO_FX.confetti(btn, 22);
+            HTQ_STUDIO_FX.toast('⭐ Đã lưu "' + item.hanzi + '" vào Sổ tay & Tiến độ!', 'success');
+          } catch (_) {}
+        });
+      });
+      cardInner.querySelectorAll('[data-daily-act="nav"]').forEach(a => {
+        a.addEventListener('click', ev => ev.stopPropagation());
+      });
+    };
+    if (cardWrap) {
+      cardWrap.addEventListener('click', () => cardWrap.classList.toggle('is-flipped'));
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        curDailyIdx = (curDailyIdx + 1) % HTQ_DAILY_HANZI_POOL.length;
+        renderDailyCard();
+        if (cardWrap) { cardWrap.classList.add('htq-pop'); setTimeout(() => cardWrap.classList.remove('htq-pop'), 260); }
+      });
+    }
+    renderDailyCard();
+
+    // Animate KPI stat numbers smoothly
+    sec.querySelectorAll('[data-htq-count]').forEach(el => {
+      HTQ_STUDIO_FX.animateCountUp(el, Number(el.getAttribute('data-htq-count')) || 0);
+    });
+  }
+
+  function resolvePageStageConfig(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    if (norm === '/') return null;
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/bai\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+      return null;
+    }
+    if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
+      return { id: 'learning', banner: '/images/studio/cute-capy-study.jpg', badge: 'Lộ trình HSK 3.0', title: 'Chọn Bạn Đồng Hành Dễ Thương & Nhịp Học Hôm Nay', sub: 'Đổi giữa 8 người bạn đồng hành và cùng nhau chinh phục từng chặng HSK nhé!' };
+    }
+    if (/^\/(on-tap|so-tay)/.test(norm)) {
+      return { id: 'review', banner: '/images/studio/banner-review-srs.jpg', badge: 'Trí nhớ dài hạn SRS', title: 'Khởi Động Nhanh 1 Thẻ Nhớ 3D', sub: 'Lật thẻ, nghe phát âm và chấm nhanh để đánh thức trí nhớ ngay tại chỗ.' };
+    }
+    if (/^\/(tra-chu|han-tu|tu-vung|han-viet)/.test(norm)) {
+      return { id: 'dictionary', banner: '/images/studio/cute-panda-dict.jpg', badge: 'Thư viện Gấu Trúc & Bộ thủ', title: 'Luyện Nghe 4 Thanh Điệu & Tra Nhanh Bộ Thủ', sub: 'Chạm từng thanh điệu để nghe phân biệt âm chuẩn Bắc Kinh thật sinh động.' };
+    }
+    if (/^\/thu-vien/.test(norm)) {
+      return { id: 'curriculum', banner: '/images/studio/hero-hanzi-studio.jpg', badge: 'Kho Giáo trình Chuẩn', title: 'Tiến Độ Phủ Từ Vựng Toàn Giáo Trình', sub: 'Mọi bài học ở đây đều tự đồng bộ từ vựng sang thẻ ôn SRS của bạn.' };
+    }
+    if (/^\/(luyen-nghe|luyen-noi|luyen-chep-chinh-ta)/.test(norm)) {
+      return { id: 'audio', banner: '/images/studio/cute-music-buddy.jpg', badge: 'Phòng thu Capybara AI', title: 'Khởi Động Tai — Nhận Diện 4 Thanh Điệu', sub: 'Cùng Capy đeo tai nghe đoán nhanh đúng thanh 1, 2, 3 hay 4 nhé!' };
+    }
+    if (/^\/(luyen-go|luyen-go-han-tu)/.test(norm)) {
+      return { id: 'typing', banner: '/images/studio/banner-review-srs.jpg', badge: 'Phản xạ Pinyin', title: 'Thử Thách Gõ Nhanh Mini (Không Cần Dấu)', sub: 'Gõ Pinyin không dấu (vd: nihao, xiexie) để lên chuỗi Combo!' };
+    }
+    if (/^\/(kiem-tra-hsk|de-kiem-tra|kiem-tra-ngu-phap|ngu-phap)/.test(norm)) {
+      return { id: 'exam', banner: '/images/studio/banner-exam-hall.jpg', badge: 'Phòng Thi & Ngữ Pháp HSK', title: 'Kế Hoạch & Đếm Ngược Mục Tiêu Kỳ Thi', sub: 'Đặt cấp độ và ngày thi để hệ thống theo dõi độ sẵn sàng mỗi ngày.' };
+    }
+    if (/^\/tro-choi/.test(norm)) {
+      return { id: 'games', banner: '/images/studio/cute-lantern-party.jpg', badge: 'Lễ hội Đèn lồng & Thành ngữ', title: 'Đố Vui Thành Ngữ 4 Chữ Trong Ngày', sub: 'Cùng Capy và bé Thỏ chọn đúng chữ Hán hoàn thiện câu thành ngữ kinh điển!' };
+    }
+    if (/^\/(tao-vo-tap-viet|flashcard-pdf|luyen-viet|tai-gif-but-thuan|them-pinyin|dich-tieng-trung|cong-cu)/.test(norm)) {
+      const isWriting = /^\/(tao-vo-tap-viet|luyen-viet|tai-gif-but-thuan|flashcard-pdf)/.test(norm);
+      return {
+        id: isWriting ? 'tools-writing' : 'tools-translate',
+        banner: isWriting ? '/images/studio/banner-dictionary-calligraphy.jpg' : '/images/studio/banner-games-arcade.jpg',
+        badge: isWriting ? 'Xưởng Thư pháp & In ấn' : 'Trợ lý Dịch AI & Pinyin',
+        title: isWriting ? 'Nạp Nhanh Bộ Chữ Mẫu 1 Chạm' : 'Nạp Nhanh Mẫu Câu Giao Tiếp Thực Tế',
+        sub: isWriting ? 'Chọn ngay nhóm từ chuẩn HSK hoặc từ bạn đã học để tạo tờ luyện viết.' : 'Bấm một câu mẫu bên dưới để nạp tức thì vào khung và nghe phát âm.'
+      };
+    }
+    if (/^\/(tai-khoan|dang-nhap|dang-ky)/.test(norm)) {
+      return {
+        id: norm === '/tai-khoan' ? 'account' : 'auth',
+        banner: norm === '/tai-khoan' ? '/images/studio/cute-lantern-party.jpg' : '/images/studio/cute-capy-study.jpg',
+        badge: norm === '/tai-khoan' ? 'Góc Thành Tích & Tem Thưởng' : 'Đồng bộ Đám mây Miễn phí',
+        title: norm === '/tai-khoan' ? 'Cấp Bậc & Bộ Sưu Tập Tem Học Giả' : 'Lưu Trọn Vẹn Tiến Độ Học Trên Mọi Thiết Bị',
+        sub: norm === '/tai-khoan' ? 'Mở khóa tem dễ thương khi bạn giữ chuỗi ngày, học từ mới và luyện đề HSK!' : 'Đăng nhập Google hoặc Email để đồng bộ tức thì với Supabase Cloud.'
+      };
+    }
+    return null;
+  }
+  window.__xhzResolvePageStageConfig = resolvePageStageConfig;
+
+  function buildPageExperienceStage(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-page-stage');
+    const cfg = resolvePageStageConfig(norm);
+    if (!cfg || document.getElementById('xhz-lesson-runner-root') || !document.querySelector('header[data-site-header="true"]')) {
+      if (existing) existing.remove();
+      return;
+    }
+    const main = document.getElementById('noi-dung-chinh');
+    const dynRoot = document.getElementById('xhz-dynamic-page-root');
+    const useDynHost = Boolean(dynRoot && dynRoot.isConnected && (!main || main.style.display === 'none'));
+    if (!main && !useDynHost) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    let collapsed = false;
+    try { collapsed = sessionStorage.getItem('htq_stage_collapsed') === '1'; } catch (_) {}
+    const stageKey = norm + '|' + cfg.id + '|' + (isDark ? '1' : '0') + '|' + (collapsed ? 'c' : 'e') + '|' + (useDynHost ? 'd' : 'm');
+    if (existing && existing.getAttribute('data-htq-stage-key') === stageKey) return;
+    if (existing) existing.remove();
+
+    const wrap = document.createElement('section');
+    wrap.id = 'htq-page-stage';
+    wrap.setAttribute('data-htq-stage-key', stageKey);
+    wrap.setAttribute('data-htq-stage-id', cfg.id);
+    wrap.setAttribute('aria-label', cfg.title);
+
+    if (useDynHost && dynRoot.parentElement) {
+      dynRoot.parentElement.insertBefore(wrap, dynRoot);
+    } else if (main) {
+      const ribbon = document.getElementById('htq-subpage-ribbon');
+      if (ribbon && ribbon.parentElement === main) {
+        main.insertBefore(wrap, ribbon.nextSibling);
+      } else {
+        main.insertBefore(wrap, main.firstChild);
+      }
+    }
+
+    if (collapsed) {
+      wrap.innerHTML =
+        '<div class="htq-stage-shell"><div class="htq-stage-collapsed-bar">' +
+          '<span>✨ ' + escapeHtml(cfg.badge) + ' · ' + escapeHtml(cfg.title) + '</span>' +
+          '<button type="button" id="htq-stage-expand-btn" class="htq-stage-chip-btn">Mở rộng hoạt động ▾</button>' +
+        '</div></div>';
+      const expBtn = wrap.querySelector('#htq-stage-expand-btn');
+      if (expBtn) expBtn.onclick = () => { try { sessionStorage.setItem('htq_stage_collapsed', '0'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); };
+      return;
+    }
+
+    const sum = typeof getRealProgressSummary === 'function' ? getRealProgressSummary() : { streakDays: 0, wordsMastered: 0, wordsSeen: 0, stagesDone: 0, dueTotal: 0, prog: {} };
+    const prog = (sum && sum.prog) || (typeof getRealProgress === 'function' ? getRealProgress() : {});
+    const eqHtml = '<span class="htq-eq" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>';
+
+    // Choose companion / feature thumbnail accent for left visual overlay
+    let cornerImg = '';
+    if (cfg.id === 'learning') {
+      const pose = sum.streakDays >= 3 ? 'celebrate' : (sum.wordsMastered > 0 ? 'happy' : 'encouraging');
+      cornerImg = '/images/capy/lesson/' + pose + '.webp';
+    } else if (cfg.id === 'review') {
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'flashcard.webp';
+    } else if (cfg.id === 'dictionary') {
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'search.webp';
+    } else if (cfg.id === 'curriculum') {
+      cornerImg = '/images/home/app/learning-path.webp';
+    } else if (cfg.id === 'audio') {
+      const aKey = norm.includes('noi') ? 'speaking_practice' : (norm.includes('chep') ? 'dictation' : 'listening');
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + aKey + '.webp';
+    } else if (cfg.id === 'typing') {
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'type.webp';
+    } else if (cfg.id === 'exam') {
+      const eKey = norm.includes('ngu-phap') ? 'grammar' : 'test';
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + eKey + '.webp';
+    } else if (cfg.id === 'games') {
+      cornerImg = '/images/games/ghep-thanh-ngu.webp';
+    } else if (cfg.id === 'tools-writing') {
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'write.webp';
+    } else if (cfg.id === 'tools-translate') {
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'translate.webp';
+    } else if (cfg.id === 'account') {
+      const xpPreview = (sum.wordsMastered || 0) * 10 + (sum.stagesDone || 0) * 25 + (sum.streakDays || 0) * 15;
+      cornerImg = xpPreview >= 300 ? '/images/practice/summary-great.webp' : (xpPreview >= 80 ? '/images/practice/summary-good.webp' : '/images/practice/summary-keep.webp');
+    } else if (cfg.id === 'auth') {
+      cornerImg = '/images/brand/auth-tieu-man-welcome.webp';
+    }
+
+    wrap.innerHTML =
+      '<div class="htq-stage-shell">' +
+        '<div class="htq-stage-grid">' +
+          '<div class="htq-stage-visual">' +
+            '<img class="htq-stage-bg" src="' + cfg.banner + '" alt="' + escapeHtml(cfg.title) + '" loading="eager" />' +
+            '<button type="button" id="htq-stage-collapse-btn" class="htq-stage-toggle-btn" title="Thu gọn thanh hoạt động">Thu gọn ▴</button>' +
+            '<div class="htq-stage-visual-scrim">' +
+              '<div style="min-width:0;">' +
+                '<div style="font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#a5b4fc;margin-bottom:3px;">' + escapeHtml(cfg.badge) + '</div>' +
+                '<div style="font-size:17px;font-weight:800;line-height:1.25;margin-bottom:4px;">' + escapeHtml(cfg.title) + '</div>' +
+                '<div style="font-size:12.5px;color:rgba(241,245,249,.88);line-height:1.4;">' + escapeHtml(cfg.sub) + '</div>' +
+              '</div>' +
+              (cornerImg ? '<img src="' + cornerImg + '" alt="' + escapeHtml(cfg.badge) + '" class="htq-float" style="width:66px;height:66px;border-radius:16px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(15,23,42,.42);" />' : '') +
+            '</div>' +
+          '</div>' +
+          '<div class="htq-stage-body" id="htq-stage-activity-host"></div>' +
+        '</div>' +
+      '</div>';
+
+    const colBtn = wrap.querySelector('#htq-stage-collapse-btn');
+    if (colBtn) colBtn.onclick = () => { try { sessionStorage.setItem('htq_stage_collapsed', '1'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); };
+
+    const host = wrap.querySelector('#htq-stage-activity-host');
+    if (!host) return;
+
+    // 1) LEARNING & PATH: Interactive 6-Companion Switcher + SVG Mastery Ring
+    if (cfg.id === 'learning') {
+      let activeComp = localStorage.getItem('httq_companion_id') || 'capy';
+      const pct = Math.min(100, Math.round(((sum.wordsSeen || 0) / 300) * 100));
+      const circ = 2 * Math.PI * 24;
+      const dashOff = circ * (1 - pct / 100);
+      const renderComp = () => {
+        const cObj = HTQ_COMPANIONS_LIST.find(x => x.id === activeComp) || HTQ_COMPANIONS_LIST[0];
+        host.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
+            '<div style="display:flex;align-items:center;gap:10px;min-width:0;">' +
+              '<img src="/images/companion/' + encodeURIComponent(cObj.id) + '/splash/hero.webp" alt="' + escapeHtml(cObj.name) + '" style="width:48px;height:48px;border-radius:14px;object-fit:cover;border:2px solid #4f46e5;" />' +
+              '<div style="min-width:0;">' +
+                '<div style="font-size:14px;font-weight:800;">' + escapeHtml(cObj.name) + ' (' + escapeHtml(cObj.zh) + ') · <span style="color:#0d9488;font-size:12px;">' + escapeHtml(cObj.role) + '</span></div>' +
+                '<div style="font-size:12.5px;opacity:.82;margin-top:2px;">“' + escapeHtml(cObj.quote) + '”</div>' +
+              '</div>' +
+            '</div>' +
+            '<div style="position:relative;width:58px;height:58px;flex-shrink:0;" title="Độ phủ HSK 1">' +
+              '<svg width="58" height="58" viewBox="0 0 58 58"><circle cx="29" cy="29" r="24" fill="none" stroke="rgba(79,70,229,.16)" stroke-width="5"/><circle cx="29" cy="29" r="24" fill="none" stroke="#0d9488" stroke-width="5" stroke-linecap="round" stroke-dasharray="' + circ.toFixed(1) + '" stroke-dashoffset="' + dashOff.toFixed(1) + '" transform="rotate(-90 29 29)"/></svg>' +
+              '<div style="position:absolute;inset:0;display:grid;place-items:center;font-size:12px;font-weight:900;color:#0d9488;">' + pct + '%</div>' +
+            '</div>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+            HTQ_COMPANIONS_LIST.map(c =>
+              '<button type="button" class="htq-stage-chip-btn' + (c.id === activeComp ? ' is-active' : '') + '" data-comp-id="' + c.id + '">' +
+                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" style="width:18px;height:18px;border-radius:999px;object-fit:cover;" />' +
+                '<span>' + escapeHtml(c.name) + '</span>' +
+              '</button>'
+            ).join('') +
+          '</div>';
+        host.querySelectorAll('[data-comp-id]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            activeComp = btn.getAttribute('data-comp-id') || 'capy';
+            try { localStorage.setItem('httq_companion_id', activeComp); } catch (_) {}
+            renderComp();
+            const picked = HTQ_COMPANIONS_LIST.find(x => x.id === activeComp);
+            HTQ_STUDIO_FX.confetti(btn, 18);
+            HTQ_STUDIO_FX.toast('✨ Đã chọn ' + (picked ? picked.name : activeComp) + ' làm bạn đồng hành!', 'success');
+          });
+        });
+      };
+      renderComp();
+      return;
+    }
+
+    // 2) REVIEW SRS & NOTEBOOK: Lightning 1-Card 3D Flip Warm-up
+    if (cfg.id === 'review') {
+      const learned = Array.isArray(prog.learnedWords) ? prog.learnedWords.filter(Boolean) : [];
+      const deck = learned.length > 0
+        ? learned.slice(-12).map(w => {
+            const hit = HTQ_DAILY_HANZI_POOL.find(x => x.hanzi === w);
+            return hit || { hanzi: w, pinyin: 'Ôn nhanh', hv: 'ĐÃ HỌC', meaning: 'Bấm 🔊 để nghe & tự kiểm tra nghĩa', example: 'Từ trong kho đã học của bạn.' };
+          })
+        : HTQ_DAILY_HANZI_POOL.slice(0, 10);
+      let idx = 0;
+      const renderFlash = () => {
+        const it = deck[idx % deck.length];
+        host.innerHTML =
+          '<div class="htq-flip-wrap" id="htq-srs-mini-flip">' +
+            '<div class="htq-flip-inner" style="min-height:132px;">' +
+              '<div class="htq-flip-face">' +
+                '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
+                  '<div style="display:flex;align-items:center;gap:12px;">' +
+                    '<div class="htq-mizige" style="width:66px;height:66px;font-size:32px;font-weight:800;color:#4f46e5;">' + escapeHtml(it.hanzi) + '</div>' +
+                    '<div><div style="font-size:12px;font-weight:700;color:#0d9488;">THẺ KHỞI ĐỘNG ' + ((idx % deck.length) + 1) + '/' + deck.length + '</div><div style="font-size:14px;font-weight:700;margin-top:4px;">Bạn còn nhớ nghĩa từ này không?</div><div style="font-size:12px;opacity:.72;margin-top:2px;">Chạm để lật 3D ↻</div></div>' +
+                  '</div>' +
+                  '<button type="button" class="htq-stage-chip-btn" data-srs-act="speak">🔊</button>' +
+                '</div>' +
+              '</div>' +
+              '<div class="htq-flip-face htq-flip-back">' +
+                '<div>' +
+                  '<div style="font-size:16px;font-weight:800;">' + escapeHtml(it.hanzi) + ' · <span style="color:#0d9488;">' + escapeHtml(it.pinyin) + '</span></div>' +
+                  '<div style="font-size:13.5px;font-weight:700;margin-top:4px;">' + escapeHtml(it.meaning) + '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;">' +
+                  '<button type="button" class="htq-stage-chip-btn is-active" data-srs-act="good">✅ Nhớ rõ</button>' +
+                  '<button type="button" class="htq-stage-chip-btn" data-srs-act="again">↺ Ôn lại sau</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+        const fw = host.querySelector('#htq-srs-mini-flip');
+        if (fw) fw.addEventListener('click', () => fw.classList.toggle('is-flipped'));
+        host.querySelectorAll('[data-srs-act="speak"]').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); try { playPronunciation(it.hanzi, ''); } catch (_) {} }));
+        const sendGrade = async (outcome, btn) => {
+          try {
+            await fetch('/v2/review/signals', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ signals: [{ signalId: 'mini-' + Date.now(), itemKey: 'w:' + it.hanzi, skill: 'meaning', outcome }] })
+            });
+          } catch (_) {}
+          if (outcome === 'correct') {
+            HTQ_STUDIO_FX.confetti(btn, 20);
+            HTQ_STUDIO_FX.toast('✅ Tuyệt vời! Đã cập nhật nhịp ôn SRS cho "' + it.hanzi + '"', 'success');
+          } else {
+            HTQ_STUDIO_FX.toast('↺ Đã đưa "' + it.hanzi + '" vào danh sách ôn sớm', 'warn');
+          }
+          idx = (idx + 1) % deck.length;
+          renderFlash();
+        };
+        host.querySelectorAll('[data-srs-act="good"]').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); sendGrade('correct', b); }));
+        host.querySelectorAll('[data-srs-act="again"]').forEach(b => b.addEventListener('click', ev => { ev.stopPropagation(); sendGrade('wrong', b); }));
+      };
+      renderFlash();
+      return;
+    }
+
+    // 3) DICTIONARY & RADICALS: 4-Tone Interactive Audio Bar + Radical Quick Chips
+    if (cfg.id === 'dictionary') {
+      const tones = [
+        { n: 1, hz: '妈', py: 'mā', desc: 'Thanh 1 (ngang cao)', color: '#dc2626' },
+        { n: 2, hz: '麻', py: 'má', desc: 'Thanh 2 (đi lên)', color: '#d97706' },
+        { n: 3, hz: '马', py: 'mǎ', desc: 'Thanh 3 (xuống-lên)', color: '#16a34a' },
+        { n: 4, hz: '骂', py: 'mà', desc: 'Thanh 4 (dứt khoát)', color: '#2563eb' }
+      ];
+      const rads = [
+        ['亻 Nhân', '/tra-chu/bo-thu/%E4%BA%BB'],
+        ['氵 Thủy', '/tra-chu/bo-thu/%E6%B0%B5'],
+        ['忄 Tâm', '/tra-chu/bo-thu/%E5%BF%84'],
+        ['木 Mộc', '/tra-chu/bo-thu/%E6%9C%A8'],
+        ['HSK 1', '/tra-chu/hsk/1']
+      ];
+      host.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+          '<span style="font-size:12px;font-weight:800;color:#4f46e5;">🔊 Bấm nghe mẫu 4 thanh điệu</span>' +
+          '<span id="htq-dict-eq" style="color:#0d9488;">' + eqHtml + '</span>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">' +
+          tones.map(t =>
+            '<button type="button" class="htq-stage-chip-btn" data-tone-hz="' + t.hz + '" data-tone-py="' + t.py + '" style="flex-direction:column;border-radius:14px;padding:8px 6px;gap:2px;border-color:' + t.color + '44;">' +
+              '<span style="font-size:20px;font-weight:800;color:' + t.color + ';line-height:1.1;">' + t.hz + '</span>' +
+              '<span style="font-size:12px;font-weight:800;">' + t.py + '</span>' +
+            '</button>'
+          ).join('') +
+        '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">' +
+          rads.map(([lbl, href]) => '<a href="' + href + '" class="htq-stage-chip-btn">' + lbl + '</a>').join('') +
+          '<button type="button" id="htq-dict-rand-btn" class="htq-stage-chip-btn is-active">🎲 Chữ ngẫu nhiên</button>' +
+        '</div>';
+      const eqEl = host.querySelector('#htq-dict-eq .htq-eq');
+      host.querySelectorAll('[data-tone-hz]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const hz = btn.getAttribute('data-tone-hz');
+          const py = btn.getAttribute('data-tone-py');
+          try { playPronunciation(hz, ''); } catch (_) {}
+          HTQ_STUDIO_FX.pulseEq(eqEl, 1300);
+          btn.classList.add('htq-pop'); setTimeout(() => btn.classList.remove('htq-pop'), 260);
+          HTQ_STUDIO_FX.toast('🔊 Thanh điệu: ' + hz + ' (' + py + ')');
+        });
+      });
+      const rBtn = host.querySelector('#htq-dict-rand-btn');
+      if (rBtn) rBtn.addEventListener('click', () => {
+        const pick = HTQ_DAILY_HANZI_POOL[Math.floor(Math.random() * HTQ_DAILY_HANZI_POOL.length)];
+        window.location.href = '/han-tu/' + encodeURIComponent(pick.hanzi);
+      });
+      return;
+    }
+
+    // 4) CURRICULUM: Coverage Progress Bar + Practice Shortcuts
+    if (cfg.id === 'curriculum') {
+      const seen = Number(sum.wordsSeen || 0);
+      const pct = Math.min(100, Math.round((seen / 300) * 100));
+      const learnedSample = (prog.learnedWords || []).slice(0, 12).join('');
+      host.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;font-weight:800;">' +
+          '<span>Độ phủ từ vựng HSK 1 của bạn</span>' +
+          '<span style="color:#0d9488;">' + seen + ' / 300 từ (' + pct + '%)</span>' +
+        '</div>' +
+        '<div style="height:10px;border-radius:999px;background:rgba(79,70,229,.14);overflow:hidden;">' +
+          '<div class="htq-shimmer-bar" style="height:100%;width:' + Math.max(4, pct) + '%;background:linear-gradient(90deg,#4f46e5,#0d9488);border-radius:999px;transition:width .5s ease;"></div>' +
+        '</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:7px;">' +
+          '<a href="/luyen-noi/" class="htq-stage-chip-btn">🎙️ Luyện nói theo bài</a>' +
+          '<a href="/luyen-go/" class="htq-stage-chip-btn">⌨️ Gõ từ đã học</a>' +
+          '<a href="/tao-vo-tap-viet' + (learnedSample ? '?text=' + encodeURIComponent(learnedSample) : '') + '" class="htq-stage-chip-btn is-active">🖨️ In vở tập viết từ đã học</a>' +
+        '</div>';
+      return;
+    }
+
+    // 5) AUDIO (LISTENING / SPEAKING / DICTATION): Tone Ear Warm-up Quiz
+    if (cfg.id === 'audio') {
+      let qIdx = Math.floor(Math.random() * HTQ_TONE_DRILL_POOL.length);
+      let streak = 0;
+      const renderToneQuiz = () => {
+        const q = HTQ_TONE_DRILL_POOL[qIdx % HTQ_TONE_DRILL_POOL.length];
+        host.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<button type="button" id="htq-ear-play" class="htq-stage-chip-btn is-active" style="padding:8px 14px;font-size:13px;">🔊 Nghe: ' + escapeHtml(q.hanzi) + ' ' + eqHtml + '</button>' +
+              '<span style="font-size:13px;font-weight:700;opacity:.82;">(' + escapeHtml(q.meaning) + ')</span>' +
+            '</div>' +
+            '<span id="htq-ear-streak" style="font-size:12px;font-weight:800;color:#0d9488;">🔥 Chuỗi đúng: ' + streak + '</span>' +
+          '</div>' +
+          '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;">' +
+            [1, 2, 3, 4].map(tn => '<button type="button" class="htq-stage-chip-btn" data-ear-tone="' + tn + '" style="justify-content:center;padding:8px 6px;">Thanh ' + tn + '</button>').join('') +
+          '</div>' +
+          '<div id="htq-ear-feedback" style="font-size:12.5px;font-weight:700;min-height:18px;opacity:.85;">Nghe âm tiết và chọn đúng thanh điệu tương ứng.</div>';
+        const eqEl = host.querySelector('#htq-ear-play .htq-eq');
+        const playBtn = host.querySelector('#htq-ear-play');
+        const fbEl = host.querySelector('#htq-ear-feedback');
+        if (playBtn) playBtn.addEventListener('click', () => {
+          try { playPronunciation(q.hanzi, ''); } catch (_) {}
+          HTQ_STUDIO_FX.pulseEq(eqEl, 1300);
+        });
+        host.querySelectorAll('[data-ear-tone]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pick = Number(btn.getAttribute('data-ear-tone'));
+            if (pick === q.tone) {
+              streak++;
+              btn.classList.add('is-active', 'htq-pop');
+              if (fbEl) fbEl.innerHTML = '<span style="color:#0d9488;">✅ Chính xác! ' + escapeHtml(q.hanzi) + ' đọc là <strong>' + escapeHtml(q.pinyin) + '</strong> (Thanh ' + q.tone + ').</span>';
+              if (streak % 3 === 0) HTQ_STUDIO_FX.confetti(btn, 24);
+              setTimeout(() => { qIdx = (qIdx + 1 + Math.floor(Math.random() * 3)) % HTQ_TONE_DRILL_POOL.length; renderToneQuiz(); }, 900);
+            } else {
+              streak = 0;
+              btn.classList.add('htq-shake');
+              setTimeout(() => btn.classList.remove('htq-shake'), 300);
+              const stEl = host.querySelector('#htq-ear-streak');
+              if (stEl) stEl.textContent = '🔥 Chuỗi đúng: 0';
+              if (fbEl) fbEl.innerHTML = '<span style="color:#dc2626;">❌ Chưa đúng, nghe lại lần nữa nhé! (Gợi ý: thử bấm loa)</span>';
+            }
+          });
+        });
+      };
+      renderToneQuiz();
+      return;
+    }
+
+    // 6) TYPING: Mini Pinyin Sprint
+    if (cfg.id === 'typing') {
+      let sIdx = 0;
+      let combo = 0;
+      const renderSprint = () => {
+        const w = HTQ_PINYIN_SPRINT_POOL[sIdx % HTQ_PINYIN_SPRINT_POOL.length];
+        const expectedNorm = normalizePinyinQuery(w.pinyin);
+        host.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<span style="font-size:28px;font-weight:900;color:#4f46e5;">' + escapeHtml(w.hanzi) + '</span>' +
+              '<span style="font-size:13px;font-weight:700;opacity:.82;">' + escapeHtml(w.meaning) + '</span>' +
+            '</div>' +
+            '<span style="font-size:12px;font-weight:800;color:#d97706;">🔥 Combo x' + combo + '</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:8px;align-items:center;">' +
+            '<input id="htq-sprint-inp" type="text" autocomplete="off" placeholder="Gõ Pinyin không dấu (vd: ' + expectedNorm + ')..." style="flex:1;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:14px;font-weight:700;outline:none;" />' +
+            '<button type="button" id="htq-sprint-speak" class="htq-stage-chip-btn">🔊</button>' +
+          '</div>';
+        const inp = host.querySelector('#htq-sprint-inp');
+        const spk = host.querySelector('#htq-sprint-speak');
+        if (spk) spk.addEventListener('click', () => { try { playPronunciation(w.hanzi, ''); } catch (_) {} });
+        if (inp) {
+          inp.addEventListener('input', () => {
+            if (normalizePinyinQuery(inp.value) === expectedNorm) {
+              combo++;
+              recordStudyProgress({ words: [w.hanzi] });
+              if (combo % 3 === 0) HTQ_STUDIO_FX.confetti(inp, 22);
+              HTQ_STUDIO_FX.toast('⌨️ Chuẩn xác! ' + w.hanzi + ' (' + w.pinyin + ') · Combo x' + combo, 'success');
+              sIdx = (sIdx + 1) % HTQ_PINYIN_SPRINT_POOL.length;
+              renderSprint();
+              setTimeout(() => { const n = document.getElementById('htq-sprint-inp'); if (n) n.focus(); }, 20);
+            }
+          });
+        }
+      };
+      renderSprint();
+      return;
+    }
+
+    // 7) EXAM & GRAMMAR: Real Exam Plan Countdown Widget (powered by /v2/me/exam-plan)
+    if (cfg.id === 'exam') {
+      const m = computeRealSkillMetrics(sum);
+      const renderPlan = (plan) => {
+        if (plan && plan.targetLevel) {
+          const daysLeft = plan.targetDate ? Math.max(0, Math.ceil((new Date(plan.targetDate).getTime() - Date.now()) / 86400000)) : null;
+          host.innerHTML =
+            '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">' +
+              '<div>' +
+                '<div style="font-size:15px;font-weight:800;color:#4f46e5;">🎯 Mục tiêu: HSK ' + escapeHtml(String(plan.targetLevel)) + (daysLeft !== null ? ' · Còn <span style="color:#e11d48;">' + daysLeft + ' ngày</span>' : '') + '</div>' +
+                '<div style="font-size:12.5px;opacity:.82;margin-top:2px;">Lịch luyện: ' + Number(plan.dailyMinutes || 20) + ' phút/ngày · Dự đoán hiện tại: <strong>' + m.predictedScore200 + '/200 điểm</strong> (' + m.avgSkill + '% sẵn sàng)</div>' +
+              '</div>' +
+              '<button type="button" id="htq-exam-plan-edit" class="htq-stage-chip-btn">✏️ Đổi kế hoạch</button>' +
+            '</div>' +
+            '<div style="height:8px;border-radius:999px;background:rgba(79,70,229,.14);overflow:hidden;">' +
+              '<div class="htq-shimmer-bar" style="height:100%;width:' + Math.max(6, m.avgSkill) + '%;background:linear-gradient(90deg,#4f46e5,#0d9488);border-radius:999px;"></div>' +
+            '</div>';
+          const ed = host.querySelector('#htq-exam-plan-edit');
+          if (ed) ed.onclick = () => renderPlan(null);
+          return;
+        }
+        const defDate = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
+        host.innerHTML =
+          '<div style="font-size:13px;font-weight:800;">📅 Lập kế hoạch thi HSK cá nhân (đồng bộ tài khoản)</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
+            '<select id="htq-ep-lvl" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
+              [1, 2, 3, 4, 5, 6].map(l => '<option value="' + l + '" style="color:#0f172a;">HSK ' + l + '</option>').join('') +
+            '</select>' +
+            '<input id="htq-ep-date" type="date" value="' + defDate + '" style="padding:6px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;" />' +
+            '<select id="htq-ep-min" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
+              [15, 20, 30, 45].map(mn => '<option value="' + mn + '" style="color:#0f172a;">' + mn + ' phút/ngày</option>').join('') +
+            '</select>' +
+            '<button type="button" id="htq-ep-save" class="htq-stage-chip-btn is-active">💾 Lưu mục tiêu</button>' +
+          '</div>';
+        const sv = host.querySelector('#htq-ep-save');
+        if (sv) sv.onclick = async () => {
+          const targetLevel = Number((host.querySelector('#htq-ep-lvl') || {}).value) || 1;
+          const targetDate = (host.querySelector('#htq-ep-date') || {}).value || defDate;
+          const dailyMinutes = Number((host.querySelector('#htq-ep-min') || {}).value) || 20;
+          try {
+            const res = await (await fetch('/v2/me/exam-plan', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ targetLevel, targetDate, dailyMinutes })
+            })).json();
+            if (res && res.plan) {
+              HTQ_STUDIO_FX.confetti(sv, 24);
+              HTQ_STUDIO_FX.toast('🎯 Đã lưu kế hoạch thi HSK ' + targetLevel + '!', 'success');
+              renderPlan(res.plan);
+            }
+          } catch (_) {}
+        };
+      };
+      renderPlan(prog.examPlan || null);
+      return;
+    }
+
+    // 8) GAMES: Daily Chengyu 4-Character Teaser
+    if (cfg.id === 'games') {
+      let cIdx = Math.floor(Date.now() / 86400000) % HTQ_CHENGYU_POOL.length;
+      const renderChengyu = () => {
+        const it = HTQ_CHENGYU_POOL[cIdx % HTQ_CHENGYU_POOL.length];
+        const chars = Array.from(it.full);
+        host.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">' +
+            '<div style="display:flex;gap:8px;align-items:center;">' +
+              chars.map((ch, i) =>
+                '<span class="htq-mizige" data-cy-slot="' + i + '" style="width:44px;height:44px;font-size:22px;font-weight:900;color:' + (i === it.blankIdx ? '#e11d48' : '#4f46e5') + ';">' + (i === it.blankIdx ? '?' : escapeHtml(ch)) + '</span>'
+              ).join('') +
+            '</div>' +
+            '<button type="button" id="htq-cy-next" class="htq-stage-chip-btn">🎲 Câu khác</button>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
+            it.opts.map(op => '<button type="button" class="htq-stage-chip-btn" data-cy-opt="' + escapeHtml(op) + '" style="font-size:17px;padding:6px 14px;">' + escapeHtml(op) + '</button>').join('') +
+          '</div>' +
+          '<div id="htq-cy-res" style="font-size:12.5px;font-weight:700;opacity:.85;">Nghĩa gợi ý: “' + escapeHtml(it.meaning) + '”</div>';
+        host.querySelectorAll('[data-cy-opt]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const pick = btn.getAttribute('data-cy-opt');
+            const resEl = host.querySelector('#htq-cy-res');
+            if (pick === it.answer) {
+              const slot = host.querySelector('[data-cy-slot="' + it.blankIdx + '"]');
+              if (slot) { slot.textContent = it.answer; slot.style.color = '#0d9488'; slot.classList.add('htq-pop'); }
+              btn.classList.add('is-active');
+              recordStudyProgress({ words: [it.full] });
+              HTQ_STUDIO_FX.confetti(btn, 26);
+              if (resEl) resEl.innerHTML = '<span style="color:#0d9488;">🎉 Chuẩn xác! <strong>' + escapeHtml(it.full) + '</strong> (' + escapeHtml(it.pinyin) + ') — ' + escapeHtml(it.meaning) + '</span>';
+              try { playPronunciation(it.full, ''); } catch (_) {}
+            } else {
+              btn.classList.add('htq-shake'); setTimeout(() => btn.classList.remove('htq-shake'), 300);
+              HTQ_STUDIO_FX.toast('Thử chọn chữ Hán khác nhé!', 'warn');
+            }
+          });
+        });
+        const nx = host.querySelector('#htq-cy-next');
+        if (nx) nx.onclick = () => { cIdx = (cIdx + 1) % HTQ_CHENGYU_POOL.length; renderChengyu(); };
+      };
+      renderChengyu();
+      return;
+    }
+
+    // 9) TOOLS (WRITING / TRANSLATE): 1-Tap Quick Presets
+    if (cfg.id === 'tools-writing' || cfg.id === 'tools-translate') {
+      const learnedStr = (prog.learnedWords || []).join('').replace(/[^\u4e00-\u9fff]/g, '').slice(0, 14);
+      const presets = cfg.id === 'tools-writing'
+        ? [
+            { label: '👋 Chào hỏi HSK 1', text: '你好谢谢再见' },
+            { label: '🔢 Số đếm 1–10', text: '一二三四五六七八九十' },
+            { label: '👨‍👩‍👧 Gia đình', text: '爸爸妈妈哥哥姐姐我爱你' },
+            ...(learnedStr ? [{ label: '⭐ Từ tôi đã học', text: learnedStr }] : [{ label: '🌸 Thiên nhiên', text: '山水日月风花雪月' }])
+          ]
+        : [
+            { label: '👋 Giới thiệu', text: '你好，我是越南人，我正在学习中文。' },
+            { label: '🍜 Gọi món', text: '请问，这附近有好吃的中国菜吗？' },
+            { label: '🗺️ Hỏi đường', text: '请问去火车站怎么走？' },
+            { label: '🤝 Hẹn gặp', text: '明天上午九点我们一起去喝咖啡吧！' }
+          ];
+      host.innerHTML =
+        '<div style="font-size:12.5px;font-weight:800;opacity:.85;">Chọn nhanh một mẫu bên dưới để nạp tức thì vào công cụ:</div>' +
+        '<div style="display:flex;flex-wrap:wrap;gap:7px;">' +
+          presets.map((pr, i) => '<button type="button" class="htq-stage-chip-btn" data-preset-idx="' + i + '">' + escapeHtml(pr.label) + '</button>').join('') +
+        '</div>';
+      host.querySelectorAll('[data-preset-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const pr = presets[Number(btn.getAttribute('data-preset-idx'))];
+          if (!pr) return;
+          const targetInp = document.querySelector('main textarea, main input[type="text"]:not(#htq-cmdk-input)');
+          if (targetInp) {
+            const proto = targetInp.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
+            const setter = Object.getOwnPropertyDescriptor(proto, 'value')?.set;
+            if (setter) setter.call(targetInp, pr.text);
+            else targetInp.value = pr.text;
+            targetInp.dispatchEvent(new Event('input', { bubbles: true }));
+            targetInp.dispatchEvent(new Event('change', { bubbles: true }));
+            targetInp.focus();
+            HTQ_STUDIO_FX.toast('✨ Đã nạp mẫu: ' + pr.label, 'success');
+            try { playPronunciation(pr.text.slice(0, 12), ''); } catch (_) {}
+          } else if (cfg.id === 'tools-writing') {
+            window.location.href = '/tao-vo-tap-viet?text=' + encodeURIComponent(pr.text);
+          }
+        });
+      });
+      return;
+    }
+
+    // 10) ACCOUNT & AUTH: Scholar Rank & Real Achievement Badges Card
+    if (cfg.id === 'account') {
+      const wordsN = Number(sum.wordsMastered || 0);
+      const stagesN = Number(sum.stagesDone || 0);
+      const gramN = Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds.length : 0;
+      const examN = Array.isArray(prog.examHistory) ? prog.examHistory.length : 0;
+      const streakN = Number(sum.streakDays || 0);
+      const xp = wordsN * 10 + stagesN * 25 + gramN * 15 + examN * 40 + streakN * 15;
+      const ranks = [
+        { min: 0, max: 100, name: '🌱 Tân Học Viên', next: 'Thư Sinh HSK 1' },
+        { min: 100, max: 350, name: '📜 Thư Sinh HSK 1', next: 'Cử Nhân Hán Ngữ' },
+        { min: 350, max: 900, name: '🎓 Cử Nhân Hán Ngữ', next: 'Học Giả Chữ Hán' },
+        { min: 900, max: 2000, name: '🏆 Học Giả Chữ Hán', next: 'Đại Sư Hán Tự' }
+      ];
+      const rk = ranks.slice().reverse().find(r => xp >= r.min) || ranks[0];
+      const rankPct = Math.min(100, Math.round(((xp - rk.min) / Math.max(1, rk.max - rk.min)) * 100));
+      const badges = [
+        { ico: '🧋', lbl: 'Trà Sữa Chăm Chỉ', val: streakN + ' ngày', ok: streakN >= 1 },
+        { ico: '🐼', lbl: 'Gấu Trúc Từ Vựng', val: wordsN + ' từ', ok: wordsN >= 5 },
+        { ico: '🥟', lbl: 'Bánh Bao Ngữ Pháp', val: gramN + ' điểm', ok: gramN >= 1 },
+        { ico: '🏮', lbl: 'Đèn Lồng Khảo Thí', val: examN + ' đề', ok: examN >= 1 }
+      ];
+      host.innerHTML =
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">' +
+          '<div style="font-size:15px;font-weight:900;color:#4f46e5;">' + rk.name + ' <span style="font-size:12px;font-weight:700;color:#0d9488;">(' + xp + ' XP)</span></div>' +
+          '<div style="font-size:12px;font-weight:700;opacity:.78;">Hạng kế tiếp: ' + rk.next + ' (' + rankPct + '%)</div>' +
+        '</div>' +
+        '<div style="height:9px;border-radius:999px;background:rgba(79,70,229,.14);overflow:hidden;">' +
+          '<div class="htq-shimmer-bar" style="height:100%;width:' + Math.max(5, rankPct) + '%;background:linear-gradient(90deg,#f59e0b,#ec4899,#4f46e5,#0d9488);border-radius:999px;"></div>' +
+        '</div>' +
+        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">' +
+          badges.map((b, i) =>
+            '<button type="button" class="htq-stamp-card" data-stamp-idx="' + i + '" style="cursor:pointer;padding:9px 6px;border-radius:16px;text-align:center;border:1.5px solid ' + (b.ok ? 'rgba(13,148,136,.42)' : 'rgba(148,163,184,.28)') + ';background:' + (b.ok ? 'linear-gradient(180deg, rgba(254,243,199,.55), rgba(204,251,241,.40))' : 'transparent') + ';color:inherit;opacity:' + (b.ok ? '1' : '.72') + ';">' +
+              '<div style="font-size:20px;line-height:1.1;">' + b.ico + '</div>' +
+              '<div style="font-size:11.5px;font-weight:800;margin-top:3px;">' + b.val + '</div>' +
+              '<div style="font-size:10px;opacity:.78;line-height:1.2;margin-top:1px;">' + b.lbl + '</div>' +
+            '</button>'
+          ).join('') +
+        '</div>';
+      host.querySelectorAll('[data-stamp-idx]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const b = badges[Number(btn.getAttribute('data-stamp-idx'))];
+          if (!b) return;
+          if (b.ok) {
+            HTQ_STUDIO_FX.confetti(btn, 22);
+            HTQ_STUDIO_FX.toast(b.ico + ' Tem "' + b.lbl + '" đã mở khóa (' + b.val + ')! Quá đỉnh luôn!', 'success');
+          } else {
+            HTQ_STUDIO_FX.toast(b.ico + ' Học thêm chút xíu để mở khóa tem "' + b.lbl + '" nhé!', 'info');
+          }
+        });
+      });
+      return;
+    }
+
+    if (cfg.id === 'auth') {
+      host.innerHTML =
+        '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
+          '<span class="htq-stage-chip-btn is-active">☁️ Đồng bộ tiến độ 2 chiều</span>' +
+          '<span class="htq-stage-chip-btn">🔒 Kho dữ liệu tách riêng theo tài khoản</span>' +
+          '<span class="htq-stage-chip-btn">📥 Sao lưu JSON &amp; Xuất Anki CSV</span>' +
+        '</div>';
+    }
   }
 
   function buildSubpageRibbon(curPath) {
@@ -13260,14 +14564,108 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }).join('');
   }
 
+  function buildCuteBuddyDock(curPath) {
+    const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+    const existing = document.getElementById('htq-buddy-dock');
+    const isBusyRoute = isImmersiveRoute(norm) || /^\/(hoc\/bai\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai)/.test(norm) || Boolean(document.getElementById('xhz-lesson-runner-root'));
+    if (isBusyRoute || !document.body) {
+      if (existing) existing.remove();
+      return;
+    }
+    const compId = localStorage.getItem('httq_companion_id') || 'capy';
+    const comp = HTQ_COMPANIONS_LIST.find(c => c.id === compId) || HTQ_COMPANIONS_LIST[0];
+    const dockKey = comp.id;
+    if (existing && existing.getAttribute('data-htq-buddy') === dockKey) return;
+    if (existing) existing.remove();
+
+    const dock = document.createElement('div');
+    dock.id = 'htq-buddy-dock';
+    dock.setAttribute('data-htq-buddy', dockKey);
+    dock.setAttribute('aria-label', 'Bạn học đồng hành dễ thương');
+
+    let cheerIdx = Math.floor(Date.now() / 60000) % HTQ_CUTE_CHEERS.length;
+    let isOpen = false;
+
+    const renderDock = () => {
+      const curCompId = localStorage.getItem('httq_companion_id') || 'capy';
+      const curComp = HTQ_COMPANIONS_LIST.find(c => c.id === curCompId) || HTQ_COMPANIONS_LIST[0];
+      const ch = HTQ_CUTE_CHEERS[cheerIdx % HTQ_CUTE_CHEERS.length];
+      let sum = { streakDays: 0, wordsMastered: 0 };
+      try { sum = getRealProgressSummary() || sum; } catch (_) {}
+
+      dock.innerHTML =
+        (isOpen
+          ? '<div class="htq-buddy-bubble" id="htq-buddy-bubble">' +
+              '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">' +
+                '<div style="display:flex;align-items:center;gap:8px;">' +
+                  '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" style="width:38px;height:38px;border-radius:12px;object-fit:cover;border:2px solid #f59e0b;" />' +
+                  '<div>' +
+                    '<div style="font-size:13.5px;font-weight:800;">' + (curComp.emoji || '✨') + ' ' + escapeHtml(curComp.name) + ' <span style="opacity:.65;font-size:11.5px;">(' + escapeHtml(curComp.zh) + ')</span></div>' +
+                    '<div style="font-size:11px;color:#0d9488;font-weight:700;">' + (sum.wordsMastered > 0 ? 'Bạn đã thuộc ' + sum.wordsMastered + ' từ · Chuỗi ' + sum.streakDays + ' ngày!' : 'Cùng học vui mỗi ngày nhé!') + '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<button type="button" id="htq-buddy-close" aria-label="Đóng bong bóng" style="border:none;background:transparent;color:inherit;font-size:15px;font-weight:800;cursor:pointer;opacity:.65;padding:2px 6px;">✕</button>' +
+              '</div>' +
+              '<div style="padding:10px 12px;border-radius:14px;background:linear-gradient(135deg, rgba(254,243,199,.55), rgba(224,231,255,.55));border:1px solid rgba(99,102,241,.18);margin-bottom:10px;">' +
+                '<div style="font-size:15px;font-weight:900;color:#4338ca;">' + escapeHtml(ch.zh) + '</div>' +
+                '<div style="font-size:12px;font-weight:700;color:#0d9488;margin-top:2px;">' + escapeHtml(ch.py) + '</div>' +
+                '<div style="font-size:12.5px;margin-top:3px;opacity:.9;">' + escapeHtml(ch.vi) + '</div>' +
+              '</div>' +
+              '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+                '<button type="button" id="htq-buddy-speak" class="htq-stage-chip-btn is-active" style="font-size:11.5px;padding:5px 10px;">🔊 Nghe câu chúc</button>' +
+                '<button type="button" id="htq-buddy-cheer" class="htq-stage-chip-btn" style="font-size:11.5px;padding:5px 10px;">🎉 Cổ vũ</button>' +
+                '<button type="button" id="htq-buddy-swap" class="htq-stage-chip-btn" style="font-size:11.5px;padding:5px 10px;">🐾 Đổi bạn</button>' +
+              '</div>' +
+            '</div>'
+          : '') +
+        '<button type="button" id="htq-buddy-fab" class="htq-buddy-fab htq-float" title="Chạm vào ' + escapeHtml(curComp.name) + ' để nhận lời chúc tiếng Trung ✨">' +
+          '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" />' +
+          '<span class="htq-buddy-dot" aria-hidden="true">✨</span>' +
+        '</button>';
+
+      const fab = dock.querySelector('#htq-buddy-fab');
+      if (fab) fab.onclick = () => { isOpen = !isOpen; renderDock(); };
+      const cl = dock.querySelector('#htq-buddy-close');
+      if (cl) cl.onclick = () => { isOpen = false; renderDock(); };
+      const spk = dock.querySelector('#htq-buddy-speak');
+      if (spk) spk.onclick = () => {
+        try { playPronunciation(ch.zh, ''); } catch (_) {}
+        HTQ_STUDIO_FX.toast('🔊 ' + ch.zh + ' — ' + ch.vi);
+      };
+      const chr = dock.querySelector('#htq-buddy-cheer');
+      if (chr) chr.onclick = () => {
+        cheerIdx = (cheerIdx + 1) % HTQ_CUTE_CHEERS.length;
+        HTQ_STUDIO_FX.confetti(chr, 28);
+        renderDock();
+      };
+      const swp = dock.querySelector('#htq-buddy-swap');
+      if (swp) swp.onclick = () => {
+        const curIdx = HTQ_COMPANIONS_LIST.findIndex(x => x.id === curComp.id);
+        const nxt = HTQ_COMPANIONS_LIST[(curIdx + 1) % HTQ_COMPANIONS_LIST.length];
+        try { localStorage.setItem('httq_companion_id', nxt.id); } catch (_) {}
+        dock.setAttribute('data-htq-buddy', nxt.id);
+        HTQ_STUDIO_FX.confetti(swp, 20);
+        HTQ_STUDIO_FX.toast((nxt.emoji || '🐾') + ' Chào bạn! Mình là ' + nxt.name + ' sẽ học cùng bạn nha!', 'success');
+        renderDock();
+      };
+    };
+
+    document.body.appendChild(dock);
+    renderDock();
+  }
+  window.__xhzBuildCuteBuddyDock = buildCuteBuddyDock;
+
   function mountStudioLayout() {
     if (!htqHydrationSettled) return;
     try {
       const p = window.location.pathname || '/';
+      HTQ_STUDIO_FX.initScrollHairline();
       buildStudioSidebar(p);
       buildHomeWorkspace(p);
       buildSubpageRibbon(p);
+      buildPageExperienceStage(p);
       buildMobileBottomNav(p);
+      buildCuteBuddyDock(p);
     } catch (_e) {}
   }
 

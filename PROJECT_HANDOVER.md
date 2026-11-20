@@ -1,4 +1,4 @@
-# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v13.1
+# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v14.0
 
 - **Production URL**: https://hoctiengtrungquoc.vercel.app
 - **GitHub Repository**: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`)
@@ -78,6 +78,25 @@
 7. **Fallback Ngữ pháp New HSK 4–6 (`/v1/grammar/levels/:lvl`, `/v1/grammar/points`)**: tự động nối sang `hsk-level-4..6.json` khi chưa có file `new-hsk-level-4..6.json`, tránh trang rỗng.
 8. **Nâng cấp `window.__xhzRunDiagnostics()` lên 34/34 kiểm thử không phá hủy dữ liệu**.
 
+### Đợt 4 (v14.1 — Giao Diện Dễ Thương Sinh Động, 10 Ảnh Minh Họa Biên Tập, Hoạt Động Tương Tác & Hệ Hiệu Ứng)
+- Tài liệu chi tiết: [`docs/VISUAL_INTERACTIVE_PLAN_v14.md`](./docs/VISUAL_INTERACTIVE_PLAN_v14.md).
+1. **10 ảnh minh họa biên tập + phong cách storybook dễ thương** trong `images/studio/` (4 tranh mới kawaii ấm áp: `cute-capy-study.jpg`, `cute-panda-dict.jpg`, `cute-music-buddy.jpg`, `cute-lantern-party.jpg` + 6 tranh biên tập học thuật `hero-hanzi-studio.jpg`, `banner-dictionary-calligraphy.jpg`, `banner-listening-speaking.jpg`, `banner-exam-hall.jpg`, `banner-review-srs.jpg`, `banner-games-arcade.jpg`, tối ưu 45–146 KB, cache CDN & SW `htq-studio-v14`) kết hợp trưng bày kho 76 ảnh WebP sẵn có (tự chuyển sáng/tối `images/home/dark/*.webp` khi đổi Dark Mode).
+2. **Nâng cấp Trang chủ (`/`)**: tông nền giấy kem ấm + ánh cam đào/tím/ngọc bích mềm mại, bo góc `24px`, hiệu ứng nảy lò xo nhẹ khi hover, Hero Capybara kính tròn + trà sữa, thẻ **Chữ Hán Hôm Nay 3D Flip** nền ô Mễ Tự Cách (米字格), ảnh minh họa cho 6 thẻ kỹ năng & hiệu ứng đếm số KPI mượt (`animateCountUp`).
+3. **Bạn Học Đồng Hành Nổi Dễ Thương (`#htq-buddy-dock`)** ở góc trái dưới (tránh hoàn toàn nút chat góc phải & thanh Mobile Bottom Nav, tự ẩn trong phòng thi/bài học): chạm mở bong bóng thoại cổ vũ tiếng Trung thật (`加油！你真棒！`, `喝杯奶茶休息一下吧！`...), nghe phát âm `🔊`, bắn pháo hoa cổ vũ & xoay vòng đổi cả **8 bạn đồng hành** (`Capy 🦫`, `Bánh Bao 🥟`, `Tiểu Mãn 🌸`, `Hạ Vũ ☔`, `Lục Thần 🌿`, `Dương Dương ☀️`, `Mai 🌺`, `Mặc Ngôn 🖋️`).
+4. **10 sân khấu hoạt động tương tác riêng theo từng nhóm trang (`#htq-page-stage`, có nút Thu gọn/Mở rộng)**:
+   - `/hoc`, `/lo-trinh`: **Đổi 8 Bạn đồng hành trực tiếp** + vòng SVG tiến độ HSK 1.
+   - `/on-tap`, `/so-tay`: **Thẻ lật 3D khởi động SRS** nối thẳng `/v2/review/signals`.
+   - `/tra-chu`, `/han-tu`, `/tu-vung`, `/han-viet`: Banner Bé Gấu Trúc Đỏ + **Thanh nghe 4 thanh điệu mẫu (`mā má mǎ mà`)** có sóng âm Equalizer + chip bộ thủ & tra chữ ngẫu nhiên.
+   - `/thu-vien*`: **Thanh độ phủ từ vựng Shimmer** + lối tắt luyện tập.
+   - `/luyen-nghe`, `/luyen-noi`, `/luyen-chep-chinh-ta`: Banner Capy đeo tai nghe + **Khởi động tai nhận diện 4 thanh điệu** có đếm chuỗi đúng + sóng âm Equalizer.
+   - `/luyen-go*`: **Mini Pinyin Sprint** gõ không dấu + Combo counter + lưu tiến độ.
+   - `/kiem-tra-hsk`, `/de-kiem-tra`, `/kiem-tra-ngu-phap`, `/ngu-phap`: **Widget Kế hoạch & Đếm ngược kỳ thi HSK** nối trực tiếp `/v2/me/exam-plan` & `/v2/me/score-prediction`.
+   - `/tro-choi*`: Banner Lễ hội Đèn lồng Capy & Bé Thỏ + **Đố vui Thành ngữ 4 chữ trong ngày** có ô chữ + giải nghĩa + phát âm.
+   - `/tao-vo-tap-viet`, `/luyen-viet`, `/dich-tieng-trung`, `/them-pinyin`, `/cong-cu`: **Nạp nhanh mẫu chữ/mẫu câu 1 chạm**.
+   - `/tai-khoan`: **Thẻ Cấp bậc Học giả & 4 Tem Thưởng Dễ Thương** (`🧋 Trà Sữa Chăm Chỉ`, `🐼 Gấu Trúc Từ Vựng`, `🥟 Bánh Bao Ngữ Pháp`, `🏮 Đèn Lồng Khảo Thí`) tính từ XP học tập thực tế.
+5. **Hệ hiệu ứng toàn cục `window.__xhzStudioFx`**: thanh tiến độ cuộn trang 2.5px, pháo hoa giấy canvas (`confetti`), thông báo nổi (`toast`), đếm số (`animateCountUp`), sóng âm Equalizer (`pulseEq`), tôn trọng tuyệt đối `prefers-reduced-motion` và giữ `0` lỗi React hydration.
+6. **Nâng cấp `window.__xhzRunDiagnostics()` lên 39/39 kiểm thử không phá hủy dữ liệu**.
+
 ---
 
 ## 3. Kiến trúc & Lệnh nhanh cho máy mới
@@ -100,11 +119,11 @@ node scripts/dev-server.mjs
 ## 4. Prompt dán nhanh khi tiếp tục trên trình duyệt / phiên AI khác
 
 ```text
-Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v13.1) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
+Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v14.0) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
 
 Hãy thực hiện các bước sau trước khi bắt đầu:
 1. Clone hoặc cập nhật nhánh `main`:
    git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git (hoặc `git pull origin main`).
-2. Đọc `PROJECT_HANDOVER.md`, `xiehanzi-runtime.js`, `api/ai.js`, `sw.js`, `site.webmanifest`, `vercel.json`. Giữ nguyên 100% giao diện Hanzi Studio v4, cơ chế tách kho theo tài khoản (`initializeScopedStorage`) và không làm mất dữ liệu trong `httq_progress_v2`, `xhz-seen-words-v1`, `xhz-practice-v1`, `httq_state`.
-3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `34/34`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
+2. Đọc `PROJECT_HANDOVER.md`, `docs/VISUAL_INTERACTIVE_PLAN_v14.md`, `xiehanzi-runtime.js`, `api/ai.js`, `sw.js`, `site.webmanifest`, `vercel.json`. Giữ nguyên 100% giao diện Hanzi Studio v4, cơ chế tách kho theo tài khoản (`initializeScopedStorage`) và không làm mất dữ liệu trong `httq_progress_v2`, `xhz-seen-words-v1`, `xhz-practice-v1`, `httq_state`.
+3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `39/39`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
 ```
