@@ -1,4 +1,4 @@
-# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v14.0
+# PROJECT HANDOVER — Học Tiếng Trung (`saochepweb`) v15.0
 
 - **Production URL**: https://hoctiengtrungquoc.vercel.app
 - **GitHub Repository**: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`)
@@ -97,6 +97,14 @@
 5. **Hệ hiệu ứng toàn cục `window.__xhzStudioFx`**: thanh tiến độ cuộn trang 2.5px, pháo hoa giấy canvas (`confetti`), thông báo nổi (`toast`), đếm số (`animateCountUp`), sóng âm Equalizer (`pulseEq`), tôn trọng tuyệt đối `prefers-reduced-motion` và giữ `0` lỗi React hydration.
 6. **Nâng cấp `window.__xhzRunDiagnostics()` lên 39/39 kiểm thử không phá hủy dữ liệu**.
 
+### Đợt 5 (v15.0 — Vườn Thú Cưng Hán Ngữ, 8 Sticker SVG Dễ Thương, Hoa Anh Đào Rơi & Bốc Quẻ May Mắn)
+1. **19 tài nguyên đồ họa tùy chỉnh trong `images/studio/`**: bổ sung [cute-bunny-writing.jpg](./images/studio/cute-bunny-writing.jpg) (Bé Thỏ tập viết cùng mây cười & hoa anh đào cho `/tao-vo-tap-viet`, `/luyen-viet`, `/flashcard-pdf`) + **8 Sticker SVG Kawaii thiết kế tay** (`images/studio/stickers/`: `boba.svg`, `panda.svg`, `baozi.svg`, `lantern.svg`, `sakura.svg`, `bunny.svg`, `star.svg`, `heart.svg`).
+2. **Album 8 Sticker Sưu Tập + Vuốt ve Bạn Đồng Hành (`buddyHearts`) + Đổi 8 Nhân Vật trực tiếp trên `/tai-khoan`**: lưu độ thân thiết `buddyHearts` không phá hủy trong `httq_progress_v2` và đồng bộ cloud qua `mergeProgressObjects`.
+3. **Vườn Thú Cưng Hán Ngữ & Bộ Sưu Tập 5 Góc Học Storybook trên Trang Chủ (`/`)**: trưng bày 5 tranh storybook dẫn thẳng sang Học HSK 3.0, Tra Chữ, Nghe-Nói AI, Tập Viết Bé Thỏ và Lễ Hội Sticker, kèm nút `🫶 Vuốt ve (+1 ❤️)`, `🎁 Bốc quẻ may mắn` và `🌸 Hoa rơi: Bật/Tắt`.
+4. **Hiệu ứng Hoa Anh Đào & Sao Lấp Lánh bay nhẹ (`#htq-ambient-petals`) + Tia Lấp Lánh khi chạm (`HTQ_STUDIO_FX.sparkle`)**: cực nhẹ, `pointer-events: none`, tự ẩn khi làm bài/thi hoặc khi bật `prefers-reduced-motion`, có công tắc Bật/Tắt 1 chạm trong bong bóng Bạn đồng hành & Trang chủ.
+5. **Bốc Quẻ May Mắn Tiếng Trung (`🎁 Bốc quẻ`) trên `/` & `/tro-choi`** (8 câu chúc cát tường kèm Pinyin, nghĩa Việt, phát âm `zh-CN` & confetti).
+6. **Nâng cấp `window.__xhzRunDiagnostics()` lên 41/41 kiểm thử không phá hủy dữ liệu** & Service Worker `htq-studio-v15`.
+
 ---
 
 ## 3. Kiến trúc & Lệnh nhanh cho máy mới
@@ -119,11 +127,11 @@ node scripts/dev-server.mjs
 ## 4. Prompt dán nhanh khi tiếp tục trên trình duyệt / phiên AI khác
 
 ```text
-Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v14.0) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
+Tôi đang tiếp tục phát triển và hoàn thiện dự án web học tiếng Trung (Hanzi Studio v4 — bản v15.0) tại https://hoctiengtrungquoc.vercel.app, mã nguồn GitHub: https://github.com/hungktkthd/saochepweb (nhánh `main` + 6 nhánh `media-*`), Supabase project `skxgzzdunqloxxombtuc`.
 
 Hãy thực hiện các bước sau trước khi bắt đầu:
 1. Clone hoặc cập nhật nhánh `main`:
    git clone --branch main --single-branch https://github.com/hungktkthd/saochepweb.git (hoặc `git pull origin main`).
 2. Đọc `PROJECT_HANDOVER.md`, `docs/VISUAL_INTERACTIVE_PLAN_v14.md`, `xiehanzi-runtime.js`, `api/ai.js`, `sw.js`, `site.webmanifest`, `vercel.json`. Giữ nguyên 100% giao diện Hanzi Studio v4, cơ chế tách kho theo tài khoản (`initializeScopedStorage`) và không làm mất dữ liệu trong `httq_progress_v2`, `xhz-seen-words-v1`, `xhz-practice-v1`, `httq_state`.
-3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `39/39`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
+3. Kiểm tra sức khỏe hệ thống bằng `await window.__xhzRunDiagnostics()` trên Console trình duyệt (phải đạt `41/41`, `failed: 0`), sau đó tiếp tục yêu cầu mới của tôi: [MÔ TẢ YÊU CẦU MỚI TẠI ĐÂY].
 ```

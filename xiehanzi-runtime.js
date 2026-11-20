@@ -311,10 +311,89 @@ body {
   box-shadow: 0 22px 52px -12px rgba(0,0,0,.72);
 }
 
+/* === v15.0 KAWAII AMBIENT PETALS, TAP SPARKLES, STORYBOOK GALLERY & STICKER ALBUM === */
+@keyframes htqPetalDrift {
+  0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 0; }
+  12% { opacity: .68; }
+  85% { opacity: .55; }
+  100% { transform: translate3d(34px, 106vh, 0) rotate(260deg); opacity: 0; }
+}
+@keyframes htqSparklePop {
+  0% { transform: translate(0, 0) scale(.4); opacity: 1; }
+  60% { opacity: 1; }
+  100% { transform: translate(var(--sx, 0px), var(--sy, -26px)) scale(1.15) rotate(18deg); opacity: 0; }
+}
+#htq-ambient-petals {
+  position: fixed; inset: 0; pointer-events: none; z-index: 2; overflow: hidden;
+}
+.htq-petal {
+  position: absolute; top: -28px; font-size: 14px; line-height: 1; user-select: none;
+  animation: htqPetalDrift var(--dur, 14s) linear var(--del, 0s) infinite;
+  filter: drop-shadow(0 2px 4px rgba(244,114,182,.25));
+}
+.htq-sparkle-dot {
+  position: fixed; pointer-events: none; z-index: 99997; font-size: 15px; line-height: 1; user-select: none;
+  animation: htqSparklePop .68s cubic-bezier(.22,1,.36,1) forwards;
+}
+
+/* Home Cozy Storybook Gallery Strip */
+.htq-cute-gallery-panel {
+  margin-top: 1.25rem; border-radius: 24px; padding: 1.2rem 1.35rem;
+  background: linear-gradient(135deg, rgba(255,253,248,.92), rgba(254,242,242,.72) 48%, rgba(240,253,250,.85));
+  border: 1.5px solid rgba(244,114,182,.22);
+  box-shadow: 0 16px 38px -22px rgba(236,72,153,.20);
+}
+.dark .htq-cute-gallery-panel {
+  background: linear-gradient(135deg, rgba(20,24,44,.92), rgba(34,20,44,.84) 50%, rgba(16,32,42,.90));
+  border-color: rgba(244,114,182,.26);
+}
+.htq-cute-gallery-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: .8rem; margin-top: .85rem;
+}
+.htq-story-card {
+  position: relative; display: flex; flex-direction: column; border-radius: 18px; overflow: hidden;
+  text-decoration: none; border: 1.5px solid rgba(99,102,241,.16); background: rgba(255,255,255,.92);
+  box-shadow: 0 10px 24px -16px rgba(15,23,42,.18);
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .22s ease, border-color .2s ease;
+}
+.dark .htq-story-card { background: rgba(24,29,52,.90); border-color: rgba(129,140,248,.22); }
+.htq-story-card:hover { transform: translateY(-4px) scale(1.02); border-color: #f472b6; box-shadow: 0 18px 30px -16px rgba(236,72,153,.32); }
+.htq-story-card-img-wrap { width: 100%; aspect-ratio: 16/9; overflow: hidden; background: #1e1b4b; }
+.htq-story-card-img-wrap > img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .5s cubic-bezier(.22,1,.36,1); }
+.htq-story-card:hover .htq-story-card-img-wrap > img { transform: scale(1.07); }
+.htq-story-card-cap { padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; gap: 6px; font-size: 12.5px; font-weight: 800; color: #1e1b4b; }
+.dark .htq-story-card-cap { color: #f8fafc; }
+
+/* Collectible Kawaii SVG Sticker Album (Account & Companion Hub) */
+.htq-sticker-grid {
+  display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
+}
+@media (max-width: 560px) { .htq-sticker-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.htq-sticker-tile {
+  cursor: pointer; padding: 8px 6px; border-radius: 18px; text-align: center;
+  border: 1.5px solid rgba(148,163,184,.28); background: rgba(255,253,249,.75); color: inherit;
+  display: flex; flex-direction: column; align-items: center; gap: 3px;
+  transition: transform .25s cubic-bezier(.34,1.56,.64,1), box-shadow .2s ease, border-color .2s ease;
+}
+.dark .htq-sticker-tile { background: rgba(24,29,52,.78); border-color: rgba(129,140,248,.24); }
+.htq-sticker-tile.is-unlocked {
+  border-color: rgba(244,114,182,.45);
+  background: linear-gradient(180deg, rgba(254,243,199,.58), rgba(252,231,243,.45));
+}
+.dark .htq-sticker-tile.is-unlocked {
+  border-color: rgba(244,114,182,.48);
+  background: linear-gradient(180deg, rgba(67,56,202,.28), rgba(157,23,77,.24));
+}
+.htq-sticker-tile:hover { transform: translateY(-3px) scale(1.04) rotate(-1.5deg); box-shadow: 0 12px 22px -12px rgba(236,72,153,.38); }
+.htq-sticker-tile > img { width: 44px; height: 44px; display: block; transition: transform .25s cubic-bezier(.34,1.56,.64,1); }
+.htq-sticker-tile:not(.is-unlocked) > img { filter: grayscale(.65) opacity(.68); }
+.htq-sticker-tile:hover > img { transform: scale(1.12) rotate(4deg); }
+
 @media (prefers-reduced-motion: reduce) {
-  .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble {
+  .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble, .htq-petal, .htq-sparkle-dot {
     animation: none !important; transition: none !important;
   }
+  #htq-ambient-petals { display: none !important; }
   .htq-flip-inner { transition: none !important; }
 }
 `;
@@ -1288,6 +1367,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       gradingUsed: Math.max(Number(remoteP.gradingUsed) || 0, Number(localP.gradingUsed) || 0),
       voiceUsed: Math.max(Number(remoteP.voiceUsed) || 0, Number(localP.voiceUsed) || 0),
       longestStreak: Math.max(Number(remoteP.longestStreak) || 0, Number(localP.longestStreak) || 0),
+      buddyHearts: Math.max(Number(remoteP.buddyHearts) || 0, Number(localP.buddyHearts) || 0),
       examPlan: newer.examPlan !== undefined ? newer.examPlan : (localP.examPlan || remoteP.examPlan || null),
       companionInboxReadIds: [...new Set([...(remoteP.companionInboxReadIds || []), ...(localP.companionInboxReadIds || [])])].filter(Boolean),
       currentStageKey: newer.currentStageKey || localP.currentStageKey || 'hsk30.L1.P1',
@@ -2125,7 +2205,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         return Boolean(lv4 && Array.isArray(lv4.items) && lv4.items.length > 0 && lv4.fallbackFrom === 'hsk' && lv4Meta && Number(lv4Meta.count) > 0);
       });
       await runCheck('studio-assets-available', async () => {
-        const banners = [
+        const assets = [
           '/images/studio/hero-hanzi-studio.jpg',
           '/images/studio/banner-dictionary-calligraphy.jpg',
           '/images/studio/banner-listening-speaking.jpg',
@@ -2135,14 +2215,23 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           '/images/studio/cute-capy-study.jpg',
           '/images/studio/cute-panda-dict.jpg',
           '/images/studio/cute-music-buddy.jpg',
-          '/images/studio/cute-lantern-party.jpg'
+          '/images/studio/cute-lantern-party.jpg',
+          '/images/studio/cute-bunny-writing.jpg',
+          '/images/studio/stickers/boba.svg',
+          '/images/studio/stickers/panda.svg',
+          '/images/studio/stickers/baozi.svg',
+          '/images/studio/stickers/lantern.svg',
+          '/images/studio/stickers/sakura.svg',
+          '/images/studio/stickers/bunny.svg',
+          '/images/studio/stickers/star.svg',
+          '/images/studio/stickers/heart.svg'
         ];
-        const resList = await Promise.all(banners.map(u => originalFetch(u, { method: 'HEAD' }).catch(() => ({ ok: false }))));
+        const resList = await Promise.all(assets.map(u => originalFetch(u, { method: 'HEAD' }).catch(() => ({ ok: false }))));
         return resList.every(r => r && r.ok);
       });
       await runCheck('studio-fx-engine', () => {
         const fx = window.__xhzStudioFx;
-        return Boolean(fx && typeof fx.confetti === 'function' && typeof fx.toast === 'function' && typeof fx.animateCountUp === 'function' && typeof fx.pulseEq === 'function');
+        return Boolean(fx && typeof fx.confetti === 'function' && typeof fx.toast === 'function' && typeof fx.animateCountUp === 'function' && typeof fx.pulseEq === 'function' && typeof fx.sparkle === 'function');
       });
       await runCheck('studio-stage-resolver', () => {
         if (typeof window.__xhzResolvePageStageConfig !== 'function') return false;
@@ -2160,6 +2249,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
       await runCheck('studio-cute-buddy', () => {
         return Boolean(typeof window.__xhzBuildCuteBuddyDock === 'function' && Array.isArray(window.__xhzCuteCheers) && window.__xhzCuteCheers.length >= 8);
+      });
+      await runCheck('studio-pet-hearts', () => {
+        const m = mergeProgressObjects({ buddyHearts: 3 }, { buddyHearts: 7 });
+        return Boolean(m.buddyHearts === 7 && window.__xhzStudioFx && typeof window.__xhzStudioFx.petBuddy === 'function');
+      });
+      await runCheck('studio-ambient-petals', () => {
+        return Boolean(window.__xhzStudioFx && typeof window.__xhzStudioFx.syncAmbientPetals === 'function' && Array.isArray(window.__xhzLuckyFortunes) && window.__xhzLuckyFortunes.length >= 8);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -13497,9 +13593,99 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         update();
       } catch (_) {}
     };
-    return { prefersReducedMotion, toast, confetti, animateCountUp, pulseEq, initScrollHairline };
+    const sparkle = (anchorEl = null) => {
+      try {
+        if (prefersReducedMotion() || !document.body || window.__xhzDiagRunning) return;
+        let ox = window.innerWidth * 0.5;
+        let oy = window.innerHeight * 0.4;
+        if (anchorEl && typeof anchorEl.getBoundingClientRect === 'function') {
+          const r = anchorEl.getBoundingClientRect();
+          if (r.width > 0 || r.height > 0) {
+            ox = r.left + r.width / 2;
+            oy = r.top + r.height / 2;
+          }
+        }
+        const icons = ['✨', '🌸', '⭐', '💖', '🌼', '💫'];
+        for (let i = 0; i < 6; i++) {
+          const sp = document.createElement('span');
+          sp.className = 'htq-sparkle-dot';
+          sp.textContent = icons[i % icons.length];
+          const ang = (Math.PI * 2 * i) / 6 + (Math.random() - 0.5) * 0.4;
+          const dist = 24 + Math.random() * 26;
+          sp.style.left = (ox - 8) + 'px';
+          sp.style.top = (oy - 8) + 'px';
+          sp.style.setProperty('--sx', Math.round(Math.cos(ang) * dist) + 'px');
+          sp.style.setProperty('--sy', Math.round(Math.sin(ang) * dist - 12) + 'px');
+          document.body.appendChild(sp);
+          setTimeout(() => { try { sp.remove(); } catch (_) {} }, 720);
+        }
+      } catch (_) {}
+    };
+    const petBuddy = (anchorEl = null) => {
+      const prog = getRealProgress();
+      const nextHearts = (Number(prog.buddyHearts) || 0) + 1;
+      prog.buddyHearts = nextHearts;
+      saveRealProgress(prog);
+      supabaseUpsert(getLocalState()).catch(() => {});
+      const reactions = [
+        { zh: '摸摸头好舒服呀！', py: 'Mōmo tóu hǎo shūfu ya!', vi: 'Vuốt đầu dễ chịu quá đi!' },
+        { zh: '谢谢你陪我学中文！', py: 'Xièxie nǐ péi wǒ xué Zhōngwén!', vi: 'Cảm ơn bạn học tiếng Trung cùng mình!' },
+        { zh: '给你一颗小红花！', py: 'Gěi nǐ yī kē xiǎo hónghuā!', vi: 'Tặng bạn một bông hoa đỏ bé ngoan nè!' },
+        { zh: '我们是最好的学习伙伴！', py: 'Wǒmen shì zuì hǎo de xuéxí huǒbàn!', vi: 'Tụi mình là đôi bạn học ăn ý nhất!' }
+      ];
+      const rx = reactions[nextHearts % reactions.length];
+      sparkle(anchorEl);
+      confetti(anchorEl, 22);
+      try { playPronunciation(rx.zh, 'tts'); } catch (_) {}
+      toast('💖 ' + rx.zh + ' (' + rx.vi + ') · Thân thiết ❤️ ' + nextHearts, 'success');
+      return { hearts: nextHearts, reaction: rx };
+    };
+    const isPetalsEnabled = () => {
+      try { return localStorage.getItem('htq_ambient_petals') !== '0'; } catch (_) { return true; }
+    };
+    const syncAmbientPetals = (curPath = '/') => {
+      try {
+        const norm = (curPath || '/').replace(/\/+$/, '') || '/';
+        const existing = document.getElementById('htq-ambient-petals');
+        const busy = /^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/bai\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai)/.test(norm) || Boolean(document.getElementById('xhz-lesson-runner-root'));
+        if (busy || prefersReducedMotion() || !isPetalsEnabled() || !document.body) {
+          if (existing) existing.remove();
+          return;
+        }
+        if (existing) return;
+        const layer = document.createElement('div');
+        layer.id = 'htq-ambient-petals';
+        layer.setAttribute('aria-hidden', 'true');
+        const seeds = [
+          { ico: '🌸', left: '4%', dur: '16s', del: '0s', size: '14px' },
+          { ico: '✨', left: '19%', dur: '19s', del: '-5s', size: '12px' },
+          { ico: '🌸', left: '37%', dur: '15s', del: '-9s', size: '13px' },
+          { ico: '⭐', left: '54%', dur: '21s', del: '-3s', size: '11px' },
+          { ico: '🌸', left: '72%', dur: '17s', del: '-12s', size: '15px' },
+          { ico: '✨', left: '88%', dur: '18s', del: '-7s', size: '12px' },
+          { ico: '🌸', left: '95%', dur: '14s', del: '-2s', size: '13px' }
+        ];
+        layer.innerHTML = seeds.map(s =>
+          '<span class="htq-petal" style="left:' + s.left + ';--dur:' + s.dur + ';--del:' + s.del + ';font-size:' + s.size + ';">' + s.ico + '</span>'
+        ).join('');
+        document.body.appendChild(layer);
+      } catch (_) {}
+    };
+    return { prefersReducedMotion, toast, confetti, sparkle, petBuddy, isPetalsEnabled, syncAmbientPetals, animateCountUp, pulseEq, initScrollHairline };
   })();
   window.__xhzStudioFx = HTQ_STUDIO_FX;
+
+  const HTQ_LUCKY_FORTUNES = [
+    { zh: '大吉大利', py: 'Dà jí dà lì', vi: 'Đại cát đại lợi — Hôm nay học gì cũng vào đầu cực nhanh!' },
+    { zh: '学业进步', py: 'Xuéyè jìnbù', vi: 'Học hành tấn tới — Sắp lên hạng HSK mới rồi đó!' },
+    { zh: '心想事成', py: 'Xīn xiǎng shì chéng', vi: 'Cầu được ước thấy — Mọi mục tiêu tiếng Trung đều thành hiện thực!' },
+    { zh: '笑口常开', py: 'Xiào kǒu cháng kāi', vi: 'Luôn tươi cười rạng rỡ — Học vui nhớ lâu gấp đôi!' },
+    { zh: '一帆风顺', py: 'Yī fān fēng shùn', vi: 'Thuận buồm xuôi gió — Thi thử HSK trơn tru đạt điểm cao!' },
+    { zh: '天天开心', py: 'Tiāntiān kāixīn', vi: 'Mỗi ngày đều vui vẻ — Tự thưởng ly trà sữa thôi nào 🧋' },
+    { zh: '万事如意', py: 'Wànshì rúyì', vi: 'Vạn sự như ý — Gõ Pinyin chuẩn xác không sai một thanh!' },
+    { zh: '前程似锦', py: 'Qiánchéng sì jǐn', vi: 'Tương lai rạng rỡ — Kiên trì mỗi ngày sẽ hái quả ngọt!' }
+  ];
+  window.__xhzLuckyFortunes = HTQ_LUCKY_FORTUNES;
 
   const HTQ_DAILY_HANZI_POOL = [
     { hanzi: '学', pinyin: 'xué', hv: 'HỌC', meaning: 'học tập, nghiên cứu', example: '我每天学习中文。(Tôi học tiếng Trung mỗi ngày.)' },
@@ -13825,9 +14011,70 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '<a href="/flashcard-pdf/" class="htq-quick-item"><span>📇</span><span>Flashcard PDF</span></a>' +
           '</div>' +
         '</div>' +
+      '</div>' +
+      '<div class="htq-cute-gallery-panel" id="htq-home-cute-gallery">' +
+        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">' +
+          '<div>' +
+            '<div style="font-size:15px;font-weight:900;color:#be185d;">🌸 Vườn Thú Cưng Hán Ngữ · Khám Phá 5 Góc Học Dễ Thương</div>' +
+            '<div id="htq-home-fortune-line" style="font-size:12.5px;opacity:.82;margin-top:2px;">Độ thân thiết cùng ' + escapeHtml(compObj.name) + ': <strong id="htq-home-hearts-val">❤️ ' + Number((summary.prog && summary.prog.buddyHearts) || 0) + '</strong> · Chạm vào các nút dễ thương bên cạnh nhé!</div>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:7px;">' +
+            '<button type="button" id="htq-home-pet-btn" class="htq-stage-chip-btn is-active">🫶 Vuốt ve ' + escapeHtml(compObj.name) + ' (+1 ❤️)</button>' +
+            '<button type="button" id="htq-home-fortune-btn" class="htq-stage-chip-btn">🎁 Bốc quẻ may mắn</button>' +
+            '<button type="button" id="htq-home-petals-btn" class="htq-stage-chip-btn">' + (HTQ_STUDIO_FX.isPetalsEnabled() ? '🌸 Hoa rơi: Bật' : '🌸 Hoa rơi: Tắt') + '</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="htq-cute-gallery-grid">' +
+          [
+            ['/images/studio/cute-capy-study.jpg', '🦫 Capy Học HSK 3.0', '/hoc/'],
+            ['/images/studio/cute-panda-dict.jpg', '🐼 Gấu Trúc Tra Chữ', '/tra-chu/'],
+            ['/images/studio/cute-music-buddy.jpg', '🎧 Capy Nghe · Nói AI', '/luyen-nghe/'],
+            ['/images/studio/cute-bunny-writing.jpg', '🐰 Bé Thỏ Tập Viết', '/tao-vo-tap-viet/'],
+            ['/images/studio/cute-lantern-party.jpg', '🏮 Lễ Hội & Sticker', '/tai-khoan/']
+          ].map(([imgSrc, label, href]) =>
+            '<a href="' + href + '" class="htq-story-card">' +
+              '<div class="htq-story-card-img-wrap"><img src="' + imgSrc + '" alt="' + escapeHtml(label) + '" loading="eager" /></div>' +
+              '<div class="htq-story-card-cap"><span>' + label + '</span><span style="opacity:.6;">→</span></div>' +
+            '</a>'
+          ).join('') +
+        '</div>' +
       '</div>';
 
     traCuu.parentElement.insertBefore(sec, traCuu.nextSibling);
+
+    // Wire Home Cozy Pet Garden controls via window capture-phase bindStudioClick
+    const homePetBtn = sec.querySelector('#htq-home-pet-btn');
+    const homeHeartsEl = sec.querySelector('#htq-home-hearts-val');
+    const homeFortuneBtn = sec.querySelector('#htq-home-fortune-btn');
+    const homeFortuneLine = sec.querySelector('#htq-home-fortune-line');
+    const homePetalsBtn = sec.querySelector('#htq-home-petals-btn');
+    if (homePetBtn) {
+      bindStudioClick(homePetBtn, () => {
+        const res = HTQ_STUDIO_FX.petBuddy(homePetBtn);
+        if (homeHeartsEl) homeHeartsEl.textContent = '❤️ ' + res.hearts;
+      });
+    }
+    if (homeFortuneBtn) {
+      bindStudioClick(homeFortuneBtn, () => {
+        const ft = HTQ_LUCKY_FORTUNES[Math.floor(Math.random() * HTQ_LUCKY_FORTUNES.length)];
+        HTQ_STUDIO_FX.sparkle(homeFortuneBtn);
+        HTQ_STUDIO_FX.confetti(homeFortuneBtn, 20);
+        try { playPronunciation(ft.zh, 'tts'); } catch (_) {}
+        if (homeFortuneLine) {
+          homeFortuneLine.innerHTML = '🎁 Quẻ may mắn: <strong style="color:#4f46e5;">' + escapeHtml(ft.zh) + '</strong> (' + escapeHtml(ft.py) + ') — ' + escapeHtml(ft.vi);
+        }
+        HTQ_STUDIO_FX.toast('🎁 ' + ft.zh + ' — ' + ft.vi, 'success');
+      });
+    }
+    if (homePetalsBtn) {
+      bindStudioClick(homePetalsBtn, () => {
+        const nextOn = !HTQ_STUDIO_FX.isPetalsEnabled();
+        try { localStorage.setItem('htq_ambient_petals', nextOn ? '1' : '0'); } catch (_) {}
+        HTQ_STUDIO_FX.syncAmbientPetals(window.location.pathname || '/');
+        homePetalsBtn.textContent = nextOn ? '🌸 Hoa rơi: Bật' : '🌸 Hoa rơi: Tắt';
+        HTQ_STUDIO_FX.toast(nextOn ? '🌸 Đã bật hiệu ứng hoa anh đào rơi nhẹ!' : '🌸 Đã tắt hiệu ứng hoa rơi');
+      });
+    }
 
     // Wire interactive 3D Daily Hanzi Flip Card
     const cardWrap = sec.querySelector('#htq-daily-hanzi-card');
@@ -13939,10 +14186,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const isWriting = /^\/(tao-vo-tap-viet|luyen-viet|tai-gif-but-thuan|flashcard-pdf)/.test(norm);
       return {
         id: isWriting ? 'tools-writing' : 'tools-translate',
-        banner: isWriting ? '/images/studio/banner-dictionary-calligraphy.jpg' : '/images/studio/banner-games-arcade.jpg',
-        badge: isWriting ? 'Xưởng Thư pháp & In ấn' : 'Trợ lý Dịch AI & Pinyin',
-        title: isWriting ? 'Nạp Nhanh Bộ Chữ Mẫu 1 Chạm' : 'Nạp Nhanh Mẫu Câu Giao Tiếp Thực Tế',
-        sub: isWriting ? 'Chọn ngay nhóm từ chuẩn HSK hoặc từ bạn đã học để tạo tờ luyện viết.' : 'Bấm một câu mẫu bên dưới để nạp tức thì vào khung và nghe phát âm.'
+        banner: isWriting ? '/images/studio/cute-bunny-writing.jpg' : '/images/studio/banner-games-arcade.jpg',
+        badge: isWriting ? 'Xưởng Tập Viết Bé Thỏ' : 'Trợ lý Dịch AI & Pinyin',
+        title: isWriting ? 'Nạp Nhanh Bộ Chữ Mẫu 1 Chạm Cùng Bé Thỏ' : 'Nạp Nhanh Mẫu Câu Giao Tiếp Thực Tế',
+        sub: isWriting ? 'Chọn ngay nhóm từ chuẩn HSK hoặc từ bạn đã học để tạo tờ luyện viết siêu xinh.' : 'Bấm một câu mẫu bên dưới để nạp tức thì vào khung và nghe phát âm.'
       };
     }
     if (/^\/(tai-khoan|dang-nhap|dang-ky)/.test(norm)) {
@@ -14405,14 +14652,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 '<span class="htq-mizige" data-cy-slot="' + i + '" style="width:44px;height:44px;font-size:22px;font-weight:900;color:' + (i === it.blankIdx ? '#e11d48' : '#4f46e5') + ';">' + (i === it.blankIdx ? '?' : escapeHtml(ch)) + '</span>'
               ).join('') +
             '</div>' +
-            '<button type="button" id="htq-cy-next" class="htq-stage-chip-btn">🎲 Câu khác</button>' +
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+              '<button type="button" id="htq-cy-fortune" class="htq-stage-chip-btn is-active">🎁 Bốc quẻ</button>' +
+              '<button type="button" id="htq-cy-next" class="htq-stage-chip-btn">🎲 Câu khác</button>' +
+            '</div>' +
           '</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
             it.opts.map(op => '<button type="button" class="htq-stage-chip-btn" data-cy-opt="' + escapeHtml(op) + '" style="font-size:17px;padding:6px 14px;">' + escapeHtml(op) + '</button>').join('') +
           '</div>' +
           '<div id="htq-cy-res" style="font-size:12.5px;font-weight:700;opacity:.85;">Nghĩa gợi ý: “' + escapeHtml(it.meaning) + '”</div>';
         host.querySelectorAll('[data-cy-opt]').forEach(btn => {
-          btn.addEventListener('click', () => {
+          bindStudioClick(btn, () => {
             const pick = btn.getAttribute('data-cy-opt');
             const resEl = host.querySelector('#htq-cy-res');
             if (pick === it.answer) {
@@ -14420,17 +14670,27 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               if (slot) { slot.textContent = it.answer; slot.style.color = '#0d9488'; slot.classList.add('htq-pop'); }
               btn.classList.add('is-active');
               recordStudyProgress({ words: [it.full] });
+              HTQ_STUDIO_FX.sparkle(btn);
               HTQ_STUDIO_FX.confetti(btn, 26);
               if (resEl) resEl.innerHTML = '<span style="color:#0d9488;">🎉 Chuẩn xác! <strong>' + escapeHtml(it.full) + '</strong> (' + escapeHtml(it.pinyin) + ') — ' + escapeHtml(it.meaning) + '</span>';
-              try { playPronunciation(it.full, ''); } catch (_) {}
+              try { playPronunciation(it.full, 'tts'); } catch (_) {}
             } else {
               btn.classList.add('htq-shake'); setTimeout(() => btn.classList.remove('htq-shake'), 300);
               HTQ_STUDIO_FX.toast('Thử chọn chữ Hán khác nhé!', 'warn');
             }
           });
         });
+        const ftBtn = host.querySelector('#htq-cy-fortune');
+        if (ftBtn) bindStudioClick(ftBtn, () => {
+          const ft = HTQ_LUCKY_FORTUNES[Math.floor(Math.random() * HTQ_LUCKY_FORTUNES.length)];
+          const resEl = host.querySelector('#htq-cy-res');
+          HTQ_STUDIO_FX.sparkle(ftBtn);
+          HTQ_STUDIO_FX.confetti(ftBtn, 22);
+          try { playPronunciation(ft.zh, 'tts'); } catch (_) {}
+          if (resEl) resEl.innerHTML = '<span style="color:#be185d;">🎁 Quẻ may mắn: <strong>' + escapeHtml(ft.zh) + '</strong> (' + escapeHtml(ft.py) + ') — ' + escapeHtml(ft.vi) + '</span>';
+        });
         const nx = host.querySelector('#htq-cy-next');
-        if (nx) nx.onclick = () => { cIdx = (cIdx + 1) % HTQ_CHENGYU_POOL.length; renderChengyu(); };
+        if (nx) bindStudioClick(nx, () => { cIdx = (cIdx + 1) % HTQ_CHENGYU_POOL.length; renderChengyu(); });
       };
       renderChengyu();
       return;
@@ -14480,57 +14740,105 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return;
     }
 
-    // 10) ACCOUNT & AUTH: Scholar Rank & Real Achievement Badges Card
+    // 10) ACCOUNT & AUTH: Scholar Rank + 8 Collectible Custom Kawaii SVG Stickers + Companion Picker + Pet Buddy
     if (cfg.id === 'account') {
-      const wordsN = Number(sum.wordsMastered || 0);
-      const stagesN = Number(sum.stagesDone || 0);
-      const gramN = Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds.length : 0;
-      const examN = Array.isArray(prog.examHistory) ? prog.examHistory.length : 0;
-      const streakN = Number(sum.streakDays || 0);
-      const xp = wordsN * 10 + stagesN * 25 + gramN * 15 + examN * 40 + streakN * 15;
-      const ranks = [
-        { min: 0, max: 100, name: '🌱 Tân Học Viên', next: 'Thư Sinh HSK 1' },
-        { min: 100, max: 350, name: '📜 Thư Sinh HSK 1', next: 'Cử Nhân Hán Ngữ' },
-        { min: 350, max: 900, name: '🎓 Cử Nhân Hán Ngữ', next: 'Học Giả Chữ Hán' },
-        { min: 900, max: 2000, name: '🏆 Học Giả Chữ Hán', next: 'Đại Sư Hán Tự' }
-      ];
-      const rk = ranks.slice().reverse().find(r => xp >= r.min) || ranks[0];
-      const rankPct = Math.min(100, Math.round(((xp - rk.min) / Math.max(1, rk.max - rk.min)) * 100));
-      const badges = [
-        { ico: '🧋', lbl: 'Trà Sữa Chăm Chỉ', val: streakN + ' ngày', ok: streakN >= 1 },
-        { ico: '🐼', lbl: 'Gấu Trúc Từ Vựng', val: wordsN + ' từ', ok: wordsN >= 5 },
-        { ico: '🥟', lbl: 'Bánh Bao Ngữ Pháp', val: gramN + ' điểm', ok: gramN >= 1 },
-        { ico: '🏮', lbl: 'Đèn Lồng Khảo Thí', val: examN + ' đề', ok: examN >= 1 }
-      ];
-      host.innerHTML =
-        '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">' +
-          '<div style="font-size:15px;font-weight:900;color:#4f46e5;">' + rk.name + ' <span style="font-size:12px;font-weight:700;color:#0d9488;">(' + xp + ' XP)</span></div>' +
-          '<div style="font-size:12px;font-weight:700;opacity:.78;">Hạng kế tiếp: ' + rk.next + ' (' + rankPct + '%)</div>' +
-        '</div>' +
-        '<div style="height:9px;border-radius:999px;background:rgba(79,70,229,.14);overflow:hidden;">' +
-          '<div class="htq-shimmer-bar" style="height:100%;width:' + Math.max(5, rankPct) + '%;background:linear-gradient(90deg,#f59e0b,#ec4899,#4f46e5,#0d9488);border-radius:999px;"></div>' +
-        '</div>' +
-        '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;">' +
-          badges.map((b, i) =>
-            '<button type="button" class="htq-stamp-card" data-stamp-idx="' + i + '" style="cursor:pointer;padding:9px 6px;border-radius:16px;text-align:center;border:1.5px solid ' + (b.ok ? 'rgba(13,148,136,.42)' : 'rgba(148,163,184,.28)') + ';background:' + (b.ok ? 'linear-gradient(180deg, rgba(254,243,199,.55), rgba(204,251,241,.40))' : 'transparent') + ';color:inherit;opacity:' + (b.ok ? '1' : '.72') + ';">' +
-              '<div style="font-size:20px;line-height:1.1;">' + b.ico + '</div>' +
-              '<div style="font-size:11.5px;font-weight:800;margin-top:3px;">' + b.val + '</div>' +
-              '<div style="font-size:10px;opacity:.78;line-height:1.2;margin-top:1px;">' + b.lbl + '</div>' +
-            '</button>'
-          ).join('') +
-        '</div>';
-      host.querySelectorAll('[data-stamp-idx]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const b = badges[Number(btn.getAttribute('data-stamp-idx'))];
-          if (!b) return;
-          if (b.ok) {
-            HTQ_STUDIO_FX.confetti(btn, 22);
-            HTQ_STUDIO_FX.toast(b.ico + ' Tem "' + b.lbl + '" đã mở khóa (' + b.val + ')! Quá đỉnh luôn!', 'success');
-          } else {
-            HTQ_STUDIO_FX.toast(b.ico + ' Học thêm chút xíu để mở khóa tem "' + b.lbl + '" nhé!', 'info');
-          }
+      const renderAccountStage = () => {
+        const curSum = typeof getRealProgressSummary === 'function' ? getRealProgressSummary() : sum;
+        const curProg = (curSum && curSum.prog) || getRealProgress();
+        const wordsN = Number(curSum.wordsMastered || 0);
+        const stagesN = Number(curSum.stagesDone || 0);
+        const gramN = Array.isArray(curProg.learnedGrammarIds) ? curProg.learnedGrammarIds.length : 0;
+        const examN = Array.isArray(curProg.examHistory) ? curProg.examHistory.length : 0;
+        const streakN = Number(curSum.streakDays || 0);
+        const savedN = Object.keys(curProg.savedWords || {}).length;
+        const charN = Object.keys(curProg.masteredChars || {}).length;
+        const heartsN = Number(curProg.buddyHearts || 0);
+        const curCompId = localStorage.getItem('httq_companion_id') || 'capy';
+        const curComp = HTQ_COMPANIONS_LIST.find(c => c.id === curCompId) || HTQ_COMPANIONS_LIST[0];
+        const xp = wordsN * 10 + stagesN * 25 + gramN * 15 + examN * 40 + streakN * 15 + heartsN * 5;
+        const ranks = [
+          { min: 0, max: 100, name: '🌱 Tân Học Viên', next: 'Thư Sinh HSK 1' },
+          { min: 100, max: 350, name: '📜 Thư Sinh HSK 1', next: 'Cử Nhân Hán Ngữ' },
+          { min: 350, max: 900, name: '🎓 Cử Nhân Hán Ngữ', next: 'Học Giả Chữ Hán' },
+          { min: 900, max: 2000, name: '🏆 Học Giả Chữ Hán', next: 'Đại Sư Hán Tự' }
+        ];
+        const rk = ranks.slice().reverse().find(r => xp >= r.min) || ranks[0];
+        const rankPct = Math.min(100, Math.round(((xp - rk.min) / Math.max(1, rk.max - rk.min)) * 100));
+        const stickers = [
+          { img: '/images/studio/stickers/boba.svg', lbl: 'Trà Sữa Chăm Chỉ', val: streakN + ' ngày', ok: streakN >= 1, tip: 'Học ít nhất 1 ngày để mở khóa!' },
+          { img: '/images/studio/stickers/panda.svg', lbl: 'Gấu Trúc Từ Vựng', val: wordsN + ' từ', ok: wordsN >= 5, tip: 'Học đủ 5 từ vựng để mở khóa!' },
+          { img: '/images/studio/stickers/baozi.svg', lbl: 'Bánh Bao Ngữ Pháp', val: gramN + ' điểm', ok: gramN >= 1, tip: 'Đánh dấu 1 điểm ngữ pháp để mở khóa!' },
+          { img: '/images/studio/stickers/lantern.svg', lbl: 'Đèn Lồng Khảo Thí', val: examN + ' đề', ok: examN >= 1, tip: 'Hoàn thành 1 bài thi thử HSK/YCT!' },
+          { img: '/images/studio/stickers/sakura.svg', lbl: 'Anh Đào Kiên Trì', val: streakN + '/3 ngày', ok: streakN >= 3, tip: 'Giữ chuỗi 3 ngày học liên tiếp!' },
+          { img: '/images/studio/stickers/bunny.svg', lbl: 'Bé Thỏ Sổ Tay', val: savedN + ' từ lưu', ok: savedN >= 1, tip: 'Lưu 1 từ vào Sổ tay cá nhân!' },
+          { img: '/images/studio/stickers/star.svg', lbl: 'Ngôi Sao Bút Thuận', val: charN + ' chữ', ok: charN >= 1, tip: 'Luyện thành thạo 1 chữ Hán!' },
+          { img: '/images/studio/stickers/heart.svg', lbl: 'Trái Tim Thân Thiết', val: '❤️ ' + heartsN, ok: heartsN >= 1, tip: 'Bấm "Vuốt ve bạn học" ít nhất 1 lần!' }
+        ];
+        const unlockedCount = stickers.filter(s => s.ok).length;
+        host.innerHTML =
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+            '<div style="font-size:15px;font-weight:900;color:#4f46e5;">' + rk.name + ' <span style="font-size:12px;font-weight:700;color:#0d9488;">(' + xp + ' XP)</span></div>' +
+            '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">' +
+              '<button type="button" id="htq-acc-pet-btn" class="htq-stage-chip-btn is-active" style="padding:5px 11px;font-size:12px;">🫶 Vuốt ve ' + escapeHtml(curComp.name) + ' (❤️ ' + heartsN + ')</button>' +
+              '<span style="font-size:11.5px;font-weight:800;color:#be185d;">🎀 ' + unlockedCount + '/8 Sticker</span>' +
+            '</div>' +
+          '</div>' +
+          '<div style="height:8px;border-radius:999px;background:rgba(79,70,229,.14);overflow:hidden;">' +
+            '<div class="htq-shimmer-bar" style="height:100%;width:' + Math.max(5, rankPct) + '%;background:linear-gradient(90deg,#f59e0b,#ec4899,#4f46e5,#0d9488);border-radius:999px;"></div>' +
+          '</div>' +
+          '<div class="htq-sticker-grid" id="htq-stamp-album">' +
+            stickers.map((s, i) =>
+              '<button type="button" class="htq-sticker-tile' + (s.ok ? ' is-unlocked' : '') + '" data-stamp-idx="' + i + '" title="' + escapeHtml(s.lbl + ': ' + s.tip) + '">' +
+                '<img src="' + s.img + '" alt="' + escapeHtml(s.lbl) + '" loading="eager" />' +
+                '<div style="font-size:11px;font-weight:800;line-height:1.15;">' + escapeHtml(s.val) + '</div>' +
+                '<div style="font-size:10px;opacity:.78;line-height:1.15;">' + escapeHtml(s.lbl) + '</div>' +
+              '</button>'
+            ).join('') +
+          '</div>' +
+          '<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;padding-top:4px;border-top:1px dashed rgba(99,102,241,.20);">' +
+            '<span style="font-size:11px;font-weight:800;opacity:.78;">🐾 Đổi bạn đồng hành:</span>' +
+            HTQ_COMPANIONS_LIST.map(c =>
+              '<button type="button" class="htq-stage-chip-btn' + (c.id === curCompId ? ' is-active' : '') + '" data-acc-comp="' + c.id + '" style="padding:3.5px 8px;font-size:11px;">' +
+                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" style="width:16px;height:16px;border-radius:999px;object-fit:cover;" />' +
+                '<span>' + escapeHtml(c.name) + '</span>' +
+              '</button>'
+            ).join('') +
+          '</div>';
+        const accPetBtn = host.querySelector('#htq-acc-pet-btn');
+        if (accPetBtn) bindStudioClick(accPetBtn, () => {
+          HTQ_STUDIO_FX.petBuddy(accPetBtn);
+          renderAccountStage();
+          buildCuteBuddyDock(window.location.pathname || '/tai-khoan');
         });
-      });
+        host.querySelectorAll('[data-stamp-idx]').forEach(btn => {
+          bindStudioClick(btn, () => {
+            const s = stickers[Number(btn.getAttribute('data-stamp-idx'))];
+            if (!s) return;
+            if (s.ok) {
+              HTQ_STUDIO_FX.sparkle(btn);
+              HTQ_STUDIO_FX.confetti(btn, 22);
+              HTQ_STUDIO_FX.toast('🎀 Sticker "' + s.lbl + '" đã mở khóa (' + s.val + ')! Dễ thương quá đi!', 'success');
+            } else {
+              HTQ_STUDIO_FX.toast('🔒 ' + s.lbl + ': ' + s.tip, 'info');
+            }
+          });
+        });
+        host.querySelectorAll('[data-acc-comp]').forEach(btn => {
+          bindStudioClick(btn, () => {
+            const cid = btn.getAttribute('data-acc-comp') || 'capy';
+            try { localStorage.setItem('httq_companion_id', cid); } catch (_) {}
+            const picked = HTQ_COMPANIONS_LIST.find(x => x.id === cid);
+            HTQ_STUDIO_FX.sparkle(btn);
+            HTQ_STUDIO_FX.confetti(btn, 18);
+            HTQ_STUDIO_FX.toast((picked ? picked.emoji + ' ' + picked.name : cid) + ' đã sẵn sàng đồng hành cùng bạn!', 'success');
+            renderAccountStage();
+            const oldDock = document.getElementById('htq-buddy-dock');
+            if (oldDock) oldDock.remove();
+            buildCuteBuddyDock(window.location.pathname || '/tai-khoan');
+          });
+        });
+      };
+      renderAccountStage();
       return;
     }
 
@@ -14636,31 +14944,35 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const curCompId = localStorage.getItem('httq_companion_id') || 'capy';
       const curComp = HTQ_COMPANIONS_LIST.find(c => c.id === curCompId) || HTQ_COMPANIONS_LIST[0];
       const ch = HTQ_CUTE_CHEERS[cheerIdx % HTQ_CUTE_CHEERS.length];
-      let sum = { streakDays: 0, wordsMastered: 0 };
+      let sum = { streakDays: 0, wordsMastered: 0, prog: {} };
       try { sum = getRealProgressSummary() || sum; } catch (_) {}
+      const heartsN = Number((sum.prog && sum.prog.buddyHearts) || 0);
+      const petalsOn = HTQ_STUDIO_FX.isPetalsEnabled();
 
       dock.innerHTML =
         (isOpen
           ? '<div class="htq-buddy-bubble" id="htq-buddy-bubble">' +
               '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">' +
                 '<div style="display:flex;align-items:center;gap:8px;">' +
-                  '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" style="width:38px;height:38px;border-radius:12px;object-fit:cover;border:2px solid #f59e0b;" />' +
+                  '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" style="width:40px;height:40px;border-radius:13px;object-fit:cover;border:2px solid #f472b6;" />' +
                   '<div>' +
-                    '<div style="font-size:13.5px;font-weight:800;">' + (curComp.emoji || '✨') + ' ' + escapeHtml(curComp.name) + ' <span style="opacity:.65;font-size:11.5px;">(' + escapeHtml(curComp.zh) + ')</span></div>' +
+                    '<div style="font-size:13.5px;font-weight:800;">' + (curComp.emoji || '✨') + ' ' + escapeHtml(curComp.name) + ' <span style="opacity:.65;font-size:11.5px;">(' + escapeHtml(curComp.zh) + ')</span> <span style="font-size:11px;color:#e11d48;">❤️ ' + heartsN + '</span></div>' +
                     '<div style="font-size:11px;color:#0d9488;font-weight:700;">' + (sum.wordsMastered > 0 ? 'Bạn đã thuộc ' + sum.wordsMastered + ' từ · Chuỗi ' + sum.streakDays + ' ngày!' : 'Cùng học vui mỗi ngày nhé!') + '</div>' +
                   '</div>' +
                 '</div>' +
                 '<button type="button" id="htq-buddy-close" aria-label="Đóng bong bóng" style="border:none;background:transparent;color:inherit;font-size:15px;font-weight:800;cursor:pointer;opacity:.65;padding:2px 6px;">✕</button>' +
               '</div>' +
-              '<div style="padding:10px 12px;border-radius:14px;background:linear-gradient(135deg, rgba(254,243,199,.55), rgba(224,231,255,.55));border:1px solid rgba(99,102,241,.18);margin-bottom:10px;">' +
+              '<div style="padding:10px 12px;border-radius:14px;background:linear-gradient(135deg, rgba(254,243,199,.58), rgba(252,231,243,.58));border:1px solid rgba(244,114,182,.25);margin-bottom:10px;">' +
                 '<div style="font-size:15px;font-weight:900;color:#4338ca;">' + escapeHtml(ch.zh) + '</div>' +
                 '<div style="font-size:12px;font-weight:700;color:#0d9488;margin-top:2px;">' + escapeHtml(ch.py) + '</div>' +
                 '<div style="font-size:12.5px;margin-top:3px;opacity:.9;">' + escapeHtml(ch.vi) + '</div>' +
               '</div>' +
               '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
-                '<button type="button" id="htq-buddy-speak" class="htq-stage-chip-btn is-active" style="font-size:11.5px;padding:5px 10px;">🔊 Nghe câu chúc</button>' +
+                '<button type="button" id="htq-buddy-pet" class="htq-stage-chip-btn is-active" style="font-size:11.5px;padding:5px 10px;">🫶 Vuốt ve (+1 ❤️)</button>' +
+                '<button type="button" id="htq-buddy-speak" class="htq-stage-chip-btn" style="font-size:11.5px;padding:5px 10px;">🔊 Nghe chúc</button>' +
                 '<button type="button" id="htq-buddy-cheer" class="htq-stage-chip-btn" style="font-size:11.5px;padding:5px 10px;">🎉 Cổ vũ</button>' +
                 '<button type="button" id="htq-buddy-swap" class="htq-stage-chip-btn" style="font-size:11.5px;padding:5px 10px;">🐾 Đổi bạn</button>' +
+                '<button type="button" id="htq-buddy-petals" class="htq-stage-chip-btn" style="font-size:11px;padding:4px 9px;">' + (petalsOn ? '🌸 Hoa rơi: Bật' : '🌸 Hoa rơi: Tắt') + '</button>' +
               '</div>' +
             '</div>'
           : '') +
@@ -14673,14 +14985,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (fab) bindStudioClick(fab, () => { isOpen = !isOpen; renderDock(); });
       const cl = dock.querySelector('#htq-buddy-close');
       if (cl) bindStudioClick(cl, () => { isOpen = false; renderDock(); });
+      const pet = dock.querySelector('#htq-buddy-pet');
+      if (pet) bindStudioClick(pet, () => {
+        HTQ_STUDIO_FX.petBuddy(pet);
+        renderDock();
+      });
       const spk = dock.querySelector('#htq-buddy-speak');
       if (spk) bindStudioClick(spk, () => {
         try { playPronunciation(ch.zh, 'tts'); } catch (_) {}
+        HTQ_STUDIO_FX.sparkle(spk);
         HTQ_STUDIO_FX.toast('🔊 ' + ch.zh + ' — ' + ch.vi);
       });
       const chr = dock.querySelector('#htq-buddy-cheer');
       if (chr) bindStudioClick(chr, () => {
         cheerIdx = (cheerIdx + 1) % HTQ_CUTE_CHEERS.length;
+        HTQ_STUDIO_FX.sparkle(chr);
         HTQ_STUDIO_FX.confetti(chr, 28);
         renderDock();
       });
@@ -14690,8 +15009,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const nxt = HTQ_COMPANIONS_LIST[(curIdx + 1) % HTQ_COMPANIONS_LIST.length];
         try { localStorage.setItem('httq_companion_id', nxt.id); } catch (_) {}
         dock.setAttribute('data-htq-buddy', nxt.id);
+        HTQ_STUDIO_FX.sparkle(swp);
         HTQ_STUDIO_FX.confetti(swp, 20);
         HTQ_STUDIO_FX.toast((nxt.emoji || '🐾') + ' Chào bạn! Mình là ' + nxt.name + ' sẽ học cùng bạn nha!', 'success');
+        renderDock();
+      });
+      const ptl = dock.querySelector('#htq-buddy-petals');
+      if (ptl) bindStudioClick(ptl, () => {
+        const nextOn = !HTQ_STUDIO_FX.isPetalsEnabled();
+        try { localStorage.setItem('htq_ambient_petals', nextOn ? '1' : '0'); } catch (_) {}
+        HTQ_STUDIO_FX.syncAmbientPetals(window.location.pathname || '/');
         renderDock();
       });
     };
@@ -14706,6 +15033,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     try {
       const p = window.location.pathname || '/';
       HTQ_STUDIO_FX.initScrollHairline();
+      HTQ_STUDIO_FX.syncAmbientPetals(p);
       buildStudioSidebar(p);
       buildHomeWorkspace(p);
       buildSubpageRibbon(p);
