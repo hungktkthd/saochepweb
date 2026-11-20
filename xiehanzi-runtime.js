@@ -13795,7 +13795,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               const darkSrc = '/images/home/dark/' + imgKey + '.webp';
               return '<a href="' + href + '" class="htq-skill-card">' +
                 '<div class="htq-skill-card-art">' +
-                  '<img class="htq-skill-thumb" src="' + (isDark ? darkSrc : lightSrc) + '" data-htq-light-src="' + lightSrc + '" data-htq-dark-src="' + darkSrc + '" alt="' + escapeHtml(title) + '" loading="lazy" />' +
+                  '<img class="htq-skill-thumb" src="' + (isDark ? darkSrc : lightSrc) + '" data-htq-light-src="' + lightSrc + '" data-htq-dark-src="' + darkSrc + '" alt="' + escapeHtml(title) + '" loading="eager" />' +
                   '<div style="min-width:0;">' +
                     '<div class="htq-skill-top" style="margin-bottom:3px;"><span>' + title + '</span></div>' +
                     '<p class="htq-skill-desc">' + desc + '</p>' +
