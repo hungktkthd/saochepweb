@@ -2750,7 +2750,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v24') &&
+          swTxt.includes('htq-studio-v25') &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
         );
@@ -2791,6 +2791,38 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         return Boolean(
           testSrc.includes('loading="lazy" decoding="async"') &&
           !testSrc.includes('loading="lazy">')
+        );
+      });
+      await runCheck('learned-words-sort-hsk-and-worksheet-link', () => {
+        const lwSrc = typeof renderMistakeBookOrLearnedWordsPage === 'function' ? renderMistakeBookOrLearnedWordsPage.toString() : '';
+        return Boolean(
+          lwSrc.includes('xhz-lw-sort') &&
+          lwSrc.includes('xhz-lw-worksheet-link') &&
+          lwSrc.includes('xhz-lw-count') &&
+          lwSrc.includes('data-lw-copy')
+        );
+      });
+      await runCheck('han-viet-a11y-count-and-worksheet-link', () => {
+        const hvIdxSrc = typeof renderHanVietIndexPage === 'function' ? renderHanVietIndexPage.toString() : '';
+        const hvDetSrc = typeof renderHanVietDetailPage === 'function' ? renderHanVietDetailPage.toString() : '';
+        return Boolean(
+          hvIdxSrc.includes('xhz-hv-count') &&
+          hvIdxSrc.includes('aria-label="Lọc âm Hán Việt"') &&
+          hvDetSrc.includes('xhz-hv-worksheet-link')
+        );
+      });
+      await runCheck('character-browse-worksheet-and-copy', () => {
+        const brSrc = typeof renderCharacterBrowseSubPage === 'function' ? renderCharacterBrowseSubPage.toString() : '';
+        return Boolean(
+          brSrc.includes('xhz-browse-worksheet-link') &&
+          brSrc.includes('data-browse-copy')
+        );
+      });
+      await runCheck('flashcard-pdf-suspense-hydration-safe', () => {
+        const wsSrc = typeof enhanceWorksheetAndPdfTools === 'function' ? enhanceWorksheetAndPdfTools.toString() : '';
+        return Boolean(
+          wsSrc.includes('__xhzFlashcardBarScheduled') &&
+          wsSrc.includes('hasPendingSuspense(mainHost)')
         );
       });
     } finally {
@@ -8474,20 +8506,33 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.innerHTML = `
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
         <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📖 Tra cứu Âm Hán Việt (${index.length} âm đọc)</h1>
-        <p style="color:#57534e;margin-bottom:16px;">Chọn một âm Hán Việt bên dưới hoặc nhập để lọc nhanh các chữ Hán đồng âm Hán Việt.</p>
-        <input id="xhz-hv-filter" type="text" placeholder="Nhập âm Hán Việt (ví dụ: nhân, tâm, học, quốc...)" style="width:100%;max-width:420px;padding:10px 16px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;margin-bottom:20px;color:#1c1917;background:#fff;" />
+        <p style="color:#57534e;margin-bottom:14px;">Chọn một âm Hán Việt bên dưới hoặc nhập để lọc nhanh các chữ Hán đồng âm Hán Việt.</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <input id="xhz-hv-filter" type="text" aria-label="Lọc âm Hán Việt" placeholder="Nhập âm Hán Việt (ví dụ: nhân, tâm, học, quốc...)" style="width:100%;max-width:420px;padding:10px 16px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;color:#1c1917;background:#fff;" />
+          <div id="xhz-hv-count" role="status" aria-live="polite" style="font-size:13.5px;font-weight:700;color:#57534e;"></div>
+        </div>
         <div id="xhz-hv-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;"></div>
       </div>
     `;
 
     const grid = document.getElementById('xhz-hv-grid');
     const input = document.getElementById('xhz-hv-filter');
+    const countEl = document.getElementById('xhz-hv-count');
+    const normalizedList = index.map(x => typeof x === 'string' ? { slug: x, reading: x.replace(/-/g, ' ') } : x);
     const renderItems = (q = '') => {
       const norm = q.trim().toLowerCase();
-      const normalizedList = index.map(x => typeof x === 'string' ? { slug: x, reading: x.replace(/-/g, ' ') } : x);
       const filtered = norm
         ? normalizedList.filter(x => (x.reading || '').toLowerCase().includes(norm) || (x.slug || '').includes(norm))
         : normalizedList.slice(0, 300);
+      if (countEl) {
+        countEl.textContent = norm
+          ? `Tìm thấy ${filtered.length} / ${normalizedList.length} âm đọc`
+          : `Hiển thị ${filtered.length} / ${normalizedList.length} âm đọc thông dụng`;
+      }
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:24px;text-align:center;color:#78716c;">Không tìm thấy âm Hán Việt nào khớp với "${escapeHtml(q.trim())}".</div>`;
+        return;
+      }
       grid.innerHTML = filtered.map(item => `
         <a href="/han-viet/${encodeURIComponent(item.slug)}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-weight:700;">
           <span style="text-transform:capitalize;">${escapeHtml(item.reading)}</span>
@@ -8512,11 +8557,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const flatChars = groups.length > 0
       ? groups.flatMap(g => Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []))
       : (Array.isArray(data.characters) ? data.characters : (data.sampleChars || []));
+    const hvCharSample = Array.from(new Set(flatChars.map(c => typeof c === 'string' ? c : (c && (c.hanzi || c.character || c.c) || '')).filter(Boolean))).slice(0, 20);
     document.title = `Âm Hán Việt "${reading.toUpperCase()}" (${flatChars.length} chữ) | Học Tiếng Trung`;
 
     root.innerHTML = `
-      <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
         <a href="/han-viet" style="color:#0d9488;font-weight:600;text-decoration:none;">← Danh sách Âm Hán Việt</a>
+        ${hvCharSample.length > 0 ? `<a id="xhz-hv-worksheet-link" href="/tao-vo-tap-viet?text=${encodeURIComponent(hvCharSample.join(' '))}" style="padding:8px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;">📝 In vở tập viết âm ${escapeHtml(reading.toUpperCase())} (${hvCharSample.length} chữ)</a>` : ''}
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
         <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#0d9488;text-transform:uppercase;">${escapeHtml(reading)}</span> (${flatChars.length} chữ Hán)</h1>
@@ -11162,7 +11209,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const rawMv = String((it && it.meaningVi) || '').trim();
       const isGeneric = !rawMv || rawMv === 'Từ vựng đã học' || rawMv === 'Có ghi chú ghi nhớ cá nhân';
       const mv = (!isGeneric ? rawMv : String((d && d.m) || rawMv || 'Từ vựng đã học')).trim();
-      return { ...it, pinyin: py, hanviet: hv, meaningVi: mv };
+      const charHsks = Array.from(k).map(ch => Number((cMap.get(ch) || {}).hsk) || 0).filter(n => n > 0);
+      const hskLevel = Number((it && it.hskLevel) || (d && (d.hsk || d.hskLevel)) || 0) || (charHsks.length ? Math.max(...charHsks) : 0);
+      return { ...it, pinyin: py, hanviet: hv, meaningVi: mv, hskLevel };
     };
     const rawItems = Array.isArray(res && res.items) ? res.items : [];
     const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
@@ -11183,6 +11232,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
     }
     const mnemonicItemsCount = items.filter(i => i.mnemonicNote).length;
+    const initWsSample = items.slice(0, 20).map(i => i.hanzi).filter(Boolean).join(' ') || '你 好 学 习';
     document.title = `Từ đã học (${items.length} từ) | Học Tiếng Trung`;
 
     root.innerHTML = `
@@ -11190,6 +11240,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
           <a href="/on-tap" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trung tâm Ôn tập</a>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a id="xhz-lw-worksheet-link" href="/tao-vo-tap-viet?text=${encodeURIComponent(initWsSample)}" style="padding:8px 14px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;text-decoration:none;font-size:13px;">📝 In vở tập viết</a>
             <button type="button" id="xhz-lw-export-csv" style="padding:8px 14px;border-radius:999px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-weight:700;cursor:pointer;font-size:13px;">📥 Xuất CSV (Anki/Excel)</button>
             <a href="/hoc/bai/on-tap-den-han" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🔄 Ôn tập ngay</a>
             <a href="/hoc/tu-da-hoc" style="padding:8px 16px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📚 Xem bản đầy đủ</a>
@@ -11203,11 +11254,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </div>
             <input id="xhz-lw-search" type="text" aria-label="Tìm trong từ đã học" placeholder="🔍 Lọc từ, pinyin, Hán Việt, mẹo..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:265px;max-width:100%;box-sizing:border-box;" />
           </div>
-          <div id="xhz-lw-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
+          <div id="xhz-lw-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
             <button type="button" data-status="all" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Tất cả (${items.length})</button>
             <button type="button" data-status="known" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">Đã thuộc (${items.filter(i => i.state === 'review').length})</button>
             <button type="button" data-status="learning" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">Đang học (${items.filter(i => i.state !== 'review').length})</button>
             <button type="button" data-status="mnemonic" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">📝 Có mẹo nhớ (${mnemonicItemsCount})</button>
+            <select id="xhz-lw-sort" aria-label="Sắp xếp từ đã học" style="padding:6px 12px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">
+              <option value="default">↕ Thứ tự học</option>
+              <option value="pinyin">↕ Pinyin A → Z</option>
+              <option value="hsk">↕ Cấp HSK (1 → 6)</option>
+              <option value="mnemonic">↕ Có mẹo nhớ trước</option>
+            </select>
+            <span id="xhz-lw-count" role="status" aria-live="polite" style="margin-left:auto;font-size:12.5px;font-weight:700;color:#57534e;"></span>
           </div>
           <div id="xhz-lw-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;"></div>
         </div>
@@ -11215,6 +11273,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     `;
     const grid = root.querySelector('#xhz-lw-grid');
     const searchEl = root.querySelector('#xhz-lw-search');
+    const sortEl = root.querySelector('#xhz-lw-sort');
+    const countEl = root.querySelector('#xhz-lw-count');
+    const wsLinkEl = root.querySelector('#xhz-lw-worksheet-link');
     const exportBtn = root.querySelector('#xhz-lw-export-csv');
     const reqFilter = (new URLSearchParams(window.location.search).get('filter') || '').trim();
     let activeStatus = ['known', 'learning', 'mnemonic'].includes(reqFilter) ? reqFilter : 'all';
@@ -11236,6 +11297,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         if (!norm) return true;
         return it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.hanviet || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm) || (it.mnemonicNote || '').toLowerCase().includes(norm);
       });
+      const sortMode = sortEl ? sortEl.value : 'default';
+      if (sortMode === 'pinyin') {
+        filtered.sort((a, b) => String(a.pinyin || a.hanzi || '').localeCompare(String(b.pinyin || b.hanzi || ''), 'vi'));
+      } else if (sortMode === 'hsk') {
+        filtered.sort((a, b) => ((Number(a.hskLevel) || 99) - (Number(b.hskLevel) || 99)) || String(a.pinyin || '').localeCompare(String(b.pinyin || ''), 'vi'));
+      } else if (sortMode === 'mnemonic') {
+        filtered.sort((a, b) => (b.mnemonicNote ? 1 : 0) - (a.mnemonicNote ? 1 : 0));
+      }
+      if (countEl) countEl.textContent = `Hiển thị ${filtered.length} / ${items.length} mục`;
+      if (wsLinkEl) {
+        const sample = (filtered.length ? filtered : items).slice(0, 20).map(i => i.hanzi).filter(Boolean).join(' ') || '你 好 学 习';
+        wsLinkEl.setAttribute('href', `/tao-vo-tap-viet?text=${encodeURIComponent(sample)}`);
+      }
       if (filtered.length === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#0d9488;font-weight:700;">Lộ trình học</a> hoặc thêm mẹo nhớ ở trang chi tiết chữ/từ nhé!</div>`;
         return;
@@ -11247,8 +11321,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
               <a href="${href}" style="text-decoration:none;color:#1c1917;font-size:28px;font-weight:800;font-family:'Noto Serif SC',serif;">${escapeHtml(it.hanzi)}</a>
-              <div style="display:flex;gap:6px;align-items:center;">
+              <div style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+                ${it.hskLevel ? `<span style="font-size:10.5px;font-weight:700;padding:2px 6px;border-radius:999px;background:#e0f2fe;color:#0369a1;">HSK ${it.hskLevel}</span>` : ''}
                 <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:${isKnown ? '#dcfce7' : '#fef3c7'};color:${isKnown ? '#15803d' : '#92400e'};">${isKnown ? 'Thuộc' : 'Đang học'}</span>
+                <button type="button" data-lw-copy="${escapeHtml(it.hanzi || '')}" data-lw-pinyin="${escapeHtml(it.pinyin || '')}" aria-label="Sao chép ${escapeHtml(it.hanzi || '')}" style="border:none;background:#f5f5f4;color:#44403c;border-radius:999px;padding:4px 8px;font-weight:700;cursor:pointer;font-size:12px;">📋</button>
                 <button type="button" data-xhz-play="${escapeHtml(it.hanzi || '')}" aria-label="Nghe phát âm" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
               </div>
             </div>
@@ -11258,10 +11334,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           </div>
         `;
       }).join('');
+      grid.querySelectorAll('[data-lw-copy]').forEach(b => {
+        b.onclick = () => {
+          const hz = b.getAttribute('data-lw-copy') || '';
+          const py = b.getAttribute('data-lw-pinyin') || '';
+          copyStudyText(py ? `${hz} (${py})` : hz, hz);
+        };
+      });
     };
     applyFilterBtnStyles();
     renderCards();
     if (searchEl) searchEl.oninput = e => renderCards(e.target.value);
+    if (sortEl) sortEl.onchange = () => renderCards(searchEl ? searchEl.value : '');
     root.querySelectorAll('.xhz-lw-filter').forEach(btn => {
       btn.onclick = () => {
         activeStatus = btn.getAttribute('data-status') || 'all';
@@ -11567,13 +11651,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       : type === 'bo-thu' && (radTargets.has(item.r) || radTargets.has(item.c))) : [];
     const title = type === 'hsk' ? `Chữ Hán HSK ${level || value} (HSK 2.0)` : `Chữ Hán bộ ${radChar || value}`;
     document.title = `${title} | Học Tiếng Trung`;
+    const initBrowseSample = entries.slice(0, 20).map(x => x.c).filter(Boolean).join(' ') || '你 好 学 习';
     root.innerHTML = `<style>
       #xhz-character-browse { --browse-ink:#1c1917;--browse-card:#fafaf9;--browse-border:#d6d3d1;color:var(--browse-ink); }
       html.dark #xhz-character-browse { --browse-ink:#e2e8f0;--browse-card:#0f172a;--browse-border:#57534e; }
       #xhz-character-browse input,#xhz-character-browse select,#xhz-character-browse button.xhz-nav-btn,#xhz-browse-grid .xhz-char-card { color:var(--browse-ink)!important;background:var(--browse-card)!important;border-color:var(--browse-border)!important; }
       #xhz-browse-grid .xhz-char-card:hover { border-color:#0d9488!important; }
     </style><section id="xhz-character-browse" style="max-width:1100px;margin:auto;">
-      <a href="/tra-chu" style="color:#0d9488;font-weight:700;">← Từ điển Hán - Việt</a>
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <a href="/tra-chu" style="color:#0d9488;font-weight:700;">← Từ điển Hán - Việt</a>
+        <a id="xhz-browse-worksheet-link" href="/tao-vo-tap-viet?text=${encodeURIComponent(initBrowseSample)}" style="padding:8px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;">📝 In vở tập viết danh sách này</a>
+      </div>
       <h1 style="font-size:28px;font-weight:800;margin:20px 0 8px;">${escape(title)}</h1>
       <p id="xhz-browse-count" role="status">${entries.length} chữ Hán trong kho dữ liệu</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
@@ -11594,6 +11682,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const grid = root.querySelector('#xhz-browse-grid');
     const count = root.querySelector('#xhz-browse-count');
     const more = root.querySelector('#xhz-browse-more');
+    const wsLink = root.querySelector('#xhz-browse-worksheet-link');
     const normalize = text => String(text || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').toLowerCase();
     let visible = 60;
     const render = () => {
@@ -11603,12 +11692,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         : sort.value === 'frequency' ? (Number(a.f) || Infinity) - (Number(b.f) || Infinity)
         : (Number(a.s) || 0) - (Number(b.s) || 0) || (Number(a.f) || Infinity) - (Number(b.f) || Infinity));
       count.textContent = `${results.length} / ${entries.length} chữ Hán`;
+      if (wsLink) {
+        const sample = (results.length ? results : entries).slice(0, 20).map(x => x.c).filter(Boolean).join(' ') || '你 好 学 习';
+        wsLink.setAttribute('href', `/tao-vo-tap-viet?text=${encodeURIComponent(sample)}`);
+      }
       grid.innerHTML = results.slice(0, visible).map(item => `
         <div class="xhz-char-card" style="display:flex;flex-direction:column;justify-content:space-between;gap:6px;padding:14px;border:1px solid #d6d3d1;border-radius:16px;background:#fafaf9;">
           <div>
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
               <a href="/han-tu/${encodeURIComponent(item.slug || item.c)}" style="font-size:36px;font-family:'Noto Serif SC',serif;color:inherit;text-decoration:none;line-height:1.1;">${escape(item.c)}</a>
-              <button type="button" data-xhz-play="${escapeHtml(item.c || '')}" aria-label="Nghe phát âm" style="border:none;background:#f0fdfa;color:#0f766e;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
+              <div style="display:flex;gap:4px;align-items:center;">
+                <button type="button" data-browse-copy="${escapeHtml(item.c || '')}" data-browse-pinyin="${escapeHtml(item.p || '')}" aria-label="Sao chép ${escapeHtml(item.c || '')}" style="border:none;background:#f5f5f4;color:#44403c;border-radius:999px;padding:3px 7px;font-size:12px;font-weight:700;cursor:pointer;">📋</button>
+                <button type="button" data-xhz-play="${escapeHtml(item.c || '')}" aria-label="Nghe phát âm" style="border:none;background:#f0fdfa;color:#0f766e;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
+              </div>
             </div>
             <div style="margin-top:4px;color:#0d9488;font-weight:700;">${escape(item.p)}</div>
             <strong>${escape(item.hv)}</strong>
@@ -11616,6 +11712,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           </div>
           <small style="opacity:0.8;">${Number(item.s) || 0} nét · Bộ ${escape(item.r)}${item.hsk ? ` · HSK ${escape(item.hsk)}` : ''}</small>
         </div>`).join('') || '<p>Không tìm thấy chữ phù hợp.</p>';
+      grid.querySelectorAll('[data-browse-copy]').forEach(b => {
+        b.onclick = () => {
+          const hz = b.getAttribute('data-browse-copy') || '';
+          const py = b.getAttribute('data-browse-pinyin') || '';
+          copyStudyText(py ? `${hz} (${py})` : hz, hz);
+        };
+      });
       more.hidden = visible >= results.length;
     };
     search.oninput = () => { visible = 60; render(); };
@@ -14511,19 +14614,31 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       } else if (p === '/flashcard-pdf') {
         if (document.getElementById('xhz-quick-tools-bar')) return;
         const h1 = document.querySelector('h1');
-        if (!h1 || !h1.parentNode || !hasReactFiber(h1) || !hasReactFiber(h1.parentNode)) {
+        const mainHost = (h1 && h1.closest('main')) || document.querySelector('main');
+        if (!h1 || !h1.parentNode || !hasReactFiber(h1) || !hasReactFiber(h1.parentNode) || hasPendingSuspense(mainHost)) {
           scheduleRetry();
           return;
         }
-        const bar = document.createElement('div');
-        bar.id = 'xhz-quick-tools-bar';
-        bar.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px 0;align-items:center;';
-        bar.innerHTML = `
-          <a href="/tao-vo-tap-viet?text=${encodeURIComponent(learnedText)}" style="padding:8px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-weight:700;font-size:13px;text-decoration:none;">✍️ Tạo vở tập viết từ đã học (${learned.length})</a>
-          <button type="button" id="xhz-pdf-print-btn" style="padding:8px 16px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
-        `;
-        h1.parentNode.insertBefore(bar, h1.nextSibling);
-        document.getElementById('xhz-pdf-print-btn').onclick = () => window.print();
+        if (!window.__xhzFlashcardBarScheduled) {
+          window.__xhzFlashcardBarScheduled = true;
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              window.__xhzFlashcardBarScheduled = false;
+              const liveH1 = document.querySelector('h1');
+              if (!liveH1 || !liveH1.parentNode || document.getElementById('xhz-quick-tools-bar')) return;
+              const bar = document.createElement('div');
+              bar.id = 'xhz-quick-tools-bar';
+              bar.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px 0;align-items:center;';
+              bar.innerHTML = `
+                <a href="/tao-vo-tap-viet?text=${encodeURIComponent(learnedText)}" style="padding:8px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-weight:700;font-size:13px;text-decoration:none;">✍️ Tạo vở tập viết từ đã học (${learned.length})</a>
+                <button type="button" id="xhz-pdf-print-btn" style="padding:8px 16px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
+              `;
+              liveH1.parentNode.insertBefore(bar, liveH1.nextSibling);
+              const pBtn = document.getElementById('xhz-pdf-print-btn');
+              if (pBtn) pBtn.onclick = () => window.print();
+            }, 220);
+          });
+        }
       }
     } catch (_) {}
   }
