@@ -382,23 +382,31 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 }
 .dark #xhz-dynamic-page-root [style*="background:#fafaf9"],
 .dark #xhz-dynamic-page-root [style*="background: #fafaf9"],
+.dark #xhz-dynamic-page-root [style*="background:#faf8f4"],
 .dark #xhz-dynamic-page-root [style*="background:#f5f5f4"],
 .dark #xhz-dynamic-page-root [style*="background: #f5f5f4"],
 .dark #xhz-dynamic-page-root [style*="background:#f2fbfa"],
 .dark #xhz-dynamic-page-root [style*="background: #f2fbfa"],
 .dark #xhz-dynamic-page-root [style*="background:#dcf0ee"],
+.dark #xhz-dynamic-page-root [style*="background:#d9f2ef"],
+.dark #xhz-dynamic-page-root [style*="background:#edf6f5"],
 .dark #xhz-dynamic-page-root [style*="background:#d7ebe9"] {
   background: #1a2138 !important; color: #e2e8f0 !important; border-color: rgba(148,163,184,.22) !important;
 }
-.dark #xhz-dynamic-page-root [style*="background:#f0fdfa"] {
+.dark #xhz-dynamic-page-root [style*="background:#f0fdfa"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(240, 253, 250)"] {
   background: rgba(13,148,136,.16) !important; color: #ccfbf1 !important; border-color: rgba(45,212,191,.35) !important;
 }
 .dark #xhz-dynamic-page-root [style*="color:#1c1917"],
 .dark #xhz-dynamic-page-root [style*="color: #1c1917"],
+.dark #xhz-dynamic-page-root [style*="color: rgb(28, 25, 23)"],
+.dark #xhz-dynamic-page-root [style*="color:#0f172a"],
 .dark #xhz-dynamic-page-root [style*="color:#292524"],
 .dark #xhz-dynamic-page-root [style*="color: #292524"] { color: #f1f5f9 !important; }
 .dark #xhz-dynamic-page-root [style*="color:#44403c"],
+.dark #xhz-dynamic-page-root [style*="color: rgb(68, 64, 60)"],
 .dark #xhz-dynamic-page-root [style*="color:#57534e"],
+.dark #xhz-dynamic-page-root [style*="color: rgb(87, 83, 78)"],
 .dark #xhz-dynamic-page-root [style*="color:#78716c"] { color: #cbd5e1 !important; }
 .dark #xhz-dynamic-page-root input,
 .dark #xhz-dynamic-page-root textarea,
@@ -406,7 +414,8 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
   background: #0f1526 !important; color: #f8fafc !important; border-color: rgba(129,140,248,.34) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#eef2ff"],
-.dark #xhz-dynamic-page-root [style*="background: #eef2ff"] {
+.dark #xhz-dynamic-page-root [style*="background: #eef2ff"],
+.dark #xhz-dynamic-page-root [style*="background:#ede9fe"] {
   background: rgba(79,70,229,.22) !important; color: #e0e7ff !important; border-color: rgba(129,140,248,.38) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#fffbeb"],
@@ -416,11 +425,15 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
   background: rgba(217,119,6,.20) !important; color: #fde68a !important; border-color: rgba(251,191,36,.34) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#fff1f2"],
+.dark #xhz-dynamic-page-root [style*="background:#ffe4e6"],
+.dark #xhz-dynamic-page-root [style*="background:#fee2e2"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(254, 226, 226)"],
 .dark #xhz-dynamic-page-root [style*="background:#fef2f2"] {
   background: rgba(225,29,72,.20) !important; color: #fecdd3 !important; border-color: rgba(251,113,133,.36) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#ecfdf5"],
 .dark #xhz-dynamic-page-root [style*="background:#dcfce7"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(220, 252, 231)"],
 .dark #xhz-dynamic-page-root [style*="background:#f0fdf4"] {
   background: rgba(16,185,129,.20) !important; color: #a7f3d0 !important; border-color: rgba(52,211,153,.34) !important;
 }
@@ -428,14 +441,35 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-dynamic-page-root [style*="background:#e0f2fe"] {
   background: rgba(14,165,233,.20) !important; color: #bae6fd !important; border-color: rgba(56,189,248,.34) !important;
 }
-.dark #xhz-dynamic-page-root [style*="color:#4338ca"] { color: #c7d2fe !important; }
+.dark #xhz-dynamic-page-root [style*="color:#4338ca"],
+.dark #xhz-dynamic-page-root [style*="color:#5b21b6"] { color: #c7d2fe !important; }
 .dark #xhz-dynamic-page-root [style*="color:#0f766e"],
-.dark #xhz-dynamic-page-root [style*="color:#115e59"] { color: #5eead4 !important; }
+.dark #xhz-dynamic-page-root [style*="color: rgb(15, 118, 110)"],
+.dark #xhz-dynamic-page-root [style*="color:#115e59"],
+.dark #xhz-dynamic-page-root [style*="color: rgb(17, 94, 89)"],
+.dark #xhz-dynamic-page-root [style*="color:#0369a1"],
+.dark #xhz-dynamic-page-root [style*="color:#075985"] { color: #5eead4 !important; }
 .dark #xhz-dynamic-page-root [style*="color:#15803d"],
+.dark #xhz-dynamic-page-root [style*="color: rgb(21, 128, 61)"],
+.dark #xhz-dynamic-page-root [style*="color:#065f46"],
+.dark #xhz-dynamic-page-root [style*="color:#047857"],
+.dark #xhz-dynamic-page-root [style*="color:#14532d"],
 .dark #xhz-dynamic-page-root [style*="color:#166534"] { color: #86efac !important; }
+.dark #xhz-dynamic-page-root [style*="color:#1d4ed8"],
+.dark #xhz-dynamic-page-root [style*="color:#1e40af"],
+.dark #xhz-dynamic-page-root [style*="color:#2563eb"] { color: #93c5fd !important; }
 .dark #xhz-dynamic-page-root [style*="color:#991b1b"],
-.dark #xhz-dynamic-page-root [style*="color:#b91c1c"] { color: #fca5a5 !important; }
+.dark #xhz-dynamic-page-root [style*="color:#7f1d1d"],
+.dark #xhz-dynamic-page-root [style*="color:#881337"],
+.dark #xhz-dynamic-page-root [style*="color:#9f1239"],
+.dark #xhz-dynamic-page-root [style*="color:#be123c"],
+.dark #xhz-dynamic-page-root [style*="color:#be185d"],
+.dark #xhz-dynamic-page-root [style*="color:#b91c1c"],
+.dark #xhz-dynamic-page-root [style*="color: rgb(185, 28, 28)"] { color: #fca5a5 !important; }
 .dark #xhz-dynamic-page-root [style*="color:#92400e"],
+.dark #xhz-dynamic-page-root [style*="color:#78350f"],
+.dark #xhz-dynamic-page-root [style*="color:#b45309"],
+.dark #xhz-dynamic-page-root [style*="color:#c2410c"],
 .dark #xhz-dynamic-page-root [style*="color:#9a3412"] { color: #fcd34d !important; }
 .htq-buddy-fab {
   pointer-events: auto; position: relative; width: 40px; height: 40px; padding: 0; border-radius: 999px;
@@ -562,6 +596,10 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-hanzi-writer-target svg path[fill="#ddd"],
 .dark #xhz-hanzi-writer-target svg path[fill="#d6d3d1"],
 .dark #xhz-hw-canvas svg path[fill="#cbd5e1"] { fill: #475569 !important; }
+.dark #xhz-wr-week-svg text[fill="#44403c"] { fill: #e2e8f0 !important; }
+.dark #xhz-wr-week-svg text[fill="#57534e"] { fill: #cbd5e1 !important; }
+.dark #xhz-wr-week-svg text[fill="#b45309"] { fill: #fcd34d !important; }
+.dark #xhz-wr-week-svg rect[fill="#d6d3d1"] { fill: rgba(148,163,184,.28) !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble, .htq-petal, .htq-sparkle-dot, .htq-story-card, .htq-sticker-tile, .htq-story-card-img-wrap > img, .htq-buddy-fab {
@@ -569,6 +607,18 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
   }
   #htq-ambient-petals { display: none !important; }
   .htq-flip-inner { transition: none !important; }
+}
+
+@media print {
+  #htq-studio-sidebar, #htq-buddy-dock, #htq-mobile-nav, #htq-subpage-ribbon, #htq-page-stage, #htq-ambient-petals, #htq-scroll-progress, #htq-toast-stack, header[data-site-header="true"], footer[data-site-chrome="true"], #xhz-quick-tools-bar, [data-wr-actions="1"], .htq-no-print {
+    display: none !important;
+  }
+  body, html.dark body, body > div, body > #xhz-dynamic-page-root {
+    padding: 0 !important; margin: 0 !important; background: #ffffff !important; background-image: none !important; color: #111827 !important;
+  }
+  #xhz-weekly-report-root, #xhz-wr-week-svg {
+    -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important;
+  }
 }
 `;
       if (st.textContent !== fxCss) st.textContent = fxCss;
@@ -3082,6 +3132,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         return Boolean(
           hrefs.includes('/be-hoc') &&
           hrefs.includes('/tao-vo-tap-viet/mau')
+        );
+      });
+      await runCheck('dark-mode-rgb-and-svg-parity', () => {
+        injectMasterV3Styles();
+        const f = document.getElementById('htq-v14-fx-css');
+        return Boolean(
+          f &&
+          f.getAttribute('data-htq-ver') === '21' &&
+          f.textContent.includes('rgb(28, 25, 23)') &&
+          f.textContent.includes('#xhz-wr-week-svg')
+        );
+      });
+      await runCheck('print-pdf-media-stylesheet', () => {
+        injectMasterV3Styles();
+        const f = document.getElementById('htq-v14-fx-css');
+        const wrSrc = typeof renderWeeklyStudyReportPage === 'function' ? renderWeeklyStudyReportPage.toString() : '';
+        return Boolean(
+          f &&
+          f.textContent.includes('@media print') &&
+          f.textContent.includes('[data-wr-actions="1"]') &&
+          wrSrc.includes('data-wr-actions="1"')
+        );
+      });
+      await runCheck('quiz-option-shuffling-and-double-submit-guard', () => {
+        const ptSrc = typeof renderPlacementTestPage === 'function' ? renderPlacementTestPage.toString() : '';
+        const tdcSrc = typeof renderThayDoChallengePage === 'function' ? renderThayDoChallengePage.toString() : '';
+        return Boolean(
+          ptSrc.includes('shuffledOpts') &&
+          ptSrc.includes('if (isSubmitted) return;') &&
+          ptSrc.includes('new-hsk-') &&
+          tdcSrc.includes('shuffledOpts') &&
+          tdcSrc.includes('xhz-tdc-kbd-hint')
+        );
+      });
+      await runCheck('sidebar-and-arena-keyboard-shortcuts', () => {
+        const sbSrc = typeof buildStudioSidebar === 'function' ? buildStudioSidebar.toString() : '';
+        const kdSrc = typeof htqGlobalKeydownHandler === 'function' ? htqGlobalKeydownHandler.toString() : '';
+        return Boolean(
+          sbSrc.includes('/hoc/hom-nay') &&
+          sbSrc.includes('/hoc/bao-cao') &&
+          kdSrc.includes('xhz-tdc-stage') &&
+          kdSrc.includes('data-tdc-opt')
         );
       });
     } finally {
@@ -12661,7 +12753,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const root = getMainContentContainer();
     document.title = 'Kiểm tra trình độ đầu vào HSK 1–4 | Học Tiếng Trung';
 
-    const questions = [
+    const rawQuestions = [
       { id: 'pt-1', level: 1, tier: 'HSK 1 · Nhập môn', stemZh: '你好！请问你叫什么名字？', stemPy: 'Nǐ hǎo! Qǐngwèn nǐ jiào shénme míngzi?', q: 'Câu trên dùng để hỏi thông tin gì?', opts: ['Bạn tên là gì?', 'Bạn bao nhiêu tuổi?', 'Bạn sống ở đâu?', 'Bạn làm nghề gì?'], ans: 0, exp: '"叫什么名字" (jiào shénme míngzi) nghĩa là "tên là gì".' },
       { id: 'pt-2', level: 1, tier: 'HSK 1 · Nhập môn', stemZh: '我喜欢喝茶，不喜欢喝咖啡。', stemPy: 'Wǒ xǐhuan hē chá, bù xǐhuan hē kāfēi.', q: 'Người nói thích uống gì?', opts: ['Cà phê (咖啡)', 'Trà (茶)', 'Sữa bò (牛奶)', 'Nước trái cây (果汁)'], ans: 1, exp: '"喜欢喝茶" (xǐhuan hē chá) nghĩa là thích uống trà.' },
       { id: 'pt-3', level: 1, tier: 'HSK 1 · Nhập môn', stemZh: '今天是星期三，明天是____？', stemPy: 'Jīntiān shì xīngqīsān, míngtiān shì ____?', q: 'Chọn từ điền vào chỗ trống phù hợp nhất:', opts: ['星期二 (Thứ Ba)', '星期四 (Thứ Năm)', '星期五 (Thứ Sáu)', '星期日 (Chủ Nhật)'], ans: 1, exp: 'Hôm nay là Thứ Tư (星期三) thì ngày mai (明天) là Thứ Năm (星期四).' },
@@ -12675,6 +12767,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       { id: 'pt-11', level: 4, tier: 'HSK 4 · Trung cao cấp', stemZh: '养成良好的阅读习惯对一个人的长远发展非常有帮助。', stemPy: 'Yǎngchéng liánghǎo de yuèdú xíguàn duì yí ge rén de chángyuǎn fāzhǎn fēicháng yǒu bāngzhù.', q: 'Cụm từ cố định "养成…习惯" nghĩa là gì?', opts: ['Hình thành / rèn luyện thói quen', 'Từ bỏ thói quen', 'Thay đổi kế hoạch', 'Ghi chép nhật ký'], ans: 0, exp: 'Trong HSK 4, động từ đi kèm chuẩn với "习惯" (thói quen) là "养成" (nuôi dưỡng/hình thành).' },
       { id: 'pt-12', level: 4, tier: 'HSK 4 · Trung cao cấp', stemZh: '这次中国之旅给我留下了非常深刻的印象。', stemPy: 'Zhè cì Zhōngguó zhī lǚ gěi wǒ liúxià le fēicháng shēnkè de yìnxiàng.', q: 'Cụm "留下深刻的印象" có nghĩa tiếng Việt là gì?', opts: ['Để lại ấn tượng sâu sắc', 'Gây ra nhiều hiểu lầm', 'Tốn rất nhiều chi phí', 'Thay đổi toàn bộ lịch trình'], ans: 0, exp: '"留下深刻的印象" (liúxià shēnkè de yìnxiàng) là cụm từ cố định nghĩa là "để lại ấn tượng sâu sắc".' }
     ];
+    const questions = rawQuestions.map(item => {
+      const shuffledOpts = item.opts.map((text, i) => ({ text, isRight: i === item.ans }));
+      for (let i = shuffledOpts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = shuffledOpts[i];
+        shuffledOpts[i] = shuffledOpts[j];
+        shuffledOpts[j] = tmp;
+      }
+      return { ...item, opts: shuffledOpts.map(o => o.text), ans: shuffledOpts.findIndex(o => o.isRight) };
+    });
     const answers = {};
     let isSubmitted = false;
 
@@ -12756,7 +12858,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const submitBtn = root.querySelector('#xhz-pt-submit');
     if (submitBtn) {
       submitBtn.onclick = async () => {
+        if (isSubmitted) return;
         isSubmitted = true;
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.65';
+        submitBtn.textContent = '✅ Đã chấm điểm & lưu hồ sơ';
         let correctTotal = 0;
         questions.forEach((item, idx) => {
           const picked = answers[idx];
@@ -12801,7 +12907,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <h2 style="font-size:22px;font-weight:800;color:#1c1917;margin:6px 0;">Đúng ${correctTotal} / ${questions.length} câu · Đề xuất bắt đầu từ: <span style="color:#0d9488;">${recTitle}</span></h2>
             <p style="font-size:14px;color:#44403c;margin:0 0 14px 0;">Hệ thống đã lưu hồ sơ năng lực của bạn. Hãy chọn ngay hoạt động phù hợp với cấp độ <strong>HSK ${recLevel}</strong> bên dưới:</p>
             <div style="display:flex;gap:10px;flex-wrap:wrap;">
-              <a href="/thu-vien-new-hsk/hsk-${recLevel}" style="padding:10px 18px;border-radius:12px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13.5px;">🚀 Vào Giáo trình HSK ${recLevel}</a>
+              <a href="/thu-vien-new-hsk/new-hsk-${recLevel}" style="padding:10px 18px;border-radius:12px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13.5px;">🚀 Vào Giáo trình HSK ${recLevel}</a>
               <a href="/kiem-tra-hsk/hsk${recLevel}" style="padding:10px 18px;border-radius:12px;background:#fff;color:#0f766e;border:1px solid #0d9488;font-weight:800;text-decoration:none;font-size:13.5px;">📝 Làm đề thi thử HSK ${recLevel}</a>
               <a href="/hoc/hom-nay" style="padding:10px 18px;border-radius:12px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13.5px;">🎯 Xem Nhiệm vụ hôm nay</a>
             </div>
@@ -13106,7 +13212,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     root.innerHTML = `
       <div id="xhz-weekly-report-root" style="max-width:960px;margin:0 auto;">
-        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+        <div data-wr-actions="1" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
           <a href="/hoc/tien-do" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Tiến độ &amp; Thói quen (/hoc/tien-do)</a>
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <button type="button" id="xhz-wr-copy-btn" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:13px;">📋 Sao chép tóm tắt báo cáo</button>
@@ -13194,7 +13300,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               <div style="font-size:12.5px;font-weight:800;color:#115e59;text-transform:uppercase;">💡 Nhận xét &amp; Khuyến nghị lộ trình</div>
               <p style="font-size:14px;color:#1c1917;margin:4px 0 0 0;font-weight:600;line-height:1.5;">${escapeHtml(overallComment)}</p>
             </div>
-            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div data-wr-actions="1" style="display:flex;gap:8px;flex-wrap:wrap;">
               <a href="/hoc/hom-nay" style="padding:10px 16px;border-radius:12px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13px;">🎯 Vào Nhiệm vụ hôm nay</a>
               <a href="/kiem-tra-hsk" style="padding:10px 16px;border-radius:12px;background:#fff;color:#0f766e;border:1px solid #0d9488;font-weight:800;text-decoration:none;font-size:13px;">📝 Làm đề khảo thí HSK</a>
             </div>
@@ -13333,6 +13439,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         return;
       }
       const item = qs[qIdx];
+      const shuffledOpts = item.opts.map((text, i) => ({ text, isRight: i === item.ans }));
+      for (let i = shuffledOpts.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        const tmp = shuffledOpts[i];
+        shuffledOpts[i] = shuffledOpts[j];
+        shuffledOpts[j] = tmp;
+      }
       stageEl.innerHTML = `
         <div style="padding:20px;border-radius:16px;background:#fafaf9;border:1px solid #e7e5e4;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
@@ -13345,20 +13458,20 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div style="font-size:15px;font-weight:700;color:#44403c;margin-top:10px;">${escapeHtml(item.q)}</div>
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
-            ${item.opts.map((opt, oIdx) => `
-              <button type="button" data-tdc-opt="${oIdx}" style="padding:12px 16px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:14px;cursor:pointer;text-align:left;">
-                ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}
+            ${shuffledOpts.map((o, oIdx) => `
+              <button type="button" data-tdc-opt="${oIdx}" data-tdc-correct="${o.isRight ? '1' : '0'}" style="padding:12px 16px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:14px;cursor:pointer;text-align:left;">
+                ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(o.text)}
               </button>
             `).join('')}
           </div>
+          <div id="xhz-tdc-kbd-hint" style="margin-top:12px;text-align:center;font-size:12px;color:#78716c;">⌨️ Phím tắt: <strong>1–4</strong> chọn nhanh đáp án A–D · <strong>R</strong> nghe lại phát âm</div>
         </div>
       `;
       const spk = stageEl.querySelector('#xhz-tdc-speak');
       if (spk) spk.onclick = () => playPronunciation(item.zh, 'tts', 1.0);
       stageEl.querySelectorAll('[data-tdc-opt]').forEach(btn => {
         btn.onclick = () => {
-          const picked = Number(btn.getAttribute('data-tdc-opt'));
-          if (picked === item.ans) {
+          if (btn.getAttribute('data-tdc-correct') === '1') {
             combo++;
             score += 10 + combo * 2;
             recordStudyProgress({ wordLearned: item.zh });
@@ -17258,9 +17371,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         label: 'Bàn làm việc',
         items: [
           ['🏠', 'Trang chủ Studio', '/'],
-          ['🗺️', 'Lộ trình HSK 3.0', '/lo-trinh/'],
-          ['📖', 'Bài học hôm nay', '/hoc/'],
-          ['🔁', 'Ôn tập thông minh', '/on-tap/']
+          ['🗺️', 'Lộ trình HSK 3.0', '/hoc/'],
+          ['🎯', 'Nhiệm vụ hôm nay', '/hoc/hom-nay'],
+          ['🔁', 'Ôn tập thông minh', '/on-tap/'],
+          ['📜', 'Báo cáo tuần', '/hoc/bao-cao']
         ]
       },
       {
@@ -17302,7 +17416,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const navHtml = groups.map(g => {
       const links = g.items.map(([ico, text, href]) => {
         const hrefNorm = href.replace(/\/+$/, '') || '/';
-        const active = hrefNorm === '/' ? norm === '/' : (norm === hrefNorm || norm.startsWith(hrefNorm + '/'));
+        const active = hrefNorm === '/'
+          ? norm === '/'
+          : hrefNorm === '/hoc'
+          ? (norm === '/hoc' || norm === '/lo-trinh' || norm.startsWith('/hoc/bai/') || norm.startsWith('/hoc/chang/'))
+          : (norm === hrefNorm || norm.startsWith(hrefNorm + '/'));
         return '<a href="' + href + '" class="htq-sb-link' + (active ? ' is-active' : '') + '"><span>' + ico + '</span><span>' + text + '</span></a>';
       }).join('');
       return '<div class="htq-sb-group"><div class="htq-sb-label">' + g.label + '</div>' + links + '</div>';
@@ -18885,6 +19003,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       else if (k === 'ArrowLeft') { const b = document.getElementById('xhz-fc-prev'); if (b) { ev.preventDefault(); b.click(); } }
       else if (k === 'ArrowRight') { const b = document.getElementById('xhz-fc-next'); if (b) { ev.preventDefault(); b.click(); } }
       else if (k.toLowerCase() === 'r') { const b = document.getElementById('xhz-fc-audio'); if (b) { ev.preventDefault(); b.click(); } }
+    }
+
+    const tdcStage = document.getElementById('xhz-tdc-stage');
+    if (tdcStage && tdcStage.offsetParent !== null) {
+      const k = String(ev.key || '');
+      if (['1', '2', '3', '4'].includes(k)) {
+        const optBtn = tdcStage.querySelector(`[data-tdc-opt="${Number(k) - 1}"]`);
+        if (optBtn) { ev.preventDefault(); optBtn.click(); return; }
+      } else if (k.toLowerCase() === 'r') {
+        const spkBtn = document.getElementById('xhz-tdc-speak');
+        if (spkBtn) { ev.preventDefault(); spkBtn.click(); return; }
+      }
     }
   };
   htqGlobalKeydownHandler.__xhzRuntimeListener = true;
