@@ -46,10 +46,13 @@ async function callLlmJson(systemPrompt, userPrompt, clientApiKey) {
     for (const model of models) {
       try {
         const resp = await fetchWithTimeout(
-          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(geminiKey)}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
           {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+              "Content-Type": "application/json",
+              "x-goog-api-key": geminiKey
+            },
             body: JSON.stringify({
               systemInstruction: { parts: [{ text: systemPrompt }] },
               contents: [{ role: "user", parts: [{ text: String(userPrompt || "").slice(0, 4000) }] }],
@@ -191,6 +194,8 @@ module.exports = async function handler(req, res) {
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Device-Id");
   res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("Referrer-Policy", "no-referrer");
   res.setHeader("Cache-Control", "no-store");
 
   if (req.method === "OPTIONS") {
@@ -260,9 +265,9 @@ module.exports = async function handler(req, res) {
     // ------------------------------------------------------------------------
     if (action === "companion-chat") {
       const msg = String(body.message || body.text || "").trim().slice(0, 1500);
-      const characterName = String(body.characterName || "Dương Dương").trim();
-      const pagePath = String(body.pagePath || "").trim();
-      const pageTitle = String(body.pageTitle || "").trim();
+      const characterName = String(body.characterName || "Dương Dương").replace(/[\r\n`"{}<>\\]/g, "").trim().slice(0, 32) || "Dương Dương";
+      const pagePath = String(body.pagePath || "").trim().slice(0, 200);
+      const pageTitle = String(body.pageTitle || "").trim().slice(0, 160);
       const pageWord = body.pageWord || null;
       const dictMatches = Array.isArray(body.dictMatches) ? body.dictMatches.slice(0, 8) : [];
       const history = Array.isArray(body.history)

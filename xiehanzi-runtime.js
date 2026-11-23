@@ -103,7 +103,7 @@
       var root = document.head || document.documentElement;
       if (!root) return;
       var st = document.getElementById('htq-v14-fx-css');
-      if (st && st.getAttribute('data-htq-ver') === '16') return;
+      if (st && st.getAttribute('data-htq-ver') === '18') return;
       if (!st) {
         st = document.createElement('style');
         st.id = 'htq-v14-fx-css';
@@ -396,6 +396,38 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-dynamic-page-root select {
   background: #0f1526 !important; color: #f8fafc !important; border-color: rgba(129,140,248,.34) !important;
 }
+.dark #xhz-dynamic-page-root [style*="background:#eef2ff"],
+.dark #xhz-dynamic-page-root [style*="background: #eef2ff"] {
+  background: rgba(79,70,229,.22) !important; color: #e0e7ff !important; border-color: rgba(129,140,248,.38) !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#fffbeb"],
+.dark #xhz-dynamic-page-root [style*="background:#fef3c7"],
+.dark #xhz-dynamic-page-root [style*="background:#fff7ed"],
+.dark #xhz-dynamic-page-root [style*="background:#ffedd5"] {
+  background: rgba(217,119,6,.20) !important; color: #fde68a !important; border-color: rgba(251,191,36,.34) !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#fff1f2"],
+.dark #xhz-dynamic-page-root [style*="background:#fef2f2"] {
+  background: rgba(225,29,72,.20) !important; color: #fecdd3 !important; border-color: rgba(251,113,133,.36) !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#ecfdf5"],
+.dark #xhz-dynamic-page-root [style*="background:#dcfce7"],
+.dark #xhz-dynamic-page-root [style*="background:#f0fdf4"] {
+  background: rgba(16,185,129,.20) !important; color: #a7f3d0 !important; border-color: rgba(52,211,153,.34) !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#ccfbf1"],
+.dark #xhz-dynamic-page-root [style*="background:#e0f2fe"] {
+  background: rgba(14,165,233,.20) !important; color: #bae6fd !important; border-color: rgba(56,189,248,.34) !important;
+}
+.dark #xhz-dynamic-page-root [style*="color:#4338ca"] { color: #c7d2fe !important; }
+.dark #xhz-dynamic-page-root [style*="color:#0f766e"],
+.dark #xhz-dynamic-page-root [style*="color:#115e59"] { color: #5eead4 !important; }
+.dark #xhz-dynamic-page-root [style*="color:#15803d"],
+.dark #xhz-dynamic-page-root [style*="color:#166534"] { color: #86efac !important; }
+.dark #xhz-dynamic-page-root [style*="color:#991b1b"],
+.dark #xhz-dynamic-page-root [style*="color:#b91c1c"] { color: #fca5a5 !important; }
+.dark #xhz-dynamic-page-root [style*="color:#92400e"],
+.dark #xhz-dynamic-page-root [style*="color:#9a3412"] { color: #fcd34d !important; }
 .htq-buddy-fab {
   pointer-events: auto; position: relative; width: 40px; height: 40px; padding: 0; border-radius: 999px;
   border: 2px solid #fff; cursor: pointer; background: linear-gradient(135deg, #fde68a, #fbcfe8 55%, #a5f3fc);
@@ -510,7 +542,7 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 }
 `;
       if (st.textContent !== fxCss) st.textContent = fxCss;
-      st.setAttribute('data-htq-ver', '16');
+      st.setAttribute('data-htq-ver', '18');
     } catch (_e) {}
   }
   injectMasterV3Styles();
@@ -2529,7 +2561,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         injectMasterV3Styles();
         const m = document.getElementById('htq-v3-master-css');
         const f = document.getElementById('htq-v14-fx-css');
-        return Boolean(m && m.getAttribute('data-htq-ver') === '16' && m.textContent.includes(':focus-visible') && f && f.getAttribute('data-htq-ver') === '16');
+        return Boolean(m && m.getAttribute('data-htq-ver') === '16' && m.textContent.includes(':focus-visible') && f && f.getAttribute('data-htq-ver') === '18');
       });
       await runCheck('seo-robots-and-sitemap', async () => {
         const rb = await originalFetch('/robots.txt').then(r => r.ok ? r.text() : '').catch(() => '');
@@ -2593,6 +2625,39 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           fnSrc.includes('data-status="mnemonic"') &&
           fnSrc.includes('data-lw-mnemonic="1"') &&
           fnSrc.includes('mergeMnemonicMaps')
+        );
+      });
+      await runCheck('dark-mode-pastel-coverage', () => {
+        injectMasterV3Styles();
+        const f = document.getElementById('htq-v14-fx-css');
+        const t = f ? f.textContent : '';
+        return Boolean(
+          f && f.getAttribute('data-htq-ver') === '18' &&
+          t.includes('#eef2ff') && t.includes('#fff1f2') && t.includes('#fef3c7') && t.includes('#fffbeb') && t.includes('#ecfdf5')
+        );
+      });
+      await runCheck('exam-chunks-no-expired-date', async () => {
+        const [kJs, dJs] = await Promise.all([
+          originalFetch('/_next/static/chunks/app/(primary-layout)/kiem-tra-hsk/page-750bfb5881fbb72a.js').then(r => r.ok ? r.text() : '').catch(() => ''),
+          originalFetch('/_next/static/chunks/app/(primary-layout)/de-kiem-tra/page-8791a505a77531ff.js').then(r => r.ok ? r.text() : '').catch(() => '')
+        ]);
+        return Boolean(
+          kJs.length > 5000 && dJs.length > 5000 &&
+          !kJs.includes('2026-11-16T00:00:00+07:00') &&
+          !dJs.includes('2026-11-16T00:00:00+07:00')
+        );
+      });
+      await runCheck('worksheet-suspense-hydration-safe', () => {
+        const src = typeof enhanceWorksheetAndPdfTools === 'function' ? enhanceWorksheetAndPdfTools.toString() : '';
+        return Boolean(src.includes('__reactFiber$') && src.includes('requestAnimationFrame'));
+      });
+      await runCheck('learned-words-query-filter-and-progress-mnemonics', () => {
+        const lwSrc = typeof renderMistakeBookOrLearnedWordsPage === 'function' ? renderMistakeBookOrLearnedWordsPage.toString() : '';
+        const prSrc = typeof renderProgressOrHabitPage === 'function' ? renderProgressOrHabitPage.toString() : '';
+        return Boolean(
+          lwSrc.includes("get('filter')") &&
+          prSrc.includes('xhz-progress-mnemonic-card') &&
+          prSrc.includes('/on-tap/da-hoc?filter=mnemonic')
         );
       });
     } finally {
@@ -10889,7 +10954,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const grid = root.querySelector('#xhz-lw-grid');
     const searchEl = root.querySelector('#xhz-lw-search');
     const exportBtn = root.querySelector('#xhz-lw-export-csv');
-    let activeStatus = 'all';
+    const reqFilter = (new URLSearchParams(window.location.search).get('filter') || '').trim();
+    let activeStatus = ['known', 'learning', 'mnemonic'].includes(reqFilter) ? reqFilter : 'all';
+    const applyFilterBtnStyles = () => {
+      root.querySelectorAll('.xhz-lw-filter').forEach(b => {
+        const on = (b.getAttribute('data-status') || 'all') === activeStatus;
+        b.style.background = on ? '#0d9488' : '#fff';
+        b.style.color = on ? '#fff' : '#1c1917';
+        b.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+      });
+    };
     const renderCards = (q = '') => {
       const norm = q.trim().toLowerCase();
       const filtered = items.filter(it => {
@@ -10922,17 +10996,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         `;
       }).join('');
     };
+    applyFilterBtnStyles();
     renderCards();
     if (searchEl) searchEl.oninput = e => renderCards(e.target.value);
     root.querySelectorAll('.xhz-lw-filter').forEach(btn => {
       btn.onclick = () => {
         activeStatus = btn.getAttribute('data-status') || 'all';
-        root.querySelectorAll('.xhz-lw-filter').forEach(b => {
-          const on = b === btn;
-          b.style.background = on ? '#0d9488' : '#fff';
-          b.style.color = on ? '#fff' : '#1c1917';
-          b.style.borderColor = on ? '#0d9488' : '#d6d3d1';
-        });
+        applyFilterBtnStyles();
         renderCards(searchEl ? searchEl.value : '');
       };
     });
@@ -10997,6 +11067,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     });
 
     const weeks12 = Array.isArray(sum.activity12Weeks) ? sum.activity12Weeks : [];
+    let lsMn = {};
+    try { lsMn = JSON.parse(localStorage.getItem('httq_user_mnemonics_v1') || '{}') || {}; } catch (_) {}
+    const mnMap = mergeMnemonicMaps(prog.userMnemonics, lsMn);
+    const mnTargets = Object.keys(mnMap).filter(k => Array.isArray(mnMap[k]) && mnMap[k].length > 0);
+    const mnTargetCount = mnTargets.length;
+    const mnNoteCount = mnTargets.reduce((acc, k) => acc + mnMap[k].length, 0);
 
     root.innerHTML = `
       <div style="max-width:940px;margin:0 auto;">
@@ -11030,6 +11106,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               <div style="font-size:12px;font-weight:700;color:#991b1b;">MỤC CẦN ÔN LẠI</div>
               <div style="font-size:28px;font-weight:800;color:#dc2626;margin-top:4px;">${sum.dueTotal} thẻ</div>
               <div style="font-size:12px;color:#78716c;margin-top:4px;"><a href="/hoc/bai/on-tap-den-han" style="color:#dc2626;font-weight:700;">Ôn bài đến hạn ngay →</a></div>
+            </div>
+            <div id="xhz-progress-mnemonic-card" style="padding:16px;border-radius:16px;background:#eef2ff;border:1px solid #c7d2fe;">
+              <div style="font-size:12px;font-weight:700;color:#4338ca;">MẸO NHỚ CÁ NHÂN</div>
+              <div style="font-size:28px;font-weight:800;color:#4338ca;margin-top:4px;">${mnTargetCount} mục</div>
+              <div style="font-size:12px;color:#78716c;margin-top:4px;">${mnNoteCount} ghi chú · <a href="/on-tap/da-hoc?filter=mnemonic" style="color:#4338ca;font-weight:700;">Xem & lọc mẹo nhớ →</a></div>
             </div>
           </div>
 
@@ -14028,6 +14109,28 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     try {
       const p = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
       if (p !== '/tao-vo-tap-viet' && p !== '/flashcard-pdf') return;
+      const hasReactFiber = (el) => Boolean(el && Object.keys(el).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$')));
+      const hasPendingSuspense = (container) => {
+        if (!container || typeof document.createTreeWalker !== 'function') return false;
+        try {
+          const w = document.createTreeWalker(container, NodeFilter.SHOW_COMMENT, null);
+          let n;
+          while ((n = w.nextNode())) {
+            const v = String(n.nodeValue || '').trim();
+            if (v === '$?' || v === '$!') return true;
+          }
+        } catch (_) {}
+        return false;
+      };
+      const scheduleRetry = () => {
+        const tries = Number(window.__xhzWorksheetHydrateRetries || 0);
+        if (tries >= 12 || window.__xhzWorksheetRetryTimer) return;
+        window.__xhzWorksheetHydrateRetries = tries + 1;
+        window.__xhzWorksheetRetryTimer = setTimeout(() => {
+          window.__xhzWorksheetRetryTimer = 0;
+          enhanceWorksheetAndPdfTools();
+        }, 220);
+      };
       const setNativeVal = (el, val) => {
         if (!el) return;
         const proto = el.tagName === 'TEXTAREA' ? window.HTMLTextAreaElement.prototype : window.HTMLInputElement.prototype;
@@ -14042,18 +14145,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const learnedText = learned.slice(-20).join(' ') || '你 好 我 是 老 师 爸 爸 妈 妈';
 
       if (p === '/tao-vo-tap-viet') {
+        const ta = document.getElementById('characters') || document.querySelector('textarea');
+        const mainHost = (ta && ta.closest('main')) || document.querySelector('main');
+        if (!ta || !ta.parentNode || !hasReactFiber(ta) || !hasReactFiber(ta.parentNode) || hasPendingSuspense(mainHost)) {
+          scheduleRetry();
+          return;
+        }
         const rawQText = (new URLSearchParams(window.location.search).get('text') || window.__xhzWorksheetQueryText || '').trim();
         if (rawQText) window.__xhzWorksheetQueryText = rawQText;
         const applyWorksheetQueryText = () => {
           const curTa = document.getElementById('characters') || document.querySelector('textarea');
-          if (!curTa || !rawQText) return;
+          if (!curTa || !hasReactFiber(curTa) || !rawQText) return;
           if (curTa.dataset.xhzUserEdited === '1') return;
           if (curTa.value === rawQText && curTa.dataset.xhzPrefilled === '1') return;
           setNativeVal(curTa, rawQText);
           curTa.dataset.xhzPrefilled = '1';
         };
-        const ta = document.getElementById('characters') || document.querySelector('textarea');
-        if (!ta) return;
         if (!ta.dataset.xhzEditBound) {
           ta.dataset.xhzEditBound = '1';
           ta.addEventListener('input', ev => {
@@ -14065,32 +14172,46 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           window.__xhzWorksheetTimersScheduled = true;
           [250, 600, 1100].forEach(ms => setTimeout(applyWorksheetQueryText, ms));
         }
-        if (!document.getElementById('xhz-quick-tools-bar')) {
-          const bar = document.createElement('div');
-          bar.id = 'xhz-quick-tools-bar';
-          bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px 0;align-items:center;';
-          bar.innerHTML = `
-            <button type="button" id="xhz-qt-learned" style="padding:7px 14px;border-radius:999px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-weight:700;font-size:13px;cursor:pointer;">📚 Từ đã học của bạn (${learned.length})</button>
-            <button type="button" id="xhz-qt-hsk1" style="padding:7px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">✨ HSK 1 Bài 1</button>
-            <button type="button" id="xhz-qt-print" style="padding:7px 14px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
-          `;
-          ta.parentNode.insertBefore(bar, ta);
-          document.getElementById('xhz-qt-learned').onclick = () => {
-            const tNow = document.getElementById('characters') || ta;
-            tNow.dataset.xhzUserEdited = '1';
-            setNativeVal(tNow, learnedText);
-          };
-          document.getElementById('xhz-qt-hsk1').onclick = () => {
-            const tNow = document.getElementById('characters') || ta;
-            tNow.dataset.xhzUserEdited = '1';
-            setNativeVal(tNow, '八 爸爸 妈妈 你 好 不 客气 老师 大家');
-          };
-          document.getElementById('xhz-qt-print').onclick = () => window.print();
+        if (!document.getElementById('xhz-quick-tools-bar') && !window.__xhzWorksheetBarScheduled) {
+          window.__xhzWorksheetBarScheduled = true;
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              window.__xhzWorksheetBarScheduled = false;
+              const liveTa = document.getElementById('characters') || document.querySelector('textarea');
+              if (!liveTa || !liveTa.parentNode || document.getElementById('xhz-quick-tools-bar')) return;
+              const bar = document.createElement('div');
+              bar.id = 'xhz-quick-tools-bar';
+              bar.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px 0;align-items:center;';
+              bar.innerHTML = `
+                <button type="button" id="xhz-qt-learned" style="padding:7px 14px;border-radius:999px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-weight:700;font-size:13px;cursor:pointer;">📚 Từ đã học của bạn (${learned.length})</button>
+                <button type="button" id="xhz-qt-hsk1" style="padding:7px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">✨ HSK 1 Bài 1</button>
+                <button type="button" id="xhz-qt-print" style="padding:7px 14px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
+              `;
+              liveTa.parentNode.insertBefore(bar, liveTa);
+              const qBtn = document.getElementById('xhz-qt-learned');
+              const hBtn = document.getElementById('xhz-qt-hsk1');
+              const pBtn = document.getElementById('xhz-qt-print');
+              if (qBtn) qBtn.onclick = () => {
+                const tNow = document.getElementById('characters') || liveTa;
+                tNow.dataset.xhzUserEdited = '1';
+                setNativeVal(tNow, learnedText);
+              };
+              if (hBtn) hBtn.onclick = () => {
+                const tNow = document.getElementById('characters') || liveTa;
+                tNow.dataset.xhzUserEdited = '1';
+                setNativeVal(tNow, '八 爸爸 妈妈 你 好 不 客气 老师 大家');
+              };
+              if (pBtn) pBtn.onclick = () => window.print();
+            }, 220);
+          });
         }
       } else if (p === '/flashcard-pdf') {
         if (document.getElementById('xhz-quick-tools-bar')) return;
         const h1 = document.querySelector('h1');
-        if (!h1 || !h1.parentNode) return;
+        if (!h1 || !h1.parentNode || !hasReactFiber(h1) || !hasReactFiber(h1.parentNode)) {
+          scheduleRetry();
+          return;
+        }
         const bar = document.createElement('div');
         bar.id = 'xhz-quick-tools-bar';
         bar.style.cssText = 'display:flex;gap:10px;flex-wrap:wrap;margin:12px 0 16px 0;align-items:center;';
@@ -16328,7 +16449,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         enhanceAccountPageAuthUI();
       }
       if (curPath === '/tao-vo-tap-viet' || curPath === '/flashcard-pdf') {
-        enhanceWorksheetAndPdfTools();
+        clearTimeout(window.__xhzWsMutTimer);
+        window.__xhzWsMutTimer = setTimeout(enhanceWorksheetAndPdfTools, 300);
       }
       if (!scrubTimer) {
         scrubTimer = setTimeout(() => {

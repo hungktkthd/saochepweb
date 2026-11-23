@@ -44,7 +44,8 @@
         { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
         { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
         { "key": "Permissions-Policy", "value": "camera=(), geolocation=(), payment=(), usb=(), microphone=(self)" },
-        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" }
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "same-origin-allow-popups" }
       ]
     },
     {
@@ -68,6 +69,13 @@
     }
   ],
   "rewrites": [
+    { "source": "/opengraph-image-12gd74", "destination": "/images/studio/hero-hanzi-studio.jpg" },
+    { "source": "/opengraph-image-1p9z46", "destination": "/images/studio/hero-hanzi-studio.jpg" },
+    { "source": "/flashcard-pdf/opengraph-image-1wppk8", "destination": "/images/studio/banner-review-srs.jpg" },
+    { "source": "/hanzi-character/:char/opengraph-image-1lnjrn", "destination": "/images/studio/banner-dictionary-calligraphy.jpg" },
+    { "source": "/hanzi-writing-practice/opengraph-image-12c59d", "destination": "/images/studio/cute-bunny-writing.jpg" },
+    { "source": "/them-pinyin/opengraph-image-10gqph", "destination": "/images/studio/cute-panda-dict.jpg" },
+    { "source": "/tra-chu/opengraph-image-1ut8tw", "destination": "/images/studio/banner-dictionary-calligraphy.jpg" },
     { "source": "/_next/static/media/:font*.woff2", "destination": "/_next/static/media/00f4982f357db61e-s.p.woff2" },
     { "source": "/monitoring", "destination": "/api/ai" },
     { "source": "/thay-do-rt/:path*", "destination": "/api/ai" },
