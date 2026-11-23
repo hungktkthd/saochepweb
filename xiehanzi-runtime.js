@@ -3005,6 +3005,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           stSrc.includes('/so-tay/da-luu')
         );
       });
+      await runCheck('hoc-learned-and-mistake-alias-routes', () => {
+        return Boolean(
+          isDynamicSpaRoute('/hoc/tu-da-hoc') === true &&
+          isDynamicSpaRoute('/hoc/da-hoc') === true &&
+          isDynamicSpaRoute('/hoc/so-loi') === true &&
+          isDynamicSpaRoute('/hoc/loi-sai') === true &&
+          isDynamicSpaRoute('/on-tap/tu-da-hoc') === true
+        );
+      });
+      await runCheck('weekly-study-report-route-and-renderer', () => {
+        const wrSrc = typeof renderWeeklyStudyReportPage === 'function' ? renderWeeklyStudyReportPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/hoc/bao-cao') === true &&
+          isDynamicSpaRoute('/phu-huynh') === true &&
+          isDynamicSpaRoute('/phu-huynh/bao-cao/2026-W47') === true &&
+          wrSrc.includes('xhz-weekly-report-root') &&
+          wrSrc.includes('xhz-wr-print-btn') &&
+          wrSrc.includes('xhz-wr-copy-btn') &&
+          resolvePageStageConfig('/hoc/bao-cao') === null &&
+          resolvePageStageConfig('/phu-huynh') === null
+        );
+      });
+      await runCheck('thaydo-challenge-arena-route-and-renderer', () => {
+        const tdcSrc = typeof renderThayDoChallengePage === 'function' ? renderThayDoChallengePage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/thay-do/thach/hsk1') === true &&
+          isDynamicSpaRoute('/thay-do/thu-thach') === true &&
+          tdcSrc.includes('xhz-thaydo-challenge-root') &&
+          tdcSrc.includes('xhz-tdc-timer') &&
+          tdcSrc.includes('data-tdc-opt')
+        );
+      });
+      await runCheck('bo-suu-tap-and-new-hsk-short-level-aliases', () => {
+        const hrefs = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES.map(r => r.href) : [];
+        return Boolean(
+          isDynamicSpaRoute('/bo-suu-tap') === true &&
+          isDynamicSpaRoute('/bo-suu-tap/du-lich-mua-sam') === true &&
+          isDynamicSpaRoute('/thu-vien-new-hsk/hsk-1') === true &&
+          hrefs.includes('/hoc/bao-cao') &&
+          hrefs.includes('/thay-do/thach/hsk1')
+        );
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -7915,16 +7957,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'kiem-tra-ngu-phap' && parts[1] === 'lam-bai') return true;
     if (parts[0] === 'luyen-noi' && parts[1] === 'shadowing') return true;
     if (parts[0] && parts[0].startsWith('thu-vien-')) {
+      if (parts[0] === 'thu-vien-new-hsk' && parts.length === 2 && /^hsk-[1-9]/i.test(parts[1])) return true;
       if (STATIC_CURR_ROOTS.includes(parts[0])) return parts.length >= 3;
       return parts.length >= 2;
     }
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) return true;
     if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || parts[0] === 'kiem-tra-yct' || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap' || parts[1] === 'noi') && parts.length >= 3) return true;
-    if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen' || parts[1] === 'hom-nay')) return true;
+    if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen' || parts[1] === 'hom-nay' || parts[1] === 'bao-cao')) return true;
+    if (parts[0] === 'phu-huynh') return true;
+    if (parts[0] === 'thay-do' && (parts[1] === 'thach' || parts[1] === 'thu-thach')) return true;
     if ((parts[0] === 'bat-dau' && parts[1] === 'kiem-tra') || (parts[0] === 'hoc' && parts[1] === 'bat-dau' && parts[2] === 'kiem-tra')) return true;
-    if (parts[0] === 'so-tay' && parts.length >= 2) return true;
-    if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
+    if ((parts[0] === 'so-tay' && parts.length >= 2) || parts[0] === 'bo-suu-tap') return true;
+    if ((parts[0] === 'on-tap' || parts[0] === 'hoc') && (parts[1] === 'da-hoc' || parts[1] === 'tu-da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) return true;
     return false;
   }
@@ -9347,6 +9392,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       'thu-vien-msutong': 'Giáo trình MSutong'
     };
     const curr = currMap[rootSlug] || 'new-hsk';
+    if (curr === 'new-hsk' && subParts[0] && /^hsk-[1-9]/i.test(subParts[0])) {
+      subParts[0] = 'new-' + subParts[0];
+    }
     const brandTitle = currBrandMap[rootSlug] || 'Thư viện HSK 3.0 (9 cấp)';
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải nội dung giáo trình...</div>`;
@@ -12965,6 +13013,341 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     renderDeck();
   }
 
+  async function renderWeeklyStudyReportPage(pathname) {
+    const root = getMainContentContainer();
+    const sum = getRealProgressSummary();
+    const prog = sum.prog || {};
+    const m = computeRealSkillMetrics(sum);
+    const dailyGoal = Number(prog.habitSettings && prog.habitSettings.dailyMinutesGoal) || 15;
+    const weeklyGoalMins = dailyGoal * 7;
+    const isParentView = String(pathname || '').startsWith('/phu-huynh');
+    const todayIso = new Date().toISOString().slice(0, 10);
+    document.title = isParentView
+      ? 'Báo cáo tiến độ học tập cho Phụ huynh & Học viên | Học Tiếng Trung'
+      : 'Phiếu báo cáo tiến độ học tập tuần | Học Tiếng Trung';
+
+    const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
+    const now = new Date();
+    const dayOfWeek = (now.getDay() + 6) % 7;
+    const monday = new Date(now.getTime() - dayOfWeek * 86400000);
+    const weekPills = dayLabels.map((lbl, i) => {
+      const d = new Date(monday.getTime() + i * 86400000);
+      const iso = d.toISOString().slice(0, 10);
+      const mins = Number((prog.dailyMinutesMap && prog.dailyMinutesMap[iso]) || 0);
+      const isDone = (Array.isArray(prog.activeDays) && prog.activeDays.includes(iso)) || mins > 0;
+      return { lbl, iso, isDone, mins, isToday: iso === todayIso };
+    });
+    const weekTotalMins = weekPills.reduce((acc, w) => acc + (Number(w.mins) || 0), 0);
+    const activeWeekDays = weekPills.filter(w => w.isDone).length;
+    const chartMax = Math.max(dailyGoal, ...weekPills.map(w => Number(w.mins) || 0), 15);
+    const goalY = Math.round(92 - (Math.min(dailyGoal, chartMax) / chartMax) * 70);
+
+    const skillEval = [
+      { name: 'Từ vựng & Hán tự', pct: m.vocabPct, note: `${sum.wordsMastered} từ đã thuộc / ${sum.wordsSeen} từ đã gặp` },
+      { name: 'Nghe hiểu phản xạ', pct: m.listenPct, note: `${m.dictDone} bài nghe chép & hội thoại đã luyện` },
+      { name: 'Khẩu ngữ & Phát âm AI', pct: m.speakPct, note: `Điểm phát âm trung bình: ${m.avgScore}/100` },
+      { name: 'Ngữ pháp HSK', pct: m.grammarPct, note: `${m.grammarDone} chủ điểm ngữ pháp đã hoàn thành` },
+      { name: 'Kỹ năng Làm đề thi', pct: m.examPct, note: `Dự đoán điểm HSK: ${m.predictedScore300}/300 điểm` }
+    ];
+    const overallComment =
+      m.avgSkill >= 75
+        ? 'Xuất sắc! Học viên duy trì nhịp độ học tập rất vững vàng, phản xạ ngữ âm và vốn từ HSK phát triển đồng đều.'
+        : m.avgSkill >= 40
+        ? 'Tiến bộ tốt! Học viên đã hình thành thói quen học tiếng Trung và nắm được nhóm từ vựng, ngữ pháp cốt lõi.'
+        : 'Khởi đầu tích cực! Khuyến nghị duy trì đều đặn 15 phút/ngày tại Bảng nhiệm vụ hôm nay (/hoc/hom-nay) để tăng tốc độ tích lũy từ vựng.';
+
+    const summaryTextForCopy =
+      `📜 BÁO CÁO HỌC TẬP HÁN NGỮ STUDIO (${todayIso})\n` +
+      `• Chuỗi ngày học liên tiếp: ${sum.streakDays} ngày (Hoạt động ${activeWeekDays}/7 ngày tuần này)\n` +
+      `• Thời lượng học trong tuần: ${weekTotalMins} / ${weeklyGoalMins} phút\n` +
+      `• Từ vựng đã thuộc: ${sum.wordsMastered} từ (Đã mở khóa ${sum.wordsSeen} từ)\n` +
+      `• Ngữ pháp đã nắm vững: ${m.grammarDone} chủ điểm\n` +
+      `• Điểm phát âm AI trung bình: ${m.avgScore}/100 · Dự đoán HSK: ${m.predictedScore300}/300 điểm\n` +
+      `• Nhận xét: ${overallComment}`;
+
+    root.innerHTML = `
+      <div id="xhz-weekly-report-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/hoc/tien-do" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Tiến độ &amp; Thói quen (/hoc/tien-do)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <button type="button" id="xhz-wr-copy-btn" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:13px;">📋 Sao chép tóm tắt báo cáo</button>
+            <button type="button" id="xhz-wr-backup-btn" style="padding:8px 14px;border-radius:999px;border:1px solid #99f6e4;background:#f0fdfa;color:#0f766e;font-weight:700;cursor:pointer;font-size:13px;">📥 Tải sao lưu (.json)</button>
+            <button type="button" id="xhz-wr-print-btn" style="padding:8px 16px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">🖨️ In phiếu báo cáo PDF</button>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:26px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;padding-bottom:18px;border-bottom:2px solid #0d9488;margin-bottom:20px;">
+            <div>
+              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">📜 PHIẾU TỔNG KẾT &amp; BÁO CÁO HỌC TẬP · ${todayIso}</span>
+              <h1 style="font-size:25px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Báo Cáo Tiến Độ Học Tiếng Trung &amp; Đánh Giá 5 Kỹ Năng HSK</h1>
+              <p style="font-size:14px;color:#57534e;margin:0;">Tổng hợp thời lượng học tập, chuỗi chuyên cần, vốn từ vựng và mức độ sẵn sàng thi HSK.</p>
+            </div>
+            <div style="padding:12px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;text-align:right;">
+              <div style="font-size:11.5px;font-weight:800;color:#115e59;">ĐỘ SẴN SÀNG HSK</div>
+              <div style="font-size:26px;font-weight:900;color:#0d9488;">${m.avgSkill}%</div>
+              <div style="font-size:12px;color:#0f766e;font-weight:700;">Dự đoán: ${m.predictedScore300}/300 điểm</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;margin-bottom:22px;">
+            <div style="padding:14px 16px;border-radius:14px;background:#f0fdfa;border:1px solid #99f6e4;">
+              <div style="font-size:11.5px;font-weight:800;color:#115e59;">THỜI LƯỢNG TUẦN NÀY</div>
+              <div style="font-size:24px;font-weight:800;color:#0d9488;margin-top:4px;">${weekTotalMins} / ${weeklyGoalMins}p</div>
+              <div style="font-size:12px;color:#57534e;margin-top:2px;">Hoạt động ${activeWeekDays}/7 ngày trong tuần</div>
+            </div>
+            <div style="padding:14px 16px;border-radius:14px;background:#fff7ed;border:1px solid #fed7aa;">
+              <div style="font-size:11.5px;font-weight:800;color:#9a3412;">CHUỖI CHUYÊN CẦN</div>
+              <div style="font-size:24px;font-weight:800;color:#ea580c;margin-top:4px;">${sum.streakDays} ngày 🔥</div>
+              <div style="font-size:12px;color:#57534e;margin-top:2px;">Kỷ lục: ${sum.longestStreak} ngày liên tiếp</div>
+            </div>
+            <div style="padding:14px 16px;border-radius:14px;background:#f0fdf4;border:1px solid #bbf7d0;">
+              <div style="font-size:11.5px;font-weight:800;color:#166534;">TỪ VỰNG ĐÃ THUỘC</div>
+              <div style="font-size:24px;font-weight:800;color:#15803d;margin-top:4px;">${sum.wordsMastered} từ</div>
+              <div style="font-size:12px;color:#57534e;margin-top:2px;">Đã mở khóa ${sum.wordsSeen}/300 từ HSK 1</div>
+            </div>
+            <div style="padding:14px 16px;border-radius:14px;background:#eef2ff;border:1px solid #c7d2fe;">
+              <div style="font-size:11.5px;font-weight:800;color:#4338ca;">NGỮ PHÁP &amp; KHẨU NGỮ</div>
+              <div style="font-size:24px;font-weight:800;color:#4f46e5;margin-top:4px;">${m.grammarDone} cấu trúc</div>
+              <div style="font-size:12px;color:#57534e;margin-top:2px;">Phát âm AI TB: ${m.avgScore}/100</div>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:18px;margin-bottom:20px;">
+            <div style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;">
+              <h2 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 10px 0;">📈 Biểu Đồ Thời Lượng Học 7 Ngày Trong Tuần</h2>
+              <svg id="xhz-wr-week-svg" role="img" aria-label="Biểu đồ số phút học 7 ngày trong tuần" viewBox="0 0 420 120" style="width:100%;height:auto;max-height:145px;display:block;overflow:visible;">
+                <line x1="12" y1="${goalY}" x2="375" y2="${goalY}" stroke="#f59e0b" stroke-width="1.2" stroke-dasharray="4 3" />
+                <text x="379" y="${goalY + 3}" fill="#b45309" font-size="10" font-weight="700">${dailyGoal}p</text>
+                ${weekPills.map((wp, idx) => {
+                  const mins = Number(wp.mins) || 0;
+                  const barH = mins > 0 ? Math.max(8, Math.round((Math.min(mins, chartMax) / chartMax) * 70)) : 4;
+                  const x = 18 + idx * 51;
+                  const y = 92 - barH;
+                  const fill = mins >= dailyGoal ? '#0d9488' : mins > 0 ? '#fb923c' : '#d6d3d1';
+                  return `<g><title>${wp.lbl} (${wp.iso}): ${mins} phút</title><rect x="${x}" y="${y}" width="28" height="${barH}" rx="6" fill="${fill}" /><text x="${x + 14}" y="${Math.max(12, y - 4)}" text-anchor="middle" font-size="10" font-weight="700" fill="#44403c">${mins}p</text><text x="${x + 14}" y="110" text-anchor="middle" font-size="11" font-weight="700" fill="${wp.isToday ? '#0d9488' : '#57534e'}">${wp.lbl}</text></g>`;
+                }).join('')}
+              </svg>
+            </div>
+
+            <div id="xhz-wr-skill-feedback" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:12px;">
+              <div>
+                <h2 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 10px 0;">🎯 Đánh Giá Chi Tiết 5 Kỹ Năng HSK</h2>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  ${skillEval.map(s => `
+                    <div>
+                      <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:3px;">
+                        <span style="color:#1c1917;">${escapeHtml(s.name)}</span>
+                        <span style="color:#0d9488;">${escapeHtml(s.note)} (${s.pct}%)</span>
+                      </div>
+                      <div style="height:7px;border-radius:999px;background:#e7e5e4;overflow:hidden;">
+                        <div style="height:100%;width:${Math.max(5, s.pct)}%;background:#0d9488;border-radius:999px;"></div>
+                      </div>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div style="padding:16px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <div style="flex:1;min-width:240px;">
+              <div style="font-size:12.5px;font-weight:800;color:#115e59;text-transform:uppercase;">💡 Nhận xét &amp; Khuyến nghị lộ trình</div>
+              <p style="font-size:14px;color:#1c1917;margin:4px 0 0 0;font-weight:600;line-height:1.5;">${escapeHtml(overallComment)}</p>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="/hoc/hom-nay" style="padding:10px 16px;border-radius:12px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13px;">🎯 Vào Nhiệm vụ hôm nay</a>
+              <a href="/kiem-tra-hsk" style="padding:10px 16px;border-radius:12px;background:#fff;color:#0f766e;border:1px solid #0d9488;font-weight:800;text-decoration:none;font-size:13px;">📝 Làm đề khảo thí HSK</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const printBtn = root.querySelector('#xhz-wr-print-btn');
+    if (printBtn) printBtn.onclick = () => window.print();
+    const copyBtn = root.querySelector('#xhz-wr-copy-btn');
+    if (copyBtn) copyBtn.onclick = () => copyStudyText(summaryTextForCopy, 'Báo cáo học tập tuần');
+    const backupBtn = root.querySelector('#xhz-wr-backup-btn');
+    if (backupBtn) {
+      backupBtn.onclick = () => {
+        if (typeof window.__xhzExportProgressJson === 'function') window.__xhzExportProgressJson(true);
+      };
+    }
+  }
+
+  async function renderThayDoChallengePage(pathname) {
+    const root = getMainContentContainer();
+    const parts = String(pathname || '/thay-do/thach/hsk1').split('/').filter(Boolean);
+    let activeTier = safeDecodeURIComponent(parts[2] || 'hsk1').toLowerCase();
+    const tiers = {
+      hsk1: {
+        title: 'Sơ Nhập Môn · Thử Thách HSK 1',
+        badge: 'ĐẤU TRƯỜNG 60 GIÂY · CẤP 1',
+        questions: [
+          { zh: '你好', py: 'nǐ hǎo', q: 'Chọn nghĩa đúng của từ trên:', opts: ['Xin chào', 'Tạm biệt', 'Cảm ơn', 'Xin lỗi'], ans: 0 },
+          { zh: '谢谢', py: 'xièxie', q: 'Khi ai đó nói "谢谢", bạn đáp lại thế nào?', opts: ['不客气 (Đừng khách sáo)', '没关系 (Không sao)', '再见 (Tạm biệt)', '对不起 (Xin lỗi)'], ans: 0 },
+          { zh: '老师', py: 'lǎoshī', q: 'Từ "老师" có nghĩa là gì?', opts: ['Giáo viên / Thầy cô', 'Bác sĩ', 'Bạn học', 'Học sinh'], ans: 0 },
+          { zh: '喝茶', py: 'hē chá', q: 'Cụm từ "喝茶" chỉ hoạt động nào?', opts: ['Uống trà', 'Ăn cơm', 'Đọc sách', 'Xem phim'], ans: 0 },
+          { zh: '朋友', py: 'péngyou', q: 'Âm Hán Việt và nghĩa của "朋友" là:', opts: ['Bằng hữu · Bạn bè', 'Gia đình · Người thân', 'Đồng nghiệp · Công ty', 'Học hiệu · Trường học'], ans: 0 },
+          { zh: '高兴', py: 'gāoxìng', q: 'Trong câu "很高兴认识你", từ "高兴" nghĩa là:', opts: ['Vui mừng / Hân hạnh', 'Bận rộn', 'Xinh đẹp', 'Thông minh'], ans: 0 }
+        ]
+      },
+      hsk2: {
+        title: 'Học Đồ Tinh Anh · Thử Thách HSK 2',
+        badge: 'ĐẤU TRƯỜNG 60 GIÂY · CẤP 2',
+        questions: [
+          { zh: '已经', py: 'yǐjīng', q: 'Phó từ "已经" thường đi cùng trợ từ nào ở cuối câu?', opts: ['了 (le) · Đã... rồi', '吗 (ma) · Câu hỏi', '呢 (ne) · Còn... thì sao', '吧 (ba) · Nhé/chắc là'], ans: 0 },
+          { zh: '因为…所以…', py: 'yīnwèi... suǒyǐ...', q: 'Cấu trúc "因为…所以…" diễn tả:', opts: ['Bởi vì... cho nên...', 'Tuy rằng... nhưng...', 'Không những... mà còn...', 'Nếu như... thì...'], ans: 0 },
+          { zh: '帮助', py: 'bāngzhù', q: 'Từ "帮助" có nghĩa tiếng Việt là:', opts: ['Giúp đỡ / Hỗ trợ', 'Chuẩn bị', 'Giới thiệu', 'Nghỉ ngơi'], ans: 0 },
+          { zh: '运动', py: 'yùndòng', q: 'Từ "运动" (Vận động) có nghĩa là:', opts: ['Tập thể dục / Thể thao', 'Du lịch', 'Mua sắm', 'Ca hát'], ans: 0 },
+          { zh: '便宜', py: 'piányi', q: 'Trái nghĩa với "贵" (đắt) là "便宜", nghĩa là:', opts: ['Rẻ / Giá phải chăng', 'Nhanh chóng', 'Gần gũi', 'Dễ dàng'], ans: 0 },
+          { zh: '准备', py: 'zhǔnbèi', q: 'Trong câu "我准备好考试了", từ "准备" nghĩa là:', opts: ['Chuẩn bị', 'Bắt đầu', 'Kết thúc', 'Tham gia'], ans: 0 }
+        ]
+      },
+      chengyu: {
+        title: 'Thành Ngữ Bác Học · Tinh Hoa Bốn Chữ',
+        badge: 'ĐẤU TRƯỜNG 60 GIÂY · THÀNH NGỮ',
+        questions: [
+          { zh: '一帆风顺', py: 'yī fān fēng shùn', q: 'Thành ngữ "一帆风顺" chúc điều gì?', opts: ['Thuận buồm xuôi gió', 'Học một biết mười', 'Đoàn kết một lòng', 'Kiên trì bền bỉ'], ans: 0 },
+          { zh: '学业进步', py: 'xuéyè jìnbù', q: 'Thành ngữ "学业进步" dùng để chúc:', opts: ['Học hành tấn tới', 'Sức khỏe dồi dào', 'Buôn may bán đắt', 'Thượng lộ bình an'], ans: 0 },
+          { zh: '半途而废', py: 'bàn tú ér fèi', q: 'Thành ngữ "半途而废" khuyên ta tránh điều gì?', opts: ['Bỏ cuộc giữa chừng', 'Kiêu ngạo tự mãn', 'Nói lời không giữ lời', 'Vội vàng hấp tấp'], ans: 0 },
+          { zh: '温故知新', py: 'wēn gù zhī xīn', q: 'Lời dạy "温故知新" (Ôn cố tri tân) có nghĩa là:', opts: ['Ôn điều cũ để hiểu sâu điều mới', 'Học đi đôi với hành', 'Có công mài sắt có ngày nên kim', 'Tôn sư trọng đạo'], ans: 0 }
+        ]
+      }
+    };
+    if (!tiers[activeTier]) activeTier = 'hsk1';
+    document.title = `Thử thách Thầy Đồ: ${tiers[activeTier].title} | Học Tiếng Trung`;
+
+    let qIdx = 0;
+    let score = 0;
+    let combo = 0;
+    let timeLeft = 60;
+    let finished = false;
+    if (window.__xhzTdcTimer) {
+      clearInterval(window.__xhzTdcTimer);
+      window.__xhzTdcTimer = null;
+    }
+
+    root.innerHTML = `
+      <div id="xhz-thaydo-challenge-root" style="max-width:920px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/thay-do" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trường Thầy Đồ (/thay-do)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${Object.entries(tiers).map(([id, t]) => `
+              <a href="/thay-do/thach/${id}" style="padding:7px 14px;border-radius:999px;font-size:12.5px;font-weight:700;text-decoration:none;border:1px solid ${id === activeTier ? '#0d9488' : '#d6d3d1'};background:${id === activeTier ? '#0d9488' : '#fff'};color:${id === activeTier ? '#fff' : '#1c1917'};">
+                🏮 ${escapeHtml(t.title.split(' · ')[0])}
+              </a>
+            `).join('')}
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-bottom:16px;border-bottom:1px solid #e7e5e4;margin-bottom:20px;">
+            <div>
+              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fef3c7;color:#92400e;">🏮 ${escapeHtml(tiers[activeTier].badge)}</span>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 2px 0;">${escapeHtml(tiers[activeTier].title)}</h1>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <div id="xhz-tdc-timer" role="timer" style="padding:8px 14px;border-radius:12px;background:#fef2f2;border:1px solid #fecaca;color:#b91c1c;font-weight:800;font-size:15px;">⏱️ 60s</div>
+              <div id="xhz-tdc-combo" style="padding:8px 14px;border-radius:12px;background:#fff7ed;border:1px solid #fed7aa;color:#c2410c;font-weight:800;font-size:15px;">🔥 Combo x0</div>
+              <div id="xhz-tdc-score" style="padding:8px 14px;border-radius:12px;background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;font-weight:800;font-size:15px;">🏆 0 điểm</div>
+            </div>
+          </div>
+
+          <div id="xhz-tdc-stage"></div>
+        </div>
+      </div>
+    `;
+
+    const stageEl = root.querySelector('#xhz-tdc-stage');
+    const timerEl = root.querySelector('#xhz-tdc-timer');
+    const comboEl = root.querySelector('#xhz-tdc-combo');
+    const scoreEl = root.querySelector('#xhz-tdc-score');
+    const qs = tiers[activeTier].questions;
+
+    const finishChallenge = () => {
+      if (finished) return;
+      finished = true;
+      if (window.__xhzTdcTimer) {
+        clearInterval(window.__xhzTdcTimer);
+        window.__xhzTdcTimer = null;
+      }
+      recordStudyProgress({ minutes: 3, gradingInc: 1, sessionInc: 1 });
+      const rankTitle = score >= 50 ? '🥇 Trạng Nguyên Hán Ngữ' : score >= 30 ? '🥈 Bảng Nhãn Tinh Anh' : '🥉 Tiến Sĩ Khảo Thí';
+      stageEl.innerHTML = `
+        <div id="xhz-tdc-result" style="padding:28px;border-radius:18px;background:#f0fdfa;border:2px solid #0d9488;text-align:center;">
+          <div style="font-size:13px;font-weight:800;color:#0d9488;text-transform:uppercase;">🎉 KẾT QUẢ KHẢO THÍ THẦY ĐỒ</div>
+          <h2 style="font-size:28px;font-weight:900;color:#1c1917;margin:8px 0;">${rankTitle} · ${score} điểm</h2>
+          <p style="font-size:14.5px;color:#44403c;margin:0 0 18px 0;">Đã cộng kết quả khảo thí vào Bảng Vàng và Tiến độ học tập của bạn!</p>
+          <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
+            <a href="/thay-do/thach/${activeTier}" style="padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;">🔄 Thử sức lại</a>
+            <a href="/tro-choi" style="padding:10px 20px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;">🎮 Sang Trò chơi Chữ Hán</a>
+          </div>
+        </div>
+      `;
+    };
+
+    const renderQuestion = () => {
+      if (qIdx >= qs.length) {
+        finishChallenge();
+        return;
+      }
+      const item = qs[qIdx];
+      stageEl.innerHTML = `
+        <div style="padding:20px;border-radius:16px;background:#fafaf9;border:1px solid #e7e5e4;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-size:13px;font-weight:800;color:#0d9488;">Câu ${qIdx + 1} / ${qs.length}</span>
+            <button type="button" id="xhz-tdc-speak" style="padding:6px 14px;border-radius:999px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe phát âm</button>
+          </div>
+          <div style="text-align:center;padding:12px 0 16px;">
+            <div style="font-size:44px;font-weight:900;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(item.zh)}</div>
+            <div style="font-size:18px;font-weight:700;color:#0d9488;margin-top:4px;">${escapeHtml(item.py)}</div>
+            <div style="font-size:15px;font-weight:700;color:#44403c;margin-top:10px;">${escapeHtml(item.q)}</div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+            ${item.opts.map((opt, oIdx) => `
+              <button type="button" data-tdc-opt="${oIdx}" style="padding:12px 16px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:14px;cursor:pointer;text-align:left;">
+                ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}
+              </button>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      const spk = stageEl.querySelector('#xhz-tdc-speak');
+      if (spk) spk.onclick = () => playPronunciation(item.zh, 'tts', 1.0);
+      stageEl.querySelectorAll('[data-tdc-opt]').forEach(btn => {
+        btn.onclick = () => {
+          const picked = Number(btn.getAttribute('data-tdc-opt'));
+          if (picked === item.ans) {
+            combo++;
+            score += 10 + combo * 2;
+            recordStudyProgress({ wordLearned: item.zh });
+          } else {
+            combo = 0;
+          }
+          if (comboEl) comboEl.textContent = `🔥 Combo x${combo}`;
+          if (scoreEl) scoreEl.textContent = `🏆 ${score} điểm`;
+          qIdx++;
+          renderQuestion();
+        };
+      });
+    };
+
+    window.__xhzTdcTimer = setInterval(() => {
+      if (!root.isConnected || finished) {
+        clearInterval(window.__xhzTdcTimer);
+        window.__xhzTdcTimer = null;
+        return;
+      }
+      timeLeft = Math.max(0, timeLeft - 1);
+      if (timerEl) timerEl.textContent = `⏱️ ${timeLeft}s`;
+      if (timeLeft <= 0) finishChallenge();
+    }, 1000);
+
+    renderQuestion();
+  }
+
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
@@ -15504,8 +15887,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return;
     }
     if (parts[0] && parts[0].startsWith('thu-vien-')) {
+      const isShortNewHsk = parts[0] === 'thu-vien-new-hsk' && parts.length === 2 && /^hsk-[1-9]/i.test(parts[1]);
       const minParts = STATIC_CURR_ROOTS.includes(parts[0]) ? 3 : 2;
-      if (parts.length >= minParts) {
+      if (isShortNewHsk || parts.length >= minParts) {
         lastHandledFullUrl = fullKey;
         await renderCurriculumSubPage(pathname);
         return;
@@ -15531,12 +15915,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderTodayMissionPage();
       return;
     }
+    if ((parts[0] === 'hoc' && parts[1] === 'bao-cao') || parts[0] === 'phu-huynh') {
+      lastHandledFullUrl = fullKey;
+      await renderWeeklyStudyReportPage(pathname);
+      return;
+    }
+    if (parts[0] === 'thay-do' && (parts[1] === 'thach' || parts[1] === 'thu-thach')) {
+      lastHandledFullUrl = fullKey;
+      await renderThayDoChallengePage(pathname);
+      return;
+    }
     if ((parts[0] === 'bat-dau' && parts[1] === 'kiem-tra') || (parts[0] === 'hoc' && parts[1] === 'bat-dau' && parts[2] === 'kiem-tra')) {
       lastHandledFullUrl = fullKey;
       await renderPlacementTestPage();
       return;
     }
-    if (parts[0] === 'so-tay' && parts.length >= 2) {
+    if ((parts[0] === 'so-tay' && parts.length >= 2) || parts[0] === 'bo-suu-tap') {
       lastHandledFullUrl = fullKey;
       await renderNotebookCollectionPage(pathname);
       return;
@@ -15546,12 +15940,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderProgressOrHabitPage(pathname);
       return;
     }
-    if (parts[0] === 'on-tap' && parts[1] === 'ngu-phap-da-hoc') {
+    if ((parts[0] === 'on-tap' || parts[0] === 'hoc') && parts[1] === 'ngu-phap-da-hoc') {
       lastHandledFullUrl = fullKey;
       await renderLearnedGrammarPage(pathname);
       return;
     }
-    if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai')) {
+    if ((parts[0] === 'on-tap' || parts[0] === 'hoc') && (parts[1] === 'da-hoc' || parts[1] === 'tu-da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai')) {
       lastHandledFullUrl = fullKey;
       await renderMistakeBookOrLearnedWordsPage(pathname);
       return;
@@ -16899,7 +17293,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/hom-nay|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -17091,6 +17485,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '<a href="/hoc/hom-nay" class="htq-stage-chip-btn" style="text-decoration:none;border-color:#0d9488;color:#0f766e;">🎯 Nhiệm vụ hôm nay</a>' +
             '<a href="/bat-dau/kiem-tra" class="htq-stage-chip-btn" style="text-decoration:none;">🧭 Kiểm tra trình độ HSK</a>' +
             '<a href="/hoc/tien-do" class="htq-stage-chip-btn" style="text-decoration:none;">📊 Tiến độ 7 ngày</a>' +
+            '<a href="/hoc/bao-cao" class="htq-stage-chip-btn" style="text-decoration:none;">📜 Báo cáo tuần</a>' +
           '</div>';
         host.querySelectorAll('[data-comp-id]').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -17891,6 +18286,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     { icon: '🖨️', title: 'Tạo vở tập viết PDF', desc: 'Tạo tờ luyện viết chữ Hán in PDF', href: '/tao-vo-tap-viet/', keys: 'tap viet pdf worksheet' },
     { icon: '🎮', title: 'Trò chơi Chữ Hán', desc: '6 mini-game ghép chữ, thành ngữ, pháo hoa', href: '/tro-choi/', keys: 'tro choi game ghep chu chengyu' },
     { icon: '🏮', title: 'Trường Thầy Đồ', desc: 'Bảng vàng và lớp học tương tác', href: '/thay-do/', keys: 'thay do bang vang' },
+    { icon: '⚡', title: 'Đấu trường Thử thách Thầy Đồ 60s', desc: 'Khảo thí tốc độ Chữ Hán & Thành ngữ 60 giây', href: '/thay-do/thach/hsk1', keys: 'thu thach thay do 60s challenge' },
+    { icon: '📜', title: 'Phiếu Báo cáo Học tập Tuần & Phụ huynh', desc: 'Tổng kết 5 kỹ năng HSK, biểu đồ 7 ngày & in PDF', href: '/hoc/bao-cao', keys: 'bao cao tuan phu huynh report pdf' },
     { icon: '👤', title: 'Tài khoản, Đồng bộ & Sao lưu', desc: 'Google OAuth, Supabase & Xuất/Nhập JSON', href: '/tai-khoan/', keys: 'tai khoan google dong bo sao luu backup' }
   ];
 

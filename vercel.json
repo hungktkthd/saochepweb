@@ -140,6 +140,8 @@
     { "source": "/lo-trinh/:path*", "destination": "/hoc" },
     { "source": "/lo-trinh-cua-toi", "destination": "/hoc" },
     { "source": "/lo-trinh-cua-toi/:path*", "destination": "/hoc" },
+    { "source": "/phu-huynh", "destination": "/hoc" },
+    { "source": "/phu-huynh/:path*", "destination": "/hoc" },
     { "source": "/tai-app", "destination": "/index" },
     { "source": "/cac-goi", "destination": "/index" },
     { "source": "/quen-mat-khau", "destination": "/dang-nhap" },
