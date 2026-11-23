@@ -385,7 +385,9 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-dynamic-page-root [style*="background:#f5f5f4"],
 .dark #xhz-dynamic-page-root [style*="background: #f5f5f4"],
 .dark #xhz-dynamic-page-root [style*="background:#f2fbfa"],
-.dark #xhz-dynamic-page-root [style*="background: #f2fbfa"] {
+.dark #xhz-dynamic-page-root [style*="background: #f2fbfa"],
+.dark #xhz-dynamic-page-root [style*="background:#dcf0ee"],
+.dark #xhz-dynamic-page-root [style*="background:#d7ebe9"] {
   background: #1a2138 !important; color: #e2e8f0 !important; border-color: rgba(148,163,184,.22) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#f0fdfa"] {
@@ -2750,7 +2752,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v25') &&
+          swTxt.includes('htq-studio-v26') &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
         );
@@ -2824,6 +2826,36 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           wsSrc.includes('__xhzFlashcardBarScheduled') &&
           wsSrc.includes('hasPendingSuspense(mainHost)')
         );
+      });
+      await runCheck('grammar-detail-learned-toggle-and-quiz-link', () => {
+        const gdSrc = typeof renderGrammarDetailPage === 'function' ? renderGrammarDetailPage.toString() : '';
+        return Boolean(
+          gdSrc.includes('xhz-grammar-learned-toggle') &&
+          gdSrc.includes('/v1/grammar-progress/') &&
+          gdSrc.includes('xhz-grammar-quiz-link') &&
+          gdSrc.includes('data-gex-copy')
+        );
+      });
+      await runCheck('grammar-quiz-dark-mode-and-ref-answer', () => {
+        const gqSrc = typeof renderGrammarQuizRunPage === 'function' ? renderGrammarQuizRunPage.toString() : '';
+        return Boolean(
+          gqSrc.includes('.dark .xhz-gq-shell') &&
+          gqSrc.includes('.dark .xhz-gq-qcard') &&
+          gqSrc.includes('q.referenceAnswer || q.answer')
+        );
+      });
+      await runCheck('curriculum-wcard-dark-mode-and-copy', () => {
+        const cuSrc = typeof renderCurriculumSubPage === 'function' ? renderCurriculumSubPage.toString() : '';
+        return Boolean(
+          cuSrc.includes('.dark .xhz-curr-wcard') &&
+          cuSrc.includes('xhz-wcard-copy')
+        );
+      });
+      await runCheck('dark-mode-mint-pill-coverage', () => {
+        injectMasterV3Styles();
+        const f = document.getElementById('htq-v14-fx-css');
+        const t = f ? f.textContent : '';
+        return Boolean(t.includes('#dcf0ee') && t.includes('#d7ebe9'));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -8648,12 +8680,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const tips = Array.isArray(item.grammar_tips) ? item.grammar_tips : [];
     const attentions = Array.isArray(item.grammar_attentions) ? item.grammar_attentions : [];
     const keywords = Array.isArray(item.keywords) ? item.keywords : [];
+    const gId = String(item.id || item.code || decodedPointId);
+    const quizTrack = isNew ? `new-hsk${lvlNum}` : `hsk${lvlNum}`;
+    let isLearnedGrammar = Array.isArray((getRealProgress() || {}).learnedGrammarIds) && getRealProgress().learnedGrammarIds.includes(gId);
     document.title = `${title} - Ngữ pháp ${item.level || levelSlug.toUpperCase()} | Học Tiếng Trung`;
     const examples = Array.isArray(item.example) ? item.example : (Array.isArray(item.examples) ? item.examples : []);
 
     root.innerHTML = `
-      <div style="margin-bottom:16px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
         <a href="/ngu-phap" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại Thư viện Ngữ pháp</a>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+          <button type="button" id="xhz-grammar-learned-toggle" aria-pressed="${isLearnedGrammar ? 'true' : 'false'}" style="padding:8px 16px;border-radius:999px;font-weight:700;font-size:13px;cursor:pointer;border:1px solid ${isLearnedGrammar ? '#16a34a' : '#d6d3d1'};background:${isLearnedGrammar ? '#dcfce7' : '#f5f5f4'};color:${isLearnedGrammar ? '#15803d' : '#1c1917'};">${isLearnedGrammar ? '✅ Đã nắm vững chủ điểm này' : '☆ Đánh dấu đã nắm vững'}</button>
+          <a id="xhz-grammar-quiz-link" href="/kiem-tra-ngu-phap/lam-bai?grammarId=${encodeURIComponent(gId)}&amp;tracks=${encodeURIComponent(quizTrack)}" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;font-size:13px;text-decoration:none;display:inline-flex;align-items:center;">🎯 Luyện bài tập chủ điểm này</a>
+        </div>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;">
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
@@ -8686,20 +8725,54 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="display:flex;flex-direction:column;gap:12px;">
           ${examples.map(ex => {
             const zh = (ex.chinese || ex.hanzi || '').replace(/\{|\}/g, '');
+            const py = ex.pinyin || '';
             return `
               <div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
                   <div style="font-size:19px;font-weight:700;color:#1c1917;">${escapeHtml(zh)}</div>
-                  <div style="font-size:14px;color:#0d9488;margin-top:3px;">${escapeHtml(ex.pinyin || '')}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:3px;">${escapeHtml(py)}</div>
                   <div style="font-size:15px;color:#44403c;margin-top:4px;">${escapeHtml(ex.vietnamese || ex.meaningVi || '')}</div>
                 </div>
-                <button type="button" data-xhz-play="${escapeHtml(zh)}" aria-label="Nghe phát âm" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
+                <div style="display:flex;gap:8px;align-items:center;">
+                  <button type="button" data-gex-copy="${escapeHtml(zh)}" data-gex-py="${escapeHtml(py)}" aria-label="Sao chép câu ví dụ" style="padding:6px 12px;border-radius:999px;background:#f5f5f4;color:#44403c;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:13px;">📋 Sao chép</button>
+                  <button type="button" data-xhz-play="${escapeHtml(zh)}" aria-label="Nghe phát âm" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
+                </div>
               </div>
             `;
           }).join('')}
         </div>
       </div>
     `;
+    const learnedToggleBtn = document.getElementById('xhz-grammar-learned-toggle');
+    if (learnedToggleBtn) {
+      learnedToggleBtn.onclick = async () => {
+        const method = isLearnedGrammar ? 'DELETE' : 'POST';
+        try {
+          const r = await (await fetch('/v1/grammar-progress/' + encodeURIComponent(gId), { method })).json();
+          if (r && r.ok) {
+            isLearnedGrammar = !isLearnedGrammar;
+            learnedToggleBtn.setAttribute('aria-pressed', isLearnedGrammar ? 'true' : 'false');
+            learnedToggleBtn.textContent = isLearnedGrammar ? '✅ Đã nắm vững chủ điểm này' : '☆ Đánh dấu đã nắm vững';
+            learnedToggleBtn.style.background = isLearnedGrammar ? '#dcfce7' : '#f5f5f4';
+            learnedToggleBtn.style.color = isLearnedGrammar ? '#15803d' : '#1c1917';
+            learnedToggleBtn.style.borderColor = isLearnedGrammar ? '#16a34a' : '#d6d3d1';
+            try {
+              HTQ_STUDIO_FX.toast(
+                isLearnedGrammar ? `✅ Đã đánh dấu nắm vững "${title}"` : `Đã bỏ đánh dấu "${title}"`,
+                isLearnedGrammar ? 'success' : 'info'
+              );
+            } catch (_) {}
+          }
+        } catch (_) {}
+      };
+    }
+    root.querySelectorAll('[data-gex-copy]').forEach(b => {
+      b.onclick = () => {
+        const zh = b.getAttribute('data-gex-copy') || '';
+        const py = b.getAttribute('data-gex-py') || '';
+        copyStudyText(py ? `${zh} (${py})` : zh, zh);
+      };
+    });
   }
 
   // --------------------------------------------------------------------------
@@ -8790,6 +8863,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         .xhz-gq-nav-btn.is-current { border-color: #0d9488; background: #d9f2ef; color: #1c1917; }
         .xhz-gq-nav-btn.is-answered { background: #0d9488; color: #fff; }
         .xhz-gq-nav-btn.is-flagged::after { content: ''; position: absolute; top: -3px; right: -3px; width: 9px; height: 9px; border-radius: 999px; background: #d97706; border: 1.5px solid #ffffff; }
+        .dark .xhz-gq-shell { background: #0b1020 !important; color: #f1f5f9 !important; }
+        .dark .xhz-gq-topbar { background: rgba(15, 21, 38, 0.94) !important; border-bottom-color: rgba(129, 140, 248, 0.24) !important; }
+        .dark .xhz-gq-qcard, .dark .xhz-gq-sidebar { background: #13182b !important; border-color: rgba(129, 140, 248, 0.26) !important; color: #f1f5f9 !important; }
+        .dark .xhz-gq-opt { background: #1a2138 !important; border-color: rgba(148, 163, 184, 0.24) !important; color: #e2e8f0 !important; }
+        .dark .xhz-gq-opt:hover { border-color: #2dd4bf !important; background: #232c4a !important; }
+        .dark .xhz-gq-opt-letter { background: #0f1526 !important; border-color: rgba(148, 163, 184, 0.35) !important; color: #cbd5e1 !important; }
+        .dark .xhz-gq-opt.is-selected { border-color: #2dd4bf !important; background: rgba(13, 148, 136, 0.22) !important; color: #5eead4 !important; }
+        .dark .xhz-gq-nav-btn { background: #1a2138 !important; color: #cbd5e1 !important; }
+        .dark .xhz-gq-nav-btn.is-current { border-color: #2dd4bf !important; background: rgba(13, 148, 136, 0.26) !important; color: #f8fafc !important; }
+        .dark .xhz-gq-nav-btn.is-answered { background: #0d9488 !important; color: #ffffff !important; }
       </style>
       <div class="xhz-gq-shell">
         ${grammarPoint ? `<div style="max-width:1120px;margin:auto;padding:20px;"><a href="/ngu-phap/${/_new_|^new-/.test(grammarId) ? 'new-hsk-' : ''}${(grammarId.match(/\d+/) || ['1'])[0]}/${encodeURIComponent(grammarId)}">← Xem lý thuyết</a><h1 style="font-size:24px;font-weight:800;margin:12px 0;">Luyện tập: ${escapeHtml(grammarPoint.topic)}</h1><p>${questions.length} câu hỏi từ chủ điểm này và các ví dụ có trong dữ liệu.</p></div>` : ''}
@@ -9022,7 +9105,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         submitBtn.textContent = 'Làm đề mới';
         submitBtn.style.background = '#1c1917';
 
-        recordStudyProgress({ minutes: 5, gradingInc: 1 });
+        recordStudyProgress({ minutes: 5, gradingInc: 1, grammarId: grammarId || undefined });
 
         if (resultBanner) {
           resultBanner.style.display = 'block';
@@ -9067,7 +9150,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             }
           } else if (expEl) {
             expEl.style.display = 'block';
-            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${escapeHtml(q.referenceAnswer || '')}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${escapeHtml(q.referencePinyin)}</span>` : ''}`;
+            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${escapeHtml(q.referenceAnswer || q.answer || '')}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${escapeHtml(q.referencePinyin)}</span>` : ''}${q.explanation ? `<div style="margin-top:4px;">${escapeHtml(q.explanation)}</div>` : ''}`;
           }
         });
 
@@ -9189,6 +9272,25 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       (await loadLocalJson(`/data/curriculums/new-hsk/topics/${levelSlug}--${itemSlug}.json`)) ||
       (await loadLocalJson(`/data/curriculums/new-hsk/lessons/${levelSlug}--${itemSlug}.json`)) ||
       (await loadLocalJson(`/data/curriculums/hsk/topics/${levelSlug}--${itemSlug}.json`));
+
+    if (!detail) {
+      const lessonsIdx =
+        (await loadLocalJson(`/data/curriculums/${curr}/levels/${levelSlug}-lessons.json`)) ||
+        (await loadLocalJson(`/data/curriculums/new-hsk/levels/${levelSlug}-lessons.json`));
+      const lArr = (lessonsIdx && Array.isArray(lessonsIdx.lessons) && lessonsIdx.lessons) ||
+        (lessonsIdx && lessonsIdx.level && Array.isArray(lessonsIdx.level.lessons) && lessonsIdx.level.lessons) || [];
+      const baiNum = Number(((itemSlug.match(/^bai-0*(\d+)$/i) || cleanItemSlug.match(/^bai-0*(\d+)$/i) || [])[1]) || 0);
+      const matched = lArr.find(l => {
+        const ls = String((l && l.lessonSlug) || '');
+        if (!ls) return false;
+        return ls === itemSlug || ls === cleanItemSlug || ls.startsWith(itemSlug + '-') || ls.startsWith(cleanItemSlug + '-') || (baiNum > 0 && Number(l.lessonNumber) === baiNum);
+      });
+      if (matched && matched.lessonSlug) {
+        detail =
+          (await loadLocalJson(`/data/curriculums/${curr}/lessons/${levelSlug}--${matched.lessonSlug}.json`)) ||
+          (await loadLocalJson(`/data/curriculums/new-hsk/lessons/${levelSlug}--${matched.lessonSlug}.json`));
+      }
+    }
 
     const words =
       (detail && detail.lesson && detail.lesson.words) ||
@@ -9623,6 +9725,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           box-shadow: 0 8px 20px rgba(28,25,23,0.07);
           background: #fff;
         }
+        .dark .xhz-curr-wcard {
+          background: #1a2138 !important;
+          border-color: rgba(148,163,184,0.24) !important;
+          color: #f1f5f9 !important;
+        }
+        .dark .xhz-curr-wcard:hover {
+          background: #232c4a !important;
+          box-shadow: 0 10px 24px rgba(0,0,0,0.45) !important;
+        }
         .xhz-curr-grid.hide-pinyin .xhz-wcard-py { opacity: 0; pointer-events: none; }
         .xhz-curr-grid.hide-meaning .xhz-wcard-vi { opacity: 0; pointer-events: none; }
       </style>
@@ -9756,7 +9867,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         card.style.borderTop = `4px solid ${toneColor}`;
 
         card.innerHTML = `
-          <button type="button" class="xhz-wcard-speak" title="Nghe phát âm" style="position:absolute;top:10px;right:10px;border:none;background:transparent;color:#57534e;cursor:pointer;font-size:15px;padding:4px;">🔊</button>
+          <button type="button" class="xhz-wcard-copy" title="Sao chép từ vựng" aria-label="Sao chép ${escapeHtml(hz)}" style="position:absolute;top:10px;left:10px;border:none;background:transparent;color:#57534e;cursor:pointer;font-size:13px;padding:4px;">📋</button>
+          <button type="button" class="xhz-wcard-speak" title="Nghe phát âm" aria-label="Nghe phát âm ${escapeHtml(hz)}" style="position:absolute;top:10px;right:10px;border:none;background:transparent;color:#57534e;cursor:pointer;font-size:15px;padding:4px;">🔊</button>
           <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;width:100%;">
             <a href="${link}" style="font-size:40px;font-weight:500;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;line-height:1.15;">${escapeHtml(hz)}</a>
             <div class="xhz-wcard-py" style="font-size:14px;color:#57534e;margin-top:8px;transition:opacity 0.15s;">${escapeHtml(py)}</div>
@@ -9769,6 +9881,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </button>
           </div>
         `;
+
+        const copyBtn = card.querySelector('.xhz-wcard-copy');
+        if (copyBtn) {
+          copyBtn.onclick = e => {
+            e.stopPropagation();
+            copyStudyText(py ? `${hz} (${py})` : hz, hz);
+          };
+        }
 
         const speakBtn = card.querySelector('.xhz-wcard-speak');
         if (speakBtn) {
