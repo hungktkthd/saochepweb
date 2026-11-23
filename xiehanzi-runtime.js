@@ -2760,7 +2760,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v29') &&
+          /htq-studio-v[3-9]\d/.test(swTxt) &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
         );
@@ -2961,6 +2961,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           hrefs.includes('/ngu-phap/da-hoc') &&
           hrefs.includes('/kiem-tra-yct') &&
           hrefs.includes('/kiem-tra-hsk/hsk1/noi')
+        );
+      });
+      await runCheck('today-mission-hub-route-and-renderer', () => {
+        const tmSrc = typeof renderTodayMissionPage === 'function' ? renderTodayMissionPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/hoc/hom-nay') === true &&
+          tmSrc.includes('xhz-today-mission-root') &&
+          tmSrc.includes('xhz-tm-checklist') &&
+          tmSrc.includes('xhz-tm-focus-words') &&
+          resolvePageStageConfig('/hoc/hom-nay') === null
+        );
+      });
+      await runCheck('placement-test-hsk-route-and-renderer', () => {
+        const ptSrc = typeof renderPlacementTestPage === 'function' ? renderPlacementTestPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/bat-dau/kiem-tra') === true &&
+          isDynamicSpaRoute('/hoc/bat-dau/kiem-tra') === true &&
+          ptSrc.includes('xhz-placement-test-root') &&
+          ptSrc.includes('xhz-pt-submit') &&
+          resolvePageStageConfig('/bat-dau/kiem-tra') === null
+        );
+      });
+      await runCheck('notebook-collection-route-and-renderer', () => {
+        const nbSrc = typeof renderNotebookCollectionPage === 'function' ? renderNotebookCollectionPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/so-tay/da-luu') === true &&
+          nbSrc.includes('xhz-notebook-collection-root') &&
+          nbSrc.includes('xhz-nb-add-form') &&
+          nbSrc.includes('xhz-nb-search') &&
+          resolvePageStageConfig('/so-tay/da-luu') === null
+        );
+      });
+      await runCheck('cmdk-and-stages-include-v27-studios', () => {
+        const hrefs = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES.map(r => r.href) : [];
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(
+          hrefs.includes('/hoc/hom-nay') &&
+          hrefs.includes('/bat-dau/kiem-tra') &&
+          hrefs.includes('/so-tay/da-luu') &&
+          stSrc.includes('/hoc/hom-nay') &&
+          stSrc.includes('/bat-dau/kiem-tra') &&
+          stSrc.includes('/so-tay/da-luu')
         );
       });
     } finally {
@@ -7879,7 +7921,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) return true;
     if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || parts[0] === 'kiem-tra-yct' || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap' || parts[1] === 'noi') && parts.length >= 3) return true;
-    if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen')) return true;
+    if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen' || parts[1] === 'hom-nay')) return true;
+    if ((parts[0] === 'bat-dau' && parts[1] === 'kiem-tra') || (parts[0] === 'hoc' && parts[1] === 'bat-dau' && parts[2] === 'kiem-tra')) return true;
+    if (parts[0] === 'so-tay' && parts.length >= 2) return true;
     if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) return true;
     return false;
@@ -12364,6 +12408,563 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
   }
 
+  async function renderTodayMissionPage() {
+    const root = getMainContentContainer();
+    const sum = getRealProgressSummary();
+    const prog = sum.prog || {};
+    const dailyGoal = Number(prog.habitSettings && prog.habitSettings.dailyMinutesGoal) || 15;
+    const todayMins = Number(sum.todayMinutes) || 0;
+    const goalPct = Math.min(100, Math.round((todayMins / Math.max(1, dailyGoal)) * 100));
+    const todayIso = new Date().toISOString().slice(0, 10);
+    const curRun = (prog && prog.currentLessonId) || localStorage.getItem('httq_current_lesson_id') || 'hsk30.L1.P1.learn.1';
+    const doneToday = (prog && prog.dailyCompleted && prog.dailyCompleted[todayIso]) || {};
+    document.title = 'Nhiệm vụ học tập hôm nay | Học Tiếng Trung';
+
+    const focusPool = [
+      { hanzi: '你好', pinyin: 'nǐ hǎo', hv: 'NHĨ HẢO', meaning: 'xin chào', hsk: 1 },
+      { hanzi: '谢谢', pinyin: 'xièxie', hv: 'TẠ TẠ', meaning: 'cảm ơn', hsk: 1 },
+      { hanzi: '学习', pinyin: 'xuéxí', hv: 'HỌC TẬP', meaning: 'học tập, rèn luyện', hsk: 1 },
+      { hanzi: '朋友', pinyin: 'péngyou', hv: 'BẰNG HỮU', meaning: 'bạn bè, người bạn', hsk: 1 },
+      { hanzi: '喜欢', pinyin: 'xǐhuan', hv: 'HỈ HOAN', meaning: 'thích, yêu thích', hsk: 1 },
+      { hanzi: '坚持', pinyin: 'jiānchí', hv: 'KIÊN TRÌ', meaning: 'kiên trì, bền bỉ', hsk: 2 }
+    ];
+    const learnedSet = new Set(Array.isArray(prog.learnedWords) ? prog.learnedWords.filter(Boolean) : []);
+    const missions = [
+      {
+        id: 'm-lesson',
+        done: Boolean(doneToday['step-learn-1'] || todayMins >= 5),
+        badge: 'NHIỆM VỤ 1 · LỘ TRÌNH CHÍNH',
+        title: `Học bài tiếp theo trên Lộ trình (${curRun})`,
+        desc: 'Mở bài học chữ Hán, từ vựng và mẫu câu hội thoại tương tác có chấm điểm.',
+        href: `/hoc/bai/${encodeURIComponent(curRun)}`,
+        cta: '▶ Học bài ngay'
+      },
+      {
+        id: 'm-srs',
+        done: Boolean(doneToday['step-review-1']),
+        badge: 'NHIỆM VỤ 2 · TRÍ NHỚ DÀI HẠN SRS',
+        title: `Ôn tập thẻ SRS đến hạn (${sum.dueTotal} thẻ) & Sổ lỗi (${sum.mistakesCount})`,
+        desc: 'Củng cố từ vựng sắp quên theo thuật toán lặp lại ngắt quãng SRS.',
+        href: '/hoc/bai/on-tap-den-han',
+        cta: '🔁 Ôn thẻ đến hạn'
+      },
+      {
+        id: 'm-shadowing',
+        done: Boolean((prog.speakingAttempts || 0) > 0 && todayMins >= 8),
+        badge: 'NHIỆM VỤ 3 · PHẢN XẠ KHẨU NGỮ AI',
+        title: 'Luyện nói Nhại âm AI (Shadowing) 5 câu giao tiếp',
+        desc: 'Nghe mẫu bản xứ ở tốc độ 0.65×–1.0× và thu âm chấm điểm phát âm trực tiếp.',
+        href: '/luyen-noi/shadowing',
+        cta: '🗣️ Vào phòng Shadowing'
+      },
+      {
+        id: 'm-quiz',
+        done: Boolean(todayMins >= dailyGoal),
+        badge: 'NHIỆM VỤ 4 · TỰ KIỂM TRA NHANH',
+        title: 'Làm bài tập Ngữ pháp hoặc Đề thi thử HSK / YCT',
+        desc: 'Kiểm tra độ nắm vững ngữ pháp và từ vựng với giải thích chi tiết từng câu.',
+        href: '/kiem-tra-ngu-phap/lam-bai?tracks=hsk1&count=10',
+        cta: '🎯 Làm 10 câu ngữ pháp'
+      }
+    ];
+    const doneMissionsCount = missions.filter(m => m.done).length;
+    const focusWorksheetHref = `/tao-vo-tap-viet?text=${encodeURIComponent(focusPool.map(w => w.hanzi).join(' '))}`;
+
+    root.innerHTML = `
+      <div id="xhz-today-mission-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/hoc" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Lộ trình học (/hoc)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/hoc/tien-do" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff;color:#44403c;border:1px solid #d6d3d1;">📊 Tiến độ 7 ngày</a>
+            <a href="/hoc/thoi-quen" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff;color:#44403c;border:1px solid #d6d3d1;">🔥 Chuỗi thói quen</a>
+            <a href="/bat-dau/kiem-tra" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">🧭 Kiểm tra trình độ HSK</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div id="xhz-tm-hero" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-bottom:18px;border-bottom:1px solid #e7e5e4;margin-bottom:20px;">
+            <div>
+              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">🎯 KẾ HOẠCH HỌC TẬP HÔM NAY · ${todayIso}</span>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Bảng Nhiệm Vụ Học Tiếng Trung Hôm Nay</h1>
+              <p style="font-size:14px;color:#57534e;margin:0;">Hoàn thành 4 bước ngắn mỗi ngày để duy trì chuỗi <strong>${sum.streakDays} ngày 🔥</strong> và mở rộng vốn từ HSK bền vững.</p>
+            </div>
+            <div style="min-width:210px;padding:14px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;">
+              <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;color:#115e59;margin-bottom:6px;">
+                <span>TIẾN ĐỘ PHÚT HÔM NAY</span>
+                <span>${todayMins} / ${dailyGoal} phút (${goalPct}%)</span>
+              </div>
+              <div style="height:9px;border-radius:999px;background:#ccfbf1;overflow:hidden;">
+                <div style="height:100%;width:${Math.max(6, goalPct)}%;background:#0d9488;border-radius:999px;"></div>
+              </div>
+              <div style="font-size:12px;color:#0f766e;font-weight:700;margin-top:6px;">Đã xong ${doneMissionsCount}/4 nhiệm vụ · Đã thuộc ${sum.wordsMastered} từ</div>
+            </div>
+          </div>
+
+          <h2 style="font-size:17px;font-weight:800;color:#1c1917;margin:0 0 12px 0;">✅ Checklist 4 Nhiệm Vụ Cốt Lõi Trong Ngày</h2>
+          <div id="xhz-tm-checklist" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;margin-bottom:24px;">
+            ${missions.map(m => `
+              <div style="padding:18px;border-radius:16px;border:1px solid ${m.done ? '#86efac' : '#e7e5e4'};background:${m.done ? '#f0fdf4' : '#fafaf9'};display:flex;flex-direction:column;justify-content:space-between;gap:12px;">
+                <div>
+                  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+                    <span style="font-size:11px;font-weight:800;color:#0d9488;">${escapeHtml(m.badge)}</span>
+                    <span style="font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:${m.done ? '#dcfce7' : '#fff'};color:${m.done ? '#15803d' : '#57534e'};border:1px solid ${m.done ? '#86efac' : '#d6d3d1'};">${m.done ? '✓ Đã hoàn thành' : 'Chưa làm'}</span>
+                  </div>
+                  <div style="font-size:16px;font-weight:800;color:#1c1917;line-height:1.35;">${escapeHtml(m.title)}</div>
+                  <p style="font-size:13px;color:#57534e;margin:6px 0 0 0;line-height:1.45;">${escapeHtml(m.desc)}</p>
+                </div>
+                <a href="${m.href}" style="display:inline-block;text-align:center;padding:9px 16px;border-radius:12px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13px;">${escapeHtml(m.cta)} →</a>
+              </div>
+            `).join('')}
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+            <h2 style="font-size:17px;font-weight:800;color:#1c1917;margin:0;">🌟 6 Từ Vựng Trọng Tâm Khởi Động Hôm Nay</h2>
+            <a id="xhz-tm-worksheet-link" href="${focusWorksheetHref}" style="padding:7px 14px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-weight:700;text-decoration:none;font-size:13px;">🖨️ In vở tập viết 6 từ hôm nay</a>
+          </div>
+          <div id="xhz-tm-focus-words" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">
+            ${focusPool.map(w => {
+              const isMastered = learnedSet.has(w.hanzi);
+              return `
+                <div style="padding:14px 16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+                  <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+                    <div>
+                      <a href="/tu-vung/${encodeURIComponent(w.hanzi)}" style="font-size:22px;font-weight:800;color:#1c1917;text-decoration:none;">${escapeHtml(w.hanzi)}</a>
+                      <div style="font-size:13px;font-weight:700;color:#0d9488;margin-top:2px;">${escapeHtml(w.pinyin)} · ${escapeHtml(w.hv)}</div>
+                      <div style="font-size:13.5px;color:#44403c;margin-top:4px;">${escapeHtml(w.meaning)}</div>
+                    </div>
+                    <span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#ccfbf1;color:#115e59;">HSK ${w.hsk}</span>
+                  </div>
+                  <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                    <button type="button" data-tm-play="${escapeHtml(w.hanzi)}" style="padding:5px 10px;border-radius:999px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;font-size:12px;">🔊 Nghe</button>
+                    <button type="button" data-tm-copy="${escapeHtml(w.hanzi)}" style="padding:5px 10px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:12px;">📋 Chép</button>
+                    <button type="button" data-tm-master="${escapeHtml(w.hanzi)}" style="padding:5px 10px;border-radius:999px;border:1px solid ${isMastered ? '#16a34a' : '#d6d3d1'};background:${isMastered ? '#dcfce7' : '#fff'};color:${isMastered ? '#15803d' : '#44403c'};font-weight:700;cursor:pointer;font-size:12px;">${isMastered ? '✅ Đã thuộc' : '☆ Đánh dấu thuộc'}</button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    root.querySelectorAll('[data-tm-play]').forEach(b => {
+      b.onclick = () => playPronunciation(b.getAttribute('data-tm-play') || '', 'tts', 1.0);
+    });
+    root.querySelectorAll('[data-tm-copy]').forEach(b => {
+      b.onclick = () => {
+        const hz = b.getAttribute('data-tm-copy') || '';
+        copyStudyText(hz, hz);
+      };
+    });
+    root.querySelectorAll('[data-tm-master]').forEach(b => {
+      b.onclick = () => {
+        const hz = b.getAttribute('data-tm-master') || '';
+        if (!hz) return;
+        recordStudyProgress({ wordLearned: hz, minutes: 1 });
+        b.textContent = '✅ Đã thuộc';
+        b.style.background = '#dcfce7';
+        b.style.color = '#15803d';
+        b.style.borderColor = '#16a34a';
+        try { HTQ_STUDIO_FX.toast(`✅ Đã thêm "${hz}" vào sổ từ đã học!`, 'success'); } catch (_) {}
+      };
+    });
+  }
+
+  async function renderPlacementTestPage() {
+    const root = getMainContentContainer();
+    document.title = 'Kiểm tra trình độ đầu vào HSK 1–4 | Học Tiếng Trung';
+
+    const questions = [
+      { id: 'pt-1', level: 1, tier: 'HSK 1 · Nhập môn', stemZh: '你好！请问你叫什么名字？', stemPy: 'Nǐ hǎo! Qǐngwèn nǐ jiào shénme míngzi?', q: 'Câu trên dùng để hỏi thông tin gì?', opts: ['Bạn tên là gì?', 'Bạn bao nhiêu tuổi?', 'Bạn sống ở đâu?', 'Bạn làm nghề gì?'], ans: 0, exp: '"叫什么名字" (jiào shénme míngzi) nghĩa là "tên là gì".' },
+      { id: 'pt-2', level: 1, tier: 'HSK 1 · Nhập môn', stemZh: '我喜欢喝茶，不喜欢喝咖啡。', stemPy: 'Wǒ xǐhuan hē chá, bù xǐhuan hē kāfēi.', q: 'Người nói thích uống gì?', opts: ['Cà phê (咖啡)', 'Trà (茶)', 'Sữa bò (牛奶)', 'Nước trái cây (果汁)'], ans: 1, exp: '"喜欢喝茶" (xǐhuan hē chá) nghĩa là thích uống trà.' },
+      { id: 'pt-3', level: 1, tier: 'HSK 1 · Nhập môn', stemZh: '今天是星期三，明天是____？', stemPy: 'Jīntiān shì xīngqīsān, míngtiān shì ____?', q: 'Chọn từ điền vào chỗ trống phù hợp nhất:', opts: ['星期二 (Thứ Ba)', '星期四 (Thứ Năm)', '星期五 (Thứ Sáu)', '星期日 (Chủ Nhật)'], ans: 1, exp: 'Hôm nay là Thứ Tư (星期三) thì ngày mai (明天) là Thứ Năm (星期四).' },
+      { id: 'pt-4', level: 2, tier: 'HSK 2 · Sơ cấp', stemZh: '因为今天下大雨，____我们不去公园了。', stemPy: 'Yīnwèi jīntiān xià dàyǔ, ____ wǒmen bú qù gōngyuán le.', q: 'Chọn liên từ đúng cho cấu trúc "Bởi vì... cho nên...":', opts: ['所以 (suǒyǐ)', '但是 (dànshì)', '虽然 (suīrán)', '或者 (huòzhě)'], ans: 0, exp: 'Cấu trúc "因为…所以…" (yīnwèi... suǒyǐ...) nghĩa là "Bởi vì... cho nên...".' },
+      { id: 'pt-5', level: 2, tier: 'HSK 2 · Sơ cấp', stemZh: '弟弟比我高，但是我没有他跑得快。', stemPy: 'Dìdi bǐ wǒ gāo, dànshì wǒ méiyǒu tā pǎo de kuài.', q: 'Theo câu trên, điều nào sau đây đúng?', opts: ['Tôi cao hơn em trai', 'Em trai chạy nhanh hơn tôi', 'Tôi chạy nhanh hơn em trai', 'Hai anh em cao bằng nhau'], ans: 1, exp: '"我没有他跑得快" nghĩa là tôi chạy không nhanh bằng em ấy (em trai chạy nhanh hơn).' },
+      { id: 'pt-6', level: 2, tier: 'HSK 2 · Sơ cấp', stemZh: '那本书我已经看完了。', stemPy: 'Nà běn shū wǒ yǐjīng kàn wán le.', q: 'Trợ từ và bổ ngữ "已经…完了" diễn tả ý gì?', opts: ['Sắp bắt đầu đọc sách', 'Đã đọc xong cuốn sách đó rồi', 'Đang tìm mua cuốn sách đó', 'Chưa từng đọc cuốn sách đó'], ans: 1, exp: '"已经" (đã) kết hợp bổ ngữ kết quả "完" (xong) chỉ hành động đã hoàn tất.' },
+      { id: 'pt-7', level: 3, tier: 'HSK 3 · Trung cấp', stemZh: '请把桌子上的汉语书递给我。', stemPy: 'Qǐng bǎ zhuōzi shàng de Hànyǔ shū dì gěi wǒ.', q: 'Câu chữ "把" trên yêu cầu người nghe làm gì?', opts: ['Cất sách vào cặp', 'Đưa cuốn sách tiếng Trung trên bàn cho người nói', 'Mua một cuốn sách tiếng Trung mới', 'Mở sách ra trang đầu tiên'], ans: 1, exp: '"把…递给我" nghĩa là cầm/đưa vật gì đó trao cho tôi.' },
+      { id: 'pt-8', level: 3, tier: 'HSK 3 · Trung cấp', stemZh: '他不但会说汉语，而且写汉字也写得非常漂亮。', stemPy: 'Tā búdàn huì shuō Hànyǔ, érqiě xiě Hànzì yě xiě de fēicháng piàoliang.', q: 'Cấu trúc "不但…而且…" biểu thị quan hệ gì?', opts: ['Quan hệ tăng tiến (Không những... mà còn...)', 'Quan hệ lựa chọn (Hoặc là... hoặc là...)', 'Quan hệ giả thiết (Nếu... thì...)', 'Quan hệ đối lập (Tuy... nhưng...)'], ans: 0, exp: '"不但…而且…" là cặp liên từ tăng tiến kinh điển của HSK 3.' },
+      { id: 'pt-9', level: 3, tier: 'HSK 3 · Trung cấp', stemZh: '只要每天坚持练习半个小时，你的汉语水平一定能提高。', stemPy: 'Zhǐyào měitiān jiānchí liànxí bàn ge xiǎoshí, nǐ de Hànyǔ shuǐpíng yídìng néng tígāo.', q: 'Theo câu trên, điều kiện để nâng cao trình độ tiếng Trung là gì?', opts: ['Mỗi ngày kiên trì luyện tập nửa tiếng', 'Chỉ học vào cuối tuần', 'Đọc thật nhiều tiểu thuyết cổ', 'Đi du lịch mỗi tháng một lần'], ans: 0, exp: '"只要…一定…" (Chỉ cần... nhất định...) nhấn mạnh điều kiện đủ là kiên trì luyện tập 30 phút mỗi ngày.' },
+      { id: 'pt-10', level: 4, tier: 'HSK 4 · Trung cao cấp', stemZh: '尽管遇到了不少困难，他还是按时完成了任务。', stemPy: 'Jǐnguǎn yùdào le bùshǎo kùnnan, tā háishi ànshí wánchéng le rènwu.', q: 'Từ "按时" (ànshí) trong câu có nghĩa là gì?', opts: ['Đúng hạn / đúng giờ', 'Tạm thời', 'Thỉnh thoảng', 'Tình cờ'], ans: 0, exp: '"按时" (ànshí) nghĩa là đúng giờ, đúng thời hạn quy định.' },
+      { id: 'pt-11', level: 4, tier: 'HSK 4 · Trung cao cấp', stemZh: '养成良好的阅读习惯对一个人的长远发展非常有帮助。', stemPy: 'Yǎngchéng liánghǎo de yuèdú xíguàn duì yí ge rén de chángyuǎn fāzhǎn fēicháng yǒu bāngzhù.', q: 'Cụm từ cố định "养成…习惯" nghĩa là gì?', opts: ['Hình thành / rèn luyện thói quen', 'Từ bỏ thói quen', 'Thay đổi kế hoạch', 'Ghi chép nhật ký'], ans: 0, exp: 'Trong HSK 4, động từ đi kèm chuẩn với "习惯" (thói quen) là "养成" (nuôi dưỡng/hình thành).' },
+      { id: 'pt-12', level: 4, tier: 'HSK 4 · Trung cao cấp', stemZh: '这次中国之旅给我留下了非常深刻的印象。', stemPy: 'Zhè cì Zhōngguó zhī lǚ gěi wǒ liúxià le fēicháng shēnkè de yìnxiàng.', q: 'Cụm "留下深刻的印象" có nghĩa tiếng Việt là gì?', opts: ['Để lại ấn tượng sâu sắc', 'Gây ra nhiều hiểu lầm', 'Tốn rất nhiều chi phí', 'Thay đổi toàn bộ lịch trình'], ans: 0, exp: '"留下深刻的印象" (liúxià shēnkè de yìnxiàng) là cụm từ cố định nghĩa là "để lại ấn tượng sâu sắc".' }
+    ];
+    const answers = {};
+    let isSubmitted = false;
+
+    root.innerHTML = `
+      <div id="xhz-placement-test-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/bat-dau" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Bắt đầu (/bat-dau)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/hoc/hom-nay" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff;color:#44403c;border:1px solid #d6d3d1;">🎯 Nhiệm vụ hôm nay</a>
+            <a href="/kiem-tra-hsk" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;">📝 Phòng thi HSK 1–6</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-bottom:18px;border-bottom:1px solid #e7e5e4;margin-bottom:20px;">
+            <div>
+              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">🧭 ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO · HSK 1 → HSK 4</span>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Bài Kiểm Tra Xếp Lớp &amp; Đề Xuất Lộ Trình HSK</h1>
+              <p style="font-size:14px;color:#57534e;margin:0;">Trả lời 12 câu hỏi phân tầng từ HSK 1 đến HSK 4 để hệ thống gợi ý cấp độ xuất phát và lộ trình học tối ưu cho bạn.</p>
+            </div>
+            <div id="xhz-pt-progress-badge" role="status" aria-live="polite" style="padding:10px 16px;border-radius:14px;background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;font-weight:800;font-size:14px;">
+              Đã chọn: 0 / ${questions.length} câu
+            </div>
+          </div>
+
+          <div id="xhz-pt-result-card" style="display:none;margin-bottom:22px;padding:20px;border-radius:18px;border:2px solid #0d9488;background:#f0fdfa;"></div>
+
+          <div id="xhz-pt-questions-list" style="display:flex;flex-direction:column;gap:16px;">
+            ${questions.map((item, idx) => `
+              <section data-pt-card="${idx}" style="padding:18px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                  <span style="font-size:12px;font-weight:800;padding:2px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">Câu ${idx + 1}/12 · ${escapeHtml(item.tier)}</span>
+                  <button type="button" data-pt-play="${escapeHtml(item.stemZh)}" style="padding:5px 12px;border-radius:999px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;font-size:12.5px;">🔊 Nghe câu</button>
+                </div>
+                <div style="font-size:20px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(item.stemZh)}</div>
+                <div style="font-size:13.5px;color:#0d9488;font-weight:600;">${escapeHtml(item.stemPy)}</div>
+                <div style="font-size:14.5px;font-weight:700;color:#1c1917;margin-top:2px;">${escapeHtml(item.q)}</div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:4px;">
+                  ${item.opts.map((opt, oIdx) => `
+                    <button type="button" data-pt-q="${idx}" data-pt-opt="${oIdx}" style="text-align:left;padding:11px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13.5px;cursor:pointer;">
+                      ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}
+                    </button>
+                  `).join('')}
+                </div>
+                <div data-pt-exp="${idx}" style="display:none;margin-top:6px;padding:10px 14px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:13.5px;font-weight:600;"></div>
+              </section>
+            `).join('')}
+          </div>
+
+          <div style="margin-top:22px;padding-top:18px;border-top:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <span style="font-size:13.5px;color:#57534e;font-weight:600;">Bạn có thể nộp bài bất cứ lúc nào để nhận gợi ý cấp độ HSK phù hợp nhất.</span>
+            <button type="button" id="xhz-pt-submit" style="padding:12px 26px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;font-size:14.5px;">🎯 Chấm điểm &amp; Nhận lộ trình đề xuất</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const badgeEl = root.querySelector('#xhz-pt-progress-badge');
+    const resultCard = root.querySelector('#xhz-pt-result-card');
+    root.querySelectorAll('[data-pt-play]').forEach(b => {
+      b.onclick = () => playPronunciation(b.getAttribute('data-pt-play') || '', 'tts', 1.0);
+    });
+    root.querySelectorAll('[data-pt-q]').forEach(btn => {
+      btn.onclick = () => {
+        if (isSubmitted) return;
+        const qIdx = Number(btn.getAttribute('data-pt-q'));
+        const oIdx = Number(btn.getAttribute('data-pt-opt'));
+        answers[qIdx] = oIdx;
+        root.querySelectorAll(`[data-pt-q="${qIdx}"]`).forEach(sib => {
+          const active = Number(sib.getAttribute('data-pt-opt')) === oIdx;
+          sib.style.borderColor = active ? '#0d9488' : '#d6d3d1';
+          sib.style.background = active ? '#f0fdfa' : '#fff';
+          sib.style.color = active ? '#115e59' : '#1c1917';
+        });
+        if (badgeEl) badgeEl.textContent = `Đã chọn: ${Object.keys(answers).length} / ${questions.length} câu`;
+      };
+    });
+
+    const submitBtn = root.querySelector('#xhz-pt-submit');
+    if (submitBtn) {
+      submitBtn.onclick = async () => {
+        isSubmitted = true;
+        let correctTotal = 0;
+        questions.forEach((item, idx) => {
+          const picked = answers[idx];
+          const isOk = picked === item.ans;
+          if (isOk) correctTotal++;
+          root.querySelectorAll(`[data-pt-q="${idx}"]`).forEach(btn => {
+            const oIdx = Number(btn.getAttribute('data-pt-opt'));
+            if (oIdx === item.ans) {
+              btn.style.background = '#dcfce7';
+              btn.style.borderColor = '#16a34a';
+              btn.style.color = '#15803d';
+            } else if (oIdx === picked && !isOk) {
+              btn.style.background = '#fee2e2';
+              btn.style.borderColor = '#dc2626';
+              btn.style.color = '#b91c1c';
+            }
+          });
+          const expEl = root.querySelector(`[data-pt-exp="${idx}"]`);
+          if (expEl) {
+            expEl.style.display = 'block';
+            expEl.style.color = isOk ? '#15803d' : '#b45309';
+            expEl.textContent = `${isOk ? '✓ Chính xác!' : `Đáp án đúng: ${String.fromCharCode(65 + item.ans)}.`} ${item.exp}`;
+          }
+        });
+
+        const recLevel = correctTotal >= 10 ? 4 : correctTotal >= 7 ? 3 : correctTotal >= 4 ? 2 : 1;
+        const recTitle = recLevel === 1 ? 'HSK 1 · Nhập môn Vững Chắc' : recLevel === 2 ? 'HSK 2 · Giao tiếp Sơ cấp' : recLevel === 3 ? 'HSK 3 · Giao tiếp & Đọc hiểu Trung cấp' : 'HSK 4 · Trung cao cấp & Học thuật';
+        try {
+          localStorage.setItem('httq_placement_result_v1', JSON.stringify({ score: correctTotal, total: questions.length, recommendedLevel: recLevel, ts: new Date().toISOString() }));
+          await fetch('/v1/learning-profile', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ targetLevel: `HSK ${recLevel}`, placementScore: correctTotal, recommendedLevel: recLevel })
+          });
+        } catch (_) {}
+        recordStudyProgress({ minutes: 4, gradingInc: 1, sessionInc: 1 });
+
+        if (resultCard) {
+          resultCard.style.display = 'block';
+          resultCard.innerHTML = `
+            <div style="font-size:13px;font-weight:800;color:#0d9488;text-transform:uppercase;">🎉 KẾT QUẢ ĐÁNH GIÁ NĂNG LỰC CỦA BẠN</div>
+            <h2 style="font-size:22px;font-weight:800;color:#1c1917;margin:6px 0;">Đúng ${correctTotal} / ${questions.length} câu · Đề xuất bắt đầu từ: <span style="color:#0d9488;">${recTitle}</span></h2>
+            <p style="font-size:14px;color:#44403c;margin:0 0 14px 0;">Hệ thống đã lưu hồ sơ năng lực của bạn. Hãy chọn ngay hoạt động phù hợp với cấp độ <strong>HSK ${recLevel}</strong> bên dưới:</p>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <a href="/thu-vien-new-hsk/hsk-${recLevel}" style="padding:10px 18px;border-radius:12px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13.5px;">🚀 Vào Giáo trình HSK ${recLevel}</a>
+              <a href="/kiem-tra-hsk/hsk${recLevel}" style="padding:10px 18px;border-radius:12px;background:#fff;color:#0f766e;border:1px solid #0d9488;font-weight:800;text-decoration:none;font-size:13.5px;">📝 Làm đề thi thử HSK ${recLevel}</a>
+              <a href="/hoc/hom-nay" style="padding:10px 18px;border-radius:12px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13.5px;">🎯 Xem Nhiệm vụ hôm nay</a>
+            </div>
+          `;
+          try { resultCard.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
+        }
+        try { HTQ_STUDIO_FX.toast(`🧭 Đã hoàn thành kiểm tra trình độ: Đề xuất HSK ${recLevel}!`, 'success'); } catch (_) {}
+      };
+    }
+  }
+
+  async function renderNotebookCollectionPage(pathname) {
+    const root = getMainContentContainer();
+    const parts = (pathname || '/so-tay/da-luu').split('/').filter(Boolean);
+    let activeDeckId = safeDecodeURIComponent(parts[1] || 'da-luu');
+
+    const curatedDecks = {
+      'da-luu': { title: 'Sổ Tay Từ Đã Lưu Của Tôi', badge: 'CÁ NHÂN · ĐỒNG BỘ', desc: 'Tất cả chữ Hán và từ vựng bạn đã bấm lưu hoặc thêm trực tiếp vào sổ tay cá nhân.', items: [] },
+      'giao-tiep-hang-ngay': {
+        title: 'Bộ Sưu Tập: Giao Tiếp Phản Xạ Hằng Ngày',
+        badge: 'CHUYÊN ĐỀ HSK 1–2',
+        desc: '10 từ và cụm từ cốt lõi dùng nhiều nhất trong chào hỏi, cảm ơn và trò chuyện thường nhật.',
+        items: [
+          { hanzi: '你好', pinyin: 'nǐ hǎo', hv: 'NHĨ HẢO', meaningVi: 'xin chào', hskLevel: 1 },
+          { hanzi: '谢谢', pinyin: 'xièxie', hv: 'TẠ TẠ', meaningVi: 'cảm ơn', hskLevel: 1 },
+          { hanzi: '不客气', pinyin: 'bú kèqi', hv: 'BẤT KHÁCH KHÍ', meaningVi: 'đừng khách sáo', hskLevel: 1 },
+          { hanzi: '没关系', pinyin: 'méi guānxi', hv: 'MỘT QUAN HỆ', meaningVi: 'không sao đâu', hskLevel: 1 },
+          { hanzi: '请问', pinyin: 'qǐngwèn', hv: 'THỈNH VẤN', meaningVi: 'xin hỏi', hskLevel: 1 },
+          { hanzi: '帮忙', pinyin: 'bāngmáng', hv: 'BANG MANG', meaningVi: 'giúp đỡ', hskLevel: 2 }
+        ]
+      },
+      'du-lich-mua-sam': {
+        title: 'Bộ Sưu Tập: Du Lịch, Ẩm Thực & Mua Sắm',
+        badge: 'CHUYÊN ĐỀ THỰC TẾ',
+        desc: 'Từ vựng thiết yếu khi gọi món, hỏi giá, đặt phòng khách sạn và di chuyển tại Trung Quốc.',
+        items: [
+          { hanzi: '多少钱', pinyin: 'duōshao qián', hv: 'ĐA THIỂU TIỀN', meaningVi: 'bao nhiêu tiền', hskLevel: 1 },
+          { hanzi: '便宜', pinyin: 'piányi', hv: 'TIỆN NGHI', meaningVi: 'rẻ, giá hời', hskLevel: 2 },
+          { hanzi: '机场', pinyin: 'jīchǎng', hv: 'CƠ TRƯỜNG', meaningVi: 'sân bay', hskLevel: 2 },
+          { hanzi: '菜单', pinyin: 'càidān', hv: 'THÁI ĐƠN', meaningVi: 'thực đơn (menu)', hskLevel: 3 },
+          { hanzi: '行李箱', pinyin: 'xínglixiāng', hv: 'HÀNH LÝ TƯƠNG', meaningVi: 'vali hành lý', hskLevel: 3 },
+          { hanzi: '护照', pinyin: 'hùzhào', hv: 'HỘ CHIẾU', meaningVi: 'hộ chiếu', hskLevel: 3 }
+        ]
+      },
+      'cong-viec-van-phong': {
+        title: 'Bộ Sưu Tập: Tiếng Trung Công Sở & Thương Mại',
+        badge: 'CHUYÊN ĐỀ HSK 3–4',
+        desc: 'Từ vựng họp hành, gửi email, lập kế hoạch và trao đổi công việc chuyên nghiệp.',
+        items: [
+          { hanzi: '会议', pinyin: 'huìyì', hv: 'HỘI NGHỊ', meaningVi: 'cuộc họp, hội nghị', hskLevel: 3 },
+          { hanzi: '计划', pinyin: 'jìhuà', hv: 'KẾ HOẠCH', meaningVi: 'kế hoạch, lập kế hoạch', hskLevel: 3 },
+          { hanzi: '负责', pinyin: 'fùzé', hv: 'PHỤ TRÁCH', meaningVi: 'phụ trách, chịu trách nhiệm', hskLevel: 4 },
+          { hanzi: '经验', pinyin: 'jīngyàn', hv: 'KINH NGHIỆM', meaningVi: 'kinh nghiệm', hskLevel: 4 },
+          { hanzi: '合作', pinyin: 'hézuò', hv: 'HỢP TÁC', meaningVi: 'hợp tác', hskLevel: 4 },
+          { hanzi: '效率', pinyin: 'xiàolǜ', hv: 'HIỆU SUẤT', meaningVi: 'hiệu suất làm việc', hskLevel: 4 }
+        ]
+      }
+    };
+    if (!curatedDecks[activeDeckId]) activeDeckId = 'da-luu';
+
+    const [nbRes, vIdx, cIdx] = await Promise.all([
+      (await handleApiRequest(window.location.origin + '/v1/notebook', { method: 'GET' })).json().catch(() => ({ items: [] })),
+      loadLocalJson('/data/vocabulary/index.json').catch(() => []),
+      loadLocalJson('/data/characters/index.json').catch(() => [])
+    ]);
+    const vMap = new Map((Array.isArray(vIdx) ? vIdx : []).map(x => [String((x && x.w) || '').replace(/\{|\}/g, ''), x]));
+    const cMap = new Map((Array.isArray(cIdx) ? cIdx : []).map(x => [String((x && (x.c || x.character)) || ''), x]));
+    const enrichEntry = (it) => {
+      const hz = String((it && (it.hanzi || it.key || it.word || it.character)) || '').trim();
+      const d = vMap.get(hz) || cMap.get(hz) || null;
+      return {
+        hanzi: hz,
+        pinyin: String((it && it.pinyin) || (d && d.p) || '').trim(),
+        hv: String((it && (it.hv || it.hanviet)) || (d && d.hv) || '').trim(),
+        meaningVi: String((it && (it.meaningVi || it.meaning)) || (d && d.m) || 'Từ vựng đã lưu trong sổ tay').trim(),
+        hskLevel: Number((it && it.hskLevel) || (d && (d.hsk || d.hskLevel)) || 1) || 1
+      };
+    };
+
+    const loadSavedItems = () => {
+      const rawNb = Array.isArray(nbRes && nbRes.items) ? nbRes.items : [];
+      const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
+      const learned = Array.isArray(prog.learnedWords) ? prog.learnedWords.filter(Boolean) : [];
+      const byHz = new Map();
+      rawNb.forEach(x => {
+        const e = enrichEntry(x);
+        if (e.hanzi) byHz.set(e.hanzi, e);
+      });
+      learned.forEach(w => {
+        const hz = String(w || '').trim();
+        if (hz && !byHz.has(hz)) byHz.set(hz, enrichEntry({ hanzi: hz }));
+      });
+      if (byHz.size === 0) {
+        curatedDecks['giao-tiep-hang-ngay'].items.slice(0, 4).forEach(x => byHz.set(x.hanzi, enrichEntry(x)));
+      }
+      return Array.from(byHz.values());
+    };
+    curatedDecks['da-luu'].items = loadSavedItems();
+    document.title = `${curatedDecks[activeDeckId].title} | Học Tiếng Trung`;
+
+    root.innerHTML = `
+      <div id="xhz-notebook-collection-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/so-tay" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Sổ tay (/so-tay)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/on-tap/da-hoc" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff;color:#44403c;border:1px solid #d6d3d1;">📚 Từ đã học</a>
+            <a href="/ngu-phap/da-hoc" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;text-decoration:none;background:#fff;color:#44403c;border:1px solid #d6d3d1;">⚖️ Ngữ pháp đã học</a>
+            <button type="button" id="xhz-nb-export-csv" style="padding:7px 14px;border-radius:999px;font-size:13px;font-weight:700;border:none;background:#0d9488;color:#fff;cursor:pointer;">📥 Xuất Anki CSV</button>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+            ${Object.entries(curatedDecks).map(([id, d]) => `
+              <button type="button" data-nb-deck="${id}" style="padding:8px 14px;border-radius:999px;border:1px solid ${id === activeDeckId ? '#0d9488' : '#d6d3d1'};background:${id === activeDeckId ? '#0d9488' : '#fff'};color:${id === activeDeckId ? '#fff' : '#1c1917'};font-weight:700;font-size:13px;cursor:pointer;">
+                📒 ${escapeHtml(d.title.replace('Bộ Sưu Tập: ', ''))} (${d.items.length})
+              </button>
+            `).join('')}
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div>
+              <span id="xhz-nb-badge" style="font-size:11.5px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">${escapeHtml(curatedDecks[activeDeckId].badge)}</span>
+              <h1 id="xhz-nb-title" style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">${escapeHtml(curatedDecks[activeDeckId].title)}</h1>
+              <p id="xhz-nb-desc" style="font-size:14px;color:#57534e;margin:0;">${escapeHtml(curatedDecks[activeDeckId].desc)}</p>
+            </div>
+            <a id="xhz-nb-worksheet-link" href="/tao-vo-tap-viet" style="padding:9px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-weight:800;text-decoration:none;font-size:13px;">🖨️ In vở tập viết bộ này</a>
+          </div>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
+            <input id="xhz-nb-search" type="search" aria-label="Tìm từ trong bộ sưu tập sổ tay" placeholder="Tìm theo chữ Hán, Pinyin, Hán Việt hoặc nghĩa..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:14px;" />
+            <form id="xhz-nb-add-form" style="display:flex;gap:8px;flex-wrap:wrap;">
+              <input id="xhz-nb-add-input" type="text" maxlength="20" aria-label="Nhập chữ Hán để thêm nhanh vào sổ tay" placeholder="Thêm nhanh chữ Hán (vd: 努力)..." style="width:210px;padding:10px 12px;border-radius:12px;border:1px solid #d6d3d1;font-size:13.5px;" />
+              <button type="submit" style="padding:10px 16px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">+ Lưu vào sổ tay</button>
+            </form>
+          </div>
+
+          <div id="xhz-nb-count" role="status" aria-live="polite" style="font-size:13px;font-weight:700;color:#0f766e;margin-bottom:12px;"></div>
+          <div id="xhz-nb-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
+        </div>
+      </div>
+    `;
+
+    const gridEl = root.querySelector('#xhz-nb-grid');
+    const countEl = root.querySelector('#xhz-nb-count');
+    const searchEl = root.querySelector('#xhz-nb-search');
+    const wsLink = root.querySelector('#xhz-nb-worksheet-link');
+    const titleEl = root.querySelector('#xhz-nb-title');
+    const badgeEl = root.querySelector('#xhz-nb-badge');
+    const descEl = root.querySelector('#xhz-nb-desc');
+
+    const renderDeck = () => {
+      const deck = curatedDecks[activeDeckId] || curatedDecks['da-luu'];
+      if (titleEl) titleEl.textContent = deck.title;
+      if (badgeEl) badgeEl.textContent = deck.badge;
+      if (descEl) descEl.textContent = deck.desc;
+      const q = String((searchEl && searchEl.value) || '').trim().toLowerCase();
+      const qNorm = normalizePinyinQuery(q);
+      const filtered = deck.items.filter(it => {
+        if (!q) return true;
+        return (
+          it.hanzi.toLowerCase().includes(q) ||
+          it.pinyin.toLowerCase().includes(q) ||
+          (qNorm && normalizePinyinQuery(it.pinyin).includes(qNorm)) ||
+          it.hv.toLowerCase().includes(q) ||
+          it.meaningVi.toLowerCase().includes(q)
+        );
+      });
+      if (countEl) countEl.textContent = `Đang hiển thị ${filtered.length} / ${deck.items.length} mục trong "${deck.title}"`;
+      if (wsLink) {
+        const wsTxt = (filtered.length ? filtered : deck.items).slice(0, 24).map(x => x.hanzi).join(' ') || '你 好 学 习';
+        wsLink.href = `/tao-vo-tap-viet?text=${encodeURIComponent(wsTxt)}`;
+      }
+      gridEl.innerHTML = filtered.map(it => `
+        <div style="padding:16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+              <a href="/tu-vung/${encodeURIComponent(it.hanzi)}" style="font-size:24px;font-weight:800;color:#1c1917;text-decoration:none;">${escapeHtml(it.hanzi)}</a>
+              <span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#ccfbf1;color:#115e59;">HSK ${it.hskLevel}</span>
+            </div>
+            <div style="font-size:13.5px;font-weight:700;color:#0d9488;margin-top:3px;">${escapeHtml(it.pinyin)}${it.hv ? ' · ' + escapeHtml(it.hv.toUpperCase()) : ''}</div>
+            <div style="font-size:14px;color:#44403c;margin-top:5px;line-height:1.45;">${escapeHtml(it.meaningVi)}</div>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:6px;border-top:1px dashed #e7e5e4;">
+            <button type="button" data-nb-play="${escapeHtml(it.hanzi)}" style="padding:5px 10px;border-radius:999px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;font-size:12px;">🔊 Nghe</button>
+            <button type="button" data-nb-copy="${escapeHtml(it.hanzi)}" data-nb-py="${escapeHtml(it.pinyin)}" style="padding:5px 10px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:12px;">📋 Sao chép</button>
+            <a href="/tao-vo-tap-viet?text=${encodeURIComponent(it.hanzi)}" style="padding:5px 10px;border-radius:999px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-weight:700;text-decoration:none;font-size:12px;">✍️ Tập viết</a>
+          </div>
+        </div>
+      `).join('');
+
+      gridEl.querySelectorAll('[data-nb-play]').forEach(b => {
+        b.onclick = () => playPronunciation(b.getAttribute('data-nb-play') || '', 'tts', 1.0);
+      });
+      gridEl.querySelectorAll('[data-nb-copy]').forEach(b => {
+        b.onclick = () => {
+          const hz = b.getAttribute('data-nb-copy') || '';
+          const py = b.getAttribute('data-nb-py') || '';
+          copyStudyText(py ? `${hz} (${py})` : hz, hz);
+        };
+      });
+    };
+
+    root.querySelectorAll('[data-nb-deck]').forEach(btn => {
+      btn.onclick = () => {
+        activeDeckId = btn.getAttribute('data-nb-deck') || 'da-luu';
+        root.querySelectorAll('[data-nb-deck]').forEach(sib => {
+          const on = sib.getAttribute('data-nb-deck') === activeDeckId;
+          sib.style.background = on ? '#0d9488' : '#fff';
+          sib.style.color = on ? '#fff' : '#1c1917';
+          sib.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+        });
+        renderDeck();
+      };
+    });
+    if (searchEl) searchEl.oninput = renderDeck;
+    const csvBtn = root.querySelector('#xhz-nb-export-csv');
+    if (csvBtn) {
+      csvBtn.onclick = () => {
+        if (typeof window.__xhzExportVocabularyCsv === 'function') window.__xhzExportVocabularyCsv(true);
+      };
+    }
+    const addForm = root.querySelector('#xhz-nb-add-form');
+    const addInp = root.querySelector('#xhz-nb-add-input');
+    if (addForm && addInp) {
+      addForm.onsubmit = async ev => {
+        ev.preventDefault();
+        const hz = String(addInp.value || '').trim();
+        if (!hz) return;
+        const entry = enrichEntry({ hanzi: hz });
+        try {
+          await fetch('/v1/notebook', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: entry.hanzi, hanzi: entry.hanzi, pinyin: entry.pinyin, meaningVi: entry.meaningVi, type: 'word' })
+          });
+        } catch (_) {}
+        recordStudyProgress({ wordLearned: entry.hanzi });
+        if (!curatedDecks['da-luu'].items.some(x => x.hanzi === entry.hanzi)) {
+          curatedDecks['da-luu'].items.unshift(entry);
+        }
+        addInp.value = '';
+        activeDeckId = 'da-luu';
+        renderDeck();
+        try { HTQ_STUDIO_FX.toast(`📒 Đã lưu "${entry.hanzi}" vào Sổ tay của bạn!`, 'success'); } catch (_) {}
+      };
+    }
+    renderDeck();
+  }
+
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
@@ -14925,6 +15526,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderStudyStageOrRunPage(pathname);
       return;
     }
+    if (parts[0] === 'hoc' && parts[1] === 'hom-nay') {
+      lastHandledFullUrl = fullKey;
+      await renderTodayMissionPage();
+      return;
+    }
+    if ((parts[0] === 'bat-dau' && parts[1] === 'kiem-tra') || (parts[0] === 'hoc' && parts[1] === 'bat-dau' && parts[2] === 'kiem-tra')) {
+      lastHandledFullUrl = fullKey;
+      await renderPlacementTestPage();
+      return;
+    }
+    if (parts[0] === 'so-tay' && parts.length >= 2) {
+      lastHandledFullUrl = fullKey;
+      await renderNotebookCollectionPage(pathname);
+      return;
+    }
     if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen')) {
       lastHandledFullUrl = fullKey;
       await renderProgressOrHabitPage(pathname);
@@ -16283,7 +16899,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/(bai|chang|kiem-tra-cap|noi)\/|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/hom-nay|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -16470,6 +17086,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 '<span>' + escapeHtml(c.name) + '</span>' +
               '</button>'
             ).join('') +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:6px;border-top:1px dashed rgba(79,70,229,.18);">' +
+            '<a href="/hoc/hom-nay" class="htq-stage-chip-btn" style="text-decoration:none;border-color:#0d9488;color:#0f766e;">🎯 Nhiệm vụ hôm nay</a>' +
+            '<a href="/bat-dau/kiem-tra" class="htq-stage-chip-btn" style="text-decoration:none;">🧭 Kiểm tra trình độ HSK</a>' +
+            '<a href="/hoc/tien-do" class="htq-stage-chip-btn" style="text-decoration:none;">📊 Tiến độ 7 ngày</a>' +
           '</div>';
         host.querySelectorAll('[data-comp-id]').forEach(btn => {
           btn.addEventListener('click', () => {
@@ -16523,6 +17144,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 '</div>' +
               '</div>' +
             '</div>' +
+          '</div>' +
+          '<div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;">' +
+            '<a href="/so-tay/da-luu" class="htq-stage-chip-btn" style="text-decoration:none;border-color:#0d9488;color:#0f766e;">📒 Bộ sưu tập Sổ tay</a>' +
+            '<a href="/on-tap/da-hoc" class="htq-stage-chip-btn" style="text-decoration:none;">📚 Từ đã học</a>' +
+            '<a href="/ngu-phap/da-hoc" class="htq-stage-chip-btn" style="text-decoration:none;">⚖️ Ngữ pháp đã học</a>' +
           '</div>';
         const fw = host.querySelector('#htq-srs-mini-flip');
         if (fw) bindStudioClick(fw, () => fw.classList.toggle('is-flipped'));
@@ -17245,7 +17871,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   // Global Command Palette (Ctrl+K / Cmd+K) for instant Hanzi/Vocab/Tool search
   const HTQ_QUICK_ROUTES = [
     { icon: '📖', title: 'Lộ trình học HSK 3.0', desc: 'Tiếp tục bài học hôm nay', href: '/hoc/', keys: 'hoc lo trinh hsk' },
+    { icon: '🎯', title: 'Nhiệm vụ học tập hôm nay', desc: 'Checklist 4 bước & 6 từ vựng trọng tâm trong ngày', href: '/hoc/hom-nay', keys: 'hom nay nhiem vu today mission' },
+    { icon: '🧭', title: 'Kiểm tra trình độ đầu vào HSK', desc: 'Đánh giá 12 câu phân tầng & gợi ý lộ trình HSK 1–4', href: '/bat-dau/kiem-tra', keys: 'kiem tra trinh do placement test xep lop' },
     { icon: '🔁', title: 'Trung tâm Ôn tập SRS', desc: 'Ôn bài đến hạn, sổ lỗi & từ đã học', href: '/on-tap/', keys: 'on tap srs the nho loi sai' },
+    { icon: '📒', title: 'Bộ sưu tập Sổ tay từ vựng', desc: 'Quản lý từ đã lưu & 3 bộ từ vựng chuyên đề HSK', href: '/so-tay/da-luu', keys: 'so tay bo suu tap da luu notebook' },
     { icon: '📚', title: 'Từ vựng đã học & Xuất CSV', desc: 'Lọc từ đã thuộc và xuất Anki/Excel', href: '/on-tap/da-hoc', keys: 'tu da hoc csv anki' },
     { icon: '🔍', title: 'Từ điển Chữ Hán & Bộ thủ', desc: 'Tra hơn 9.900 chữ Hán theo HSK/Bộ thủ', href: '/tra-chu/', keys: 'tu dien tra chu bo thu' },
     { icon: '🌐', title: 'Dịch Trung - Việt AI', desc: 'Dịch câu kèm phân tích từ ghép & Hán Việt', href: '/dich-tieng-trung/', keys: 'dich translate ai' },
