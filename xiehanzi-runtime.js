@@ -2577,6 +2577,24 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const closed = !document.getElementById('htq-cmdk-overlay');
         return Boolean(opened && closed);
       });
+      await runCheck('hydration-safe-dynamic-cloak', () => {
+        const html = typeof window.__xhzBuildMnemonicSectionHtml === 'function' ? window.__xhzBuildMnemonicSectionHtml('你好') : '';
+        return Boolean(
+          typeof isReactHydrated === 'function' &&
+          html.includes('aria-live="polite"') &&
+          html.includes('aria-label="Nhập mẹo ghi nhớ"') &&
+          typeof boot === 'function' &&
+          !boot.toString().includes('main.style.display')
+        );
+      });
+      await runCheck('learned-words-mnemonic-filter-ready', () => {
+        const fnSrc = typeof renderMistakeBookOrLearnedWordsPage === 'function' ? renderMistakeBookOrLearnedWordsPage.toString() : '';
+        return Boolean(
+          fnSrc.includes('data-status="mnemonic"') &&
+          fnSrc.includes('data-lw-mnemonic="1"') &&
+          fnSrc.includes('mergeMnemonicMaps')
+        );
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -7844,10 +7862,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <span style="font-size:12px;color:#0d9488;font-weight:700;">Đồng bộ theo tài khoản</span>
         </div>
         <form id="xhz-mnemonic-form" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-          <input id="xhz-mnemonic-input" type="text" maxlength="280" placeholder="Nhập mẹo nhớ chiết tự hoặc câu chuyện cho chữ/từ ${escapeHtml(targetKey)}..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-size:14px;" />
+          <input id="xhz-mnemonic-input" type="text" maxlength="280" aria-label="Nhập mẹo ghi nhớ" placeholder="Nhập mẹo nhớ chiết tự hoặc câu chuyện cho chữ/từ ${escapeHtml(targetKey)}..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-size:14px;" />
           <button type="submit" id="xhz-mnemonic-submit" style="padding:10px 18px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">Lưu mẹo nhớ</button>
         </form>
-        <div id="xhz-mnemonic-list" style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#44403c;">Chưa có ghi chú nào. Hãy thêm mẹo nhớ đầu tiên của bạn!</div>
+        <div id="xhz-mnemonic-list" aria-live="polite" style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#44403c;">Chưa có ghi chú nào. Hãy thêm mẹo nhớ đầu tiên của bạn!</div>
       </div>`;
   }
 
@@ -10819,7 +10837,25 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
     const root = getMainContentContainer();
     const res = await (await handleApiRequest(window.location.origin + '/v2/review/words', { method: 'GET' })).json();
-    const items = Array.isArray(res && res.items) ? res.items : [];
+    const rawItems = Array.isArray(res && res.items) ? res.items : [];
+    const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
+    let lsMn = {};
+    try { lsMn = JSON.parse(localStorage.getItem('httq_user_mnemonics_v1') || '{}') || {}; } catch (_) {}
+    const mnMap = mergeMnemonicMaps(prog.userMnemonics, lsMn);
+    const seenKeys = new Set();
+    const items = rawItems.map(it => {
+      const k = String((it && it.hanzi) || '').trim();
+      if (k) seenKeys.add(k);
+      const list = Array.isArray(mnMap[k]) ? mnMap[k] : [];
+      return { ...it, mnemonicNote: (list[0] && list[0].note) ? String(list[0].note) : '' };
+    });
+    for (const [k, list] of Object.entries(mnMap)) {
+      if (k && !seenKeys.has(k) && Array.isArray(list) && list.length > 0 && list[0] && list[0].note) {
+        seenKeys.add(k);
+        items.push({ hanzi: k, pinyin: '', meaningVi: 'Có ghi chú ghi nhớ cá nhân', state: 'learning', mnemonicNote: String(list[0].note) });
+      }
+    }
+    const mnemonicItemsCount = items.filter(i => i.mnemonicNote).length;
     document.title = `Từ đã học (${items.length} từ) | Học Tiếng Trung`;
 
     root.innerHTML = `
@@ -10836,14 +10872,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
             <div>
               <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">📚 Từ vựng đã học (${items.length} từ)</h1>
-              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Tổng hợp toàn bộ chữ Hán và từ vựng đã ghi nhận trong quá trình học tập của bạn.</p>
+              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Tổng hợp toàn bộ chữ Hán, từ vựng và mẹo nhớ cá nhân trong quá trình học tập của bạn.</p>
             </div>
-            <input id="xhz-lw-search" type="text" placeholder="🔍 Lọc từ vựng, pinyin, nghĩa..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:220px;" />
+            <input id="xhz-lw-search" type="text" aria-label="Tìm trong từ đã học" placeholder="🔍 Lọc từ vựng, pinyin, nghĩa, mẹo nhớ..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:220px;" />
           </div>
           <div id="xhz-lw-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
             <button type="button" data-status="all" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Tất cả (${items.length})</button>
             <button type="button" data-status="known" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">Đã thuộc (${items.filter(i => i.state === 'review').length})</button>
             <button type="button" data-status="learning" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">Đang học (${items.filter(i => i.state !== 'review').length})</button>
+            <button type="button" data-status="mnemonic" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">📝 Có mẹo nhớ (${mnemonicItemsCount})</button>
           </div>
           <div id="xhz-lw-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;"></div>
         </div>
@@ -10858,11 +10895,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const filtered = items.filter(it => {
         if (activeStatus === 'known' && it.state !== 'review') return false;
         if (activeStatus === 'learning' && it.state === 'review') return false;
+        if (activeStatus === 'mnemonic' && !it.mnemonicNote) return false;
         if (!norm) return true;
-        return it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm);
+        return it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm) || (it.mnemonicNote || '').toLowerCase().includes(norm);
       });
       if (filtered.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#0d9488;font-weight:700;">Lộ trình học</a> để tích lũy từ mới nhé!</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#0d9488;font-weight:700;">Lộ trình học</a> hoặc thêm mẹo nhớ ở trang chi tiết chữ/từ nhé!</div>`;
         return;
       }
       grid.innerHTML = filtered.map(it => {
@@ -10879,6 +10917,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </div>
             ${it.pinyin ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${escapeHtml(it.pinyin)}</div>` : ''}
             <div style="font-size:14px;color:#44403c;line-height:1.4;">${escapeHtml(it.meaningVi || 'Từ vựng đã học')}</div>
+            ${it.mnemonicNote ? `<div data-lw-mnemonic="1" style="font-size:12.5px;color:#4338ca;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:6px 10px;line-height:1.4;word-break:break-word;">📝 ${escapeHtml(it.mnemonicNote)}</div>` : ''}
           </div>
         `;
       }).join('');
@@ -16144,14 +16183,29 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     try {
       const mainEl = document.querySelector('main#noi-dung-chinh') || document.querySelector('main');
       if (!mainEl) return true;
-      const mainReady = Object.keys(mainEl).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$'));
-      if (!mainReady) return false;
+      const hasFiber = (el) => Boolean(el && Object.keys(el).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$')));
+      if (!hasFiber(mainEl)) return false;
       const firstChild = mainEl.firstElementChild;
-      if (!firstChild) return true;
-      return Object.keys(firstChild).some(k => k.startsWith('__reactFiber$') || k.startsWith('__reactProps$'));
+      if (firstChild && !hasFiber(firstChild)) return false;
+      const lastChild = mainEl.lastElementChild;
+      if (lastChild && !hasFiber(lastChild)) return false;
+      const footerEl = document.querySelector('footer[data-site-chrome="true"]') || document.querySelector('footer');
+      if (footerEl) {
+        if (!hasFiber(footerEl)) return false;
+        const footerInner = footerEl.lastElementChild || footerEl;
+        if (!hasFiber(footerInner)) return false;
+      }
+      return true;
     } catch (_) {
       return true;
     }
+  }
+
+  function clearDynamicCloak() {
+    try {
+      const st = document.getElementById('htq-dynamic-cloak');
+      if (st) st.remove();
+    } catch (_) {}
   }
 
   function scheduleScrubPasses() {
@@ -16160,12 +16214,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const triggerSafe = () => {
       if (settledOnce) return;
       settledOnce = true;
-      const remain = Math.max(180, 900 - (Date.now() - tBoot));
+      const remain = Math.max(120, 480 - (Date.now() - tBoot));
       requestAnimationFrame(() => {
         setTimeout(() => {
           runPostHydrationEnhancers();
           if (isDynamicSpaRoute(window.location.pathname)) {
-            checkAndRenderDynamicPage();
+            Promise.resolve(checkAndRenderDynamicPage()).finally(clearDynamicCloak);
+          } else {
+            clearDynamicCloak();
           }
         }, remain);
       });
@@ -16173,11 +16229,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     let tries = 0;
     const poll = setInterval(() => {
       tries++;
-      if ((document.readyState === 'complete' && isReactHydrated()) || tries >= 14) {
+      if ((document.readyState === 'complete' && isReactHydrated()) || tries >= 22) {
         clearInterval(poll);
         triggerSafe();
       }
-    }, 120);
+    }, 65);
     setTimeout(() => {
       clearInterval(poll);
       triggerSafe();
@@ -16227,10 +16283,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function boot() {
     supabaseFetchInitial();
     try {
-      if (isDynamicSpaRoute(window.location.pathname)) {
-        const main = document.querySelector('main');
-        if (main) main.style.display = 'none';
-        checkAndRenderDynamicPage();
+      const pNow = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
+      if (isDynamicSpaRoute(pNow) && !/^\/tra-chu\/hsk\/[1-6]$/.test(pNow)) {
+        const headRoot = document.head || document.documentElement;
+        if (headRoot && !document.getElementById('htq-dynamic-cloak')) {
+          const cloak = document.createElement('style');
+          cloak.id = 'htq-dynamic-cloak';
+          cloak.textContent = 'main#noi-dung-chinh,main{opacity:0!important;pointer-events:none!important;}';
+          headRoot.appendChild(cloak);
+          setTimeout(clearDynamicCloak, 1800);
+        }
       }
     } catch (_) {}
     scheduleScrubPasses();
