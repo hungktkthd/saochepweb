@@ -358,6 +358,21 @@ body {
   body:has(#htq-mobile-nav) nav[data-bottom-nav="true"] { display: none !important; }
   #htq-mobile-nav { z-index: 75 !important; }
 }
+@media (max-width: 1179px) {
+  html body #htq-buddy-dock {
+    top: auto !important;
+    bottom: 138px !important;
+    right: 12px !important;
+    left: auto !important;
+    flex-direction: column !important;
+    align-items: flex-end !important;
+  }
+  button[data-testid="capy-bubble"][data-side="right"]:not(.capy-companion_dragging__awt_M),
+  button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
+    left: auto !important;
+    right: 12px !important;
+  }
+}
 header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(0); }
 @media (min-width: 1180px) {
   body:not([data-htq-immersive="1"]) > div:has(> header[data-site-header="true"]) { padding-left: 252px !important; }
@@ -3279,6 +3294,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('yct-exam-hub-dark-mode-rules', () => {
         const tpSrc = typeof renderHskTestPaperPage === 'function' ? renderHskTestPaperPage.toString() : '';
         return Boolean(tpSrc.includes('html.dark #xhz-yct-exam-hub'));
+      });
+      await runCheck('mobile-floating-dock-no-overlap-css', () => {
+        injectStudioV14FxStyles();
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('bottom: 138px !important;') && txt.includes('button[data-testid="capy-bubble"][data-side="right"]'));
+      });
+      await runCheck('today-mission-progress-gap-and-nowrap', () => {
+        const tmSrc = typeof renderTodayMissionPage === 'function' ? renderTodayMissionPage.toString() : '';
+        return Boolean(tmSrc.includes('gap:6px 12px') && tmSrc.includes('white-space:nowrap;'));
+      });
+      await runCheck('v3-master-and-v14-fx-version-invariants', () => {
+        injectMasterV3Styles();
+        const m = document.getElementById('htq-v3-master-css');
+        const fx = document.getElementById('htq-v14-fx-css');
+        return Boolean(m && m.getAttribute('data-htq-ver') === '16' && fx && fx.getAttribute('data-htq-ver') === '21');
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -12890,14 +12921,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
           <div id="xhz-tm-hero" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;padding-bottom:18px;border-bottom:1px solid #e7e5e4;margin-bottom:20px;">
             <div>
-              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">🎯 KẾ HOẠCH HỌC TẬP HÔM NAY · ${todayIso}</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;font-weight:800;padding:4px 11px;border-radius:999px;background:#ccfbf1;color:#115e59;"><span>🎯 KẾ HOẠCH HỌC TẬP HÔM NAY ·</span><span style="white-space:nowrap;">${todayIso}</span></span>
               <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Bảng Nhiệm Vụ Học Tiếng Trung Hôm Nay</h1>
               <p style="font-size:14px;color:#57534e;margin:0;">Hoàn thành 4 bước ngắn mỗi ngày để duy trì chuỗi <strong>${sum.streakDays} ngày 🔥</strong> và mở rộng vốn từ HSK bền vững.</p>
             </div>
-            <div style="min-width:210px;padding:14px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;">
-              <div style="display:flex;justify-content:space-between;font-size:12.5px;font-weight:800;color:#115e59;margin-bottom:6px;">
+            <div style="min-width:240px;max-width:100%;flex:1 1 240px;padding:14px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;">
+              <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px 12px;font-size:12.5px;font-weight:800;color:#115e59;margin-bottom:6px;">
                 <span>TIẾN ĐỘ PHÚT HÔM NAY</span>
-                <span>${todayMins} / ${dailyGoal} phút (${goalPct}%)</span>
+                <span style="white-space:nowrap;">${todayMins} / ${dailyGoal} phút (${goalPct}%)</span>
               </div>
               <div style="height:9px;border-radius:999px;background:#ccfbf1;overflow:hidden;">
                 <div style="height:100%;width:${Math.max(6, goalPct)}%;background:#0d9488;border-radius:999px;"></div>

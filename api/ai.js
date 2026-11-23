@@ -177,6 +177,23 @@ function lookupCorePhrase(text, direction) {
   return hit ? { target: hit.zh, py: hit.py, hv: hit.hv || null, source: "dict" } : null;
 }
 
+function extractViTranslateQuery(raw) {
+  let s = String(raw || "").trim();
+  s = s.replace(/^(dịch giúp mình|dịch câu|dịch|cho mình hỏi|hỏi nhanh|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s,]+/i, "").trim();
+  s = s.replace(/\s*(trong tiếng trung là gì|trong tiếng trung nói thế nào|trong tiếng trung nói sao|bằng tiếng trung nói thế nào|bằng tiếng trung nói sao|nói tiếng trung thế nào|nói tiếng trung ra sao|tieng trung la gi|nghĩa là gì|la gi)\s*[?!.]*$/i, "").trim();
+  if (/\s+(?:tiếng trung|tieng trung)\s+(?:nói thế nào|nói sao|noi the nao|noi sao|là gì)\s*[?!.]*$/i.test(s)) {
+    const before = s.replace(/\s+(?:tiếng trung|tieng trung)\s+(?:nói thế nào|nói sao|noi the nao|noi sao|là gì)\s*[?!.]*$/i, "").trim();
+    if (!/(?:học|hoc|nói|noi|viết|viet|đọc|doc|nghe|dịch|dich|thích|thich|biết|biet|dạy|day|hiểu|hieu|về|ve|người|nguoi|nước|nuoc)$/i.test(before)) {
+      s = before;
+    } else {
+      s = s.replace(/\s+(?:nói thế nào|nói sao|noi the nao|noi sao|là gì)\s*[?!.]*$/i, "").trim();
+    }
+  } else {
+    s = s.replace(/\s+(?:nói thế nào|nói sao|noi the nao|noi sao)\s*[?!.]*$/i, "").trim();
+  }
+  return s.replace(/[?!.]+$/g, "").trim() || String(raw || "").trim();
+}
+
 async function googleTranslateFallback(text, sourceLang, targetLang, script) {
   const safeText = String(text || "").slice(0, 1500).trim();
   const sl = sourceLang === "zh" ? "zh-CN" : sourceLang === "vi" ? "vi" : "auto";
@@ -531,10 +548,7 @@ module.exports = async function handler(req, res) {
         }
       } else {
         // Câu tiếng Việt -> Dịch sang tiếng Trung + Pinyin
-        const cleanQuery = msg
-          .replace(/^(dịch giúp mình|dịch câu|dịch|cho mình hỏi|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s]*/i, "")
-          .replace(/\s*(trong tiếng trung là gì|tiếng trung nói thế nào|tiếng trung nói sao|tieng trung noi the nao|tieng trung noi sao|tiếng trung là gì|nói tiếng trung thế nào|nói sao|nghĩa là gì|la gi)\??$/i, "")
-          .trim() || msg;
+        const cleanQuery = extractViTranslateQuery(msg);
         const coreHitVi = lookupCorePhrase(cleanQuery, "vi-zh");
         if (coreHitVi) {
           return res.status(200).json({
