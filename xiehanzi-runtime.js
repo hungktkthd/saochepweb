@@ -1171,6 +1171,49 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     return `${d.getUTCFullYear()}-W${String(weekNo).padStart(2, '0')}`;
   }
 
+  function mergeMnemonicMaps(mapA, mapB) {
+    const out = {};
+    const ingest = (src) => {
+      if (!src || typeof src !== 'object' || Array.isArray(src)) return;
+      for (const [target, list] of Object.entries(src)) {
+        if (!target || !Array.isArray(list)) continue;
+        if (!out[target]) out[target] = [];
+        list.forEach(rawItem => {
+          if (!rawItem || typeof rawItem !== 'object') return;
+          const note = String(rawItem.note || '').trim();
+          if (!note) return;
+          const id = String(rawItem.id || '');
+          const hit = out[target].find(x => (id && x.id === id) || x.note === note);
+          const votes = Math.max(1, Number(rawItem.votes) || 1);
+          const updatedAt = rawItem.updatedAt || new Date().toISOString();
+          if (hit) {
+            hit.votes = Math.max(Number(hit.votes) || 1, votes);
+            if (updatedAt > (hit.updatedAt || '')) hit.updatedAt = updatedAt;
+          } else {
+            out[target].push({
+              id: id || ('mn-' + Math.random().toString(36).slice(2, 8)),
+              target,
+              note,
+              votes,
+              updatedAt
+            });
+          }
+        });
+      }
+    };
+    ingest(mapA);
+    ingest(mapB);
+    for (const k of Object.keys(out)) {
+      if (out[k].length === 0) {
+        delete out[k];
+        continue;
+      }
+      out[k].sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+      out[k] = out[k].slice(0, 10);
+    }
+    return out;
+  }
+
   function getRealProgress() {
     let prog = {
       doneStages: [],
@@ -1185,6 +1228,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       dictationProgress: {},
       learningProfile: {},
       habitSettings: {},
+      userMnemonics: {},
       activeDates: [],
       minutesByDate: {},
       sessionsByDate: {},
@@ -1298,6 +1342,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (savedStg) prog.currentStageKey = savedStg;
       const savedLes = localStorage.getItem('httq_current_lesson_id');
       if (savedLes) prog.currentLessonId = savedLes;
+      const mnRaw = JSON.parse(localStorage.getItem('httq_user_mnemonics_v1') || '{}');
+      if (mnRaw && typeof mnRaw === 'object' && !Array.isArray(mnRaw)) {
+        prog.userMnemonics = mergeMnemonicMaps(prog.userMnemonics, mnRaw);
+      }
     } catch (_e) {}
     return prog;
   }
@@ -1307,6 +1355,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const todayStr = new Date().toISOString().slice(0, 10);
       const nowMs = Date.now();
       prog.updatedAt = nowMs;
+      if (prog.userMnemonics && typeof prog.userMnemonics === 'object' && !Array.isArray(prog.userMnemonics)) {
+        if (prog.__explicitMnemonicWrite) {
+          localStorage.setItem('httq_user_mnemonics_v1', JSON.stringify(prog.userMnemonics));
+        } else {
+          let localMn = {};
+          try { localMn = JSON.parse(localStorage.getItem('httq_user_mnemonics_v1') || '{}') || {}; } catch (_) {}
+          const mergedMn = mergeMnemonicMaps(localMn, prog.userMnemonics);
+          prog.userMnemonics = mergedMn;
+          localStorage.setItem('httq_user_mnemonics_v1', JSON.stringify(mergedMn));
+        }
+        delete prog.__explicitMnemonicWrite;
+      }
       localStorage.setItem('httq_progress_v2', JSON.stringify(prog));
       localStorage.setItem('httq_done_stages', JSON.stringify(prog.doneStages || []));
       localStorage.setItem('httq_done_activities', JSON.stringify(prog.doneActivities || {}));
@@ -1471,6 +1531,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       dictationProgress: { ...(remoteP.dictationProgress || {}), ...(localP.dictationProgress || {}) },
       learningProfile: { ...(remoteP.learningProfile || {}), ...(localP.learningProfile || {}) },
       habitSettings: { ...(remoteP.habitSettings || {}), ...(localP.habitSettings || {}) },
+      userMnemonics: mergeMnemonicMaps(remoteP.userMnemonics, localP.userMnemonics),
       gameHighScores: mergedGames,
       speakingProgress: mergedSpeaking,
       activeDates,
@@ -2015,12 +2076,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const grammarCount = guestProg && Array.isArray(guestProg.learnedGrammarIds) ? guestProg.learnedGrammarIds.length : 0;
       const reviewCardsCount = guestState && guestState.collections && Array.isArray(guestState.collections.reviewCards) ? guestState.collections.reviewCards.length : 0;
       const savedWordsCount = guestState && guestState.savedWords && typeof guestState.savedWords === 'object' ? Object.keys(guestState.savedWords).length : 0;
-      const hasData = (wordsCount + stagesCount + grammarCount + reviewCardsCount + savedWordsCount) > 0;
+      const mnemonicsCount = guestProg && guestProg.userMnemonics && typeof guestProg.userMnemonics === 'object'
+        ? Object.values(guestProg.userMnemonics).reduce((sum, arr) => sum + (Array.isArray(arr) ? arr.length : 0), 0)
+        : 0;
+      const hasData = (wordsCount + stagesCount + grammarCount + reviewCardsCount + savedWordsCount + mnemonicsCount) > 0;
       const migFlagKey = user && user.id ? `httq_guest_migrated_for_${user.id}` : '';
       const alreadyMigrated = Boolean(migFlagKey && localStorage.getItem(migFlagKey));
-      return { hasData, wordsCount, stagesCount, grammarCount, reviewCardsCount, savedWordsCount, alreadyMigrated };
+      return { hasData, wordsCount, stagesCount, grammarCount, reviewCardsCount, savedWordsCount, mnemonicsCount, alreadyMigrated };
     } catch (_e) {
-      return { hasData: false, wordsCount: 0, stagesCount: 0, grammarCount: 0, reviewCardsCount: 0, savedWordsCount: 0, alreadyMigrated: false };
+      return { hasData: false, wordsCount: 0, stagesCount: 0, grammarCount: 0, reviewCardsCount: 0, savedWordsCount: 0, mnemonicsCount: 0, alreadyMigrated: false };
     }
   }
 
@@ -2471,6 +2535,47 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const rb = await originalFetch('/robots.txt').then(r => r.ok ? r.text() : '').catch(() => '');
         const sm = await originalFetch('/sitemap.xml').then(r => r.ok ? r.text() : '').catch(() => '');
         return Boolean(rb.includes('hoctiengtrungquoc.vercel.app/sitemap.xml') && sm.includes('<urlset') && sm.includes('luyen-chep-chinh-ta'));
+      });
+      await runCheck('mnemonic-cloud-merge-and-delete', async () => {
+        const merged = mergeMnemonicMaps(
+          { '好': [{ id: 'm1', target: '好', note: 'Nữ tử hảo', votes: 1, updatedAt: '2026-11-20T00:00:00Z' }] },
+          { '好': [{ id: 'm1', target: '好', note: 'Nữ tử hảo', votes: 4, updatedAt: '2026-11-22T00:00:00Z' }, { id: 'm2', target: '好', note: 'Tốt đẹp', votes: 2, updatedAt: '2026-11-23T00:00:00Z' }] }
+        );
+        const mergeOk = Boolean(merged['好'] && merged['好'].length === 2 && merged['好'].find(x => x.id === 'm1').votes === 4);
+        const cr = await (await fetch('/v1/ugc/mnemonic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: '茶', note: 'Thảo nhân mộc là cây trà' })
+        })).json();
+        const delId = cr && cr.item && cr.item.id;
+        const delRes = delId ? await (await fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent('茶') + '&id=' + encodeURIComponent(delId), { method: 'DELETE' })).json() : null;
+        const afterList = await (await fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent('茶'))).json();
+        return Boolean(mergeOk && delId && delRes && delRes.ok && delRes.deleted && Array.isArray(afterList.items) && !afterList.items.some(x => x.id === delId));
+      });
+      await runCheck('flight-stream-integrity', async () => {
+        const [homeHtml, dictHtml, hsk1Html] = await Promise.all([
+          originalFetch('/').then(r => r.ok ? r.text() : '').catch(() => ''),
+          originalFetch('/luyen-chep-chinh-ta').then(r => r.ok ? r.text() : '').catch(() => ''),
+          originalFetch('/tra-chu/hsk/1').then(r => r.ok ? r.text() : '').catch(() => '')
+        ]);
+        return Boolean(
+          homeHtml.includes('2f:T924,') && !homeHtml.includes('2f:T8e7,') &&
+          dictHtml.includes('34:T91b,') && !dictHtml.includes('34:T91a,') &&
+          hsk1Html.includes('2e:T2d1c,') && !hsk1Html.includes('2e:T26dc,')
+        );
+      });
+      await runCheck('vocab-detail-mnemonic-ready', () => {
+        if (typeof window.__xhzBuildMnemonicSectionHtml !== 'function' || typeof window.__xhzWireMnemonicSection !== 'function') return false;
+        const html = window.__xhzBuildMnemonicSectionHtml('你好');
+        return Boolean(html.includes('xhz-char-mnemonic-section') && html.includes('xhz-mnemonic-submit') && html.includes('你好'));
+      });
+      await runCheck('cmdk-window-keydown-instant', () => {
+        window.__xhzCloseCommandPalette();
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, bubbles: true, cancelable: true }));
+        const opened = Boolean(document.getElementById('htq-cmdk-overlay'));
+        window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }));
+        const closed = !document.getElementById('htq-cmdk-overlay');
+        return Boolean(opened && closed);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -7254,7 +7359,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
       };
       const writeMnemonicMap = (map) => {
-        try { localStorage.setItem(MNEMONIC_KEY, JSON.stringify(map)); } catch (_) {}
+        try {
+          localStorage.setItem(MNEMONIC_KEY, JSON.stringify(map));
+          const curP = getRealProgress();
+          curP.userMnemonics = map;
+          curP.__explicitMnemonicWrite = true;
+          saveRealProgress(curP);
+          if (!window.__xhzDiagRunning) {
+            syncProgressToSupabaseAuth(curP).catch(() => {});
+          }
+        } catch (_) {}
       };
       const target = String(urlObj.searchParams.get('target') || urlObj.searchParams.get('hanzi') || urlObj.searchParams.get('character') || body.target || body.hanzi || body.character || '').trim();
 
@@ -7264,6 +7378,29 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           ? (Array.isArray(map[target]) ? map[target] : [])
           : Object.keys(map).flatMap(k => Array.isArray(map[k]) ? map[k] : []);
         return jsonResponse({ ok: true, target, items, total: items.length });
+      }
+
+      if ((p === '/v1/ugc/mnemonic' && method === 'DELETE') || (p === '/v1/ugc/mnemonic/delete' && method === 'POST') || (/^\/v1\/ugc\/mnemonic\/[^/]+$/.test(p) && method === 'DELETE')) {
+        const mDel = p.match(/^\/v1\/ugc\/mnemonic\/([^/]+)$/);
+        const delId = String(urlObj.searchParams.get('id') || body.id || (mDel ? safeDecodeURIComponent(mDel[1]) : '') || '').trim();
+        if (!delId) return jsonResponse({ ok: false, error: 'Thiếu mã ghi chú.' }, 400);
+        const map = readMnemonicMap();
+        const keysToScan = target && Array.isArray(map[target]) ? [target] : Object.keys(map);
+        let removed = false;
+        let remainItems = target && Array.isArray(map[target]) ? map[target] : [];
+        for (const k of keysToScan) {
+          const list = Array.isArray(map[k]) ? map[k] : [];
+          const nextList = list.filter(x => x && x.id !== delId);
+          if (nextList.length !== list.length) {
+            removed = true;
+            if (nextList.length > 0) map[k] = nextList;
+            else delete map[k];
+            if (!target || target === k) remainItems = nextList;
+          }
+        }
+        if (!removed) return jsonResponse({ ok: false, error: 'Không tìm thấy ghi chú.' }, 404);
+        writeMnemonicMap(map);
+        return jsonResponse({ ok: true, deleted: true, id: delId, items: remainItems });
       }
 
       if ((p === '/v1/ugc/mnemonic/vote' || /^\/v1\/ugc\/mnemonic\/[^/]+\/vote$/.test(p)) && method === 'POST') {
@@ -7699,6 +7836,119 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     };
   }
 
+  function buildMnemonicSectionHtml(targetKey) {
+    return `
+      <div id="xhz-char-mnemonic-section" style="margin-top:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <h3 style="font-size:18px;font-weight:700;margin:0;color:#1c1917;">📝 Ghi chú ghi nhớ cá nhân cho "${escapeHtml(targetKey)}"</h3>
+          <span style="font-size:12px;color:#0d9488;font-weight:700;">Đồng bộ theo tài khoản</span>
+        </div>
+        <form id="xhz-mnemonic-form" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+          <input id="xhz-mnemonic-input" type="text" maxlength="280" placeholder="Nhập mẹo nhớ chiết tự hoặc câu chuyện cho chữ/từ ${escapeHtml(targetKey)}..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-size:14px;" />
+          <button type="submit" id="xhz-mnemonic-submit" style="padding:10px 18px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">Lưu mẹo nhớ</button>
+        </form>
+        <div id="xhz-mnemonic-list" style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#44403c;">Chưa có ghi chú nào. Hãy thêm mẹo nhớ đầu tiên của bạn!</div>
+      </div>`;
+  }
+
+  function wireMnemonicSection(targetKey) {
+    const mnemonicForm = document.getElementById('xhz-mnemonic-form');
+    const mnemonicInp = document.getElementById('xhz-mnemonic-input');
+    const mnemonicSubmitBtn = document.getElementById('xhz-mnemonic-submit');
+    const mnemonicList = document.getElementById('xhz-mnemonic-list');
+    const renderMnemonicList = (items) => {
+      if (!mnemonicList) return;
+      const arr = Array.isArray(items) ? items : [];
+      if (arr.length === 0) {
+        mnemonicList.innerHTML = '<div style="opacity:.72;font-size:13.5px;">Chưa có ghi chú nào cho mục này. Hãy thêm mẹo nhớ để ôn tập nhanh hơn!</div>';
+        return;
+      }
+      mnemonicList.innerHTML = arr.map(it =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;">` +
+          `<div style="flex:1;min-width:0;word-break:break-word;line-height:1.45;">${escapeHtml(it.note || '')}</div>` +
+          `<div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">` +
+            `<button type="button" data-mn-vote="${escapeHtml(it.id || '')}" aria-label="Thích ghi chú" style="border:1px solid #d6d3d1;background:#fff;color:#4338ca;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700;cursor:pointer;">👍 ${Number(it.votes) || 1}</button>` +
+            `<button type="button" data-mn-del="${escapeHtml(it.id || '')}" aria-label="Xóa ghi chú" title="Xóa ghi chú" style="border:1px solid #fecaca;background:#fff1f2;color:#b91c1c;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:700;cursor:pointer;">🗑️</button>` +
+          `</div>` +
+        `</div>`
+      ).join('');
+      mnemonicList.querySelectorAll('[data-mn-vote]').forEach(btn => {
+        bindStudioClick(btn, async () => {
+          const vid = btn.getAttribute('data-mn-vote') || '';
+          if (!vid) return;
+          try {
+            const r = await (await fetch('/v1/ugc/mnemonic/vote', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ target: targetKey, id: vid })
+            })).json();
+            if (r && r.ok && Array.isArray(r.items)) renderMnemonicList(r.items);
+          } catch (_) {}
+        });
+      });
+      mnemonicList.querySelectorAll('[data-mn-del]').forEach(btn => {
+        bindStudioClick(btn, async () => {
+          const did = btn.getAttribute('data-mn-del') || '';
+          if (!did) return;
+          try {
+            const r = await (await fetch('/v1/ugc/mnemonic/delete', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ target: targetKey, id: did })
+            })).json();
+            if (r && r.ok) {
+              renderMnemonicList(r.items || []);
+              HTQ_STUDIO_FX.toast('🗑️ Đã xóa ghi chú.', 'info');
+            }
+          } catch (_) {}
+        });
+      });
+    };
+    if (mnemonicList) {
+      fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent(targetKey))
+        .then(r => r.json())
+        .then(d => { if (d && Array.isArray(d.items)) renderMnemonicList(d.items); })
+        .catch(() => {});
+    }
+    let submittingMnemonic = false;
+    const submitMnemonic = async () => {
+      if (submittingMnemonic || !mnemonicInp) return;
+      const note = String(mnemonicInp.value || '').trim();
+      if (note.length < 2) {
+        HTQ_STUDIO_FX.toast('Vui lòng nhập mẹo nhớ dài ít nhất 2 ký tự.', 'warn');
+        mnemonicInp.focus();
+        return;
+      }
+      submittingMnemonic = true;
+      try {
+        const res = await (await fetch('/v1/ugc/mnemonic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: targetKey, note })
+        })).json();
+        if (res && res.ok) {
+          mnemonicInp.value = '';
+          renderMnemonicList(res.items);
+          HTQ_STUDIO_FX.toast('✨ Đã lưu mẹo nhớ cho ' + targetKey + '!', 'success');
+        } else {
+          HTQ_STUDIO_FX.toast((res && res.error) || 'Không thể lưu ghi chú.', 'warn');
+        }
+      } catch (_) {}
+      submittingMnemonic = false;
+    };
+    if (mnemonicForm && mnemonicInp) {
+      mnemonicForm.addEventListener('submit', ev => {
+        ev.preventDefault();
+        submitMnemonic();
+      });
+    }
+    if (mnemonicSubmitBtn) {
+      bindStudioClick(mnemonicSubmitBtn, () => submitMnemonic());
+    }
+  }
+  window.__xhzBuildMnemonicSectionHtml = buildMnemonicSectionHtml;
+  window.__xhzWireMnemonicSection = wireMnemonicSection;
+
   async function renderCharacterDetailPage(slug) {
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu chữ Hán...</div>`;
@@ -7797,17 +8047,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         </div>
       </div>` : ''}
 
-      <div id="xhz-char-mnemonic-section" style="margin-top:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:20px;">
-        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-          <h3 style="font-size:18px;font-weight:700;margin:0;color:#1c1917;">📝 Ghi chú ghi nhớ cá nhân cho "${escapeHtml(ch)}"</h3>
-          <span style="font-size:12px;color:#0d9488;font-weight:700;">Lưu riêng theo tài khoản</span>
-        </div>
-        <form id="xhz-mnemonic-form" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
-          <input id="xhz-mnemonic-input" type="text" maxlength="280" placeholder="Nhập mẹo nhớ chiết tự hoặc câu chuyện cho chữ ${escapeHtml(ch)}..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-size:14px;" />
-          <button type="submit" id="xhz-mnemonic-submit" style="padding:10px 18px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">Lưu mẹo nhớ</button>
-        </form>
-        <div id="xhz-mnemonic-list" style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#44403c;">Chưa có ghi chú nào. Hãy thêm mẹo nhớ đầu tiên của bạn!</div>
-      </div>
+      ${buildMnemonicSectionHtml(ch)}
     `;
 
     const speakBtn = document.getElementById('xhz-btn-speak');
@@ -7817,80 +8057,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       isChar: true,
       meta: { pinyin, hanviet, meaningVi: meaning }
     });
-
-    const mnemonicForm = document.getElementById('xhz-mnemonic-form');
-    const mnemonicInp = document.getElementById('xhz-mnemonic-input');
-    const mnemonicSubmitBtn = document.getElementById('xhz-mnemonic-submit');
-    const mnemonicList = document.getElementById('xhz-mnemonic-list');
-    const renderMnemonicList = (items) => {
-      if (!mnemonicList) return;
-      const arr = Array.isArray(items) ? items : [];
-      if (arr.length === 0) {
-        mnemonicList.innerHTML = '<div style="opacity:.72;font-size:13.5px;">Chưa có ghi chú nào cho chữ này. Hãy thêm mẹo nhớ để ôn tập nhanh hơn!</div>';
-        return;
-      }
-      mnemonicList.innerHTML = arr.map(it =>
-        `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;">` +
-          `<div style="flex:1;min-width:0;word-break:break-word;line-height:1.45;">${escapeHtml(it.note || '')}</div>` +
-          `<button type="button" data-mn-vote="${escapeHtml(it.id || '')}" aria-label="Thích ghi chú" style="border:1px solid #d6d3d1;background:#fff;color:#4338ca;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;">👍 ${Number(it.votes) || 1}</button>` +
-        `</div>`
-      ).join('');
-      mnemonicList.querySelectorAll('[data-mn-vote]').forEach(btn => {
-        bindStudioClick(btn, async () => {
-          const vid = btn.getAttribute('data-mn-vote') || '';
-          if (!vid) return;
-          try {
-            const r = await (await fetch('/v1/ugc/mnemonic/vote', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ target: ch, id: vid })
-            })).json();
-            if (r && r.ok && Array.isArray(r.items)) renderMnemonicList(r.items);
-          } catch (_) {}
-        });
-      });
-    };
-    if (mnemonicList) {
-      fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent(ch))
-        .then(r => r.json())
-        .then(d => { if (d && Array.isArray(d.items)) renderMnemonicList(d.items); })
-        .catch(() => {});
-    }
-    let submittingMnemonic = false;
-    const submitMnemonic = async () => {
-      if (submittingMnemonic || !mnemonicInp) return;
-      const note = String(mnemonicInp.value || '').trim();
-      if (note.length < 2) {
-        HTQ_STUDIO_FX.toast('Vui lòng nhập mẹo nhớ dài ít nhất 2 ký tự.', 'warn');
-        mnemonicInp.focus();
-        return;
-      }
-      submittingMnemonic = true;
-      try {
-        const res = await (await fetch('/v1/ugc/mnemonic', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ target: ch, note })
-        })).json();
-        if (res && res.ok) {
-          mnemonicInp.value = '';
-          renderMnemonicList(res.items);
-          HTQ_STUDIO_FX.toast('✨ Đã lưu mẹo nhớ cho chữ ' + ch + '!', 'success');
-        } else {
-          HTQ_STUDIO_FX.toast((res && res.error) || 'Không thể lưu ghi chú.', 'warn');
-        }
-      } catch (_) {}
-      submittingMnemonic = false;
-    };
-    if (mnemonicForm && mnemonicInp) {
-      mnemonicForm.addEventListener('submit', ev => {
-        ev.preventDefault();
-        submitMnemonic();
-      });
-    }
-    if (mnemonicSubmitBtn) {
-      bindStudioClick(mnemonicSubmitBtn, () => submitMnemonic());
-    }
+    wireMnemonicSection(ch);
 
     const initWriter = () => {
       if (!window.HanziWriter) return;
@@ -8028,6 +8195,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           </div>
         </div>` : ''}
       </div>
+      ${buildMnemonicSectionHtml(word)}
     `;
     const btn = document.getElementById('xhz-word-speak');
     if (btn) btn.onclick = () => playPronunciation(word, audioUrl);
@@ -8036,6 +8204,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       isChar: word.length === 1,
       meta: { pinyin, hanviet, meaningVi: meaning }
     });
+    wireMnemonicSection(word);
   }
 
   // --------------------------------------------------------------------------
@@ -14481,7 +14650,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const cmdkBtn = document.getElementById('htq-sb-cmdk-btn');
     if (cmdkBtn) {
-      cmdkBtn.onclick = () => { if (window.__xhzOpenCommandPalette) window.__xhzOpenCommandPalette(); };
+      bindStudioClick(cmdkBtn, () => { if (window.__xhzOpenCommandPalette) window.__xhzOpenCommandPalette(); });
     }
     const themeBtn = document.getElementById('htq-sb-theme-btn');
     if (themeBtn) {
@@ -14639,6 +14808,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       '</div>';
 
     traCuu.parentElement.insertBefore(sec, traCuu.nextSibling);
+
+    const wsCmdkBtn = sec.querySelector('#htq-ws-cmdk-btn');
+    if (wsCmdkBtn) {
+      bindStudioClick(wsCmdkBtn, () => openCommandPalette());
+    }
 
     // Wire Home Cozy Pet Garden controls via window capture-phase bindStudioClick
     const homePetBtn = sec.querySelector('#htq-home-pet-btn');
@@ -15915,14 +16089,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   window.__xhzOpenCommandPalette = openCommandPalette;
   window.__xhzCloseCommandPalette = closeCommandPalette;
   const htqGlobalKeydownHandler = function (ev) {
+    if (!ev || ev.__xhzKeyHandled) return;
+    ev.__xhzKeyHandled = true;
     if ((ev.ctrlKey || ev.metaKey) && String(ev.key || '').toLowerCase() === 'k') {
       ev.preventDefault();
+      ev.stopPropagation();
       ev.stopImmediatePropagation();
       if (document.getElementById('htq-cmdk-overlay')) closeCommandPalette();
       else openCommandPalette();
       return;
     } else if (ev.key === 'Escape' && document.getElementById('htq-cmdk-overlay')) {
       ev.preventDefault();
+      ev.stopPropagation();
       ev.stopImmediatePropagation();
       closeCommandPalette();
       return;
@@ -15959,6 +16137,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
   };
   htqGlobalKeydownHandler.__xhzRuntimeListener = true;
+  window.addEventListener('keydown', htqGlobalKeydownHandler, true);
   document.addEventListener('keydown', htqGlobalKeydownHandler, true);
 
   function isReactHydrated() {
@@ -16047,6 +16226,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   function boot() {
     supabaseFetchInitial();
+    try {
+      if (isDynamicSpaRoute(window.location.pathname)) {
+        const main = document.querySelector('main');
+        if (main) main.style.display = 'none';
+        checkAndRenderDynamicPage();
+      }
+    } catch (_) {}
     scheduleScrubPasses();
     if ((window.location.pathname || '').startsWith('/hoc')) {
       const idleFn = window.requestIdleCallback || (cb => setTimeout(cb, 650));
