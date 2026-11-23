@@ -1,5 +1,5 @@
-// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v40.0)
-const CACHE_NAME = 'htq-studio-v40';
+// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v41.0)
+const CACHE_NAME = 'htq-studio-v41';
 const SHELL_PRECACHE = [
   '/',
   '/hoc/',
