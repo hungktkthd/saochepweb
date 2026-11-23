@@ -3176,6 +3176,46 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           kdSrc.includes('data-tdc-opt')
         );
       });
+      await runCheck('smart-404-recovery-route-and-renderer', () => {
+        const s404Src = typeof renderSmart404Page === 'function' ? renderSmart404Page.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/404') === true &&
+          typeof isSmart404Shell === 'function' &&
+          s404Src.includes('xhz-smart-404-root') &&
+          s404Src.includes('xhz-404-cmdk-btn')
+        );
+      });
+      await runCheck('free-studio-pwa-hub-routes', () => {
+        const pwaSrc = typeof renderFreeStudioPwaPage === 'function' ? renderFreeStudioPwaPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/tai-app') === true &&
+          isDynamicSpaRoute('/cac-goi') === true &&
+          pwaSrc.includes('xhz-free-pwa-root') &&
+          pwaSrc.includes('xhz-pwa-install-btn') &&
+          resolvePageStageConfig('/tai-app') === null &&
+          resolvePageStageConfig('/cac-goi') === null
+        );
+      });
+      await runCheck('wcag-aria-labels-on-all-runtime-controls', () => {
+        const gqSrc = typeof renderGrammarQuizRunPage === 'function' ? renderGrammarQuizRunPage.toString() : '';
+        const curSrc = typeof renderCurriculumSubPage === 'function' ? renderCurriculumSubPage.toString() : '';
+        const prSrc = typeof renderProgressOrHabitPage === 'function' ? renderProgressOrHabitPage.toString() : '';
+        const cbSrc = typeof renderCharacterBrowseSubPage === 'function' ? renderCharacterBrowseSubPage.toString() : '';
+        const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(
+          gqSrc.includes('class="xhz-gq-input" aria-label=') &&
+          curSrc.includes('id="xhz-curr-search"') && curSrc.includes('aria-label=') &&
+          prSrc.includes('id="xhz-goal-sessions"') && prSrc.includes('aria-label=') &&
+          cbSrc.includes('id="xhz-browse-sort" aria-label=') &&
+          runSrc.includes('id="xhz-pinyin-input"') && runSrc.includes('aria-label=') &&
+          stSrc.includes('id="htq-sprint-inp"') && stSrc.includes('id="htq-ep-lvl" aria-label=')
+        );
+      });
+      await runCheck('cmdk-includes-pwa-and-free-studio', () => {
+        const hrefs = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES.map(r => r.href) : [];
+        return Boolean(hrefs.includes('/tai-app'));
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -8102,7 +8142,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if ((parts[0] === 'so-tay' && parts.length >= 2) || parts[0] === 'bo-suu-tap') return true;
     if ((parts[0] === 'on-tap' || parts[0] === 'hoc') && (parts[1] === 'da-hoc' || parts[1] === 'tu-da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) return true;
+    if (parts[0] === 'tai-app' || parts[0] === 'cac-goi' || parts[0] === '404' || parts[0] === '404.html') return true;
     return false;
+  }
+
+  function isSmart404Shell(pathname) {
+    const norm = (pathname || '/').replace(/\/+$/, '') || '/';
+    if (norm === '/' || norm === '/index' || norm === '/index.html') return false;
+    if (norm === '/404' || norm === '/404.html') return true;
+    if (isDynamicSpaRoute(norm)) return false;
+    try { return Boolean(document.querySelector('main section#tra-cuu')); } catch (_) { return false; }
   }
 
   function getRequestHeaderValue(input, init, headerName) {
@@ -9379,7 +9428,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           </div>
           ${q.promptPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${escapeHtml(q.promptPinyin)}</div>` : ''}
           <div style="margin-top:12px;">
-            <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #d3eae7;font-size:15px;color:#1c1917;background:#f2fbfa;box-sizing:border-box;" />
+            <input type="text" class="xhz-gq-input" aria-label="Nhập câu dịch tiếng Trung" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #d3eae7;font-size:15px;color:#1c1917;background:#f2fbfa;box-sizing:border-box;" />
           </div>
           <div class="xhz-gq-exp" style="display:none;margin-top:14px;padding:12px 16px;border-radius:12px;background:#ecfdf5;border:1px solid #6ee7b7;color:#065f46;font-size:14px;line-height:1.5;"></div>
         `;
@@ -9883,7 +9932,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               </div>
             </div>
             <div style="display:flex;gap:8px;">
-              <input id="xhz-typing-input" type="text" placeholder="Gõ chữ Hán (${escapeHtml(hz.slice(0, 1))}...) hoặc Pinyin (vd: ni hao)" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;outline:none;" />
+              <input id="xhz-typing-input" type="text" aria-label="Nhập chữ Hán hoặc Pinyin" placeholder="Gõ chữ Hán (${escapeHtml(hz.slice(0, 1))}...) hoặc Pinyin (vd: ni hao)" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;outline:none;" />
               <button type="button" id="xhz-ty-check" style="padding:12px 20px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;">Kiểm tra</button>
             </div>
             <div id="xhz-ty-feedback" style="min-height:24px;font-size:14px;font-weight:700;"></div>
@@ -10125,7 +10174,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       <div style="max-width:1200px;margin:0 auto;">
         <div class="xhz-curr-toolbar">
           <div style="flex:1;min-width:240px;position:relative;">
-            <input id="xhz-curr-search" type="text" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:14px;box-sizing:border-box;" />
+            <input id="xhz-curr-search" type="text" aria-label="Tìm kiếm từ vựng trong bài học" placeholder="🔍 Tìm hanzi, pinyin, nghĩa..." style="width:100%;padding:10px 16px;border-radius:999px;border:1px solid #d3eae7;background:#f2fbfa;color:#1c1917;font-size:14px;box-sizing:border-box;" />
           </div>
           <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
             <div style="display:inline-flex;align-items:center;background:#dcf0ee;padding:3px;border-radius:999px;gap:4px;">
@@ -12523,11 +12572,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
                   <label style="font-size:13px;font-weight:700;color:#44403c;">
                     Số buổi / tuần
-                    <input id="xhz-goal-sessions" type="number" min="1" max="7" value="${weeklyGoal}" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;" />
+                    <input id="xhz-goal-sessions" type="number" aria-label="Số buổi học mục tiêu mỗi tuần" min="1" max="7" value="${weeklyGoal}" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;" />
                   </label>
                   <label style="font-size:13px;font-weight:700;color:#44403c;">
                     Số phút / ngày
-                    <input id="xhz-goal-minutes" type="number" min="5" max="120" step="5" value="${dailyGoal}" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;" />
+                    <input id="xhz-goal-minutes" type="number" aria-label="Số phút học mục tiêu mỗi ngày" min="5" max="120" step="5" value="${dailyGoal}" style="width:100%;margin-top:4px;padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;" />
                   </label>
                 </div>
                 <div style="display:flex;align-items:center;gap:10px;">
@@ -13745,6 +13794,173 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     renderTemplates();
   }
 
+  async function renderFreeStudioPwaPage(pathname) {
+    const root = getMainContentContainer();
+    const isPlans = String(pathname || '').includes('cac-goi');
+    document.title = isPlans
+      ? 'Miễn Phí 100% Trọn Đời — Hán Ngữ Studio | Học Tiếng Trung'
+      : 'Cài Đặt Ứng Dụng Web (PWA) Học Tiếng Trung Miễn Phí';
+
+    const modules = [
+      { ico: '🗺️', title: 'Lộ trình HSK 1–6 & HSK 3.0 Mới', desc: '40+ chặng học chuẩn hóa, Flashcard & Quiz từng bài.' },
+      { ico: '🧸', title: 'YCT Thiếu nhi & Góc Bé Học', desc: 'Đề thi thử YCT 1–4 và bộ thẻ tranh Động vật, Hoa quả, Gia đình.' },
+      { ico: '✍️', title: '91 Video Chép Chính Tả Thực Tế', desc: 'Nghe từng câu chuẩn xác kèm phím tắt, gợi ý và bảng phiên âm.' },
+      { ico: '🎙️', title: 'Luyện Nói AI & Shadowing 0.65×', desc: 'Chấm điểm phát âm từng âm tiết, thanh điệu 1–4 và thi thử HSKK.' },
+      { ico: '⚖️', title: '480+ Chủ Điểm Ngữ Pháp HSK', desc: 'Giải thích dễ hiểu, ví dụ kèm âm thanh và đề luyện tập tự chấm.' },
+      { ico: '🖨️', title: 'Vở Tập Viết PDF & 9 Bộ Mẫu', desc: 'Tự tạo ô Mễ Tự Cách / Điền Tự Cách và xuất PDF nét bút thuận.' },
+      { ico: '☁️', title: 'Đồng Bộ Supabase & Sao Lưu JSON', desc: 'Lưu trọn vẹn tiến độ SRS, từ đã học, mẹo nhớ và xuất Anki CSV.' },
+      { ico: '📴', title: 'Học Ngoại Tuyến Mọi Lúc (PWA)', desc: 'Cài trực tiếp lên màn hình chính iOS, Android, Windows & macOS.' }
+    ];
+
+    root.innerHTML = `
+      <div id="xhz-free-pwa-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Trang chủ Studio</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/hoc/hom-nay" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">🎯 Nhiệm vụ hôm nay</a>
+            <a href="/bat-dau/kiem-tra" style="padding:8px 14px;border-radius:999px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;font-weight:700;text-decoration:none;font-size:13px;">🧭 Kiểm tra trình độ HSK</a>
+            <a href="/tai-khoan" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">👤 Tài khoản &amp; Đồng bộ</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:24px;padding:26px;box-shadow:0 8px 28px rgba(0,0,0,0.05);">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;align-items:center;padding-bottom:22px;border-bottom:1px solid #e7e5e4;margin-bottom:22px;">
+            <div>
+              <span style="display:inline-block;font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;">✨ MIỄN PHÍ TRỌN ĐỜI 100% · KHÔNG GIỚI HẠN</span>
+              <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:10px 0 8px 0;line-height:1.25;">Hán Ngữ Studio 4.0 — Học Miễn Phí &amp; Cài Đặt Ứng Dụng Web (PWA)</h1>
+              <p style="font-size:14.5px;color:#57534e;margin:0 0 16px 0;line-height:1.55;">Toàn bộ tính năng tra chữ chiết tự, lộ trình HSK 1–6 &amp; 3.0, luyện nghe nói AI, chấm phát âm, phòng thi YCT/HSK và tạo vở tập viết PDF đều <strong>mở 100% với giá 0đ</strong>.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+                <button type="button" id="xhz-pwa-install-btn" style="padding:11px 22px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:800;font-size:14px;cursor:pointer;">📲 Cài đặt ứng dụng ngay (PWA)</button>
+                <a href="/kiem-tra-hsk" style="padding:11px 18px;border-radius:999px;border:1px solid #0d9488;background:#f0fdfa;color:#0f766e;font-weight:800;text-decoration:none;font-size:13.5px;">📝 Vào Phòng thi HSK</a>
+              </div>
+              <div id="xhz-pwa-install-status" role="status" aria-live="polite" style="margin-top:10px;font-size:13px;font-weight:700;color:#0f766e;"></div>
+            </div>
+            <div style="border-radius:18px;overflow:hidden;border:1px solid #e7e5e4;background:#fafaf9;">
+              <img src="/images/studio/cute-capy-study.jpg" alt="Capybara đồng hành học tiếng Trung miễn phí trọn đời" loading="lazy" decoding="async" style="width:100%;height:210px;object-fit:cover;display:block;" />
+            </div>
+          </div>
+
+          <h2 style="font-size:18px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">🎁 8 Phân Hệ Mở Khóa Toàn Bộ (0đ · Không Cần Thẻ)</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-bottom:22px;">
+            ${modules.map(m => `
+              <div style="padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;">
+                <div style="font-size:22px;line-height:1;">${m.ico}</div>
+                <div style="font-size:14.5px;font-weight:800;color:#1c1917;margin-top:8px;">${escapeHtml(m.title)}</div>
+                <div style="font-size:13px;color:#57534e;margin-top:4px;line-height:1.45;">${escapeHtml(m.desc)}</div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div id="xhz-pwa-install-guide" style="padding:18px 20px;border-radius:18px;background:#f0fdfa;border:1px solid #99f6e4;">
+            <div style="font-size:15px;font-weight:800;color:#115e59;margin-bottom:10px;">📱 Hướng dẫn cài nhanh lên màn hình chính (30 giây)</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;font-size:13.5px;color:#1c1917;line-height:1.5;">
+              <div style="padding:12px;border-radius:12px;background:#fff;border:1px solid #ccfbf1;">
+                <strong>🍎 iPhone / iPad (Safari)</strong><br/>Mở bằng Safari → bấm nút <strong>Chia sẻ (Share)</strong> ở thanh dưới → chọn <strong>Thêm vào MH chính (Add to Home Screen)</strong>.
+              </div>
+              <div style="padding:12px;border-radius:12px;background:#fff;border:1px solid #ccfbf1;">
+                <strong>🤖 Android (Chrome / Edge)</strong><br/>Bấm menu <strong>⋮</strong> góc trên phải → chọn <strong>Cài đặt ứng dụng (Install app)</strong> hoặc <strong>Thêm vào màn hình chính</strong>.
+              </div>
+              <div style="padding:12px;border-radius:12px;background:#fff;border:1px solid #ccfbf1;">
+                <strong>💻 Windows / macOS (Chrome / Edge)</strong><br/>Bấm biểu tượng <strong>Cài đặt (+)</strong> trên thanh địa chỉ trình duyệt để mở Hán Ngữ Studio như ứng dụng độc lập.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const installBtn = root.querySelector('#xhz-pwa-install-btn');
+    const statusEl = root.querySelector('#xhz-pwa-install-status');
+    const guideEl = root.querySelector('#xhz-pwa-install-guide');
+    if (installBtn) {
+      installBtn.onclick = async () => {
+        const promptEv = window.__xhzDeferredInstallPrompt;
+        if (promptEv && typeof promptEv.prompt === 'function') {
+          try {
+            promptEv.prompt();
+            const choice = await promptEv.userChoice;
+            window.__xhzDeferredInstallPrompt = null;
+            if (statusEl) {
+              statusEl.textContent = choice && choice.outcome === 'accepted'
+                ? '🎉 Tuyệt vời! Ứng dụng đang được cài đặt vào thiết bị của bạn.'
+                : 'ℹ️ Bạn có thể bấm nút này hoặc xem hướng dẫn cài thủ công bên dưới bất cứ lúc nào.';
+            }
+            return;
+          } catch (_) {}
+        }
+        if (guideEl) try { guideEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (_) {}
+        if (statusEl) {
+          statusEl.textContent = '📲 Trình duyệt hiện tại không bật hộp thoại tự động — hãy làm theo 3 bước cài nhanh bên dưới nhé!';
+        }
+      };
+    }
+  }
+
+  async function renderSmart404Page(pathname) {
+    const root = getMainContentContainer();
+    const safePath = String(pathname || window.location.pathname || '/404');
+    document.title = 'Không tìm thấy trang (404) | Học Tiếng Trung';
+
+    const tokens = (safePath.toLowerCase().match(/[a-z0-9]+/g) || []).filter(t => t.length >= 2);
+    const catalog = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES : [];
+    const scored = catalog
+      .map(r => {
+        const hay = `${r.title} ${r.desc} ${r.href} ${r.keys || ''}`.toLowerCase();
+        const hits = tokens.reduce((acc, tok) => acc + (hay.includes(tok) ? 1 : 0), 0);
+        return { r, hits };
+      })
+      .filter(x => x.hits > 0)
+      .sort((a, b) => b.hits - a.hits)
+      .slice(0, 6)
+      .map(x => x.r);
+    const suggestions = scored.length > 0 ? scored : catalog.slice(0, 6);
+
+    root.innerHTML = `
+      <div id="xhz-smart-404-root" style="max-width:920px;margin:0 auto;">
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:24px;padding:28px;box-shadow:0 8px 28px rgba(0,0,0,0.05);">
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:20px;align-items:center;padding-bottom:20px;border-bottom:1px solid #e7e5e4;margin-bottom:20px;">
+            <div>
+              <span style="display:inline-block;font-size:12px;font-weight:800;padding:4px 12px;border-radius:999px;background:#fef3c7;color:#92400e;">🧭 LỖI 404 · KHÔNG TÌM THẤY ĐƯỜNG DẪN</span>
+              <h1 style="font-size:26px;font-weight:800;color:#1c1917;margin:10px 0 8px 0;line-height:1.25;">Ôi! Capy chưa tìm thấy trang này</h1>
+              <p style="font-size:14px;color:#57534e;margin:0 0 10px 0;line-height:1.5;">Đường dẫn bạn vừa mở (<code style="padding:2px 6px;border-radius:6px;background:#f5f5f4;color:#1c1917;">${escapeHtml(safePath)}</code>) không tồn tại hoặc đã được chuyển sang phân hệ mới gọn hơn.</p>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+                <button type="button" id="xhz-404-cmdk-btn" style="padding:10px 18px;border-radius:999px;border:none;background:#4f46e5;color:#fff;font-weight:800;font-size:13.5px;cursor:pointer;">🔍 Tìm nhanh chữ Hán / công cụ (Ctrl+K)</button>
+                <a href="/" style="padding:10px 18px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:800;text-decoration:none;font-size:13.5px;">🏠 Về Trang chủ</a>
+              </div>
+            </div>
+            <div style="border-radius:18px;overflow:hidden;border:1px solid #e7e5e4;background:#fafaf9;">
+              <img src="/images/studio/cute-capy-study.jpg" alt="Capybara hướng dẫn quay lại góc học tiếng Trung" loading="lazy" decoding="async" style="width:100%;height:190px;object-fit:cover;display:block;" />
+            </div>
+          </div>
+
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+            <h2 style="font-size:17px;font-weight:800;color:#1c1917;margin:0;">✨ Gợi ý phân hệ học tập gần nhất dành cho bạn</h2>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px;font-weight:700;">
+              <a href="/hoc/hom-nay" style="color:#0d9488;text-decoration:none;">🎯 Nhiệm vụ hôm nay</a> ·
+              <a href="/tra-chu" style="color:#0d9488;text-decoration:none;">🔍 Từ điển</a> ·
+              <a href="/kiem-tra-hsk" style="color:#0d9488;text-decoration:none;">📝 Phòng thi HSK</a>
+            </div>
+          </div>
+
+          <div id="xhz-404-suggestions" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;">
+            ${suggestions.map(r => `
+              <a href="${r.href}" style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
+                <span style="font-size:22px;line-height:1;">${r.icon}</span>
+                <div style="min-width:0;">
+                  <div style="font-size:14.5px;font-weight:800;color:#1c1917;">${escapeHtml(r.title)}</div>
+                  <div style="font-size:12.5px;color:#57534e;margin-top:3px;line-height:1.4;">${escapeHtml(r.desc)}</div>
+                </div>
+              </a>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+
+    const cmdkBtn = root.querySelector('#xhz-404-cmdk-btn');
+    if (cmdkBtn) cmdkBtn.onclick = () => openCommandPalette();
+  }
+
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
@@ -13803,10 +14019,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       <p id="xhz-browse-count" role="status">${entries.length} chữ Hán trong kho dữ liệu</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
         <label style="flex:1;min-width:220px;">Tìm trong danh sách
-          <input id="xhz-char-browse-filter" type="search" placeholder="Chữ Hán, pinyin, Hán Việt hoặc nghĩa" style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
+          <input id="xhz-char-browse-filter" type="search" aria-label="Lọc chữ Hán theo chữ, Pinyin, Hán Việt hoặc nghĩa" placeholder="Chữ Hán, pinyin, Hán Việt hoặc nghĩa" style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
         </label>
         <label>Sắp xếp
-          <select id="xhz-browse-sort" style="display:block;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;">
+          <select id="xhz-browse-sort" aria-label="Sắp xếp danh sách chữ Hán" style="display:block;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;">
             <option value="strokes">Số nét</option><option value="hanviet">Hán Việt A → Z</option><option value="frequency">Tần suất</option>
           </select>
         </label>
@@ -15238,6 +15454,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <input
               id="xhz-pinyin-input"
               type="text"
+              aria-label="Nhập Pinyin hoặc chữ Hán của bài học"
               class="lp-input"
               value="${state.typedText.replace(/"/g, '&quot;')}"
               placeholder="${p.toneRequired ? 'vd: ma3 hoặc mǎ' : 'vd: ma'}"
@@ -16270,6 +16487,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderReviewSessionPage('on-tap-den-han');
       return;
     }
+    if (parts[0] === 'tai-app' || parts[0] === 'cac-goi') {
+      lastHandledFullUrl = fullKey;
+      await renderFreeStudioPwaPage(pathname);
+      return;
+    }
+    if (parts[0] === '404' || parts[0] === '404.html') {
+      lastHandledFullUrl = fullKey;
+      await renderSmart404Page(pathname);
+      return;
+    }
     if (parts[0] === 'han-viet') {
       lastHandledFullUrl = fullKey;
       if (parts.length === 1) await renderHanVietIndexPage();
@@ -16370,6 +16597,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderCharacterBrowseSubPage(pathname);
+      return;
+    }
+    if (isSmart404Shell(pathname)) {
+      lastHandledFullUrl = fullKey;
+      await renderSmart404Page(pathname);
       return;
     }
 
@@ -17716,7 +17948,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|tao-vo-tap-viet\/mau|worksheet-generator\/templates|hoc\/on-tap|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -18159,7 +18391,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '<span style="font-size:12px;font-weight:800;color:#d97706;">🔥 Combo x' + combo + '</span>' +
           '</div>' +
           '<div style="display:flex;gap:8px;align-items:center;">' +
-            '<input id="htq-sprint-inp" type="text" autocomplete="off" placeholder="Gõ Pinyin không dấu (vd: ' + expectedNorm + ')..." style="flex:1;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:14px;font-weight:700;outline:none;" />' +
+            '<input id="htq-sprint-inp" type="text" aria-label="Gõ Pinyin không dấu luyện phản xạ" autocomplete="off" placeholder="Gõ Pinyin không dấu (vd: ' + expectedNorm + ')..." style="flex:1;padding:8px 12px;border-radius:12px;border:1.5px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:14px;font-weight:700;outline:none;" />' +
             '<button type="button" id="htq-sprint-speak" class="htq-stage-chip-btn">🔊</button>' +
           '</div>';
         const inp = host.querySelector('#htq-sprint-inp');
@@ -18220,11 +18452,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '</div>' +
           '</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
-            '<select id="htq-ep-lvl" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
+            '<select id="htq-ep-lvl" aria-label="Chọn cấp độ mục tiêu thi HSK" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
               [1, 2, 3, 4, 5, 6].map(l => '<option value="' + l + '" style="color:#0f172a;">HSK ' + l + '</option>').join('') +
             '</select>' +
-            '<input id="htq-ep-date" type="date" value="' + defDate + '" style="padding:6px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;" />' +
-            '<select id="htq-ep-min" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
+            '<input id="htq-ep-date" type="date" aria-label="Chọn ngày dự kiến thi HSK" value="' + defDate + '" style="padding:6px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;" />' +
+            '<select id="htq-ep-min" aria-label="Chọn số phút luyện thi HSK mỗi ngày" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
               [15, 20, 30, 45].map(mn => '<option value="' + mn + '" style="color:#0f172a;">' + mn + ' phút/ngày</option>').join('') +
             '</select>' +
             '<button type="button" id="htq-ep-save" class="htq-stage-chip-btn is-active">💾 Lưu mục tiêu</button>' +
@@ -18659,6 +18891,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   function ensurePwaWired() {
     try {
+      if (!window.__xhzInstallPromptBound && typeof window !== 'undefined') {
+        window.__xhzInstallPromptBound = true;
+        window.addEventListener('beforeinstallprompt', ev => {
+          ev.preventDefault();
+          window.__xhzDeferredInstallPrompt = ev;
+        });
+      }
       if (document.head && !document.querySelector('link[rel="manifest"]')) {
         const lnk = document.createElement('link');
         lnk.rel = 'manifest';
@@ -18714,6 +18953,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     { icon: '🏮', title: 'Trường Thầy Đồ', desc: 'Bảng vàng và lớp học tương tác', href: '/thay-do/', keys: 'thay do bang vang' },
     { icon: '⚡', title: 'Đấu trường Thử thách Thầy Đồ 60s', desc: 'Khảo thí tốc độ Chữ Hán & Thành ngữ 60 giây', href: '/thay-do/thach/hsk1', keys: 'thu thach thay do 60s challenge' },
     { icon: '📜', title: 'Phiếu Báo cáo Học tập Tuần & Phụ huynh', desc: 'Tổng kết 5 kỹ năng HSK, biểu đồ 7 ngày & in PDF', href: '/hoc/bao-cao', keys: 'bao cao tuan phu huynh report pdf' },
+    { icon: '📲', title: 'Cài đặt Ứng dụng Web (PWA) · Miễn phí 100%', desc: 'Học ngoại tuyến trên điện thoại/máy tính, không giới hạn tính năng', href: '/tai-app', keys: 'tai app pwa cai dat mien phi cac goi' },
     { icon: '👤', title: 'Tài khoản, Đồng bộ & Sao lưu', desc: 'Google OAuth, Supabase & Xuất/Nhập JSON', href: '/tai-khoan/', keys: 'tai khoan google dong bo sao luu backup' }
   ];
 
@@ -19060,7 +19300,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       requestAnimationFrame(() => {
         setTimeout(() => {
           runPostHydrationEnhancers();
-          if (isDynamicSpaRoute(window.location.pathname)) {
+          if (isDynamicSpaRoute(window.location.pathname) || isSmart404Shell(window.location.pathname)) {
             Promise.resolve(checkAndRenderDynamicPage()).finally(clearDynamicCloak);
           } else {
             clearDynamicCloak();
@@ -19115,7 +19355,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     setTimeout(() => {
       if (htqHydrationSettled) {
         runPostHydrationEnhancers();
-        if (isDynamicSpaRoute(window.location.pathname)) {
+        if (isDynamicSpaRoute(window.location.pathname) || isSmart404Shell(window.location.pathname)) {
           checkAndRenderDynamicPage();
         }
       }
