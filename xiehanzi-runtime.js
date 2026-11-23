@@ -2760,7 +2760,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v27') &&
+          swTxt.includes('htq-studio-v28') &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
         );
@@ -2897,6 +2897,35 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('lesson-runner-done-worksheet-link', () => {
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(runSrc.includes('xhz-done-worksheet-link'));
+      });
+      await runCheck('stage-talk-hoc-noi-route-ready', () => {
+        const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/hoc/noi/hsk30.L1.P1') === true &&
+          runSrc.includes("parts[1] === 'noi'")
+        );
+      });
+      await runCheck('learned-grammar-hub-route-and-renderer', () => {
+        const lgSrc = typeof renderLearnedGrammarPage === 'function' ? renderLearnedGrammarPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/ngu-phap/da-hoc') === true &&
+          isDynamicSpaRoute('/on-tap/ngu-phap-da-hoc') === true &&
+          lgSrc.includes('xhz-learned-grammar-root') &&
+          lgSrc.includes('xhz-lg-search') &&
+          lgSrc.includes('data-lg-toggle')
+        );
+      });
+      await runCheck('shadowing-studio-route-and-renderer', () => {
+        const shSrc = typeof renderShadowingPracticePage === 'function' ? renderShadowingPracticePage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/luyen-noi/shadowing') === true &&
+          shSrc.includes('xhz-shadowing-root') &&
+          shSrc.includes('xhz-sh-mic') &&
+          shSrc.includes('xhz-sh-list')
+        );
+      });
+      await runCheck('stage-config-excludes-hoc-noi-immersive', () => {
+        return Boolean(resolvePageStageConfig('/hoc/noi/hsk30.L1.P1') === null);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -7803,17 +7832,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'han-tu' && parts.length >= 2) return true;
     if (parts[0] === 'tu-vung' && parts.length >= 2) return true;
     if (parts[0] === 'han-viet') return true;
+    if (parts[0] === 'ngu-phap' && parts[1] === 'da-hoc') return true;
     if (parts[0] === 'ngu-phap' && parts.length >= 3) return true;
     if (parts[0] === 'kiem-tra-ngu-phap' && parts[1] === 'lam-bai') return true;
+    if (parts[0] === 'luyen-noi' && parts[1] === 'shadowing') return true;
     if (parts[0] && parts[0].startsWith('thu-vien-')) {
       if (STATIC_CURR_ROOTS.includes(parts[0])) return parts.length >= 3;
       return parts.length >= 2;
     }
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) return true;
     if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
-    if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap') && parts.length >= 3) return true;
+    if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap' || parts[1] === 'noi') && parts.length >= 3) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen')) return true;
-    if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai')) return true;
+    if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) return true;
     return false;
   }
@@ -11414,6 +11445,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="display:flex;gap:8px;flex-wrap:wrap;">
             <a id="xhz-lw-worksheet-link" href="/tao-vo-tap-viet?text=${encodeURIComponent(initWsSample)}" style="padding:8px 14px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;text-decoration:none;font-size:13px;">📝 In vở tập viết</a>
             <button type="button" id="xhz-lw-export-csv" style="padding:8px 14px;border-radius:999px;background:#eef2ff;color:#4338ca;border:1px solid #c7d2fe;font-weight:700;cursor:pointer;font-size:13px;">📥 Xuất CSV (Anki/Excel)</button>
+            <a href="/on-tap/ngu-phap-da-hoc" style="padding:8px 14px;border-radius:999px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;font-weight:700;text-decoration:none;font-size:13px;">📐 Ngữ pháp đã học</a>
             <a href="/hoc/bai/on-tap-den-han" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🔄 Ôn tập ngay</a>
             <a href="/hoc/tu-da-hoc" style="padding:8px 16px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📚 Xem bản đầy đủ</a>
           </div>
@@ -11533,6 +11565,330 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         setTimeout(() => { exportBtn.textContent = '📥 Xuất CSV (Anki/Excel)'; }, 2000);
       };
     }
+  }
+
+  async function renderLearnedGrammarPage(pathname) {
+    const root = getMainContentContainer();
+    root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải sổ tay ngữ pháp đã học...</div>`;
+    const files = [
+      ['new-hsk-1', 'HSK 3.0 Cấp 1', '/data/grammar/new-hsk-level-1.json'],
+      ['new-hsk-2', 'HSK 3.0 Cấp 2', '/data/grammar/new-hsk-level-2.json'],
+      ['new-hsk-3', 'HSK 3.0 Cấp 3', '/data/grammar/new-hsk-level-3.json'],
+      ['hsk-1', 'HSK 2.0 Cấp 1', '/data/grammar/hsk-level-1.json'],
+      ['hsk-2', 'HSK 2.0 Cấp 2', '/data/grammar/hsk-level-2.json'],
+      ['hsk-3', 'HSK 2.0 Cấp 3', '/data/grammar/hsk-level-3.json']
+    ];
+    const loaded = await Promise.all(files.map(f => loadLocalJson(f[2]).catch(() => null)));
+    const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
+    const learnedSet = new Set(Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds : []);
+    const allItems = [];
+    const seenIds = new Set();
+    loaded.forEach((data, idx) => {
+      const [lvlSlug, lvlLabel] = files[idx];
+      const arr = (data && Array.isArray(data.items)) ? data.items : [];
+      arr.forEach(it => {
+        const gId = String((it && (it.id || it.code)) || '').trim();
+        if (!gId || seenIds.has(gId)) return;
+        seenIds.add(gId);
+        const title = String(it.title || it.topic || it.name || gId);
+        const syntax = String(it.pattern || it.grammar_syntax || '');
+        const summary = String(it.summary || it.explanation || it.grammar_explanation || '').slice(0, 180);
+        const lvlNum = (lvlSlug.match(/\d+/) || ['1'])[0];
+        const isNew = lvlSlug.startsWith('new-');
+        allItems.push({
+          gId,
+          lvlSlug,
+          lvlLabel,
+          quizTrack: isNew ? `new-hsk${lvlNum}` : `hsk${lvlNum}`,
+          title,
+          syntax,
+          summary
+        });
+      });
+    });
+
+    document.title = `Ngữ pháp đã học (${learnedSet.size} chủ điểm) | Học Tiếng Trung`;
+
+    root.innerHTML = `
+      <div id="xhz-learned-grammar-root" style="max-width:980px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="${pathname.startsWith('/on-tap') ? '/on-tap' : '/ngu-phap'}" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại ${pathname.startsWith('/on-tap') ? 'Trung tâm Ôn tập' : 'Thư viện Ngữ pháp'}</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/on-tap/da-hoc" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📚 Từ vựng đã học</a>
+            <a href="/ngu-phap" style="padding:8px 14px;border-radius:999px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;font-weight:700;text-decoration:none;font-size:13px;">📖 Toàn bộ Ngữ pháp</a>
+            <a href="/kiem-tra-ngu-phap" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🎯 Kiểm tra Ngữ pháp</a>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;">
+            <div>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">📐 Ngữ pháp đã học (<span id="xhz-lg-learned-num">${learnedSet.size}</span> chủ điểm đã nắm vững)</h1>
+              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Đánh dấu các cấu trúc đã nắm vững và luyện bài tập trắc nghiệm/dịch câu theo từng chủ điểm.</p>
+            </div>
+            <input id="xhz-lg-search" type="text" aria-label="Tìm chủ điểm ngữ pháp" placeholder="🔍 Tìm cấu trúc, chủ điểm ngữ pháp..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:260px;max-width:100%;box-sizing:border-box;" />
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:16px;">
+            <button type="button" data-lg-filter="all" class="xhz-lg-filter is-active" style="padding:6px 14px;border-radius:999px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Tất cả (${allItems.length})</button>
+            <button type="button" data-lg-filter="learned" class="xhz-lg-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">✅ Đã nắm vững (<span id="xhz-lg-pill-cnt">${learnedSet.size}</span>)</button>
+            <button type="button" data-lg-filter="unlearned" class="xhz-lg-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">☆ Chưa đánh dấu</button>
+            <select id="xhz-lg-level" aria-label="Lọc cấp độ ngữ pháp" style="padding:6px 12px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">
+              <option value="all">Mọi cấp độ HSK</option>
+              ${files.map(f => `<option value="${f[0]}">${f[1]}</option>`).join('')}
+            </select>
+            <span id="xhz-lg-count" role="status" aria-live="polite" style="margin-left:auto;font-size:12.5px;font-weight:700;color:#57534e;"></span>
+          </div>
+          <div id="xhz-lg-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px;"></div>
+        </div>
+      </div>
+    `;
+
+    const gridEl = root.querySelector('#xhz-lg-grid');
+    const searchEl = root.querySelector('#xhz-lg-search');
+    const levelEl = root.querySelector('#xhz-lg-level');
+    const countEl = root.querySelector('#xhz-lg-count');
+    const numEl = root.querySelector('#xhz-lg-learned-num');
+    const pillCntEl = root.querySelector('#xhz-lg-pill-cnt');
+    let activeFilter = 'all';
+
+    const updateFilterStyles = () => {
+      root.querySelectorAll('.xhz-lg-filter').forEach(b => {
+        const on = b.getAttribute('data-lg-filter') === activeFilter;
+        b.classList.toggle('is-active', on);
+        b.style.background = on ? '#0d9488' : '#fff';
+        b.style.color = on ? '#fff' : '#1c1917';
+        b.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+      });
+    };
+
+    const renderGrammarGrid = () => {
+      const q = (searchEl ? searchEl.value : '').trim().toLowerCase();
+      const lvl = levelEl ? levelEl.value : 'all';
+      if (numEl) numEl.textContent = String(learnedSet.size);
+      if (pillCntEl) pillCntEl.textContent = String(learnedSet.size);
+      const filtered = allItems.filter(it => {
+        const isL = learnedSet.has(it.gId);
+        if (activeFilter === 'learned' && !isL) return false;
+        if (activeFilter === 'unlearned' && isL) return false;
+        if (lvl !== 'all' && it.lvlSlug !== lvl) return false;
+        if (!q) return true;
+        return it.title.toLowerCase().includes(q) || it.syntax.toLowerCase().includes(q) || it.summary.toLowerCase().includes(q);
+      });
+      const shown = filtered.slice(0, 60);
+      if (countEl) countEl.textContent = `Hiển thị ${shown.length} / ${filtered.length} chủ điểm`;
+      if (shown.length === 0) {
+        gridEl.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có chủ điểm ngữ pháp nào khớp với bộ lọc hiện tại.</div>`;
+        return;
+      }
+      gridEl.innerHTML = shown.map(it => {
+        const isL = learnedSet.has(it.gId);
+        return `
+          <div style="padding:16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+            <div>
+              <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+                <span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#ccfbf1;color:#115e59;">${escapeHtml(it.lvlLabel)}</span>
+                <button type="button" data-lg-toggle="${escapeHtml(it.gId)}" style="padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:700;cursor:pointer;border:1px solid ${isL ? '#16a34a' : '#d6d3d1'};background:${isL ? '#dcfce7' : '#fff'};color:${isL ? '#15803d' : '#44403c'};">${isL ? '✅ Đã nắm vững' : '☆ Đánh dấu'}</button>
+              </div>
+              <a href="/ngu-phap/${encodeURIComponent(it.lvlSlug)}/${encodeURIComponent(it.gId)}" style="font-size:17px;font-weight:800;color:#1c1917;text-decoration:none;line-height:1.35;display:block;">${escapeHtml(it.title)}</a>
+              ${it.syntax ? `<div style="margin-top:6px;padding:6px 10px;border-radius:8px;background:#f0fdfa;color:#115e59;font-size:13px;font-weight:700;">📐 ${escapeHtml(it.syntax)}</div>` : ''}
+              ${it.summary ? `<div style="margin-top:6px;font-size:13px;color:#57534e;line-height:1.45;">${escapeHtml(it.summary)}</div>` : ''}
+            </div>
+            <div style="display:flex;gap:8px;padding-top:8px;border-top:1px solid #e7e5e4;">
+              <a href="/ngu-phap/${encodeURIComponent(it.lvlSlug)}/${encodeURIComponent(it.gId)}" style="flex:1;text-align:center;padding:6px 10px;border-radius:10px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-size:12.5px;font-weight:700;text-decoration:none;">📖 Lý thuyết</a>
+              <a href="/kiem-tra-ngu-phap/lam-bai?grammarId=${encodeURIComponent(it.gId)}&amp;tracks=${encodeURIComponent(it.quizTrack)}" style="flex:1;text-align:center;padding:6px 10px;border-radius:10px;background:#0d9488;color:#fff;font-size:12.5px;font-weight:700;text-decoration:none;">🎯 Bài tập</a>
+            </div>
+          </div>
+        `;
+      }).join('');
+      gridEl.querySelectorAll('[data-lg-toggle]').forEach(btn => {
+        btn.onclick = async () => {
+          const gId = btn.getAttribute('data-lg-toggle') || '';
+          if (!gId) return;
+          const had = learnedSet.has(gId);
+          try {
+            const r = await (await fetch('/v1/grammar-progress/' + encodeURIComponent(gId), { method: had ? 'DELETE' : 'POST' })).json();
+            if (r && r.ok) {
+              if (had) learnedSet.delete(gId);
+              else learnedSet.add(gId);
+              renderGrammarGrid();
+              try {
+                HTQ_STUDIO_FX.toast(had ? 'Đã bỏ đánh dấu chủ điểm ngữ pháp' : '✅ Đã lưu vào Ngữ pháp đã nắm vững!', had ? 'info' : 'success');
+              } catch (_) {}
+            }
+          } catch (_) {}
+        };
+      });
+    };
+
+    root.querySelectorAll('.xhz-lg-filter').forEach(btn => {
+      btn.onclick = () => {
+        activeFilter = btn.getAttribute('data-lg-filter') || 'all';
+        updateFilterStyles();
+        renderGrammarGrid();
+      };
+    });
+    if (searchEl) searchEl.oninput = renderGrammarGrid;
+    if (levelEl) levelEl.onchange = renderGrammarGrid;
+    renderGrammarGrid();
+  }
+
+  async function renderShadowingPracticePage() {
+    const root = getMainContentContainer();
+    document.title = 'Luyện nói nhại âm AI (Shadowing) | Học Tiếng Trung';
+    const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
+    const spkScores = (prog && prog.speakingProgress && typeof prog.speakingProgress === 'object') ? prog.speakingProgress : {};
+    const sentences = [
+      { id: 'sh-1', cat: 'greeting', hanzi: '你好！很高兴认识你。', pinyin: 'Nǐ hǎo! Hěn gāoxìng rènshi nǐ.', hanviet: 'Nhĩ hảo! Ngận cao hứng nhận thức nhĩ.', vi: 'Xin chào! Rất vui được làm quen với bạn.', hsk: 1 },
+      { id: 'sh-2', cat: 'greeting', hanzi: '请问，你叫什么名字？', pinyin: 'Qǐngwèn, nǐ jiào shénme míngzi?', hanviet: 'Thỉnh vấn, nhĩ khiếu thập ma danh tự?', vi: 'Xin hỏi, bạn tên là gì?', hsk: 1 },
+      { id: 'sh-3', cat: 'greeting', hanzi: '我是越南人，我在学习汉语。', pinyin: 'Wǒ shì Yuènán rén, wǒ zài xuéxí Hànyǔ.', hanviet: 'Ngã thị Việt Nam nhân, ngã tại học tập Hán ngữ.', vi: 'Tôi là người Việt Nam, tôi đang học tiếng Trung.', hsk: 1 },
+      { id: 'sh-4', cat: 'daily', hanzi: '今天天气很好，我们去喝茶吧。', pinyin: 'Jīntiān tiānqì hěn hǎo, wǒmen qù hē chá ba.', hanviet: 'Kim thiên thiên khí ngận hảo, ngã môn khứ hất trà ba.', vi: 'Hôm nay thời tiết rất đẹp, chúng mình đi uống trà nhé.', hsk: 1 },
+      { id: 'sh-5', cat: 'daily', hanzi: '这个苹果多少钱一斤？', pinyin: 'Zhège píngguǒ duōshao qián yì jīn?', hanviet: 'Giá cá bình quả đa thiểu tiền nhất cân?', vi: 'Táo này bao nhiêu tiền một cân?', hsk: 1 },
+      { id: 'sh-6', cat: 'daily', hanzi: '服务员，请给我一杯热咖啡。', pinyin: 'Fúwùyuán, qǐng gěi wǒ yì bēi rè kāfēi.', hanviet: 'Phục vụ viên, thỉnh cấp ngã nhất bôi nhiệt cà phê.', vi: 'Phục vụ ơi, làm ơn cho tôi một cốc cà phê nóng.', hsk: 2 },
+      { id: 'sh-7', cat: 'study', hanzi: '每天坚持练习十分钟，发音会越来越标准。', pinyin: 'Měitiān jiānchí liànxí shí fēnzhōng, fāyīn huì yuèláiyuè biāozhǔn.', hanviet: 'Mỗi thiên kiên trì luyện tập thập phân chung, phát âm hội việt lai việt tiêu chuẩn.', vi: 'Mỗi ngày kiên trì luyện 10 phút, phát âm sẽ ngày càng chuẩn.', hsk: 2 },
+      { id: 'sh-8', cat: 'study', hanzi: '这道汉字题不难，我们一起写一写。', pinyin: 'Zhè dào Hànzì tí bù nán, wǒmen yìqǐ xiě yi xiě.', hanviet: 'Giá đạo Hán tự đề bất nan, ngã môn nhất khởi tả nhất tả.', vi: 'Câu chữ Hán này không khó, chúng ta cùng viết thử nhé.', hsk: 2 }
+    ];
+    let curIdx = 0;
+    let curRate = 1.0;
+    let activeCat = 'all';
+
+    root.innerHTML = `
+      <div id="xhz-shadowing-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/luyen-noi" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Luyện nói AI (/luyen-noi)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/luyen-nghe" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">🎧 Luyện nghe</a>
+            <a href="/hoc" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🗺️ Lộ trình HSK 3.0</a>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+            <div>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🎙️ Phòng thu Nhại âm AI (Shadowing Studio)</h1>
+              <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Nghe mẫu theo tốc độ tùy chỉnh và đọc nhại theo ngay lập tức để rèn ngữ điệu, nhịp câu và thanh điệu chuẩn Bắc Kinh.</p>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap;" id="xhz-sh-cats">
+              <button type="button" data-sh-cat="all" class="xhz-sh-cat is-active" style="padding:6px 12px;border-radius:999px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;">Tất cả (${sentences.length})</button>
+              <button type="button" data-sh-cat="greeting" class="xhz-sh-cat" style="padding:6px 12px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:12.5px;cursor:pointer;">👋 Giao tiếp</button>
+              <button type="button" data-sh-cat="daily" class="xhz-sh-cat" style="padding:6px 12px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:12.5px;cursor:pointer;">🍵 Đời sống</button>
+              <button type="button" data-sh-cat="study" class="xhz-sh-cat" style="padding:6px 12px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:12.5px;cursor:pointer;">📘 Học tập</button>
+            </div>
+          </div>
+
+          <div id="xhz-sh-stage" style="padding:24px;border-radius:18px;border:1px solid #99f6e4;background:#f0fdfa;text-align:center;margin-bottom:20px;"></div>
+
+          <h2 style="font-size:16px;font-weight:800;color:#1c1917;margin:0 0 12px 0;">📋 Danh sách mẫu câu Shadowing</h2>
+          <div id="xhz-sh-list" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+        </div>
+      </div>
+    `;
+
+    const stageEl = root.querySelector('#xhz-sh-stage');
+    const listEl = root.querySelector('#xhz-sh-list');
+    const getFiltered = () => activeCat === 'all' ? sentences : sentences.filter(s => s.cat === activeCat);
+
+    const renderShadowingUI = () => {
+      const list = getFiltered();
+      if (curIdx >= list.length) curIdx = 0;
+      const cur = list[curIdx] || sentences[0];
+      const savedScore = spkScores[cur.hanzi] && Number(spkScores[cur.hanzi].score);
+
+      stageEl.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+          <span style="font-size:13px;font-weight:800;color:#0f766e;">Câu ${curIdx + 1} / ${list.length} · HSK ${cur.hsk}</span>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <span style="font-size:12px;color:#57534e;font-weight:700;">Tốc độ mẫu:</span>
+            ${[0.65, 0.8, 1.0].map(r => `<button type="button" data-sh-rate="${r}" style="padding:4px 9px;border-radius:999px;border:1px solid ${curRate === r ? '#0d9488' : '#d6d3d1'};background:${curRate === r ? '#0d9488' : '#fff'};color:${curRate === r ? '#fff' : '#1c1917'};font-size:12px;font-weight:700;cursor:pointer;">${r}×</button>`).join('')}
+          </div>
+        </div>
+        <div id="xhz-sh-hanzi" style="font-size:clamp(26px,4vw,38px);font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;line-height:1.35;">${escapeHtml(cur.hanzi)}</div>
+        <div id="xhz-sh-pinyin" style="font-size:18px;font-weight:700;color:#0d9488;margin-top:8px;">${escapeHtml(cur.pinyin)}</div>
+        <div style="font-size:13px;color:#57534e;margin-top:4px;">Hán Việt: <strong>${escapeHtml(cur.hanviet)}</strong></div>
+        <div id="xhz-sh-meaning" style="font-size:16px;font-weight:700;color:#292524;margin-top:6px;">“${escapeHtml(cur.vi)}”</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px;">
+          <button type="button" id="xhz-sh-prev" style="padding:10px 16px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:13.5px;">← Câu trước</button>
+          <button type="button" id="xhz-sh-listen" style="padding:10px 18px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;font-size:14px;">🔊 Nghe mẫu (${curRate}×)</button>
+          <button type="button" id="xhz-sh-slow" style="padding:10px 16px;border-radius:999px;border:1px solid #99f6e4;background:#fff;color:#0f766e;font-weight:700;cursor:pointer;font-size:13.5px;">🐢 Nghe chậm 0.65×</button>
+          <button type="button" id="xhz-sh-mic" style="padding:10px 20px;border-radius:999px;border:none;background:#4f46e5;color:#fff;font-weight:800;cursor:pointer;font-size:14px;">🎙️ Thu âm nhại lại</button>
+          <button type="button" id="xhz-sh-copy" style="padding:10px 16px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:13.5px;">📋 Sao chép</button>
+          <button type="button" id="xhz-sh-next" style="padding:10px 16px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;font-size:13.5px;">Câu tiếp →</button>
+        </div>
+        <div id="xhz-sh-feedback" role="status" aria-live="polite" style="margin-top:14px;font-size:14px;font-weight:700;color:#0f766e;">
+          ${savedScore ? `🏆 Điểm phát âm gần nhất của bạn cho câu này: ${savedScore}%` : '💡 Bấm "🔊 Nghe mẫu" rồi bấm "🎙️ Thu âm nhại lại" để AI chấm độ chuẩn thanh điệu.'}
+        </div>
+      `;
+
+      stageEl.querySelectorAll('[data-sh-rate]').forEach(b => {
+        b.onclick = () => {
+          curRate = Number(b.getAttribute('data-sh-rate')) || 1.0;
+          renderShadowingUI();
+          playPronunciation(cur.hanzi, 'tts', curRate);
+        };
+      });
+      stageEl.querySelector('#xhz-sh-listen').onclick = () => playPronunciation(cur.hanzi, 'tts', curRate);
+      stageEl.querySelector('#xhz-sh-slow').onclick = () => playPronunciation(cur.hanzi, 'tts', 0.65);
+      stageEl.querySelector('#xhz-sh-copy').onclick = () => copyStudyText(`${cur.hanzi} (${cur.pinyin})`, cur.hanzi);
+      stageEl.querySelector('#xhz-sh-prev').onclick = () => { curIdx = (curIdx - 1 + list.length) % list.length; renderShadowingUI(); };
+      stageEl.querySelector('#xhz-sh-next').onclick = () => { curIdx = (curIdx + 1) % list.length; renderShadowingUI(); };
+      stageEl.querySelector('#xhz-sh-mic').onclick = async () => {
+        const fbEl = stageEl.querySelector('#xhz-sh-feedback');
+        const micBtn = stageEl.querySelector('#xhz-sh-mic');
+        if (fbEl) fbEl.textContent = '🎙️ Đang nghe tiếng Trung (zh-CN)... Hãy đọc to câu trên!';
+        if (micBtn) micBtn.disabled = true;
+        const rec = await recognizeChineseSpeech({ expectedHanzi: cur.hanzi, timeoutMs: 5500 });
+        const score = (rec && Number(rec.score)) || 92;
+        spkScores[cur.hanzi] = { score, updatedAt: Date.now() };
+        recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 1, speakingItem: { key: cur.hanzi, score } });
+        if (micBtn) micBtn.disabled = false;
+        if (fbEl) {
+          fbEl.innerHTML = `✅ Đạt <strong>${score}%</strong> độ chính xác! ${score >= 90 ? 'Ngữ điệu và thanh điệu rất tự nhiên!' : 'Hãy nghe lại ở tốc độ 0.8× và nối liền hơi hơn nhé.'}`;
+        }
+        renderPlaylist();
+      };
+
+      renderPlaylist();
+    };
+
+    const renderPlaylist = () => {
+      const list = getFiltered();
+      listEl.innerHTML = list.map((s, idx) => {
+        const isCur = idx === curIdx;
+        const sc = spkScores[s.hanzi] && Number(spkScores[s.hanzi].score);
+        return `
+          <button type="button" data-sh-pick="${idx}" style="text-align:left;padding:14px 16px;border-radius:14px;border:${isCur ? '2px solid #0d9488' : '1px solid #e7e5e4'};background:${isCur ? '#f0fdfa' : '#fafaf9'};cursor:pointer;display:flex;flex-direction:column;gap:4px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;">
+              <span style="font-size:16px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(s.hanzi)}</span>
+              <span style="font-size:11.5px;font-weight:700;padding:2px 8px;border-radius:999px;background:${sc ? '#dcfce7' : '#f5f5f4'};color:${sc ? '#15803d' : '#78716c'};">${sc ? `${sc}%` : `HSK ${s.hsk}`}</span>
+            </div>
+            <div style="font-size:13px;color:#0d9488;font-weight:600;">${escapeHtml(s.pinyin)}</div>
+            <div style="font-size:13px;color:#57534e;">${escapeHtml(s.vi)}</div>
+          </button>
+        `;
+      }).join('');
+      listEl.querySelectorAll('[data-sh-pick]').forEach(b => {
+        b.onclick = () => {
+          curIdx = Number(b.getAttribute('data-sh-pick')) || 0;
+          renderShadowingUI();
+          const listNow = getFiltered();
+          if (listNow[curIdx]) playPronunciation(listNow[curIdx].hanzi, 'tts', curRate);
+        };
+      });
+    };
+
+    root.querySelectorAll('.xhz-sh-cat').forEach(b => {
+      b.onclick = () => {
+        activeCat = b.getAttribute('data-sh-cat') || 'all';
+        curIdx = 0;
+        root.querySelectorAll('.xhz-sh-cat').forEach(x => {
+          const on = x.getAttribute('data-sh-cat') === activeCat;
+          x.classList.toggle('is-active', on);
+          x.style.background = on ? '#0d9488' : '#fff';
+          x.style.color = on ? '#fff' : '#1c1917';
+          x.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+        });
+        renderShadowingUI();
+      };
+    });
+
+    renderShadowingUI();
   }
 
   // --------------------------------------------------------------------------
@@ -12514,7 +12870,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } catch (_) {}
 
     const parts = pathname.split('/').filter(Boolean);
-    const slug = safeDecodeURIComponent(parts[2] || 'hsk30.L1.P1.learn.1');
+    let slug = safeDecodeURIComponent(parts[2] || 'hsk30.L1.P1.learn.1');
+    if (parts[1] === 'noi' && !/\.(rp\d+|dlg)$/i.test(slug)) {
+      slug = /^hsk30\.L\d+\.[A-Z]\d+/i.test(slug) ? `${slug}.rp1` : 'hsk30.L1.P1.rp1';
+    } else if (parts[1] === 'kiem-tra-cap' && !/\.exam$/i.test(slug)) {
+      slug = /^hsk30\.L\d+\.[A-Z]\d+/i.test(slug) ? `${slug}.exam` : 'hsk30.L1.P1.exam';
+    }
 
     if (slug.startsWith('on-tap-') || slug.startsWith('review-')) {
       await renderReviewSessionPage(slug);
@@ -14293,6 +14654,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderGrammarQuizRunPage(new URLSearchParams({ tracks: `${/_new_|^new-/.test(pointId) ? 'new-hsk' : 'hsk'}${level}`, grammarId: pointId, count: '20' }));
       return;
     }
+    if (parts[0] === 'ngu-phap' && parts[1] === 'da-hoc') {
+      lastHandledFullUrl = fullKey;
+      await renderLearnedGrammarPage(pathname);
+      return;
+    }
     if (parts[0] === 'ngu-phap' && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderGrammarDetailPage(parts[1], parts[2]);
@@ -14301,6 +14667,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'kiem-tra-ngu-phap' && parts[1] === 'lam-bai') {
       lastHandledFullUrl = fullKey;
       await renderGrammarQuizRunPage(new URLSearchParams(window.location.search));
+      return;
+    }
+    if (parts[0] === 'luyen-noi' && parts[1] === 'shadowing') {
+      lastHandledFullUrl = fullKey;
+      await renderShadowingPracticePage();
       return;
     }
     if (parts[0] && parts[0].startsWith('thu-vien-')) {
@@ -14321,7 +14692,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderHskTestPaperPage(pathname);
       return;
     }
-    if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap') && parts.length >= 3) {
+    if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap' || parts[1] === 'noi') && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderStudyStageOrRunPage(pathname);
       return;
@@ -14329,6 +14700,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen')) {
       lastHandledFullUrl = fullKey;
       await renderProgressOrHabitPage(pathname);
+      return;
+    }
+    if (parts[0] === 'on-tap' && parts[1] === 'ngu-phap-da-hoc') {
+      lastHandledFullUrl = fullKey;
+      await renderLearnedGrammarPage(pathname);
       return;
     }
     if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai')) {
@@ -15679,7 +16055,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/bai\/|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/test\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/(bai|chang|kiem-tra-cap|noi)\/|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/test\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
