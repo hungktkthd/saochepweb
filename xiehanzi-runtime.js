@@ -353,7 +353,10 @@ body {
   #htq-buddy-dock { top: auto; bottom: 72px; right: 16px; left: auto; flex-direction: column; align-items: flex-end; }
 }
 @media (max-width: 768px) {
-  #htq-buddy-dock { top: auto; bottom: 76px; left: 12px; flex-direction: column; }
+  #htq-buddy-dock { top: auto; bottom: 72px; right: 10px; left: auto; flex-direction: column; align-items: flex-end; }
+  .htq-buddy-fab { width: 36px; height: 36px; }
+  body:has(#htq-mobile-nav) nav[data-bottom-nav="true"] { display: none !important; }
+  #htq-mobile-nav { z-index: 75 !important; }
 }
 header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(0); }
 @media (min-width: 1180px) {
@@ -2710,6 +2713,33 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           netSrc.includes('online') &&
           netSrc.includes('offline') &&
           runSrc.includes('<h1 ')
+        );
+      });
+      await runCheck('mobile-single-bottom-nav-and-buddy-dock', () => {
+        injectMasterV3Styles();
+        const f = document.getElementById('htq-v14-fx-css');
+        const t = f ? f.textContent : '';
+        return Boolean(t.includes('nav[data-bottom-nav="true"]') && t.includes('right: 10px'));
+      });
+      await runCheck('srs-warmup-mizige-multichar-fit', () => {
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(stSrc.includes('hzLen >= 4') && stSrc.includes('/data/vocabulary/index.json'));
+      });
+      await runCheck('srs-inline-mnemonic-editor-ready', () => {
+        const revSrc = typeof renderReviewSessionPage === 'function' ? renderReviewSessionPage.toString() : '';
+        return Boolean(
+          revSrc.includes('xhz-srs-mn-toggle') &&
+          revSrc.includes('xhz-srs-mn-form') &&
+          revSrc.includes('/v1/ugc/mnemonic')
+        );
+      });
+      await runCheck('sw-precaches-runtime-and-async-imgs', async () => {
+        const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
+        const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        return Boolean(
+          swTxt.includes('htq-studio-v23') &&
+          swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
+          runSrc.includes('decoding="async"')
         );
       });
     } finally {
@@ -10931,7 +10961,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             ${item.exampleZh ? `<div style="font-size:15px;margin-top:8px;">${escape(item.exampleZh)} ${escape(item.exampleVi)}</div>` : ''}
             ${itemMnemonic ? `<div data-srs-mnemonic="1" style="margin-top:10px;padding:8px 12px;border-radius:12px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:13.5px;font-weight:600;line-height:1.45;word-break:break-word;">📝 Mẹo nhớ của bạn: ${escape(itemMnemonic)}</div>` : ''}
           </div><div style="margin-top:16px;font-size:13px;color:#115e59;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
-        <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button></div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button><button type="button" id="xhz-srs-mn-toggle" style="${buttonStyle}">✏️ Mẹo nhớ</button></div>
+        <form id="xhz-srs-mn-form" style="display:none;margin-top:10px;gap:8px;justify-content:center;flex-wrap:wrap;align-items:center;">
+          <input id="xhz-srs-mn-input" type="text" maxlength="280" aria-label="Nhập mẹo nhớ cho thẻ đang ôn" placeholder="Ghi mẹo nhớ nhanh cho ${escape(item.hanzi)}..." style="flex:1;min-width:200px;max-width:360px;padding:8px 12px;border-radius:10px;border:1px solid #d6d3d1;font-size:13.5px;" />
+          <button type="submit" id="xhz-srs-mn-save" style="padding:8px 14px;border-radius:10px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:13px;">Lưu</button>
+        </form>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
           ${[['again', 'Quên', '1 phút', '1'], ['hard', 'Khó', '10 phút', '2'], ['good', 'Tốt', `${goodDays} ngày`, '3'], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`, '4']].map(([grade, label, interval, keyHint]) => `<button class="xhz-srs-grade" data-grade="${grade}" data-key="${keyHint}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval} · [${keyHint}]</div></button>`).join('')}
         </div>
@@ -10943,6 +10977,51 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       };
       srsPanel.querySelector('#xhz-srs-card').onclick = flip; srsPanel.querySelector('#xhz-srs-flip').onclick = flip;
       srsPanel.querySelector('#xhz-srs-speak').onclick = () => play(item);
+      const mnToggle = srsPanel.querySelector('#xhz-srs-mn-toggle');
+      const mnForm = srsPanel.querySelector('#xhz-srs-mn-form');
+      const mnInp = srsPanel.querySelector('#xhz-srs-mn-input');
+      if (mnToggle && mnForm && mnInp) {
+        mnToggle.onclick = () => {
+          const open = mnForm.style.display !== 'flex';
+          mnForm.style.display = open ? 'flex' : 'none';
+          if (open) {
+            if (!mnInp.value && itemMnemonic) mnInp.value = itemMnemonic;
+            try { mnInp.focus(); } catch (_) {}
+          }
+        };
+        mnForm.onsubmit = async ev => {
+          ev.preventDefault();
+          const note = String(mnInp.value || '').trim();
+          if (note.length < 2 || note.length > 280) {
+            try { HTQ_STUDIO_FX.toast('Vui lòng nhập mẹo nhớ từ 2 đến 280 ký tự.', 'warn'); } catch (_) {}
+            return;
+          }
+          try {
+            const r = await (await fetch('/v1/ugc/mnemonic', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ target: item.hanzi, note })
+            })).json();
+            if (r && r.ok) {
+              revMnMap[item.hanzi] = Array.isArray(r.items) ? r.items : [{ id: 'srs-' + Date.now(), target: item.hanzi, note, votes: 1 }];
+              const backEl = srsPanel.querySelector('#xhz-srs-back');
+              if (backEl) {
+                let mnEl = backEl.querySelector('[data-srs-mnemonic="1"]');
+                if (!mnEl) {
+                  mnEl = document.createElement('div');
+                  mnEl.setAttribute('data-srs-mnemonic', '1');
+                  mnEl.style.cssText = 'margin-top:10px;padding:8px 12px;border-radius:12px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:13.5px;font-weight:600;line-height:1.45;word-break:break-word;';
+                  backEl.appendChild(mnEl);
+                }
+                mnEl.textContent = '📝 Mẹo nhớ của bạn: ' + note;
+                if (!flipped) flip();
+              }
+              mnForm.style.display = 'none';
+              try { HTQ_STUDIO_FX.toast('✅ Đã lưu mẹo nhớ cho "' + item.hanzi + '"', 'success'); } catch (_) {}
+            }
+          } catch (_) {}
+        };
+      }
       srsPanel.querySelectorAll('.xhz-srs-grade').forEach(button => {
         button.onclick = async () => {
           if (!flipped || pending.has(item.id)) return;
@@ -12416,7 +12495,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div class="lp lp-runner" data-testid="lesson-runner">
             <div class="lp-runner-inner overflow-y-auto">
               <div class="lp-done">
-                <img src="/images/capy/lesson/celebrate.webp" alt="Capy" style="width:180px;height:180px;object-fit:contain;" />
+                <img src="/images/capy/lesson/celebrate.webp" alt="Capy" decoding="async" style="width:180px;height:180px;object-fit:contain;" />
                 <h2>Hoàn thành xuất sắc!</h2>
                 <p class="sub">${run.titleVi || 'Bài học'} · Đã lưu vào tiến độ lộ trình HSK 3.0</p>
                 <div class="lp-stats">
@@ -13224,7 +13303,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                       ${opt.pinyin ? `<span style="font-size:16px;">${renderColoredPinyin(opt.pinyin)}</span>` : ''}
                     </div>`
                   : (imgUrl && !hasExpiredImg
-                      ? `<img src="${rewriteMediaUrl(imgUrl)}" alt="Phương án ${opt.id || idx + 1}" style="max-height:76px;border-radius:10px;object-fit:contain;" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='inline';" /><span style="display:none;font-weight:700;">Phương án ${opt.id || idx + 1}</span>`
+                      ? `<img src="${rewriteMediaUrl(imgUrl)}" alt="Phương án ${opt.id || idx + 1}" decoding="async" style="max-height:76px;border-radius:10px;object-fit:contain;" onerror="this.style.display='none';if(this.nextElementSibling)this.nextElementSibling.style.display='inline';" /><span style="display:none;font-weight:700;">Phương án ${opt.id || idx + 1}</span>`
                       : `<span style="font-weight:700;">🖼️ Tranh minh họa ${opt.id || idx + 1}</span>`);
                 return `
                   <button type="button" class="lp-opt ${cls}" data-choice-opt="${opt.id}" ${isDisabled ? 'disabled' : ''}>
@@ -13262,7 +13341,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div class="head">
               <span class="badge">${bulbSvg}</span>
               <b>Chưa đúng, thử lại nhé</b>
-              <img src="/images/capy/lesson/encouraging.webp" alt="Capy" class="mini-capy" style="width:64px;height:64px;object-fit:contain;" />
+              <img src="/images/capy/lesson/encouraging.webp" alt="Capy" class="mini-capy" decoding="async" style="width:64px;height:64px;object-fit:contain;" />
             </div>
             ${rh.cue ? `<div class="cue">${rh.cue}</div>` : ''}
             ${rh.textVi ? `<p class="why">${rh.textVi}</p>` : ''}
@@ -13283,7 +13362,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div class="head">
               <span class="badge">${v.correct ? checkSvg : exclSvg}</span>
               <b>${v.correct ? 'Chính xác!' : 'Chưa đúng'}</b>
-              <img src="/images/capy/lesson/${v.correct ? 'happy' : 'encouraging'}.webp" alt="Capy" class="mini-capy" style="width:64px;height:64px;object-fit:contain;" />
+              <img src="/images/capy/lesson/${v.correct ? 'happy' : 'encouraging'}.webp" alt="Capy" class="mini-capy" decoding="async" style="width:64px;height:64px;object-fit:contain;" />
             </div>
             ${
               ans && (ans.hanzi || ans.pinyin)
@@ -13312,7 +13391,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const introOverlayHtml = state.showIntro
         ? `
           <div class="lp-intro-ov" data-testid="lesson-intro">
-            <img src="/images/capy/lesson/happy.webp" alt="Capy" style="width:200px;height:200px;object-fit:contain;" />
+            <img src="/images/capy/lesson/happy.webp" alt="Capy" decoding="async" style="width:200px;height:200px;object-fit:contain;" />
             <div class="lp-bubble">
               Bài này có ${introWords.length || 3} từ mới, chừng ${run.estMinutes || 6} phút. Mình đi cùng bạn nhé!
             </div>
@@ -13368,7 +13447,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               <!-- Left Column: Capybara Row + Prompt -->
               <div class="xhz-lp-split-left px-5 lg:min-h-0 lg:overflow-y-auto lg:px-0 lg:py-4">
                 <div class="lp-capyrow" data-testid="capy-row">
-                  <img src="${getCapySprite(step)}" alt="Capy" class="lp-capy" style="width:74px;height:74px;object-fit:contain;" />
+                  <img src="${getCapySprite(step)}" alt="Capy" class="lp-capy" decoding="async" style="width:74px;height:74px;object-fit:contain;" />
                   <div class="lp-bubble pop" aria-live="polite">
                     ${isHard ? `<span class="lp-tag-hard">CÂU KHÓ</span><br/>` : ''}
                     ${getCapyPromptLine(step)}
@@ -13934,7 +14013,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           'display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;margin-bottom:16px;border-radius:16px;border:1px solid #e7e5e4;background:#ffffff;box-shadow:0 1px 3px rgba(0,0,0,0.04);';
         const initial = (savedUser.displayName || savedUser.email || 'U').trim().charAt(0).toUpperCase();
         const avatarHtml = savedUser.avatar
-          ? `<img src="${escapeHtml(savedUser.avatar)}" alt="" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
+          ? `<img src="${escapeHtml(savedUser.avatar)}" alt="" loading="lazy" decoding="async" style="width:44px;height:44px;border-radius:999px;object-fit:cover;border:1px solid #e7e5e4;" />`
           : `<div style="width:44px;height:44px;border-radius:999px;background:#fef2f2;color:#dc2626;font-weight:700;font-size:18px;display:flex;align-items:center;justify-content:center;border:1px solid #fecaca;">${escapeHtml(initial)}</div>`;
         banner.innerHTML =
           `<div style="display:flex;align-items:center;gap:12px;min-width:0;">` +
@@ -15389,14 +15468,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       let idx = 0;
       const renderFlash = () => {
         const it = deck[idx % deck.length];
+        const hzLen = Array.from(String(it.hanzi || '')).length;
+        const hzSize = hzLen >= 4 ? '18px' : hzLen === 3 ? '21px' : hzLen === 2 ? '24px' : '32px';
         host.innerHTML =
           '<div class="htq-flip-wrap" id="htq-srs-mini-flip">' +
             '<div class="htq-flip-inner" style="min-height:132px;">' +
               '<div class="htq-flip-face htq-flip-front">' +
                 '<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">' +
-                  '<div style="display:flex;align-items:center;gap:12px;">' +
-                    '<div class="htq-mizige" style="width:66px;height:66px;font-size:32px;font-weight:800;color:#4f46e5;">' + escapeHtml(it.hanzi) + '</div>' +
-                    '<div><div style="font-size:12px;font-weight:700;color:#0d9488;">THẺ KHỞI ĐỘNG ' + ((idx % deck.length) + 1) + '/' + deck.length + '</div><div style="font-size:14px;font-weight:700;margin-top:4px;">Bạn còn nhớ nghĩa từ này không?</div><div style="font-size:12px;opacity:.72;margin-top:2px;">Chạm để lật 3D ↻</div></div>' +
+                  '<div style="display:flex;align-items:center;gap:12px;min-width:0;">' +
+                    '<div class="htq-mizige" style="width:66px;height:66px;font-size:' + hzSize + ';line-height:1.15;padding:4px;overflow:hidden;text-align:center;flex-shrink:0;word-break:break-all;font-weight:800;color:#4f46e5;">' + escapeHtml(it.hanzi) + '</div>' +
+                    '<div style="min-width:0;"><div style="font-size:12px;font-weight:700;color:#0d9488;">THẺ KHỞI ĐỘNG ' + ((idx % deck.length) + 1) + '/' + deck.length + '</div><div style="font-size:14px;font-weight:700;margin-top:4px;">Bạn còn nhớ nghĩa từ này không?</div><div style="font-size:12px;opacity:.72;margin-top:2px;">Chạm để lật 3D ↻</div></div>' +
                   '</div>' +
                   '<button type="button" class="htq-stage-chip-btn" data-srs-act="speak">🔊</button>' +
                 '</div>' +
@@ -15437,6 +15518,30 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         host.querySelectorAll('[data-srs-act="again"]').forEach(b => bindStudioClick(b, () => sendGrade('wrong', b)));
       };
       renderFlash();
+      if (deck.some(x => x.pinyin === 'Ôn nhanh')) {
+        Promise.all([
+          loadLocalJson('/data/vocabulary/index.json').catch(() => []),
+          loadLocalJson('/data/characters/index.json').catch(() => [])
+        ]).then(([vIdx, cIdx]) => {
+          const vMap = new Map((Array.isArray(vIdx) ? vIdx : []).map(x => [String((x && x.w) || '').replace(/\{|\}/g, ''), x]));
+          const cMap = new Map((Array.isArray(cIdx) ? cIdx : []).map(x => [String((x && (x.c || x.character)) || ''), x]));
+          let changed = false;
+          deck.forEach(item => {
+            if (item.pinyin !== 'Ôn nhanh') return;
+            const d = vMap.get(item.hanzi) || cMap.get(item.hanzi);
+            if (d) {
+              if (d.p) item.pinyin = d.p;
+              if (d.hv) item.hv = d.hv;
+              if (d.m) item.meaning = d.m;
+              changed = true;
+            }
+          });
+          const fwNow = host.querySelector('#htq-srs-mini-flip');
+          if (changed && host.isConnected && (!fwNow || !fwNow.classList.contains('is-flipped'))) {
+            renderFlash();
+          }
+        }).catch(() => {});
+      }
       return;
     }
 
