@@ -1,5 +1,5 @@
-// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v15.1)
-const CACHE_NAME = 'htq-studio-v16';
+// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v17.0)
+const CACHE_NAME = 'htq-studio-v17';
 const SHELL_PRECACHE = [
   '/',
   '/hoc/',
@@ -84,8 +84,8 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-First for runtime JS and HTML documents so updates deploy immediately
-  if (req.mode === 'navigate' || url.pathname === '/xiehanzi-runtime.js' || url.pathname === '/site.webmanifest' || url.pathname === '/manifest.webmanifest') {
+  // Network-First for runtime JS, sitemaps, robots.txt and HTML documents so updates deploy immediately
+  if (req.mode === 'navigate' || url.pathname === '/xiehanzi-runtime.js' || url.pathname === '/site.webmanifest' || url.pathname === '/manifest.webmanifest' || url.pathname === '/sitemap.xml' || url.pathname === '/robots.txt') {
     event.respondWith(
       fetch(req)
         .then((res) => {

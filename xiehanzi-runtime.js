@@ -78,16 +78,21 @@
       if (typeof document === 'undefined') return;
       var root = document.head || document.documentElement;
       if (!root) return;
+      var st = document.getElementById('htq-v3-master-css');
+      if (st && st.getAttribute('data-htq-ver') === '16') {
+        injectStudioV14FxStyles();
+        return;
+      }
       var oldV2 = document.getElementById('htq-v2-master-css');
       if (oldV2 && oldV2.parentNode) oldV2.parentNode.removeChild(oldV2);
-      var st = document.getElementById('htq-v3-master-css');
       if (!st) {
         st = document.createElement('style');
         st.id = 'htq-v3-master-css';
         root.appendChild(st);
       }
-      var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:60;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n\n/* === HTQ RESPONSIVE MAIN & MOBILE BOTTOM NAV === */\nhtml, body{max-width:100vw;overflow-x:clip;}\nmain, main#noi-dung-chinh, #xhz-dynamic-page-root, .htq-ws-grid, .htq-ws-panel, .htq-ws-head{\n  min-width:0 !important;\n  max-width:100% !important;\n  width:100% !important;\n  box-sizing:border-box !important;\n}\n.htq-skill-grid{grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)) !important;}\n#htq-mobile-nav{display:none;}\n@media (max-width:768px){\n  body:not([data-htq-immersive=\"1\"]){padding-bottom:68px !important;}\n  body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:55;\n    padding:6px 4px calc(6px + env(safe-area-inset-bottom, 0px));\n    background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);\n    border-top:1px solid rgba(79,70,229,.16);box-shadow:0 -8px 24px rgba(15,23,42,.08);\n  }\n  .dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav, html.dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    background:rgba(13,16,30,.95);border-top-color:rgba(129,140,248,.22);box-shadow:0 -8px 24px rgba(0,0,0,.55);\n  }\n  .htq-mnav-item{\n    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;\n    text-decoration:none;color:#475569;font-size:10.5px;font-weight:700;padding:4px 2px;border-radius:10px;\n  }\n  .dark .htq-mnav-item{color:#cbd5e1;}\n  .htq-mnav-item.is-active{color:#4f46e5;background:rgba(79,70,229,.10);}\n  .dark .htq-mnav-item.is-active{color:#a5b4fc;background:rgba(129,140,248,.16);}\n}\n";
+      var cssText = "/* === HTQ STUDIO v4 (ROYAL INDIGO SIDEBAR WORKSPACE + BENTO DASHBOARD) === */\n:root{\n  --brand:243 75% 58% !important;\n  --brand-ink:244 65% 42% !important;\n  --brand-foreground:0 0% 100% !important;\n  --interactive:262 83% 58% !important;\n  --interactive-bg:250 100% 97% !important;\n  --ring:243 75% 58% !important;\n  --primary:243 75% 58% !important;\n  --primary-foreground:0 0% 100% !important;\n}\n.dark{\n  --brand:239 84% 67% !important;\n  --brand-ink:235 90% 82% !important;\n  --brand-foreground:230 45% 8% !important;\n  --interactive:263 85% 70% !important;\n  --interactive-bg:255 45% 18% !important;\n  --ring:239 84% 67% !important;\n  --primary:239 84% 67% !important;\n  --primary-foreground:230 45% 8% !important;\n}\n\n/* Rice-paper Alabaster & Cosmic Slate Canvas */\nbody{\n  background-color:#f6f5f0 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(79,70,229,.10), transparent 70%),\n    radial-gradient(50% 42% at 92% 4%, rgba(124,58,237,.08), transparent 68%),\n    radial-gradient(45% 40% at 65% 95%, rgba(225,29,72,.05), transparent 72%) !important;\n  background-attachment:fixed !important;\n}\n.dark body, html.dark body{\n  background-color:#090b14 !important;\n  background-image:\n    radial-gradient(60% 45% at 15% -5%, rgba(99,102,241,.16), transparent 70%),\n    radial-gradient(50% 42% at 92% 6%, rgba(139,92,246,.13), transparent 68%),\n    radial-gradient(45% 40% at 60% 95%, rgba(244,63,94,.07), transparent 72%) !important;\n}\n\n/* Keep Zero Old Logos & Zero Third-Party App Badges */\nheader[data-site-header=\"true\"] a[href=\"/\"] img,\nfooter[data-site-chrome=\"true\"] a[href=\"/\"] img,\nfooter a[href=\"/\"]:has(img),\nfooter a[href=\"/\"] img,\nimg[src*=\"XieHanzi_480x150\"],\nimg[alt*=\"Logo\"],\nimg[src*=\"R0lGODlhAQABAIAAAAAAAP\"],\n[data-htq-logo=\"1\"],\n[data-phone-float=\"invite\"],\na[href*=\"apps.apple.com\"],\n[data-platform=\"android\"],\n[data-platform=\"ios\"],\ndiv:has(> a[href*=\"apps.apple.com\"]),\ndiv:has(> span[data-platform=\"android\"]),\ndiv:has(> div > img[src*=\"tai-app-qr\"]),\ndiv:has(> img[src*=\"tai-app-qr\"]),\nimg[src*=\"tai-app-qr\"],\na[href*=\"facebook.com/xiehanzi\"],\na[href*=\"m.me/xiehanzi\"],\na[href*=\"youtube.com/@xiehanzi\"],\na[href*=\"status.xiehanzi.com\"]{\n  display:none !important;\n  width:0 !important;\n  height:0 !important;\n  opacity:0 !important;\n  pointer-events:none !important;\n}\n\n/* Desktop Sidebar Shell Reservation (>= 1180px on standard layout pages) */\n@media (min-width:1180px){\n  body:not([data-htq-immersive=\"1\"]) > div.flex.flex-col.min-h-screen:has(> header[data-site-header=\"true\"]){\n    padding-left:252px !important;\n  }\n}\n\n/* Detached Floating Command Bar */\nheader[data-site-header=\"true\"]{\n  top:10px !important;\n  width:calc(100% - 1.5rem) !important;\n  max-width:1320px !important;\n  margin:10px auto 0 !important;\n  border-radius:18px !important;\n  background:rgba(255,255,255,.84) !important;\n  backdrop-filter:blur(22px) saturate(165%) !important;\n  -webkit-backdrop-filter:blur(22px) saturate(165%) !important;\n  border:1px solid rgba(79,70,229,.18) !important;\n  box-shadow:0 10px 30px -14px rgba(79,70,229,.18) !important;\n}\n.dark header[data-site-header=\"true\"]{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.22) !important;\n  box-shadow:0 12px 32px -12px rgba(0,0,0,.65) !important;\n}\nheader[data-site-header=\"true\"] > div{\n  max-width:100% !important;\n}\n\n/* Royal Indigo Home Pill */\nheader[data-site-header=\"true\"] > div > a[href=\"/\"],\nheader a[data-htq-home-pill=\"1\"]{\n  display:inline-flex !important;\n  align-items:center !important;\n  gap:.45rem !important;\n  min-height:2.25rem !important;\n  padding:.38rem .95rem !important;\n  border-radius:9999px !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.14), rgba(124,58,237,.12)) !important;\n  border:1px solid rgba(79,70,229,.32) !important;\n  color:#4338ca !important;\n  font-size:.875rem !important;\n  font-weight:700 !important;\n  letter-spacing:-.01em !important;\n  text-decoration:none !important;\n  white-space:nowrap !important;\n  box-shadow:0 2px 10px -2px rgba(79,70,229,.16) !important;\n  transition:all .2s cubic-bezier(.22,1,.36,1) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]:hover,\nheader a[data-htq-home-pill=\"1\"]:hover{\n  transform:translateY(-1px) !important;\n  background:linear-gradient(135deg, rgba(79,70,229,.22), rgba(124,58,237,.18)) !important;\n}\nheader[data-site-header=\"true\"] > div > a[href=\"/\"]::before,\nheader a[data-htq-home-pill=\"1\"]::before{\n  content:\"❖ Trang chủ\" !important;\n  font-weight:700 !important;\n  line-height:1 !important;\n}\n.dark header[data-site-header=\"true\"] > div > a[href=\"/\"],\n.dark header a[data-htq-home-pill=\"1\"]{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20)) !important;\n  border-color:rgba(165,180,252,.36) !important;\n  color:#c7d2fe !important;\n}\nheader[data-site-header=\"true\"] nav a,\nheader[data-site-header=\"true\"] nav button{\n  border-radius:9999px !important;\n}\n\n/* Complete Home Layout Restructure at t = 0ms */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu){\n  display:flex !important;\n  flex-direction:column !important;\n  gap:1.15rem !important;\n  max-width:1320px !important;\n  margin:0 auto !important;\n  padding:1rem 1rem 2.75rem !important;\n}\n/* Hide old mobile-app marketing sections permanently */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:first-of-type,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:has(ul[aria-label=\"Tính năng của app\"]),\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.band-dark,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-faq-heading\"],\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"app-final-cta-heading\"]{\n  display:none !important;\n}\n/* Order 1: Top Studio Search Command Hero */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section#tra-cuu{\n  order:1 !important;\n  padding:0 !important;\n}\nsection#tra-cuu > div.mx-auto:first-child{\n  max-width:100% !important;\n  padding:1.45rem 1.35rem !important;\n  border-radius:24px !important;\n  background:linear-gradient(135deg, #ffffff 0%, #eef2ff 52%, #fdf2f8 100%) !important;\n  border:1px solid rgba(79,70,229,.22) !important;\n  box-shadow:0 20px 50px -24px rgba(79,70,229,.26), inset 0 1px 0 rgba(255,255,255,.95) !important;\n}\n@media (min-width:768px){\n  section#tra-cuu > div.mx-auto:first-child{\n    padding:1.75rem 2.25rem !important;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child{\n  background:linear-gradient(135deg, #121626 0%, #1a1836 52%, #241328 100%) !important;\n  border-color:rgba(129,140,248,.28) !important;\n  box-shadow:0 24px 56px -20px rgba(0,0,0,.72), inset 0 1px 0 rgba(255,255,255,.06) !important;\n}\nsection#tra-cuu > div.mx-auto.mt-4:not(:has(a,button)){\n  display:none !important;\n}\nsection#tra-cuu > div.mx-auto:first-child::before{\n  content:\"HÁN NGỮ STUDIO 4.0  •  CHIẾT TỰ & LUYỆN AI  •  HSK 3.0\";\n  display:inline-flex;\n  align-items:center;\n  margin-bottom:.75rem;\n  padding:.34rem .85rem;\n  border-radius:9999px;\n  font-size:.70rem;\n  font-weight:800;\n  letter-spacing:.05em;\n  color:#4338ca;\n  background:rgba(79,70,229,.10);\n  border:1px solid rgba(79,70,229,.24);\n}\n@media (max-width:639px){\n  section#tra-cuu > div.mx-auto:first-child::before{\n    font-size:.57rem;\n    padding:.28rem .62rem;\n    letter-spacing:.02em;\n    max-width:100%;\n  }\n}\n.dark section#tra-cuu > div.mx-auto:first-child::before{\n  color:#c7d2fe;\n  background:rgba(129,140,248,.16);\n  border-color:rgba(165,180,252,.28);\n}\nsection#tra-cuu .max-w-3xl{\n  max-width:100% !important;\n}\n/* Order 2: New 12-Col Bento Workspace */\n#htq-studio-workspace{\n  order:2 !important;\n}\n/* Order 3: Daily Hanzi + Web Tools */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  order:3 !important;\n  border-radius:24px !important;\n  padding:1.75rem 0 !important;\n  background:rgba(255,255,255,.78) !important;\n  border:1px solid rgba(79,70,229,.14) !important;\n  backdrop-filter:blur(14px) !important;\n}\n.dark main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]){\n  background:rgba(18,22,38,.82) !important;\n  border-color:rgba(129,140,248,.18) !important;\n}\n/* Order 4: Thay Do Feature Banner */\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"]{\n  order:4 !important;\n  padding:0 !important;\n}\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section[aria-labelledby=\"home-thay-do-heading\"] > div.max-w-6xl,\nmain#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section.bg-surface-2:not([aria-labelledby]) > div.max-w-6xl{\n  max-width:100% !important;\n}\n\n/* Studio Left Sidebar (#htq-studio-sidebar) */\n#htq-studio-sidebar{\n  display:none;\n}\n@media (min-width:1180px){\n  #htq-studio-sidebar{\n    position:fixed;\n    top:0;\n    left:0;\n    bottom:0;\n    width:252px;\n    z-index:60;\n    display:flex;\n    flex-direction:column;\n    background:rgba(255,255,255,.90);\n    backdrop-filter:blur(22px) saturate(160%);\n    -webkit-backdrop-filter:blur(22px) saturate(160%);\n    border-right:1px solid rgba(79,70,229,.14);\n    box-shadow:8px 0 32px -18px rgba(79,70,229,.14);\n    padding:16px 14px;\n    overflow-y:auto;\n    font-family:inherit;\n  }\n  .dark #htq-studio-sidebar{\n    background:rgba(13,16,30,.92);\n    border-right-color:rgba(129,140,248,.18);\n    box-shadow:8px 0 36px -14px rgba(0,0,0,.65);\n  }\n}\n.htq-sb-brand{\n  display:flex;\n  align-items:center;\n  gap:10px;\n  padding:10px 10px 14px;\n  margin-bottom:8px;\n  border-bottom:1px solid rgba(79,70,229,.12);\n  text-decoration:none;\n}\n.dark .htq-sb-brand{border-bottom-color:rgba(129,140,248,.16)}\n.htq-sb-emblem{\n  width:36px;height:36px;border-radius:11px;flex-shrink:0;\n  display:grid;place-items:center;font-weight:900;font-size:17px;color:#fff;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 6px 16px -4px rgba(79,70,229,.45);\n}\n.htq-sb-title{font-size:15px;font-weight:800;line-height:1.2;color:#111827}\n.dark .htq-sb-title{color:#f8fafc}\n.htq-sb-sub{font-size:11px;font-weight:600;color:#6366f1;margin-top:2px}\n.dark .htq-sb-sub{color:#a5b4fc}\n.htq-sb-group{margin-top:12px}\n.htq-sb-label{\n  padding:0 10px 6px;\n  font-size:10.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;\n  color:#64748b;\n}\n.dark .htq-sb-label{color:#94a3b8}\n.htq-sb-link{\n  display:flex;align-items:center;gap:9px;\n  padding:7.5px 10px;border-radius:11px;margin-bottom:2px;\n  font-size:13px;font-weight:600;color:#334155;text-decoration:none;\n  transition:all .16s ease;\n}\n.dark .htq-sb-link{color:#cbd5e1}\n.htq-sb-link:hover{\n  background:rgba(79,70,229,.09);\n  color:#4338ca;\n  transform:translateX(2px);\n}\n.dark .htq-sb-link:hover{\n  background:rgba(129,140,248,.15);\n  color:#e0e7ff;\n}\n.htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(79,70,229,.15), rgba(124,58,237,.12));\n  color:#4338ca;font-weight:700;\n  box-shadow:inset 3px 0 0 #4f46e5;\n}\n.dark .htq-sb-link.is-active{\n  background:linear-gradient(135deg, rgba(99,102,241,.24), rgba(139,92,246,.20));\n  color:#eef2ff;\n  box-shadow:inset 3px 0 0 #818cf8;\n}\n.htq-sb-footer{\n  margin-top:auto;padding-top:12px;border-top:1px solid rgba(79,70,229,.12);\n  display:flex;flex-direction:column;gap:6px;\n}\n.dark .htq-sb-footer{border-top-color:rgba(129,140,248,.16)}\n.htq-sb-btn{\n  width:100%;display:flex;align-items:center;justify-content:space-between;\n  padding:8px 10px;border-radius:11px;border:1px solid rgba(79,70,229,.20);\n  background:rgba(79,70,229,.06);color:#312e81;font-size:12.5px;font-weight:700;\n  cursor:pointer;transition:all .16s ease;\n}\n.dark .htq-sb-btn{\n  border-color:rgba(129,140,248,.26);background:rgba(99,102,241,.14);color:#e0e7ff;\n}\n.htq-sb-btn:hover{background:rgba(79,70,229,.14)}\n\n/* Home 12-Col Bento Workspace (#htq-studio-workspace) */\n#htq-studio-workspace{width:100%}\n.htq-ws-grid{\n  display:grid;\n  grid-template-columns:1fr;\n  gap:1.25rem;\n}\n@media (min-width:1024px){\n  .htq-ws-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}\n}\n.htq-ws-panel{\n  border-radius:22px;\n  padding:1.35rem;\n  background:rgba(255,255,255,.86);\n  border:1px solid rgba(79,70,229,.16);\n  box-shadow:0 16px 40px -24px rgba(15,23,42,.12);\n  backdrop-filter:blur(14px);\n}\n.dark .htq-ws-panel{\n  background:rgba(18,22,38,.88);\n  border-color:rgba(129,140,248,.20);\n  box-shadow:0 20px 44px -20px rgba(0,0,0,.62);\n}\n.htq-ws-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:1rem;flex-wrap:wrap}\n.htq-ws-title{font-size:1.125rem;font-weight:800;color:#0f172a;margin:0}\n.dark .htq-ws-title{color:#f8fafc}\n.htq-ws-badge{\n  font-size:.72rem;font-weight:700;padding:.25rem .65rem;border-radius:9999px;\n  background:rgba(124,58,237,.10);color:#6d28d9;border:1px solid rgba(124,58,237,.22);\n}\n.dark .htq-ws-badge{background:rgba(139,92,246,.20);color:#ddd6fe;border-color:rgba(167,139,250,.30)}\n.htq-skill-grid{\n  display:grid;\n  grid-template-columns:repeat(auto-fit, minmax(210px, 1fr));\n  gap:.85rem;\n}\n.htq-skill-card{\n  display:flex;flex-direction:column;gap:.4rem;\n  padding:1rem;border-radius:16px;text-decoration:none;\n  background:rgba(248,250,252,.85);\n  border:1px solid rgba(79,70,229,.13);\n  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;\n}\n.dark .htq-skill-card{\n  background:rgba(25,31,52,.78);\n  border-color:rgba(129,140,248,.18);\n}\n.htq-skill-card:hover{\n  transform:translateY(-2px);\n  border-color:rgba(79,70,229,.42);\n  box-shadow:0 12px 26px -14px rgba(79,70,229,.28);\n}\n.htq-skill-top{display:flex;align-items:center;gap:.55rem;font-weight:800;font-size:.94rem;color:#1e1b4b}\n.dark .htq-skill-top{color:#e0e7ff}\n.htq-skill-desc{font-size:.80rem;line-height:1.45;color:#475569;margin:0}\n.dark .htq-skill-desc{color:#94a3b8}\n.htq-curr-row{\n  display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.1rem;padding-top:1rem;\n  border-top:1px dashed rgba(79,70,229,.18);\n}\n.htq-curr-pill{\n  display:inline-flex;align-items:center;gap:.35rem;\n  padding:.42rem .82rem;border-radius:9999px;text-decoration:none;\n  font-size:.78rem;font-weight:700;color:#4338ca;\n  background:rgba(79,70,229,.08);border:1px solid rgba(79,70,229,.20);\n  transition:all .15s ease;\n}\n.dark .htq-curr-pill{color:#c7d2fe;background:rgba(99,102,241,.16);border-color:rgba(129,140,248,.28)}\n.htq-curr-pill:hover{background:#4f46e5;color:#fff;border-color:#4f46e5}\n.htq-stat-row{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin:.85rem 0 1rem}\n.htq-stat-box{\n  padding:.7rem .5rem;border-radius:14px;text-align:center;\n  background:linear-gradient(180deg, rgba(79,70,229,.08), rgba(124,58,237,.04));\n  border:1px solid rgba(79,70,229,.16);\n}\n.dark .htq-stat-box{background:rgba(99,102,241,.12);border-color:rgba(129,140,248,.22)}\n.htq-stat-num{font-size:1.35rem;font-weight:900;color:#4f46e5;line-height:1.1}\n.dark .htq-stat-num{color:#a5b4fc}\n.htq-stat-lbl{font-size:.70rem;font-weight:600;color:#64748b;margin-top:3px}\n.dark .htq-stat-lbl{color:#94a3b8}\n.htq-cta-btn{\n  display:flex;align-items:center;justify-content:center;gap:.5rem;width:100%;\n  padding:.8rem 1rem;border-radius:14px;font-weight:800;font-size:.92rem;color:#fff !important;\n  text-decoration:none;margin-bottom:1rem;\n  background:linear-gradient(135deg,#4f46e5,#7c3aed 60%,#e11d48);\n  box-shadow:0 12px 26px -10px rgba(79,70,229,.55);\n  transition:transform .18s ease, filter .18s ease;\n}\n.htq-cta-btn:hover{transform:translateY(-2px);filter:brightness(1.06)}\n.htq-quick-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.55rem}\n.htq-quick-item{\n  display:flex;align-items:center;gap:.45rem;padding:.65rem .75rem;border-radius:12px;\n  font-size:.79rem;font-weight:700;text-decoration:none;color:#1e293b;\n  background:rgba(248,250,252,.9);border:1px solid rgba(79,70,229,.14);\n  transition:all .15s ease;\n}\n.dark .htq-quick-item{color:#e2e8f0;background:rgba(25,31,52,.78);border-color:rgba(129,140,248,.20)}\n.htq-quick-item:hover{border-color:#7c3aed;transform:translateY(-1px)}\n\n/* Subpage Quick-Switch Ribbon */\n#htq-subpage-ribbon{\n  max-width:1320px;margin:.75rem auto 0;padding:0 1rem;\n}\n.htq-ribbon-inner{\n  display:flex;align-items:center;gap:.45rem;overflow-x:auto;padding:.55rem .75rem;\n  border-radius:14px;\n  background:rgba(255,255,255,.78);border:1px solid rgba(79,70,229,.16);\n  backdrop-filter:blur(12px);\n}\n.dark .htq-ribbon-inner{background:rgba(18,22,38,.82);border-color:rgba(129,140,248,.20)}\n.htq-ribbon-chip{\n  white-space:nowrap;padding:.34rem .75rem;border-radius:9999px;font-size:.77rem;font-weight:700;\n  text-decoration:none;color:#334155;background:rgba(79,70,229,.07);border:1px solid transparent;\n  transition:all .15s ease;\n}\n.dark .htq-ribbon-chip{color:#cbd5e1;background:rgba(129,140,248,.12)}\n.htq-ribbon-chip.is-active, .htq-ribbon-chip:hover{\n  background:linear-gradient(135deg,#4f46e5,#7c3aed);color:#fff;\n}\n\n/* Search Input Focus & Global Polish */\ninput[type=\"search\"]:focus{\n  box-shadow:0 0 0 4px rgba(79,70,229,.16), 0 10px 24px -8px rgba(79,70,229,.24) !important;\n  border-color:#4f46e5 !important;\n}\nfooter[data-site-chrome=\"true\"]{\n  background:rgba(248,247,242,.86) !important;\n  backdrop-filter:blur(14px) !important;\n  border-top:1px solid rgba(79,70,229,.14) !important;\n}\n.dark footer[data-site-chrome=\"true\"]{\n  background:rgba(12,15,28,.88) !important;\n  border-top-color:rgba(129,140,248,.16) !important;\n}\n::-webkit-scrollbar{width:8px;height:8px}\n::-webkit-scrollbar-track{background:transparent}\n::-webkit-scrollbar-thumb{background:rgba(79,70,229,.28);border-radius:9999px}\n::-webkit-scrollbar-thumb:hover{background:rgba(79,70,229,.50)}\n\n/* === HTQ STUDIO LP v4 === */\n.lp .lp-hero{\n  background:linear-gradient(135deg, rgba(255,255,255,.92), rgba(238,242,255,.88) 55%, rgba(253,242,248,.86)) !important;\n  border:1px solid rgba(79,70,229,.24) !important;\n  border-radius:24px !important;\n  box-shadow:0 18px 42px -18px rgba(79,70,229,.24) !important;\n}\n.dark .lp .lp-hero{\n  background:linear-gradient(135deg, rgba(18,22,38,.92), rgba(26,24,54,.86) 55%, rgba(36,19,40,.88)) !important;\n  border-color:rgba(129,140,248,.28) !important;\n}\n.lp .lp-card{\n  background:rgba(255,255,255,.86) !important;\n  border:1px solid rgba(79,70,229,.16) !important;\n  border-radius:18px !important;\n}\n.dark .lp .lp-card{\n  background:rgba(18,22,38,.86) !important;\n  border-color:rgba(129,140,248,.20) !important;\n}\n.lp .lp-btn{\n  background:linear-gradient(135deg, #4f46e5, #7c3aed) !important;\n  color:#ffffff !important;\n  border-radius:12px !important;\n  box-shadow:0 8px 20px -6px rgba(79,70,229,.48) !important;\n}\n\n/* === HTQ STUDIO THAY DO v4 === */\n.thay-do-landing_hero__Pqn_q:after{\n  background:linear-gradient(180deg, rgba(9,11,20,.62), rgba(9,11,20,.18) 38%, rgba(9,11,20,.42) 62%, rgba(9,11,20,.95)) !important;\n}\n.thay-do-landing_hookRed__5MHuV{\n  color:#a5b4fc !important;\n  text-shadow:0 2px 16px rgba(99,102,241,.42) !important;\n}\n\n/* === HTQ RESPONSIVE MAIN & MOBILE BOTTOM NAV === */\nhtml, body{max-width:100vw;overflow-x:clip;}\nmain, main#noi-dung-chinh, #xhz-dynamic-page-root, .htq-ws-grid, .htq-ws-panel, .htq-ws-head{\n  min-width:0 !important;\n  max-width:100% !important;\n  width:100% !important;\n  box-sizing:border-box !important;\n}\n.htq-skill-grid{grid-template-columns:repeat(auto-fit, minmax(170px, 1fr)) !important;}\n#htq-mobile-nav{display:none;}\n@media (max-width:768px){\n  body:not([data-htq-immersive=\"1\"]){padding-bottom:68px !important;}\n  body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:55;\n    padding:6px 4px calc(6px + env(safe-area-inset-bottom, 0px));\n    background:rgba(255,255,255,.94);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);\n    border-top:1px solid rgba(79,70,229,.16);box-shadow:0 -8px 24px rgba(15,23,42,.08);\n  }\n  .dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav, html.dark body:not([data-htq-immersive=\"1\"]) #htq-mobile-nav{\n    background:rgba(13,16,30,.95);border-top-color:rgba(129,140,248,.22);box-shadow:0 -8px 24px rgba(0,0,0,.55);\n  }\n  .htq-mnav-item{\n    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;\n    text-decoration:none;color:#475569;font-size:10.5px;font-weight:700;padding:4px 2px;border-radius:10px;\n  }\n  .dark .htq-mnav-item{color:#cbd5e1;}\n  .htq-mnav-item.is-active{color:#4f46e5;background:rgba(79,70,229,.10);}\n  .dark .htq-mnav-item.is-active{color:#a5b4fc;background:rgba(129,140,248,.16);}\n}\n\n/* Accessible Focus-Visible Rings */\na:focus-visible, button:focus-visible, [role=\"button\"]:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{\n  outline:2px solid #4f46e5 !important;\n  outline-offset:2px !important;\n}\n.dark a:focus-visible, .dark button:focus-visible, .dark [role=\"button\"]:focus-visible, .dark input:focus-visible, .dark select:focus-visible, .dark textarea:focus-visible{\n  outline-color:#a5b4fc !important;\n}\n";
       if (st.textContent !== cssText) st.textContent = cssText;
+      st.setAttribute('data-htq-ver', '16');
       injectStudioV14FxStyles();
     } catch (_e) {}
   }
@@ -98,6 +103,7 @@
       var root = document.head || document.documentElement;
       if (!root) return;
       var st = document.getElementById('htq-v14-fx-css');
+      if (st && st.getAttribute('data-htq-ver') === '16') return;
       if (!st) {
         st = document.createElement('style');
         st.id = 'htq-v14-fx-css';
@@ -496,7 +502,7 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .htq-sticker-tile:hover > img { transform: scale(1.12) rotate(4deg); }
 
 @media (prefers-reduced-motion: reduce) {
-  .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble, .htq-petal, .htq-sparkle-dot {
+  .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble, .htq-petal, .htq-sparkle-dot, .htq-story-card, .htq-sticker-tile, .htq-story-card-img-wrap > img, .htq-buddy-fab {
     animation: none !important; transition: none !important;
   }
   #htq-ambient-petals { display: none !important; }
@@ -504,6 +510,7 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 }
 `;
       if (st.textContent !== fxCss) st.textContent = fxCss;
+      st.setAttribute('data-htq-ver', '16');
     } catch (_e) {}
   }
   injectMasterV3Styles();
@@ -1008,7 +1015,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       try {
         const u = new URL(url, window.location.origin);
         const inner = u.searchParams.get('url');
-        if (inner) return rewriteMediaUrl(decodeURIComponent(inner));
+        if (inner) return rewriteMediaUrl(safeDecodeURIComponent(inner));
       } catch (_e) {}
     }
 
@@ -1018,7 +1025,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     if (url.startsWith('assets/')) {
       const m = window.location.pathname.match(/\/(?:test|lam-bai)\/([^/?#]+)/);
-      const tid = m ? decodeURIComponent(m[1]) : 'hsk30-1';
+      const tid = m ? safeDecodeURIComponent(m[1]) : 'hsk30-1';
       return `${RAW_GITHUB_REPO}/media-visuals/hsk-tests/${encodeURIComponent(tid)}/${url}`;
     }
 
@@ -1037,7 +1044,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (url.startsWith('https://static.xiehanzi.com/')) {
       let rel = url.slice('https://static.xiehanzi.com/'.length).split('?')[0].split('&')[0];
       try {
-        rel = decodeURIComponent(rel);
+        rel = safeDecodeURIComponent(rel);
       } catch (_e) {}
       const encRel = rel.split('/').map(s => encodeURIComponent(s)).join('/');
 
@@ -2111,7 +2118,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       'httq_habit_settings', 'httq_game_high_scores', 'httq_speaking_progress',
       'httq_state', studyKey, 'xhz-seen-words-v1', 'xhz-practice-v1',
       'httq_current_stage_key', 'httq_current_lesson_id',
-      'httq_active_dates', 'httq_minutes_by_date', 'httq_sessions_by_date'
+      'httq_active_dates', 'httq_minutes_by_date', 'httq_sessions_by_date',
+      'httq_user_mnemonics_v1'
     ];
     const snapshot = {};
     diagKeys.forEach(k => { snapshot[k] = localStorage.getItem(k); });
@@ -2408,6 +2416,62 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const rscRes = await fetch('/luyen-chep-chinh-ta?_rsc=test123', { headers: { 'Next-Router-Prefetch': '1', 'RSC': '1' } });
         return Boolean(loTrinhRes && loTrinhRes.ok && rscRes && rscRes.status === 404 && String(rscRes.url || '').includes('/luyen-chep-chinh-ta'));
       });
+      await runCheck('api-metrics-event', async () => {
+        const res = await (await fetch('/v1/metrics/event', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: 'diag_ping', path: '/hoc' })
+        })).json();
+        return Boolean(res && res.ok && res.recorded === true);
+      });
+      await runCheck('api-ugc-mnemonic-crud', async () => {
+        const created = await (await fetch('/v1/ugc/mnemonic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: '好', note: 'Nữ + Tử = Hảo' })
+        })).json();
+        const listRes = await (await fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent('好'))).json();
+        const cid = created && created.item && created.item.id;
+        const voteRes = cid ? await (await fetch('/v1/ugc/mnemonic/vote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: '好', id: cid })
+        })).json() : null;
+        return Boolean(created && created.ok && cid && listRes && Array.isArray(listRes.items) && listRes.items.some(x => x.id === cid) && voteRes && voteRes.ok && Number(voteRes.votes) >= 2);
+      });
+      await runCheck('safe-decode-uri-malformed', () => {
+        return Boolean(typeof window.__xhzSafeDecode === 'function' && window.__xhzSafeDecode('%E0%A4%A') === '%E0%A4%A' && window.__xhzSafeDecode('%E5%A5%BD') === '好');
+      });
+      await runCheck('cmdk-keyboard-and-no-inline-onclick', async () => {
+        window.__xhzOpenCommandPalette('你好');
+        const inp = document.getElementById('htq-cmdk-input');
+        const resEl = document.getElementById('htq-cmdk-results');
+        let loaded = false;
+        for (let i = 0; i < 10; i++) {
+          if (resEl && resEl.querySelector('.htq-cmdk-link') && resEl.textContent.includes('你好')) { loaded = true; break; }
+          await new Promise(r => setTimeout(r, 40));
+        }
+        const noOnclick = Boolean(resEl && resEl.querySelectorAll('[onclick]').length === 0);
+        const linkCount = resEl ? resEl.querySelectorAll('.htq-cmdk-link').length : 0;
+        if (inp) inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }));
+        const idxDown = resEl ? resEl.getAttribute('data-cmdk-active-idx') : null;
+        if (inp) inp.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowUp', bubbles: true }));
+        const idxUp = resEl ? resEl.getAttribute('data-cmdk-active-idx') : null;
+        window.__xhzCloseCommandPalette();
+        const navOk = linkCount >= 2 ? (idxDown === '1' && idxUp === '0') : (idxDown === '0' && idxUp === '0');
+        return Boolean(loaded && noOnclick && navOk);
+      });
+      await runCheck('style-guard-o1-and-focus', () => {
+        injectMasterV3Styles();
+        const m = document.getElementById('htq-v3-master-css');
+        const f = document.getElementById('htq-v14-fx-css');
+        return Boolean(m && m.getAttribute('data-htq-ver') === '16' && m.textContent.includes(':focus-visible') && f && f.getAttribute('data-htq-ver') === '16');
+      });
+      await runCheck('seo-robots-and-sitemap', async () => {
+        const rb = await originalFetch('/robots.txt').then(r => r.ok ? r.text() : '').catch(() => '');
+        const sm = await originalFetch('/sitemap.xml').then(r => r.ok ? r.text() : '').catch(() => '');
+        return Boolean(rb.includes('hoctiengtrungquoc.vercel.app/sitemap.xml') && sm.includes('<urlset') && sm.includes('luyen-chep-chinh-ta'));
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -2444,7 +2508,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       'xhz-review-signals-v1', 'xhz-review-source', 'xhz-seen-words-sync-v1',
       'xhz-seen-words-v1', 'xhz-speaking-progress-v1', 'xhz-speaking-v1',
       'xhz-track-onboarding-v1', 'xhz_intake', 'xhz-collection-import-v1',
-      'templateHistory', 'thay-do-world-guide-done']);
+      'templateHistory', 'thay-do-world-guide-done', 'httq_user_mnemonics_v1']);
     const isScoped = key => keys.has(key) || key.startsWith('httq_daily_steps_') || key.startsWith('xiehanzi:dictation:');
     const nativeGet = prototype.getItem, nativeSet = prototype.setItem, nativeRemove = prototype.removeItem;
     const descriptors = Object.fromEntries(['getItem', 'setItem', 'removeItem'].map(name => [name, Object.getOwnPropertyDescriptor(prototype, name)]));
@@ -2602,7 +2666,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   // ==========================================================================
   function extractHanziChar(slug) {
     if (!slug) return '';
-    const decoded = decodeURIComponent(slug).trim();
+    const decoded = safeDecodeURIComponent(slug).trim();
     const hanziMatch = decoded.match(/[\u4e00-\u9fff]/g);
     if (hanziMatch && hanziMatch.length > 0) {
       return hanziMatch[hanziMatch.length - 1];
@@ -2612,7 +2676,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   function extractHanziWord(slug) {
     if (!slug) return '';
-    const decoded = decodeURIComponent(slug).trim();
+    const decoded = safeDecodeURIComponent(slug).trim();
     const hanziMatch = decoded.match(/[\u4e00-\u9fff]+/g);
     if (hanziMatch && hanziMatch.length > 0) {
       return hanziMatch[hanziMatch.length - 1];
@@ -2636,6 +2700,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     return String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
   }
 
+  function safeDecodeURIComponent(value) {
+    const s = String(value == null ? '' : value);
+    try {
+      return decodeURIComponent(s);
+    } catch (_) {
+      return s;
+    }
+  }
+  if (typeof window !== 'undefined') window.__xhzSafeDecode = safeDecodeURIComponent;
+
   async function lookupCharacter(slugOrChar) {
     const char = extractHanziChar(slugOrChar);
     const index = (await loadLocalJson('/data/characters/index.json')) || [];
@@ -2643,7 +2717,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (Array.isArray(index)) {
       entry = index.find(x => (x.c || x.character) === char);
       if (!entry) {
-        const cleanSlug = decodeURIComponent(slugOrChar).toLowerCase().trim();
+        const cleanSlug = safeDecodeURIComponent(slugOrChar).toLowerCase().trim();
         entry = index.find(x => x.slug === cleanSlug || (x.hv && `${x.hv}-${x.c}` === cleanSlug));
         if (!entry) {
           const baseSlug = toSlugVi(cleanSlug.replace(/-\d+$/, ''));
@@ -2683,7 +2757,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   }
 
   async function lookupWord(slugOrWord) {
-    const rawDecoded = decodeURIComponent(slugOrWord || '').trim();
+    const rawDecoded = safeDecodeURIComponent(slugOrWord || '').trim();
     if (!rawDecoded) return null;
     const word = extractHanziWord(rawDecoded);
     const index = (await loadLocalJson('/data/vocabulary/index.json')) || [];
@@ -2694,7 +2768,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         entry = index.find(x => (x.w || '').replace(/\{|\}/g, '') === word);
       }
       if (!entry) {
-        const cleanSlug = decodeURIComponent(rawDecoded).toLowerCase().trim();
+        const cleanSlug = safeDecodeURIComponent(rawDecoded).toLowerCase().trim();
         const stripped = toSlugVi(cleanSlug.replace(/-\d+$/, ''));
         if (stripped) {
           const parts = stripped.split('-').filter(Boolean);
@@ -2798,7 +2872,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   }
 
   async function lookupHanViet(slug) {
-    const clean = decodeURIComponent(slug).trim().toLowerCase();
+    const clean = safeDecodeURIComponent(slug).trim().toLowerCase();
     const cleanAscii = toSlugVi(clean);
     for (let i = 1; i <= 7; i++) {
       const num = String(i).padStart(2, '0');
@@ -3193,7 +3267,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
   async function loadTestPaperById(paperId, fallbackLevel = 1) {
     if (!paperId || paperId === 'undefined') paperId = `hsk30-${fallbackLevel || 1}`;
-    const cleanId = decodeURIComponent(paperId).replace(/\.json$/i, '');
+    const cleanId = safeDecodeURIComponent(paperId).replace(/\.json$/i, '');
     if (/^yct-/i.test(cleanId)) {
       const yctPaper = await buildYctTestPaper(cleanId, fallbackLevel);
       if (yctPaper) return yctPaper;
@@ -3575,7 +3649,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
 
       if (p === '/v1/library' || p.startsWith('/v1/library/')) {
-        const libraryId = decodeURIComponent(p.slice('/v1/library/'.length));
+        const libraryId = safeDecodeURIComponent(p.slice('/v1/library/'.length));
         if (p === '/v1/library' && method === 'GET') {
           const skip = Math.max(0, Number(urlObj.searchParams.get('skip')) || 0);
           const annotations = store.library.slice(skip, skip + limit);
@@ -3691,7 +3765,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           }
           return commit({ ok: true, imported, worksheets: store.worksheets });
         }
-        const worksheetId = decodeURIComponent(p.slice('/v1/user-worksheets/'.length));
+        const worksheetId = safeDecodeURIComponent(p.slice('/v1/user-worksheets/'.length));
         const worksheet = store.worksheets.find(item => item._id === worksheetId);
         if (!worksheet) return error('not_found', 404);
         if (method === 'GET') return jsonResponse(worksheet);
@@ -3708,7 +3782,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           const testId = urlObj.searchParams.get('testId');
           return jsonResponse(paginate(store.examNotes.filter(item => !testId || item.testId === testId)));
         }
-        const noteId = decodeURIComponent(p.slice('/v1/hsk-note-sets/'.length));
+        const noteId = safeDecodeURIComponent(p.slice('/v1/hsk-note-sets/'.length));
         let entry = store.examNotes.find(item => item.id === noteId);
         if (p === '/v1/hsk-note-sets' && method === 'POST') entry = store.examNotes.find(item => item.testId === body.testId);
         if (p !== '/v1/hsk-note-sets' && !entry) return error('not_found', 404);
@@ -4339,7 +4413,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
         let pageWord = null;
         try {
-          const curPath = decodeURIComponent(window.location.pathname || '');
+          const curPath = safeDecodeURIComponent(window.location.pathname || '');
           const mVocab = curPath.match(/^\/(tu-vung|han-tu)\/([^/?#]+)/);
           if (mVocab && mVocab[2]) {
             pageWord = mVocab[1] === 'han-tu' ? await lookupCharacter(mVocab[2]) : await lookupWord(mVocab[2]);
@@ -4837,7 +4911,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const track = parts[2] || 'hsk30';
       const sub = parts[3] || '';
       if (sub === 'activities' && parts[5] === 'runs') {
-        const activityKey = decodeURIComponent(parts[4] || 'hsk30.L1.P1.learn.1');
+        const activityKey = safeDecodeURIComponent(parts[4] || 'hsk30.L1.P1.learn.1');
         localStorage.setItem('httq_current_lesson_id', activityKey);
         const stgMatch = activityKey.match(/^([a-z0-9-]+\.[A-Z]\d+\.[A-Z]\d+)/i);
         if (stgMatch && stgMatch[1]) {
@@ -4881,7 +4955,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         });
       }
       if (sub === 'stage-talks') {
-        const stageKey = decodeURIComponent(parts[4] || 'hsk30.L1.P1');
+        const stageKey = safeDecodeURIComponent(parts[4] || 'hsk30.L1.P1');
         const action = parts[5] || '';
         const subAction = parts[6] || '';
         // Resolve real stage title & vocabulary dynamically for stageKey
@@ -5065,7 +5139,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         });
       }
       if (sub === 'chapters') {
-        const chapterKey = decodeURIComponent(parts[4] || 'hsk30.L1.C00');
+        const chapterKey = safeDecodeURIComponent(parts[4] || 'hsk30.L1.C00');
         const normKey = chapterKey.replace(/\.C(\d)$/, '.C0$1');
         let chData =
           (await loadLocalJson(`/data/learning-tracks/chapters/${normKey}.json`)) ||
@@ -5210,7 +5284,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         stepStatuses = { ...stepStatuses, ...localSteps };
       } catch (_) {}
       if (p.startsWith('/v2/today/session/steps/') && method === 'POST') {
-        const stepId = decodeURIComponent(p.replace('/v2/today/session/steps/', ''));
+        const stepId = safeDecodeURIComponent(p.replace('/v2/today/session/steps/', ''));
         const body = await parseRequestBody(init);
         if (stepId && body && body.status) {
           stepStatuses[stepId] = body.status;
@@ -5339,15 +5413,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
         try { localStorage.setItem('httq_last_review_mode', targetRunId); } catch (_) {}
       } else if (p.startsWith('/v2/lessons/') && p.endsWith('/runs')) {
-        targetRunId = decodeURIComponent(p.slice('/v2/lessons/'.length, -'/runs'.length)) || 'hsk30.L1.P1.learn.1';
+        targetRunId = safeDecodeURIComponent(p.slice('/v2/lessons/'.length, -'/runs'.length)) || 'hsk30.L1.P1.learn.1';
         if (targetRunId === 'bai-1-hello-ai-xiaoyu') targetRunId = 'hsk30.L1.P1.learn.1';
         localStorage.setItem('httq_current_lesson_id', targetRunId);
       } else if (p.startsWith('/v2/stages/') && p.endsWith('/test-out-runs')) {
-        const stg = decodeURIComponent(p.slice('/v2/stages/'.length, -'/test-out-runs'.length));
+        const stg = safeDecodeURIComponent(p.slice('/v2/stages/'.length, -'/test-out-runs'.length));
         targetRunId = `${stg}.exam`;
         localStorage.setItem('httq_current_lesson_id', targetRunId);
       } else if (p.startsWith('/v2/lesson-runs/')) {
-        targetRunId = decodeURIComponent(p.slice('/v2/lesson-runs/'.length).split('/')[0]) || 'hsk30.L1.P1.learn.1';
+        targetRunId = safeDecodeURIComponent(p.slice('/v2/lesson-runs/'.length).split('/')[0]) || 'hsk30.L1.P1.learn.1';
       }
       setTimeout(() => {
         try {
@@ -5367,7 +5441,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
     }
     if (p.startsWith('/v2/dictionary/entries/')) {
-      const slug = decodeURIComponent(p.replace('/v2/dictionary/entries/', ''));
+      const slug = safeDecodeURIComponent(p.replace('/v2/dictionary/entries/', ''));
       const cleanHz = extractHanziWord(slug) || slug;
       const w = await lookupWord(slug);
       const rawAudio =
@@ -5939,7 +6013,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ deId: 'hsk30-1', id: 'hsk30-1', testId: 'hsk30-1', examType: 'hsk', level: 1, questionCount: 40, repeatedLevels: [], questions: [] });
     }
     if (p.startsWith('/v1/generated-tests/') && method === 'GET') {
-      const deId = decodeURIComponent(p.slice('/v1/generated-tests/'.length).split('/')[0] || 'hsk30-1');
+      const deId = safeDecodeURIComponent(p.slice('/v1/generated-tests/'.length).split('/')[0] || 'hsk30-1');
       const safeId = deId === 'undefined' ? 'hsk30-1' : deId;
       const paper = await loadTestPaperById(safeId);
       return jsonResponse({ ...(paper || {}), deId: safeId, id: safeId, testId: safeId });
@@ -5949,7 +6023,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const examType = (urlObj.searchParams.get('examType') || urlObj.searchParams.get('family') || 'hsk').toLowerCase();
       if (subParts.length >= 2) {
         const lvl = subParts[0];
-        const tid = decodeURIComponent(subParts[1]);
+        const tid = safeDecodeURIComponent(subParts[1]);
         const paper = await loadTestPaperById(tid, lvl);
         return jsonResponse(paper || {});
       }
@@ -5963,7 +6037,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse(data || []);
     }
     if (p.includes('/v1/hsk-tests/papers/') && method === 'GET') {
-      const paperId = decodeURIComponent(p.split('/v1/hsk-tests/papers/')[1].split('/')[0]);
+      const paperId = safeDecodeURIComponent(p.split('/v1/hsk-tests/papers/')[1].split('/')[0]);
       const data = await loadTestPaperById(paperId === 'undefined' ? 'hsk30-1' : paperId);
       return jsonResponse(data || {});
     }
@@ -5982,7 +6056,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     // G. VIDEO NGHE CHÉP CHÍNH TẢ (/v1/dictation/*)
     // ------------------------------------------------------------------------
     if (p.includes('/v1/dictation/videos/') && p.endsWith('/segments')) {
-      const id = decodeURIComponent(p.split('/v1/dictation/videos/')[1].replace('/segments', ''));
+      const id = safeDecodeURIComponent(p.split('/v1/dictation/videos/')[1].replace('/segments', ''));
       let data = await loadLocalJson(`/data/dictation/videos/${id}-segments.json`);
       if (!data) {
         const all = (await loadLocalJson('/data/dictation/videos-all.json')) || [];
@@ -5995,7 +6069,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ ...(data || {}), items, segments: items });
     }
     if (p.includes('/v1/dictation/videos/') && method === 'GET') {
-      const id = decodeURIComponent(p.split('/v1/dictation/videos/')[1].split('/')[0]);
+      const id = safeDecodeURIComponent(p.split('/v1/dictation/videos/')[1].split('/')[0]);
       const all = (await loadLocalJson('/data/dictation/videos-all.json')) || [];
       const video = all.find(v => v.id === id || v._id === id || v.slug === id || v.slugVi === id || toSlugVi(v.title || v.titleVi) === id) || all[0] || {};
       const realId = video.id || video._id || id;
@@ -6017,7 +6091,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await ensureInitialCloudPull();
       const prog = getRealProgress();
       const set = new Set(Array.isArray(prog.learnedGrammarIds) ? prog.learnedGrammarIds : []);
-      const pathId = p.length > '/v1/grammar-progress/'.length ? decodeURIComponent(p.slice('/v1/grammar-progress/'.length)) : '';
+      const pathId = p.length > '/v1/grammar-progress/'.length ? safeDecodeURIComponent(p.slice('/v1/grammar-progress/'.length)) : '';
       if (method === 'POST') {
         const body = pathId ? null : await parseRequestBody(init);
         const gid = (pathId || (body && (body.grammarId || body.id)) || '').trim();
@@ -6090,7 +6164,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
     }
     if (p.startsWith('/v1/grammar/levels/')) {
-      const lvl = decodeURIComponent(p.slice('/v1/grammar/levels/'.length).split('/')[0] || '1');
+      const lvl = safeDecodeURIComponent(p.slice('/v1/grammar/levels/'.length).split('/')[0] || '1');
       const curr = urlObj.searchParams.get('curriculum') || 'hsk';
       const prefix = curr === 'new-hsk' ? 'new-hsk-level-' : 'hsk-level-';
       let data = await loadLocalJson(`/data/grammar/${prefix}${lvl}.json`);
@@ -6133,7 +6207,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const sourceType = listenSetMatch ? listenSetMatch[1] : 'lessons';
       const curr = listenSetMatch ? listenSetMatch[2] : (urlObj.searchParams.get('curriculum') || 'new-hsk');
       const levelSlug = listenSetMatch ? listenSetMatch[3] : (urlObj.searchParams.get('levelSlug') || 'new-hsk-1');
-      const sourceSlug = listenSetMatch ? decodeURIComponent(listenSetMatch[4]) : 'bai-1-hello-ai-xiaoyu';
+      const sourceSlug = listenSetMatch ? safeDecodeURIComponent(listenSetMatch[4]) : 'bai-1-hello-ai-xiaoyu';
 
       let detail = await loadLocalJson(`/data/curriculums/${curr}/${sourceType}/${levelSlug}--${sourceSlug}.json`);
       if (!detail) {
@@ -6322,7 +6396,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (speakDiagMatch) {
       const curr = speakDiagMatch[1];
       const levelSlug = speakDiagMatch[2];
-      const topicSlug = speakDiagMatch[3] ? decodeURIComponent(speakDiagMatch[3]) : '';
+      const topicSlug = speakDiagMatch[3] ? safeDecodeURIComponent(speakDiagMatch[3]) : '';
       if (!topicSlug) {
         const listData = await loadLocalJson(`/data/speaking/${curr}/${levelSlug}/dialogues.json`);
         if (listData && Array.isArray(listData.dialogues) && listData.dialogues.length > 0) {
@@ -6499,7 +6573,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ mnemonics: [], items: [], total: 0 });
     }
     if (p.endsWith('/graph')) {
-      const slug = decodeURIComponent(p.split('/').slice(-2, -1)[0] || '');
+      const slug = safeDecodeURIComponent(p.split('/').slice(-2, -1)[0] || '');
       const charData = await lookupCharacter(slug);
       return jsonResponse({
         character: (charData && charData.character) || extractHanziChar(slug),
@@ -6512,7 +6586,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (p.startsWith('/v1/hanzi-characters/browse/')) {
       const subParts = p.slice('/v1/hanzi-characters/browse/'.length).split('/').filter(Boolean);
       const browseType = subParts[0] || 'hsk';
-      const browseVal = decodeURIComponent(subParts[1] || '1');
+      const browseVal = safeDecodeURIComponent(subParts[1] || '1');
       const index = (await loadLocalJson('/data/characters/index.json')) || [];
       let filtered = Array.isArray(index) ? index : [];
       if (browseType === 'hsk') {
@@ -6570,7 +6644,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return jsonResponse({ items: matches, characters: matches, total: matches.length });
     }
     if (p.startsWith('/v1/hanzi-characters/')) {
-      const rawChars = decodeURIComponent(p.slice('/v1/hanzi-characters/'.length));
+      const rawChars = safeDecodeURIComponent(p.slice('/v1/hanzi-characters/'.length));
       const charList = rawChars.split(',').map(s => s.trim()).filter(Boolean);
       const index = (await loadLocalJson('/data/characters/index.json')) || [];
       const results = [];
@@ -6956,7 +7030,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           supabaseUpsert(st).catch(() => {});
         }
       } else if (method === 'DELETE') {
-        const rawLast = decodeURIComponent(p.split('/').pop() || '');
+        const rawLast = safeDecodeURIComponent(p.split('/').pop() || '');
         const body = rawLast === 'notebook' || rawLast === 'bookmarks' || rawLast === 'saved' ? await parseRequestBody(init) : {};
         const key = String(body.word || body.hanzi || body.character || rawLast || '').trim();
         if (key) {
@@ -7147,6 +7221,92 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           : `Bạn đã hoàn thành bài luyện tập với ${score}%. Hãy ôn lại các từ vựng vừa nhầm lẫn để ghi nhớ sâu hơn nhé!`,
         summary: 'Đã lưu kết quả luyện tập vào hồ sơ học tập.'
       });
+    }
+
+    // 4.19 Lightweight telemetry endpoint (local session buffer, zero external tracking)
+    if (p === '/v1/metrics/event' && method === 'POST') {
+      const body = await parseRequestBody(init);
+      try {
+        const bufRaw = sessionStorage.getItem('httq_metrics_buf_v1');
+        const buf = bufRaw ? JSON.parse(bufRaw) : [];
+        const arr = Array.isArray(buf) ? buf : [];
+        arr.push({
+          event: String(body.event || body.name || 'page_view').slice(0, 80),
+          path: String(body.path || window.location.pathname || '/').slice(0, 160),
+          ts: Date.now()
+        });
+        sessionStorage.setItem('httq_metrics_buf_v1', JSON.stringify(arr.slice(-30)));
+      } catch (_) {}
+      return jsonResponse({ ok: true, recorded: true });
+    }
+
+    // 4.20 Personal Character & Vocab Mnemonics (/v1/ugc/mnemonic)
+    if (p === '/v1/ugc/mnemonic' || p.startsWith('/v1/ugc/mnemonic/')) {
+      const body = method === 'GET' ? {} : await parseRequestBody(init);
+      const MNEMONIC_KEY = 'httq_user_mnemonics_v1';
+      const readMnemonicMap = () => {
+        try {
+          const raw = localStorage.getItem(MNEMONIC_KEY);
+          const parsed = raw ? JSON.parse(raw) : {};
+          return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {};
+        } catch (_) {
+          return {};
+        }
+      };
+      const writeMnemonicMap = (map) => {
+        try { localStorage.setItem(MNEMONIC_KEY, JSON.stringify(map)); } catch (_) {}
+      };
+      const target = String(urlObj.searchParams.get('target') || urlObj.searchParams.get('hanzi') || urlObj.searchParams.get('character') || body.target || body.hanzi || body.character || '').trim();
+
+      if (method === 'GET') {
+        const map = readMnemonicMap();
+        const items = target
+          ? (Array.isArray(map[target]) ? map[target] : [])
+          : Object.keys(map).flatMap(k => Array.isArray(map[k]) ? map[k] : []);
+        return jsonResponse({ ok: true, target, items, total: items.length });
+      }
+
+      if ((p === '/v1/ugc/mnemonic/vote' || /^\/v1\/ugc\/mnemonic\/[^/]+\/vote$/.test(p)) && method === 'POST') {
+        const mVote = p.match(/^\/v1\/ugc\/mnemonic\/([^/]+)\/vote$/);
+        const voteId = String(body.id || (mVote ? safeDecodeURIComponent(mVote[1]) : '') || '').trim();
+        const map = readMnemonicMap();
+        const keysToScan = target && Array.isArray(map[target]) ? [target] : Object.keys(map);
+        let foundItem = null;
+        let foundList = [];
+        for (const k of keysToScan) {
+          const list = Array.isArray(map[k]) ? map[k] : [];
+          const hit = list.find(x => x && x.id === voteId);
+          if (hit) {
+            const delta = Number(body.delta) === -1 ? -1 : 1;
+            hit.votes = Math.max(0, (Number(hit.votes) || 0) + delta);
+            foundItem = hit;
+            foundList = list;
+            break;
+          }
+        }
+        if (!foundItem) return jsonResponse({ ok: false, error: 'Không tìm thấy ghi chú.' }, 404);
+        writeMnemonicMap(map);
+        return jsonResponse({ ok: true, id: voteId, votes: foundItem.votes, items: foundList });
+      }
+
+      if (p === '/v1/ugc/mnemonic' && method === 'POST') {
+        const note = String(body.note || body.content || body.text || '').trim();
+        if (!target || note.length < 2 || note.length > 280) {
+          return jsonResponse({ ok: false, error: 'Vui lòng nhập ghi chú từ 2 đến 280 ký tự.' }, 400);
+        }
+        const map = readMnemonicMap();
+        const existing = Array.isArray(map[target]) ? map[target] : [];
+        const item = {
+          id: 'mn-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 6),
+          target,
+          note,
+          votes: 1,
+          updatedAt: new Date().toISOString()
+        };
+        map[target] = [item, ...existing].slice(0, 10);
+        writeMnemonicMap(map);
+        return jsonResponse({ ok: true, item, items: map[target] });
+      }
     }
 
     return jsonResponse({ ok: true, items: [], data: null });
@@ -7467,7 +7627,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       try {
         const m = String(audioUrl).match(/\/word_audios\/([^/?#]+)\.mp3$/i);
         if (m) {
-          const decodedStem = decodeURIComponent(m[1]).replace(/[^\u4e00-\u9fff]/g, '');
+          const decodedStem = safeDecodeURIComponent(m[1]).replace(/[^\u4e00-\u9fff]/g, '');
           if (decodedStem.length < 2) isMissingSingleCharMp3 = true;
         }
       } catch (_) {}
@@ -7544,7 +7704,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu chữ Hán...</div>`;
     const data = await lookupCharacter(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chữ Hán cho "${escapeHtml(decodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;margin-left:8px;">Quay lại Từ điển</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy chữ Hán cho "${escapeHtml(safeDecodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;margin-left:8px;">Quay lại Từ điển</a></div>`;
       return;
     }
     const ch = data.character || data.c || extractHanziChar(slug);
@@ -7569,40 +7729,40 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
         <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;border-right:1px solid #f5f5f4;padding:16px;">
           <div id="xhz-hanzi-writer-target" style="width:200px;height:200px;background:#fafaf9;border:2px dashed #d6d3d1;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:110px;font-family:'Noto Serif SC',serif;color:#1c1917;">
-            ${ch}
+            ${escapeHtml(ch)}
           </div>
           <div style="display:flex;gap:10px;margin-top:14px;flex-wrap:wrap;justify-content:center;">
-            <button id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
-            <button id="xhz-btn-animate" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">✍️ Xem thứ tự nét</button>
-            <button id="xhz-btn-quiz-stroke" style="padding:8px 16px;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:600;cursor:pointer;">🎯 Tập viết chữ</button>
-            <button id="xhz-btn-save-notebook" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">⭐ Lưu vào Sổ tay</button>
+            <button type="button" id="xhz-btn-speak" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:600;cursor:pointer;">🔊 Phát âm</button>
+            <button type="button" id="xhz-btn-animate" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">✍️ Xem thứ tự nét</button>
+            <button type="button" id="xhz-btn-quiz-stroke" style="padding:8px 16px;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:600;cursor:pointer;">🎯 Tập viết chữ</button>
+            <button type="button" id="xhz-btn-save-notebook" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">⭐ Lưu vào Sổ tay</button>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <span style="font-size:36px;font-weight:800;color:#1c1917;">${ch}</span>
-            <span style="font-size:22px;color:#0d9488;font-weight:700;">[${pinyin}]</span>
-            ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">Hán Việt: ${hanviet}</span>` : ''}
-            ${hsk ? `<span style="padding:4px 10px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:600;font-size:13px;">HSK ${hsk}</span>` : ''}
+            <span style="font-size:36px;font-weight:800;color:#1c1917;">${escapeHtml(ch)}</span>
+            <span style="font-size:22px;color:#0d9488;font-weight:700;">[${escapeHtml(pinyin)}]</span>
+            ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">Hán Việt: ${escapeHtml(hanviet)}</span>` : ''}
+            ${hsk ? `<span style="padding:4px 10px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:600;font-size:13px;">HSK ${escapeHtml(hsk)}</span>` : ''}
           </div>
           <div style="font-size:18px;color:#292524;line-height:1.6;">
-            <strong>Nghĩa tiếng Việt:</strong> ${meaning || 'Đang cập nhật'}
+            <strong>Nghĩa tiếng Việt:</strong> ${escapeHtml(meaning || 'Đang cập nhật')}
           </div>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:8px;">
             <div style="background:#fafaf9;padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;">
               <div style="font-size:12px;color:#78716c;">Bộ thủ</div>
-              <div style="font-size:18px;font-weight:700;color:#1c1917;">${radical || '—'}</div>
+              <div style="font-size:18px;font-weight:700;color:#1c1917;">${escapeHtml(radical || '—')}</div>
             </div>
             <div style="background:#fafaf9;padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;">
               <div style="font-size:12px;color:#78716c;">Số nét</div>
-              <div style="font-size:18px;font-weight:700;color:#1c1917;">${strokes || '—'} nét</div>
+              <div style="font-size:18px;font-weight:700;color:#1c1917;">${escapeHtml(strokes || '—')} nét</div>
             </div>
             <div style="background:#fafaf9;padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;">
               <div style="font-size:12px;color:#78716c;">Cấu trúc</div>
-              <div style="font-size:16px;font-weight:700;color:#1c1917;">${decomposition || 'Đơn thể / Hợp thể'}</div>
+              <div style="font-size:16px;font-weight:700;color:#1c1917;">${escapeHtml(decomposition || 'Đơn thể / Hợp thể')}</div>
             </div>
           </div>
-          ${etymology ? `<div style="margin-top:8px;padding:12px 16px;background:#fffbeb;border-left:4px solid #f59e0b;border-radius:8px;color:#78350f;font-size:15px;">💡 <strong>Gợi ý ghi nhớ / Nguồn gốc:</strong> ${etymology}</div>` : ''}
+          ${etymology ? `<div style="margin-top:8px;padding:12px 16px;background:#fffbeb;border-left:4px solid #f59e0b;border-radius:8px;color:#78350f;font-size:15px;">💡 <strong>Gợi ý ghi nhớ / Nguồn gốc:</strong> ${escapeHtml(etymology)}</div>` : ''}
         </div>
       </div>
 
@@ -7613,14 +7773,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           ${components.map(c => {
             const compChar = typeof c === 'string' ? c : (c.character || c.component || '');
             const compMean = typeof c === 'object' ? (c.meaningVi || c.pinyin || '') : '';
-            return `<a href="/han-tu/${encodeURIComponent(compChar)}" style="padding:10px 16px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-weight:600;">${compChar} ${compMean ? `<span style="color:#78716c;font-weight:400;">(${compMean})</span>` : ''}</a>`;
+            return `<a href="/han-tu/${encodeURIComponent(compChar)}" style="padding:10px 16px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-weight:600;">${escapeHtml(compChar)} ${compMean ? `<span style="color:#78716c;font-weight:400;">(${escapeHtml(compMean)})</span>` : ''}</a>`;
           }).join('')}
         </div>
       </div>` : ''}
 
       ${commonWords.length > 0 ? `
       <div style="margin-top:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:20px;">
-        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px;color:#1c1917;">📚 Từ ghép thông dụng chứa "${ch}" (${commonWords.length})</h3>
+        <h3 style="font-size:18px;font-weight:700;margin-bottom:12px;color:#1c1917;">📚 Từ ghép thông dụng chứa "${escapeHtml(ch)}" (${commonWords.length})</h3>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px;">
           ${commonWords.slice(0, 24).map(w => {
             const wHz = w.word || w.hanzi || '';
@@ -7628,14 +7788,26 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             const wMean = w.meaningVi || w.meaning || '';
             return `<a href="/tu-vung/${encodeURIComponent(wHz)}" style="display:block;padding:12px 16px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
               <div style="display:flex;justify-content:space-between;align-items:center;">
-                <span style="font-size:20px;font-weight:700;color:#1c1917;">${wHz}</span>
-                <span style="font-size:14px;color:#0d9488;font-weight:600;">${wPy}</span>
+                <span style="font-size:20px;font-weight:700;color:#1c1917;">${escapeHtml(wHz)}</span>
+                <span style="font-size:14px;color:#0d9488;font-weight:600;">${escapeHtml(wPy)}</span>
               </div>
-              <div style="font-size:14px;color:#57534e;margin-top:4px;">${wMean}</div>
+              <div style="font-size:14px;color:#57534e;margin-top:4px;">${escapeHtml(wMean)}</div>
             </a>`;
           }).join('')}
         </div>
       </div>` : ''}
+
+      <div id="xhz-char-mnemonic-section" style="margin-top:24px;background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+          <h3 style="font-size:18px;font-weight:700;margin:0;color:#1c1917;">📝 Ghi chú ghi nhớ cá nhân cho "${escapeHtml(ch)}"</h3>
+          <span style="font-size:12px;color:#0d9488;font-weight:700;">Lưu riêng theo tài khoản</span>
+        </div>
+        <form id="xhz-mnemonic-form" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
+          <input id="xhz-mnemonic-input" type="text" maxlength="280" placeholder="Nhập mẹo nhớ chiết tự hoặc câu chuyện cho chữ ${escapeHtml(ch)}..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-size:14px;" />
+          <button type="submit" style="padding:10px 18px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">Lưu mẹo nhớ</button>
+        </form>
+        <div id="xhz-mnemonic-list" style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#44403c;">Chưa có ghi chú nào. Hãy thêm mẹo nhớ đầu tiên của bạn!</div>
+      </div>
     `;
 
     const speakBtn = document.getElementById('xhz-btn-speak');
@@ -7645,6 +7817,69 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       isChar: true,
       meta: { pinyin, hanviet, meaningVi: meaning }
     });
+
+    const mnemonicForm = document.getElementById('xhz-mnemonic-form');
+    const mnemonicInp = document.getElementById('xhz-mnemonic-input');
+    const mnemonicList = document.getElementById('xhz-mnemonic-list');
+    const renderMnemonicList = (items) => {
+      if (!mnemonicList) return;
+      const arr = Array.isArray(items) ? items : [];
+      if (arr.length === 0) {
+        mnemonicList.innerHTML = '<div style="opacity:.72;font-size:13.5px;">Chưa có ghi chú nào cho chữ này. Hãy thêm mẹo nhớ để ôn tập nhanh hơn!</div>';
+        return;
+      }
+      mnemonicList.innerHTML = arr.map(it =>
+        `<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px 14px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;">` +
+          `<div style="flex:1;min-width:0;word-break:break-word;line-height:1.45;">${escapeHtml(it.note || '')}</div>` +
+          `<button type="button" data-mn-vote="${escapeHtml(it.id || '')}" aria-label="Thích ghi chú" style="border:1px solid #d6d3d1;background:#fff;color:#4338ca;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;">👍 ${Number(it.votes) || 1}</button>` +
+        `</div>`
+      ).join('');
+    };
+    if (mnemonicList) {
+      mnemonicList.addEventListener('click', async ev => {
+        const btn = ev.target && ev.target.closest ? ev.target.closest('[data-mn-vote]') : null;
+        if (!btn) return;
+        const vid = btn.getAttribute('data-mn-vote') || '';
+        if (!vid) return;
+        try {
+          const r = await (await fetch('/v1/ugc/mnemonic/vote', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target: ch, id: vid })
+          })).json();
+          if (r && r.ok && Array.isArray(r.items)) renderMnemonicList(r.items);
+        } catch (_) {}
+      });
+      fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent(ch))
+        .then(r => r.json())
+        .then(d => { if (d && Array.isArray(d.items)) renderMnemonicList(d.items); })
+        .catch(() => {});
+    }
+    if (mnemonicForm && mnemonicInp) {
+      mnemonicForm.addEventListener('submit', async ev => {
+        ev.preventDefault();
+        const note = String(mnemonicInp.value || '').trim();
+        if (note.length < 2) {
+          HTQ_STUDIO_FX.toast('Vui lòng nhập mẹo nhớ dài ít nhất 2 ký tự.', 'warn');
+          mnemonicInp.focus();
+          return;
+        }
+        try {
+          const res = await (await fetch('/v1/ugc/mnemonic', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ target: ch, note })
+          })).json();
+          if (res && res.ok) {
+            mnemonicInp.value = '';
+            renderMnemonicList(res.items);
+            HTQ_STUDIO_FX.toast('✨ Đã lưu mẹo nhớ cho chữ ' + ch + '!', 'success');
+          } else {
+            HTQ_STUDIO_FX.toast((res && res.error) || 'Không thể lưu ghi chú.', 'warn');
+          }
+        } catch (_) {}
+      });
+    }
 
     const initWriter = () => {
       if (!window.HanziWriter) return;
@@ -7685,10 +7920,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu từ vựng...</div>`;
     const data = await lookupWord(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy từ vựng "${escapeHtml(decodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;">Quay lại Từ điển</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy từ vựng "${escapeHtml(safeDecodeURIComponent(slug))}". <a href="/tra-chu" style="text-decoration:underline;">Quay lại Từ điển</a></div>`;
       return;
     }
-    const word = data.word || data.hanzi || decodeURIComponent(slug);
+    const word = data.word || data.hanzi || safeDecodeURIComponent(slug);
     const pinyin = data.wordPinyin || (Array.isArray(data.pinyins) && data.pinyins.join(', ')) || data.pinyin || '';
     const hanviet = data.hanViet || data.hanviet || '';
     const meaning =
@@ -7719,27 +7954,27 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;">
           <div>
             <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
-              <h1 style="font-size:44px;font-weight:800;margin:0;color:#1c1917;font-family:'Noto Serif SC',serif;">${word}</h1>
-              ${pinyin ? `<span style="font-size:24px;color:#0d9488;font-weight:700;">[${pinyin}]</span>` : ''}
-              ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">${hanviet}</span>` : ''}
-              ${pos ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-weight:700;font-size:13px;">${pos}</span>` : ''}
-              ${hsk ? `<span style="padding:4px 12px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${hsk}</span>` : ''}
+              <h1 style="font-size:44px;font-weight:800;margin:0;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(word)}</h1>
+              ${pinyin ? `<span style="font-size:24px;color:#0d9488;font-weight:700;">[${escapeHtml(pinyin)}]</span>` : ''}
+              ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">${escapeHtml(hanviet)}</span>` : ''}
+              ${pos ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-weight:700;font-size:13px;">${escapeHtml(pos)}</span>` : ''}
+              ${hsk ? `<span style="padding:4px 12px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${escapeHtml(hsk)}</span>` : ''}
             </div>
             <div style="font-size:20px;color:#292524;margin-top:12px;line-height:1.5;">
-              <strong>Nghĩa:</strong> ${meaning || 'Đang cập nhật'}
+              <strong>Nghĩa:</strong> ${escapeHtml(meaning || 'Đang cập nhật')}
             </div>
-            ${usageNote ? `<div style="margin-top:10px;padding:10px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;">💡 <strong>Cách dùng:</strong> ${usageNote}</div>` : ''}
+            ${usageNote ? `<div style="margin-top:10px;padding:10px 14px;border-radius:10px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;">💡 <strong>Cách dùng:</strong> ${escapeHtml(usageNote)}</div>` : ''}
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-            <button id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
-            <button id="xhz-btn-save-notebook" style="padding:10px 18px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:14px;">⭐ Lưu vào Sổ tay</button>
+            <button type="button" id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
+            <button type="button" id="xhz-btn-save-notebook" style="padding:10px 18px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:14px;">⭐ Lưu vào Sổ tay</button>
           </div>
         </div>
 
         <div style="margin-top:20px;padding-top:16px;border-top:1px solid #f5f5f4;">
           <h3 style="font-size:16px;font-weight:700;color:#57534e;margin-bottom:10px;">Chiết tự từng chữ Hán:</h3>
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
-            ${chars.map(c => `<a href="/han-tu/${encodeURIComponent(c)}" style="padding:10px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;text-decoration:none;color:#1c1917;font-weight:700;font-size:20px;">${c} → Xem nét viết</a>`).join('')}
+            ${chars.map(c => `<a href="/han-tu/${encodeURIComponent(c)}" style="padding:10px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;text-decoration:none;color:#1c1917;font-weight:700;font-size:20px;">${escapeHtml(c)} → Xem nét viết</a>`).join('')}
           </div>
         </div>
 
@@ -7753,10 +7988,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               const cwVi = cw.meaningVi || cw.meaning || '';
               return `<a href="/tu-vung/${encodeURIComponent(cwHz)}" style="padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:18px;font-weight:800;font-family:'Noto Serif SC',serif;">${cwHz}</span>
-                  <span style="font-size:13px;color:#0d9488;font-weight:700;">${cwPy}</span>
+                  <span style="font-size:18px;font-weight:800;font-family:'Noto Serif SC',serif;">${escapeHtml(cwHz)}</span>
+                  <span style="font-size:13px;color:#0d9488;font-weight:700;">${escapeHtml(cwPy)}</span>
                 </div>
-                <div style="font-size:13px;color:#57534e;margin-top:4px;">${cwVi}</div>
+                <div style="font-size:13px;color:#57534e;margin-top:4px;">${escapeHtml(cwVi)}</div>
               </a>`;
             }).join('')}
           </div>
@@ -7772,11 +8007,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               const vi = ex.vietnamese || ex.meaningVi || ex.vi || '';
               return `<div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
-                  <div style="font-size:18px;font-weight:700;color:#1c1917;">${zh}</div>
-                  <div style="font-size:14px;color:#0d9488;margin-top:2px;">${py}</div>
-                  <div style="font-size:15px;color:#44403c;margin-top:4px;">${vi}</div>
+                  <div style="font-size:18px;font-weight:700;color:#1c1917;">${escapeHtml(zh)}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:2px;">${escapeHtml(py)}</div>
+                  <div style="font-size:15px;color:#44403c;margin-top:4px;">${escapeHtml(vi)}</div>
                 </div>
-                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
+                <button type="button" data-xhz-play="${escapeHtml(zh)}" aria-label="Nghe phát âm" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe</button>
               </div>`;
             }).join('')}
           </div>
@@ -7820,7 +8055,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         : normalizedList.slice(0, 300);
       grid.innerHTML = filtered.map(item => `
         <a href="/han-viet/${encodeURIComponent(item.slug)}" style="display:flex;justify-content:space-between;align-items:center;padding:10px 14px;border-radius:10px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-weight:700;">
-          <span style="text-transform:capitalize;">${item.reading}</span>
+          <span style="text-transform:capitalize;">${escapeHtml(item.reading)}</span>
           <span style="font-size:12px;color:#0d9488;">→</span>
         </a>
       `).join('');
@@ -7834,11 +8069,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải âm Hán Việt...</div>`;
     const data = await lookupHanViet(slug);
     if (!data) {
-      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy âm Hán Việt "${escapeHtml(decodeURIComponent(slug))}". <a href="/han-viet">Xem toàn bộ danh sách</a></div>`;
+      root.innerHTML = `<div style="padding:32px;text-align:center;color:#dc2626;">Không tìm thấy âm Hán Việt "${escapeHtml(safeDecodeURIComponent(slug))}". <a href="/han-viet">Xem toàn bộ danh sách</a></div>`;
       return;
     }
     const groups = Array.isArray(data.groups) ? data.groups : [];
-    const reading = data.reading || (groups[0] && groups[0].reading) || decodeURIComponent(slug).replace(/-/g, ' ');
+    const reading = data.reading || (groups[0] && groups[0].reading) || safeDecodeURIComponent(slug).replace(/-/g, ' ');
     const flatChars = groups.length > 0
       ? groups.flatMap(g => Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []))
       : (Array.isArray(data.characters) ? data.characters : (data.sampleChars || []));
@@ -7849,7 +8084,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <a href="/han-viet" style="color:#0d9488;font-weight:600;text-decoration:none;">← Danh sách Âm Hán Việt</a>
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#0d9488;text-transform:uppercase;">${reading}</span> (${flatChars.length} chữ Hán)</h1>
+        <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">Âm Hán Việt: <span style="color:#0d9488;text-transform:uppercase;">${escapeHtml(reading)}</span> (${flatChars.length} chữ Hán)</h1>
         <p style="color:#57534e;margin:0 0 20px 0;">Nhấn vào bất kỳ chữ Hán nào bên dưới để xem thứ tự nét viết, chiết tự và từ ghép thông dụng.</p>
         ${groups.length > 0 ? groups.map(g => {
           const gChars = Array.isArray(g.chars) ? g.chars : (Array.isArray(g.characters) ? g.characters : []);
@@ -7857,7 +8092,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           return `
           <div style="margin-bottom:24px;">
             <div style="font-size:15px;font-weight:800;color:#115e59;background:#f0fdfa;border:1px solid #99f6e4;display:inline-block;padding:5px 14px;border-radius:999px;margin-bottom:12px;">
-              Âm đọc: ${(g.reading || g.pinyin || reading).toUpperCase()} (${gChars.length} chữ Hán${gWords.length ? ` · ${gWords.length} từ ghép` : ''})
+              Âm đọc: ${escapeHtml((g.reading || g.pinyin || reading).toUpperCase())} (${gChars.length} chữ Hán${gWords.length ? ` · ${gWords.length} từ ghép` : ''})
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;">
               ${gChars.map(c => {
@@ -7866,14 +8101,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 return `
                 <a href="/han-tu/${encodeURIComponent(hz)}" style="padding:14px 16px;border-radius:14px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;display:flex;flex-direction:column;justify-content:space-between;">
                   <div style="display:flex;justify-content:space-between;align-items:center;">
-                    <span style="font-size:34px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</span>
+                    <span style="font-size:34px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(hz)}</span>
                     <div style="text-align:right;">
-                      <div style="color:#0d9488;font-weight:800;font-size:15px;">${c.pinyin || g.pinyin || ''}</div>
-                      ${c.hskLevel ? `<span style="font-size:11px;padding:1px 6px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${c.hskLevel}</span>` : ''}
+                      <div style="color:#0d9488;font-weight:800;font-size:15px;">${escapeHtml(c.pinyin || g.pinyin || '')}</div>
+                      ${c.hskLevel ? `<span style="font-size:11px;padding:1px 6px;border-radius:6px;background:#e0f2fe;color:#0369a1;font-weight:700;">HSK ${escapeHtml(c.hskLevel)}</span>` : ''}
                     </div>
                   </div>
-                  <div style="font-size:14px;color:#292524;margin-top:8px;line-height:1.4;font-weight:600;">${c.meaningVi || c.m || ''}</div>
-                  ${cWords.length > 0 ? `<div style="font-size:12px;color:#78716c;margin-top:6px;">Từ ghép: ${cWords.map(w => `${w.hanzi} (${w.hanviet || w.meaningVi || ''})`).join(', ')}</div>` : ''}
+                  <div style="font-size:14px;color:#292524;margin-top:8px;line-height:1.4;font-weight:600;">${escapeHtml(c.meaningVi || c.m || '')}</div>
+                  ${cWords.length > 0 ? `<div style="font-size:12px;color:#78716c;margin-top:6px;">Từ ghép: ${escapeHtml(cWords.map(w => `${w.hanzi} (${w.hanviet || w.meaningVi || ''})`).join(', '))}</div>` : ''}
                 </a>
               `;
               }).join('')}
@@ -7884,14 +8119,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
             ${flatChars.map(c => {
               if (typeof c === 'string') {
-                return `<a href="/han-tu/${encodeURIComponent(c)}" style="padding:14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-size:24px;font-weight:700;text-align:center;">${c}</a>`;
+                return `<a href="/han-tu/${encodeURIComponent(c)}" style="padding:14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;font-size:24px;font-weight:700;text-align:center;">${escapeHtml(c)}</a>`;
               }
               return `<a href="/han-tu/${encodeURIComponent(c.character || c.c)}" style="padding:14px;border-radius:12px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;">
                 <div style="display:flex;justify-content:space-between;align-items:center;">
-                  <span style="font-size:28px;font-weight:800;color:#1c1917;">${c.character || c.c}</span>
-                  <span style="color:#0d9488;font-weight:700;">${c.pinyin || c.p || ''}</span>
+                  <span style="font-size:28px;font-weight:800;color:#1c1917;">${escapeHtml(c.character || c.c)}</span>
+                  <span style="color:#0d9488;font-weight:700;">${escapeHtml(c.pinyin || c.p || '')}</span>
                 </div>
-                <div style="font-size:14px;color:#57534e;margin-top:6px;">${c.meaningVi || c.m || ''}</div>
+                <div style="font-size:14px;color:#57534e;margin-top:6px;">${escapeHtml(c.meaningVi || c.m || '')}</div>
               </a>`;
             }).join('')}
           </div>
@@ -7906,7 +8141,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   async function renderGrammarDetailPage(levelSlug, pointId) {
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải chủ điểm ngữ pháp...</div>`;
-    const decodedPointId = (() => { try { return decodeURIComponent(pointId || ''); } catch (_) { return String(pointId || ''); } })();
+    const decodedPointId = (() => { try { return safeDecodeURIComponent(pointId || ''); } catch (_) { return String(pointId || ''); } })();
     const lvlNum = (String(levelSlug || '').match(/\d+/) || ['1'])[0];
     const isNew = String(levelSlug || '').includes('new') || /_new_|^new-/.test(decodedPointId);
     const file = isNew ? `/data/grammar/new-hsk-level-${lvlNum}.json` : `/data/grammar/hsk-level-${lvlNum}.json`;
@@ -7940,20 +8175,20 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       </div>
       <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:28px;">
         <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap;">
-          <span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;font-size:13px;">${(item.level || levelSlug).toUpperCase()}</span>
-          ${item.type || item.category ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-size:13px;font-weight:600;">${item.type || item.category}</span>` : ''}
-          ${keywords.map(kw => `<span style="padding:4px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:700;font-size:13px;">Từ khoá: ${kw}</span>`).join('')}
+          <span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;font-size:13px;">${escapeHtml((item.level || levelSlug).toUpperCase())}</span>
+          ${item.type || item.category ? `<span style="padding:4px 12px;border-radius:999px;background:#f5f5f4;color:#57534e;font-size:13px;font-weight:600;">${escapeHtml(item.type || item.category)}</span>` : ''}
+          ${keywords.map(kw => `<span style="padding:4px 10px;border-radius:999px;background:#fef3c7;color:#92400e;font-weight:700;font-size:13px;">Từ khoá: ${escapeHtml(kw)}</span>`).join('')}
         </div>
-        <h1 style="font-size:30px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">${title}</h1>
-        ${syntax ? `<div style="padding:14px 18px;background:#f0fdfa;border-left:4px solid #0d9488;border-radius:10px;font-size:17px;font-weight:700;color:#115e59;margin-bottom:16px;white-space:pre-line;">📐 Cấu trúc:\n${syntax}</div>` : ''}
+        <h1 style="font-size:30px;font-weight:800;color:#1c1917;margin:0 0 14px 0;">${escapeHtml(title)}</h1>
+        ${syntax ? `<div style="padding:14px 18px;background:#f0fdfa;border-left:4px solid #0d9488;border-radius:10px;font-size:17px;font-weight:700;color:#115e59;margin-bottom:16px;white-space:pre-line;">📐 Cấu trúc:\n${escapeHtml(syntax)}</div>` : ''}
         <div style="font-size:16px;line-height:1.75;color:#292524;margin-bottom:20px;white-space:pre-line;">
-          ${explanation}
+          ${escapeHtml(explanation)}
         </div>
         ${tips.length > 0 ? `
           <div style="margin-bottom:18px;padding:14px 18px;border-radius:12px;background:#ecfdf5;border:1px solid #a7f3d0;color:#065f46;">
             <div style="font-weight:800;margin-bottom:6px;">💡 Mẹo ghi nhớ & Cách dùng:</div>
             <ul style="margin:0;padding-left:20px;line-height:1.6;">
-              ${tips.map(t => `<li>${t}</li>`).join('')}
+              ${tips.map(t => `<li>${escapeHtml(t)}</li>`).join('')}
             </ul>
           </div>
         ` : ''}
@@ -7961,7 +8196,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="margin-bottom:18px;padding:14px 18px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;">
             <div style="font-weight:800;margin-bottom:6px;">⚠️ Lưu ý quan trọng:</div>
             <ul style="margin:0;padding-left:20px;line-height:1.6;">
-              ${attentions.map(a => `<li>${a}</li>`).join('')}
+              ${attentions.map(a => `<li>${escapeHtml(a)}</li>`).join('')}
             </ul>
           </div>
         ` : ''}
@@ -7972,11 +8207,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             return `
               <div style="padding:14px 18px;border-radius:12px;background:#fafaf9;border:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
                 <div>
-                  <div style="font-size:19px;font-weight:700;color:#1c1917;">${zh}</div>
-                  <div style="font-size:14px;color:#0d9488;margin-top:3px;">${ex.pinyin || ''}</div>
-                  <div style="font-size:15px;color:#44403c;margin-top:4px;">${ex.vietnamese || ex.meaningVi || ''}</div>
+                  <div style="font-size:19px;font-weight:700;color:#1c1917;">${escapeHtml(zh)}</div>
+                  <div style="font-size:14px;color:#0d9488;margin-top:3px;">${escapeHtml(ex.pinyin || '')}</div>
+                  <div style="font-size:15px;color:#44403c;margin-top:4px;">${escapeHtml(ex.vietnamese || ex.meaningVi || '')}</div>
                 </div>
-                <button onclick="window.__xhzPlayAudio('${zh.replace(/'/g, '')}')" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
+                <button type="button" data-xhz-play="${escapeHtml(zh)}" aria-label="Nghe phát âm" style="padding:6px 14px;border-radius:999px;background:#ccfbf1;color:#115e59;border:1px solid #99f6e4;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu</button>
               </div>
             `;
           }).join('')}
@@ -8088,8 +8323,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               </div>
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <button id="xhz-gq-fullscreen" title="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #bde0dc;background:#ffffff;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
-              <button id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(13,148,136,0.28);">Nộp bài</button>
+              <button type="button" id="xhz-gq-fullscreen" title="Toàn màn hình" aria-label="Toàn màn hình" style="width:36px;height:36px;border-radius:999px;border:1px solid #bde0dc;background:#ffffff;color:#44403c;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:15px;">⤢</button>
+              <button type="button" id="xhz-gq-submit" style="padding:8px 20px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:700;font-size:14px;cursor:pointer;box-shadow:0 2px 8px rgba(13,148,136,0.28);">Nộp bài</button>
             </div>
           </div>
         </div>
@@ -8209,9 +8444,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         card.innerHTML = `
           ${topRowHtml}
           <div style="font-size:20px;font-weight:700;color:#1c1917;margin-top:10px;line-height:1.55;font-family:'Noto Serif SC',system-ui,sans-serif;">
-            ${stemText}<span style="font-weight:600;color:#292524;">${hintText}</span>
+            ${escapeHtml(stemText)}<span style="font-weight:600;color:#292524;">${escapeHtml(hintText)}</span>
           </div>
-          ${q.pinyin || q.stemPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${q.pinyin || q.stemPinyin}</div>` : ''}
+          ${q.pinyin || q.stemPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${escapeHtml(q.pinyin || q.stemPinyin)}</div>` : ''}
           <div class="xhz-gq-opts"></div>
           <div class="xhz-gq-exp" style="display:none;margin-top:14px;padding:12px 16px;border-radius:12px;background:#fffbeb;border:1px solid #fde68a;color:#78350f;font-size:14px;line-height:1.5;"></div>
         `;
@@ -8230,7 +8465,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           btn.className = 'xhz-gq-opt';
           btn.dataset.key = optKey;
           btn.dataset.correct = isThisCorrect ? '1' : '0';
-          btn.innerHTML = `<span class="xhz-gq-opt-letter">${letter}</span><span>${optLabel}</span>`;
+          btn.type = 'button'; btn.innerHTML = `<span class="xhz-gq-opt-letter">${escapeHtml(letter)}</span><span>${escapeHtml(optLabel)}</span>`;
           btn.onclick = () => {
             if (isSubmitted) return;
             currentIdx = idx;
@@ -8245,9 +8480,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         card.innerHTML = `
           ${topRowHtml}
           <div style="font-size:19px;font-weight:700;color:#1c1917;margin-top:10px;line-height:1.55;">
-            ${stemText}
+            ${escapeHtml(stemText)}
           </div>
-          ${q.promptPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${q.promptPinyin}</div>` : ''}
+          ${q.promptPinyin ? `<div style="font-size:13px;color:#78716c;margin-top:2px;">${escapeHtml(q.promptPinyin)}</div>` : ''}
           <div style="margin-top:12px;">
             <input type="text" class="xhz-gq-input" placeholder="Nhập câu dịch của bạn..." style="width:100%;padding:12px 16px;border-radius:12px;border:1px solid #d3eae7;font-size:15px;color:#1c1917;background:#f2fbfa;box-sizing:border-box;" />
           </div>
@@ -8346,11 +8581,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               const rightObj = options.find((o, i) => (typeof o === 'object' ? String(o.id || o.key) === rightAnswerKey : i === q.correctIndex));
               const rightText = typeof rightObj === 'object' ? (rightObj.text || '') : (rightObj || '');
               expEl.style.display = 'block';
-              expEl.innerHTML = `<strong>Đáp án đúng: ${rightAnswerKey}. ${rightText}</strong>${q.explanation ? `<div style="margin-top:4px;">${q.explanation}</div>` : ''}`;
+              expEl.innerHTML = `<strong>Đáp án đúng: ${escapeHtml(rightAnswerKey)}. ${escapeHtml(rightText)}</strong>${q.explanation ? `<div style="margin-top:4px;">${escapeHtml(q.explanation)}</div>` : ''}`;
             }
           } else if (expEl) {
             expEl.style.display = 'block';
-            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${q.referenceAnswer || ''}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${q.referencePinyin}</span>` : ''}`;
+            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${escapeHtml(q.referenceAnswer || '')}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${escapeHtml(q.referencePinyin)}</span>` : ''}`;
           }
         });
 
@@ -8426,11 +8661,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       document.title = `${levelObj.name || levelSlug} - ${brandTitle} | Học Tiếng Trung`;
       root.innerHTML = `
         <div style="margin-bottom:16px;">
-          <a href="/${rootSlug}" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại ${brandTitle}</a>
+          <a href="/${rootSlug}" style="color:#0d9488;font-weight:600;text-decoration:none;">← Quay lại ${escapeHtml(brandTitle)}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;">
-          <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📘 ${levelObj.name || levelSlug.toUpperCase()}</h1>
-          <p style="color:#57534e;margin-bottom:20px;">Tổng số từ vựng: <strong>${levelObj.wordCount || ''}</strong> • Số chủ đề/bài học: <strong>${items.length}</strong></p>
+          <h1 style="font-size:28px;font-weight:800;color:#1c1917;margin:0 0 8px 0;">📘 ${escapeHtml(levelObj.name || levelSlug.toUpperCase())}</h1>
+          <p style="color:#57534e;margin-bottom:20px;">Tổng số từ vựng: <strong>${escapeHtml(levelObj.wordCount || '')}</strong> • Số chủ đề/bài học: <strong>${items.length}</strong></p>
           <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;">
             ${items.map((t, i) => {
               const slug = t.lessonSlug || t.topicSlug || '';
@@ -8445,9 +8680,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                     <span style="font-size:13px;color:#2563eb;font-weight:700;">${isLesson ? `Bài ${t.lessonNumber || i + 1}` : `Chủ đề ${i + 1}`}</span>
                     <span style="font-size:12px;font-weight:700;color:${t.progressPct > 0 ? '#15803d' : '#78716c'};background:${t.progressPct > 0 ? '#dcfce7' : '#f5f5f4'};padding:2px 8px;border-radius:999px;">${t.learnedCount || 0}/${t.wordCount || 0} (${t.progressPct || 0}%)</span>
                   </div>
-                  <div style="font-size:18px;font-weight:700;margin-top:4px;color:#1c1917;">${label}</div>
+                  <div style="font-size:18px;font-weight:700;margin-top:4px;color:#1c1917;">${escapeHtml(label)}</div>
                   <div style="height:5px;border-radius:999px;background:#e7e5e4;margin:10px 0 6px 0;overflow:hidden;"><div style="height:100%;width:${t.progressPct || 0}%;background:#2563eb;"></div></div>
-                  <div style="font-size:14px;color:#57534e;">${t.wordCount || 0} từ vựng →</div>
+                  <div style="font-size:14px;color:#57534e;">${escapeHtml(t.wordCount || 0)} từ vựng →</div>
                 </a>
               `;
             }).join('')}
@@ -8461,7 +8696,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const lastSeg = subParts[subParts.length - 1];
     const isPractice = lastSeg === 'luyen-tap' || lastSeg === 'practice' || lastSeg === 'flashcard';
     const effectiveParts = isPractice ? subParts.slice(0, -1) : subParts;
-    const itemSlug = decodeURIComponent(effectiveParts[effectiveParts.length - 1] || '');
+    const itemSlug = safeDecodeURIComponent(effectiveParts[effectiveParts.length - 1] || '');
     const cleanItemSlug = itemSlug.startsWith(levelSlug + '-') ? itemSlug.slice(levelSlug.length + 1) : itemSlug;
 
     let detail =
@@ -8497,19 +8732,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       document.title = `Luyện tập: ${title} - ${levelLabel} | Học Tiếng Trung`;
       root.innerHTML = `
         <div style="margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
-          <a href="${baseDetailUrl}" style="color:#0d9488;font-weight:700;text-decoration:none;">← Quay lại bài học: ${title}</a>
-          <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${levelLabel}</a>
+          <a href="${baseDetailUrl}" style="color:#0d9488;font-weight:700;text-decoration:none;">← Quay lại bài học: ${escapeHtml(title)}</a>
+          <a href="/${rootSlug}/${levelSlug}" style="color:#57534e;font-weight:600;text-decoration:none;">Danh sách bài ${escapeHtml(levelLabel)}</a>
         </div>
         <div style="background:#fff;color:#1c1917;border:1px solid #e7e5e4;border-radius:20px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px;">
             <div>
-              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🎯 Luyện tập từ vựng: ${title}</h1>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">🎯 Luyện tập từ vựng: ${escapeHtml(title)}</h1>
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Chế độ Flashcard lật thẻ & Trắc nghiệm nhanh (${words.length} từ vựng)</p>
             </div>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <button id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
-              <button id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
-              <button id="xhz-mode-typing" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">⌨️ Gõ Pinyin &amp; Chữ Hán</button>
+              <button type="button" id="xhz-mode-flashcard" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;">🗂️ Flashcard</button>
+              <button type="button" id="xhz-mode-quiz" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">📝 Trắc nghiệm</button>
+              <button type="button" id="xhz-mode-typing" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;">⌨️ Gõ Pinyin &amp; Chữ Hán</button>
             </div>
           </div>
           <div id="xhz-practice-stage"></div>
@@ -8536,22 +8771,22 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="display:flex;flex-direction:column;align-items:center;gap:16px;padding:12px 0;">
             <div style="font-size:14px;font-weight:700;color:#78716c;">Thẻ ${idx + 1} / ${words.length}</div>
             <div id="xhz-fc-card" style="width:100%;max-width:520px;min-height:260px;border-radius:20px;border:2px solid #99f6e4;background:#f0fdfa;padding:28px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;box-shadow:0 8px 24px rgba(37,99,235,0.08);transition:all 0.2s;">
-              <div style="font-size:64px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${hz}</div>
-              <div style="font-size:22px;font-weight:700;color:#2563eb;margin-top:8px;">${py}</div>
+              <div style="font-size:64px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(hz)}</div>
+              <div style="font-size:22px;font-weight:700;color:#2563eb;margin-top:8px;">${escapeHtml(py)}</div>
               ${flipped ? `
                 <div style="margin-top:16px;padding-top:16px;border-top:1px dashed #93c5fd;width:100%;">
-                  ${hv ? `<div style="font-size:13px;font-weight:700;color:#1e40af;text-transform:uppercase;">Hán Việt: ${hv}</div>` : ''}
-                  <div style="font-size:22px;font-weight:800;color:#1c1917;margin-top:6px;">${vi}</div>
-                  ${ex ? `<div style="margin-top:10px;font-size:15px;color:#44403c;background:#fff;padding:10px;border-radius:10px;"><div><strong>${(ex.chinese || '').replace(/\{|\}/g, '')}</strong></div><div style="color:#2563eb;font-size:13px;">${ex.pinyin || ''}</div><div>${ex.vietnamese || ''}</div></div>` : ''}
+                  ${hv ? `<div style="font-size:13px;font-weight:700;color:#1e40af;text-transform:uppercase;">Hán Việt: ${escapeHtml(hv)}</div>` : ''}
+                  <div style="font-size:22px;font-weight:800;color:#1c1917;margin-top:6px;">${escapeHtml(vi)}</div>
+                  ${ex ? `<div style="margin-top:10px;font-size:15px;color:#44403c;background:#fff;padding:10px;border-radius:10px;"><div><strong>${escapeHtml((ex.chinese || '').replace(/\{|\}/g, ''))}</strong></div><div style="color:#2563eb;font-size:13px;">${escapeHtml(ex.pinyin || '')}</div><div>${escapeHtml(ex.vietnamese || '')}</div></div>` : ''}
                 </div>
               ` : `<div style="margin-top:18px;font-size:13px;color:#1d4ed8;font-weight:600;">👆 Nhấn vào thẻ để lật xem nghĩa tiếng Việt</div>`}
             </div>
             <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
-              <button id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
-              <button id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
-              <button id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
-              <button id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
-              <button id="xhz-fc-done-all" style="padding:10px 18px;border-radius:12px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành & Lưu tiến độ</button>
+              <button type="button" id="xhz-fc-prev" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">← Từ trước</button>
+              <button type="button" id="xhz-fc-audio" style="padding:10px 18px;border-radius:12px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+              <button type="button" id="xhz-fc-flip" style="padding:10px 18px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:700;cursor:pointer;">🔄 Lật thẻ</button>
+              <button type="button" id="xhz-fc-next" style="padding:10px 18px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;cursor:pointer;">Từ tiếp →</button>
+              <button type="button" id="xhz-fc-done-all" style="padding:10px 18px;border-radius:12px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành & Lưu tiến độ</button>
             </div>
           </div>
         `;
@@ -8601,7 +8836,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         stage.innerHTML = `
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:14px;padding:10px 16px;border-radius:12px;background:#f0fdfa;color:#115e59;">
             <div id="xhz-curr-quiz-score" style="font-weight:800;">Điểm số: 0 / ${words.length}</div>
-            <button id="xhz-curr-quiz-finish" style="padding:8px 16px;border-radius:999px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">✅ Hoàn thành bài tập &amp; Lưu tiến độ</button>
+            <button type="button" id="xhz-curr-quiz-finish" style="padding:8px 16px;border-radius:999px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">✅ Hoàn thành bài tập &amp; Lưu tiến độ</button>
           </div>
           <div id="xhz-curr-quiz-list" style="display:flex;flex-direction:column;gap:14px;"></div>
         `;
@@ -8645,10 +8880,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
               <div>
                 <span style="font-size:13px;font-weight:700;color:#78716c;margin-right:8px;">Câu ${qIdx + 1}/${words.length}</span>
-                <span style="font-size:24px;font-weight:800;color:#1c1917;">${hz}</span>
-                <span style="font-size:15px;color:#2563eb;font-weight:600;margin-left:8px;">[${py}]</span>
+                <span style="font-size:24px;font-weight:800;color:#1c1917;">${escapeHtml(hz)}</span>
+                <span style="font-size:15px;color:#2563eb;font-weight:600;margin-left:8px;">[${escapeHtml(py)}]</span>
               </div>
-              <button class="xhz-q-speak" style="border:none;background:#ccfbf1;color:#115e59;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
+              <button type="button" class="xhz-q-speak" style="border:none;background:#ccfbf1;color:#115e59;border-radius:999px;padding:4px 12px;font-weight:700;cursor:pointer;">🔊 Nghe</button>
             </div>
             <div class="xhz-q-opts" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;"></div>
           `;
@@ -8656,6 +8891,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           const optsWrap = card.querySelector('.xhz-q-opts');
           options.forEach(optText => {
             const btn = document.createElement('button');
+            btn.type = 'button';
             btn.style.cssText = 'padding:10px 12px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:600;text-align:left;cursor:pointer;';
             btn.textContent = optText;
             btn.onclick = () => {
@@ -8721,25 +8957,25 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </div>
             <div style="padding:24px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-align:center;">
               <div style="font-size:13px;font-weight:700;color:#78716c;text-transform:uppercase;">Nghĩa tiếng Việt</div>
-              <div style="font-size:26px;font-weight:800;color:#1c1917;margin:8px 0;">${vi}</div>
-              ${hv ? `<div style="font-size:13px;color:#0d9488;font-weight:700;">Hán Việt: ${hv}</div>` : ''}
-              <div id="xhz-ty-hint-box" style="display:none;margin-top:8px;font-size:16px;color:#0d9488;font-weight:700;">${hz} · ${py}</div>
+              <div style="font-size:26px;font-weight:800;color:#1c1917;margin:8px 0;">${escapeHtml(vi)}</div>
+              ${hv ? `<div style="font-size:13px;color:#0d9488;font-weight:700;">Hán Việt: ${escapeHtml(hv)}</div>` : ''}
+              <div id="xhz-ty-hint-box" style="display:none;margin-top:8px;font-size:16px;color:#0d9488;font-weight:700;">${escapeHtml(hz)} · ${escapeHtml(py)}</div>
               <div style="display:flex;gap:8px;justify-content:center;margin-top:14px;">
-                <button id="xhz-ty-speak" style="padding:8px 14px;border-radius:999px;border:none;background:#f0fdfa;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
-                <button id="xhz-ty-hint" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;">💡 Hiện gợi ý</button>
+                <button type="button" id="xhz-ty-speak" style="padding:8px 14px;border-radius:999px;border:none;background:#f0fdfa;color:#115e59;font-weight:700;cursor:pointer;">🔊 Nghe phát âm</button>
+                <button type="button" id="xhz-ty-hint" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;">💡 Hiện gợi ý</button>
               </div>
             </div>
             <div style="display:flex;gap:8px;">
-              <input id="xhz-typing-input" type="text" placeholder="Gõ chữ Hán (${hz.slice(0, 1)}...) hoặc Pinyin (vd: ni hao)" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;outline:none;" />
-              <button id="xhz-ty-check" style="padding:12px 20px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;">Kiểm tra</button>
+              <input id="xhz-typing-input" type="text" placeholder="Gõ chữ Hán (${escapeHtml(hz.slice(0, 1))}...) hoặc Pinyin (vd: ni hao)" style="flex:1;padding:12px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:16px;outline:none;" />
+              <button type="button" id="xhz-ty-check" style="padding:12px 20px;border-radius:12px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;">Kiểm tra</button>
             </div>
             <div id="xhz-ty-feedback" style="min-height:24px;font-size:14px;font-weight:700;"></div>
             <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
               <div style="display:flex;gap:8px;">
-                <button id="xhz-ty-prev" style="padding:9px 16px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;cursor:pointer;">← Trước</button>
-                <button id="xhz-ty-next" style="padding:9px 16px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;cursor:pointer;">Tiếp →</button>
+                <button type="button" id="xhz-ty-prev" style="padding:9px 16px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;cursor:pointer;">← Trước</button>
+                <button type="button" id="xhz-ty-next" style="padding:9px 16px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;font-weight:700;cursor:pointer;">Tiếp →</button>
               </div>
-              <button id="xhz-ty-finish" style="padding:9px 18px;border-radius:10px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành &amp; Lưu tiến độ</button>
+              <button type="button" id="xhz-ty-finish" style="padding:9px 18px;border-radius:10px;border:none;background:#16a34a;color:#fff;font-weight:800;cursor:pointer;">✅ Hoàn thành &amp; Lưu tiến độ</button>
             </div>
           </div>
         `;
@@ -8913,23 +9149,23 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div class="xhz-curr-hero-watermark">新</div>
         <div class="xhz-curr-hero-inner">
           <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:rgba(255,255,255,0.85);margin-bottom:14px;flex-wrap:wrap;">
-            <a href="/${rootSlug}" style="color:rgba(255,255,255,0.85);text-decoration:none;">${brandTitle}</a>
+            <a href="/${rootSlug}" style="color:rgba(255,255,255,0.85);text-decoration:none;">${escapeHtml(brandTitle)}</a>
             <span>›</span>
-            <a href="/${rootSlug}/${levelSlug}" style="color:rgba(255,255,255,0.85);text-decoration:none;">${levelLabel}</a>
+            <a href="/${rootSlug}/${levelSlug}" style="color:rgba(255,255,255,0.85);text-decoration:none;">${escapeHtml(levelLabel)}</a>
             <span>›</span>
             <span>Bài học</span>
             <span>›</span>
-            <strong style="color:#fff;">Bài ${lessonNum}</strong>
+            <strong style="color:#fff;">Bài ${escapeHtml(lessonNum)}</strong>
           </div>
 
           <div style="display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:999px;background:rgba(255,255,255,0.16);backdrop-filter:blur(4px);font-size:12px;font-weight:700;margin-bottom:10px;">
-            ✨ Bài ${lessonNum} · ${levelLabel}
+            ✨ Bài ${escapeHtml(lessonNum)} · ${escapeHtml(levelLabel)}
           </div>
 
           <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;">
             <div>
-              <h1 style="font-size:36px;font-weight:800;margin:0;color:#fff;line-height:1.2;">${title}</h1>
-              ${subtitleZh ? `<div style="font-size:20px;color:rgba(255,255,255,0.92);margin-top:6px;font-family:'Noto Serif SC',serif;">${subtitleZh}</div>` : ''}
+              <h1 style="font-size:36px;font-weight:800;margin:0;color:#fff;line-height:1.2;">${escapeHtml(title)}</h1>
+              ${subtitleZh ? `<div style="font-size:20px;color:rgba(255,255,255,0.92);margin-top:6px;font-family:'Noto Serif SC',serif;">${escapeHtml(subtitleZh)}</div>` : ''}
               <div style="font-size:14px;color:rgba(255,255,255,0.85);margin-top:8px;">
                 ${words.length} từ vựng · ~${estMinutes} phút · ${audioCount} có audio
               </div>
@@ -9040,12 +9276,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         card.innerHTML = `
           <button type="button" class="xhz-wcard-speak" title="Nghe phát âm" style="position:absolute;top:10px;right:10px;border:none;background:transparent;color:#57534e;cursor:pointer;font-size:15px;padding:4px;">🔊</button>
           <div style="margin-top:12px;display:flex;flex-direction:column;align-items:center;width:100%;">
-            <a href="${link}" style="font-size:40px;font-weight:500;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;line-height:1.15;">${hz}</a>
-            <div class="xhz-wcard-py" style="font-size:14px;color:#57534e;margin-top:8px;transition:opacity 0.15s;">${py}</div>
-            <div class="xhz-wcard-vi" style="font-size:15px;font-weight:700;color:#1c1917;margin-top:6px;line-height:1.35;transition:opacity 0.15s;">${vi}</div>
+            <a href="${link}" style="font-size:40px;font-weight:500;color:#1c1917;text-decoration:none;font-family:'Noto Serif SC',serif;line-height:1.15;">${escapeHtml(hz)}</a>
+            <div class="xhz-wcard-py" style="font-size:14px;color:#57534e;margin-top:8px;transition:opacity 0.15s;">${escapeHtml(py)}</div>
+            <div class="xhz-wcard-vi" style="font-size:15px;font-weight:700;color:#1c1917;margin-top:6px;line-height:1.35;transition:opacity 0.15s;">${escapeHtml(vi)}</div>
           </div>
           <div style="width:100%;display:flex;justify-content:space-between;align-items:center;margin-top:12px;min-height:24px;">
-            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#d7ebe9;color:#57534e;">${hskTag}</span>` : ''}</span>
+            <span>${hskTag ? `<span style="font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:#d7ebe9;color:#57534e;">${escapeHtml(hskTag)}</span>` : ''}</span>
             <button type="button" class="xhz-wcard-heart" title="${isLearned ? 'Đã thuộc' : 'Đánh dấu đã thuộc'}" style="border:none;background:transparent;color:${isLearned ? '#0d9488' : '#78716c'};cursor:pointer;font-size:16px;padding:2px 4px;">
               ${isLearned ? '♥' : '♡'}
             </button>
@@ -9140,7 +9376,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải video nghe chép chính tả...</div>`;
     const all = (await loadLocalJson('/data/dictation/videos-all.json')) || [];
-    const decoded = (() => { try { return decodeURIComponent(slugOrId || '').trim(); } catch (_) { return String(slugOrId || '').trim(); } })();
+    const decoded = (() => { try { return safeDecodeURIComponent(slugOrId || '').trim(); } catch (_) { return String(slugOrId || '').trim(); } })();
     const video =
       all.find(v => v.id === decoded || v._id === decoded || v.slug === decoded || v.slugVi === decoded || toSlugVi(v.title || v.titleVi) === decoded) ||
       all[0];
@@ -9965,7 +10201,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     root.innerHTML = '<p style="padding:32px;text-align:center;">Đang tải đề thi...</p>';
     const parts = pathname.split('/').filter(Boolean);
-    const paperId = decodeURIComponent(parts[parts.length - 1] || '');
+    const paperId = safeDecodeURIComponent(parts[parts.length - 1] || '');
     const paper = await loadTestPaperById(paperId);
     if (!paper) {
       const level = (paperId.match(/^hsk([1-6])$/) || [])[1];
@@ -10455,14 +10691,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         return `
           <div style="padding:14px 16px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:8px;">
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
-              <a href="${href}" style="text-decoration:none;color:#1c1917;font-size:28px;font-weight:800;font-family:'Noto Serif SC',serif;">${it.hanzi}</a>
+              <a href="${href}" style="text-decoration:none;color:#1c1917;font-size:28px;font-weight:800;font-family:'Noto Serif SC',serif;">${escapeHtml(it.hanzi)}</a>
               <div style="display:flex;gap:6px;align-items:center;">
                 <span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:${isKnown ? '#dcfce7' : '#fef3c7'};color:${isKnown ? '#15803d' : '#92400e'};">${isKnown ? 'Thuộc' : 'Đang học'}</span>
-                <button type="button" onclick="window.__xhzPlayAudio('${it.hanzi.replace(/'/g, '')}')" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
+                <button type="button" data-xhz-play="${escapeHtml(it.hanzi || '')}" aria-label="Nghe phát âm" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
               </div>
             </div>
-            ${it.pinyin ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${it.pinyin}</div>` : ''}
-            <div style="font-size:14px;color:#44403c;line-height:1.4;">${it.meaningVi || 'Từ vựng đã học'}</div>
+            ${it.pinyin ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${escapeHtml(it.pinyin)}</div>` : ''}
+            <div style="font-size:14px;color:#44403c;line-height:1.4;">${escapeHtml(it.meaningVi || 'Từ vựng đã học')}</div>
           </div>
         `;
       }).join('');
@@ -10690,7 +10926,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const parts = pathname.split('/').filter(Boolean);
     const type = parts[1];
     let value = '';
-    try { value = decodeURIComponent(parts.slice(2).join('/')); } catch (_) {}
+    try { value = safeDecodeURIComponent(parts.slice(2).join('/')); } catch (_) {}
     const index = await loadLocalJson('/data/characters/index.json');
     const escape = text => String(text ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]));
     const level = (value.match(/\d+/) || [null])[0] ? Number((value.match(/\d+/) || [])[0]) : null;
@@ -10769,7 +11005,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div>
             <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:6px;">
               <a href="/han-tu/${encodeURIComponent(item.slug || item.c)}" style="font-size:36px;font-family:'Noto Serif SC',serif;color:inherit;text-decoration:none;line-height:1.1;">${escape(item.c)}</a>
-              <button type="button" onclick="window.__xhzPlayAudio('${String(item.c || '').replace(/'/g, '')}')" style="border:none;background:#f0fdfa;color:#0f766e;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
+              <button type="button" data-xhz-play="${escapeHtml(item.c || '')}" aria-label="Nghe phát âm" style="border:none;background:#f0fdfa;color:#0f766e;border-radius:999px;padding:3px 9px;font-size:12px;font-weight:700;cursor:pointer;">🔊</button>
             </div>
             <div style="margin-top:4px;color:#0d9488;font-weight:700;">${escape(item.p)}</div>
             <strong>${escape(item.hv)}</strong>
@@ -11400,7 +11636,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } catch (_) {}
 
     const parts = pathname.split('/').filter(Boolean);
-    const slug = decodeURIComponent(parts[2] || 'hsk30.L1.P1.learn.1');
+    const slug = safeDecodeURIComponent(parts[2] || 'hsk30.L1.P1.learn.1');
 
     if (slug.startsWith('on-tap-') || slug.startsWith('review-')) {
       await renderReviewSessionPage(slug);
@@ -13172,7 +13408,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
     if (parts[0] === 'ngu-phap' && parts[1] === 'luyen-tap' && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
-      const pointId = decodeURIComponent(parts[2]);
+      const pointId = safeDecodeURIComponent(parts[2]);
       const level = (pointId.match(/\d+/) || ['1'])[0];
       await renderGrammarQuizRunPage(new URLSearchParams({ tracks: `${/_new_|^new-/.test(pointId) ? 'new-hsk' : 'hsk'}${level}`, grammarId: pointId, count: '20' }));
       return;
@@ -13492,6 +13728,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         try { studioClickEl.__htqClickHandler(e); } catch (_) {}
         return;
       }
+    }
+    const xhzPlayBtn = e.target && e.target.closest ? e.target.closest('[data-xhz-play]') : null;
+    if (xhzPlayBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const textToSpeak = xhzPlayBtn.getAttribute('data-xhz-play') || '';
+      if (textToSpeak && typeof window.__xhzPlayAudio === 'function') {
+        try { window.__xhzPlayAudio(textToSpeak); } catch (_) {}
+      }
+      return;
     }
     const btn = e.target && e.target.closest ? e.target.closest('button, a') : null;
     if (btn) {
@@ -14290,14 +14536,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     sec.innerHTML =
       '<div class="htq-home-hero-strip" id="htq-home-hero-strip">' +
         '<div class="htq-hero-art-card">' +
-          '<img class="htq-hero-bg" src="/images/studio/cute-capy-study.jpg" alt="Capybara chăm chỉ học chữ Hán cùng trà sữa" loading="eager" />' +
+          '<img class="htq-hero-bg" src="/images/studio/cute-capy-study.jpg" alt="Capybara chăm chỉ học chữ Hán cùng trà sữa" loading="eager" decoding="async" />' +
           '<div class="htq-hero-art-scrim">' +
             '<div style="min-width:0;">' +
               '<div style="font-size:11px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#fde68a;margin-bottom:4px;">' + greetVi + ' · ' + (compObj.emoji || '✨') + ' ' + escapeHtml(compObj.name) + ' đồng hành</div>' +
               '<div style="font-size:19px;font-weight:800;line-height:1.25;margin-bottom:6px;">Góc Học Hán Ngữ Ấm Áp Của Bạn</div>' +
               '<div style="font-size:13px;color:rgba(255,251,235,.92);line-height:1.45;">' + escapeHtml(compObj.quote) + '</div>' +
             '</div>' +
-            '<img src="/images/companion/' + encodeURIComponent(compObj.id) + '/splash/hero.webp" alt="' + escapeHtml(compObj.name) + '" class="htq-float" style="width:74px;height:74px;border-radius:18px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 12px 26px rgba(15,23,42,.45);" />' +
+            '<img src="/images/companion/' + encodeURIComponent(compObj.id) + '/splash/hero.webp" alt="' + escapeHtml(compObj.name) + '" loading="eager" decoding="async" class="htq-float" style="width:74px;height:74px;border-radius:18px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 12px 26px rgba(15,23,42,.45);" />' +
           '</div>' +
         '</div>' +
         '<div class="htq-ws-panel" style="padding:14px 16px;display:flex;flex-direction:column;gap:8px;">' +
@@ -14319,7 +14565,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               const darkSrc = '/images/home/dark/' + imgKey + '.webp';
               return '<a href="' + href + '" class="htq-skill-card">' +
                 '<div class="htq-skill-card-art">' +
-                  '<img class="htq-skill-thumb" src="' + (isDark ? darkSrc : lightSrc) + '" data-htq-light-src="' + lightSrc + '" data-htq-dark-src="' + darkSrc + '" alt="' + escapeHtml(title) + '" loading="eager" />' +
+                  '<img class="htq-skill-thumb" src="' + (isDark ? darkSrc : lightSrc) + '" data-htq-light-src="' + lightSrc + '" data-htq-dark-src="' + darkSrc + '" alt="' + escapeHtml(title) + '" loading="lazy" decoding="async" />' +
                   '<div style="min-width:0;">' +
                     '<div class="htq-skill-top" style="margin-bottom:3px;"><span>' + title + '</span></div>' +
                     '<p class="htq-skill-desc">' + desc + '</p>' +
@@ -14371,7 +14617,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             ['/images/studio/cute-lantern-party.jpg', '🏮 Lễ Hội & Sticker', '/tai-khoan/']
           ].map(([imgSrc, label, href]) =>
             '<a href="' + href + '" class="htq-story-card">' +
-              '<div class="htq-story-card-img-wrap"><img src="' + imgSrc + '" alt="' + escapeHtml(label) + '" loading="eager" /></div>' +
+              '<div class="htq-story-card-img-wrap"><img src="' + imgSrc + '" alt="' + escapeHtml(label) + '" loading="lazy" decoding="async" /></div>' +
               '<div class="htq-story-card-cap"><span>' + label + '</span><span style="opacity:.6;">→</span></div>' +
             '</a>'
           ).join('') +
@@ -14630,7 +14876,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       '<div class="htq-stage-shell">' +
         '<div class="htq-stage-grid">' +
           '<div class="htq-stage-visual">' +
-            '<img class="htq-stage-bg" src="' + cfg.banner + '" alt="' + escapeHtml(cfg.title) + '" loading="eager" />' +
+            '<img class="htq-stage-bg" src="' + cfg.banner + '" alt="' + escapeHtml(cfg.title) + '" loading="eager" decoding="async" />' +
             '<button type="button" id="htq-stage-collapse-btn" class="htq-stage-toggle-btn" title="Thu gọn thanh hoạt động">Thu gọn ▴</button>' +
             '<div class="htq-stage-visual-scrim">' +
               '<div style="min-width:0;">' +
@@ -14638,7 +14884,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 '<div style="font-size:17px;font-weight:800;line-height:1.25;margin-bottom:4px;">' + escapeHtml(cfg.title) + '</div>' +
                 '<div style="font-size:12.5px;color:rgba(241,245,249,.88);line-height:1.4;">' + escapeHtml(cfg.sub) + '</div>' +
               '</div>' +
-              (cornerImg ? '<img src="' + cornerImg + '" alt="' + escapeHtml(cfg.badge) + '" class="htq-float" style="width:66px;height:66px;border-radius:16px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(15,23,42,.42);" />' : '') +
+              (cornerImg ? '<img src="' + cornerImg + '" alt="' + escapeHtml(cfg.badge) + '" loading="lazy" decoding="async" class="htq-float" style="width:66px;height:66px;border-radius:16px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(15,23,42,.42);" />' : '') +
             '</div>' +
           '</div>' +
           '<div class="htq-stage-body" id="htq-stage-activity-host"></div>' +
@@ -14662,7 +14908,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         host.innerHTML =
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
             '<div style="display:flex;align-items:center;gap:10px;min-width:0;">' +
-              '<img src="/images/companion/' + encodeURIComponent(cObj.id) + '/splash/hero.webp" alt="' + escapeHtml(cObj.name) + '" style="width:48px;height:48px;border-radius:14px;object-fit:cover;border:2px solid #4f46e5;" />' +
+              '<img src="/images/companion/' + encodeURIComponent(cObj.id) + '/splash/hero.webp" alt="' + escapeHtml(cObj.name) + '" loading="lazy" decoding="async" style="width:48px;height:48px;border-radius:14px;object-fit:cover;border:2px solid #4f46e5;" />' +
               '<div style="min-width:0;">' +
                 '<div style="font-size:14px;font-weight:800;">' + escapeHtml(cObj.name) + ' (' + escapeHtml(cObj.zh) + ') · <span style="color:#0d9488;font-size:12px;">' + escapeHtml(cObj.role) + '</span></div>' +
                 '<div style="font-size:12.5px;opacity:.82;margin-top:2px;">“' + escapeHtml(cObj.quote) + '”</div>' +
@@ -14676,7 +14922,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
             HTQ_COMPANIONS_LIST.map(c =>
               '<button type="button" class="htq-stage-chip-btn' + (c.id === activeComp ? ' is-active' : '') + '" data-comp-id="' + c.id + '">' +
-                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" style="width:18px;height:18px;border-radius:999px;object-fit:cover;" />' +
+                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" loading="lazy" decoding="async" style="width:18px;height:18px;border-radius:999px;object-fit:cover;" />' +
                 '<span>' + escapeHtml(c.name) + '</span>' +
               '</button>'
             ).join('') +
@@ -15127,7 +15373,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           '<div class="htq-sticker-grid" id="htq-stamp-album">' +
             stickers.map((s, i) =>
               '<button type="button" class="htq-sticker-tile' + (s.ok ? ' is-unlocked' : '') + '" data-stamp-idx="' + i + '" title="' + escapeHtml(s.lbl + ': ' + s.tip) + '">' +
-                '<img src="' + s.img + '" alt="' + escapeHtml(s.lbl) + '" loading="eager" />' +
+                '<img src="' + s.img + '" alt="' + escapeHtml(s.lbl) + '" loading="lazy" decoding="async" />' +
                 '<div style="font-size:11px;font-weight:800;line-height:1.15;">' + escapeHtml(s.val) + '</div>' +
                 '<div style="font-size:10px;opacity:.78;line-height:1.15;">' + escapeHtml(s.lbl) + '</div>' +
               '</button>'
@@ -15137,7 +15383,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '<span style="font-size:11px;font-weight:800;opacity:.78;">🐾 Đổi bạn đồng hành:</span>' +
             HTQ_COMPANIONS_LIST.map(c =>
               '<button type="button" class="htq-stage-chip-btn' + (c.id === curCompId ? ' is-active' : '') + '" data-acc-comp="' + c.id + '" style="padding:3.5px 8px;font-size:11px;">' +
-                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" style="width:16px;height:16px;border-radius:999px;object-fit:cover;" />' +
+                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" loading="lazy" decoding="async" style="width:16px;height:16px;border-radius:999px;object-fit:cover;" />' +
                 '<span>' + escapeHtml(c.name) + '</span>' +
               '</button>'
             ).join('') +
@@ -15292,7 +15538,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           ? '<div class="htq-buddy-bubble" id="htq-buddy-bubble">' +
               '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">' +
                 '<div style="display:flex;align-items:center;gap:8px;">' +
-                  '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" style="width:40px;height:40px;border-radius:13px;object-fit:cover;border:2px solid #f472b6;" />' +
+                  '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" loading="lazy" decoding="async" style="width:40px;height:40px;border-radius:13px;object-fit:cover;border:2px solid #f472b6;" />' +
                   '<div>' +
                     '<div style="font-size:13.5px;font-weight:800;">' + (curComp.emoji || '✨') + ' ' + escapeHtml(curComp.name) + ' <span style="opacity:.65;font-size:11.5px;">(' + escapeHtml(curComp.zh) + ')</span> <span style="font-size:11px;color:#e11d48;">❤️ ' + heartsN + '</span></div>' +
                     '<div style="font-size:11px;color:#0d9488;font-weight:700;">' + (sum.wordsMastered > 0 ? 'Bạn đã thuộc ' + sum.wordsMastered + ' từ · Chuỗi ' + sum.streakDays + ' ngày!' : 'Cùng học vui mỗi ngày nhé!') + '</div>' +
@@ -15315,7 +15561,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '</div>'
           : '') +
         '<button type="button" id="htq-buddy-fab" class="htq-buddy-fab htq-float" title="Chạm vào ' + escapeHtml(curComp.name) + ' để nhận lời chúc tiếng Trung ✨">' +
-          '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" />' +
+          '<img src="/images/companion/' + encodeURIComponent(curComp.id) + '/splash/hero.webp" alt="' + escapeHtml(curComp.name) + '" loading="lazy" decoding="async" />' +
           '<span class="htq-buddy-dot" aria-hidden="true">✨</span>' +
         '</button>';
 
@@ -15431,6 +15677,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   ];
 
   let htqCmdkPollTimer = null;
+  let htqCmdkPrevFocus = null;
   function closeCommandPalette() {
     if (htqCmdkPollTimer) {
       clearInterval(htqCmdkPollTimer);
@@ -15438,10 +15685,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
     const ov = document.getElementById('htq-cmdk-overlay');
     if (ov) ov.remove();
+    const prev = htqCmdkPrevFocus;
+    htqCmdkPrevFocus = null;
+    if (prev && typeof prev.focus === 'function' && document.contains(prev)) {
+      setTimeout(() => { try { prev.focus(); } catch (_) {} }, 0);
+    }
   }
 
   function openCommandPalette(initialQuery = '') {
+    const prevFocus = !document.getElementById('htq-cmdk-overlay') ? document.activeElement : htqCmdkPrevFocus;
     closeCommandPalette();
+    htqCmdkPrevFocus = prevFocus;
     const isDark = document.documentElement.classList.contains('dark');
     const ov = document.createElement('div');
     ov.id = 'htq-cmdk-overlay';
@@ -15453,10 +15707,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       `<div id="htq-cmdk-box" style="width:100%;max-width:620px;border-radius:20px;background:${isDark ? '#111629' : '#ffffff'};color:${isDark ? '#f8fafc' : '#1c1917'};border:1px solid ${isDark ? 'rgba(129,140,248,0.28)' : '#e7e5e4'};box-shadow:0 24px 64px rgba(15,23,42,0.35);overflow:hidden;">` +
         `<div style="display:flex;align-items:center;gap:10px;padding:14px 18px;border-bottom:1px solid ${isDark ? 'rgba(148,163,184,0.18)' : '#e7e5e4'};">` +
           `<span style="font-size:18px;">🔍</span>` +
-          `<input id="htq-cmdk-input" type="text" autocomplete="off" placeholder="Nhập chữ Hán, Pinyin, nghĩa Việt hoặc tên công cụ (vd: 你好, hsk, pdf)..." style="flex:1;border:none;outline:none;background:transparent;color:inherit;font-size:15px;font-weight:600;" />` +
-          `<button type="button" id="htq-cmdk-close" style="padding:4px 10px;border-radius:8px;border:1px solid ${isDark ? '#334155' : '#d6d3d1'};background:transparent;color:inherit;font-size:12px;font-weight:700;cursor:pointer;">ESC</button>` +
+          `<input id="htq-cmdk-input" type="text" autocomplete="off" aria-label="Tìm chữ Hán, Pinyin hoặc lối tắt" placeholder="Nhập chữ Hán, Pinyin, nghĩa Việt hoặc tên công cụ (vd: 你好, hsk, pdf)..." style="flex:1;border:none;outline:none;background:transparent;color:inherit;font-size:15px;font-weight:600;" />` +
+          `<button type="button" id="htq-cmdk-close" aria-label="Đóng hộp tìm kiếm" style="padding:4px 10px;border-radius:8px;border:1px solid ${isDark ? '#334155' : '#d6d3d1'};background:transparent;color:inherit;font-size:12px;font-weight:700;cursor:pointer;">ESC</button>` +
         `</div>` +
-        `<div id="htq-cmdk-results" style="max-height:58vh;overflow-y:auto;padding:10px 12px 14px;display:flex;flex-direction:column;gap:6px;"></div>` +
+        `<div id="htq-cmdk-results" role="listbox" style="max-height:56vh;overflow-y:auto;padding:10px 12px 14px;display:flex;flex-direction:column;gap:6px;"></div>` +
+        `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;border-top:1px solid ${isDark ? 'rgba(148,163,184,0.18)' : '#e7e5e4'};font-size:11.5px;opacity:.75;">` +
+          `<span>↑↓ Chọn kết quả · Enter Mở · Ctrl+K Tìm nhanh</span><span>ESC Đóng</span>` +
+        `</div>` +
       `</div>`;
     ov.addEventListener('click', ev => { if (ev.target === ov) closeCommandPalette(); });
     document.body.appendChild(ov);
@@ -15477,14 +15734,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         html += `<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.65;padding:4px 6px;">Từ điển Chữ Hán &amp; Từ vựng (${dictRows.length})</div>`;
         html += dictRows.map(d =>
           `<div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:12px;background:${itemBg};">` +
-            `<a href="${d.href}" class="htq-cmdk-link" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-decoration:none;color:inherit;">` +
+            `<a href="${d.href}" role="option" class="htq-cmdk-link" style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;text-decoration:none;color:inherit;padding:2px 4px;border-radius:8px;border:1px solid transparent;">` +
               `<span style="font-size:24px;font-weight:800;color:#4f46e5;min-width:44px;">${escapeHtml(d.hanzi)}</span>` +
               `<div style="min-width:0;">` +
                 `<div style="font-size:13px;font-weight:700;color:#0d9488;">${escapeHtml(d.pinyin)}${d.hv ? ' · ' + escapeHtml(d.hv.toUpperCase()) : ''}</div>` +
                 `<div style="font-size:13px;opacity:.85;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(d.meaning)}</div>` +
               `</div>` +
             `</a>` +
-            `<button type="button" onclick="window.__xhzPlayAudio('${d.hanzi.replace(/'/g, '')}')" style="border:none;border-radius:999px;padding:6px 10px;background:#eef2ff;color:#4338ca;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>` +
+            `<button type="button" data-xhz-play="${escapeHtml(d.hanzi || '')}" aria-label="Nghe phát âm" style="border:none;border-radius:999px;padding:6px 10px;background:#eef2ff;color:#4338ca;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>` +
           `</div>`
         ).join('');
       } else if (loadingDict && q.length >= 1) {
@@ -15493,7 +15750,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       if (matchedRoutes.length > 0) {
         html += `<div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;opacity:.65;padding:6px 6px 4px;">Lối tắt nhanh</div>`;
         html += matchedRoutes.map(r =>
-          `<a href="${r.href}" class="htq-cmdk-link" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:${itemBg};text-decoration:none;color:inherit;">` +
+          `<a href="${r.href}" role="option" class="htq-cmdk-link" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:12px;background:${itemBg};text-decoration:none;color:inherit;border:1px solid transparent;">` +
             `<span style="font-size:20px;">${r.icon}</span>` +
             `<div><div style="font-weight:700;font-size:14px;">${r.title}</div><div style="font-size:12px;opacity:.72;">${r.desc}</div></div>` +
           `</a>`
@@ -15505,9 +15762,36 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return html;
     };
 
+    let activeIdx = 0;
+    const syncActive = (nextIdx) => {
+      const links = Array.from(resEl.querySelectorAll('.htq-cmdk-link'));
+      if (links.length === 0) {
+        activeIdx = 0;
+        resEl.removeAttribute('data-cmdk-active-idx');
+        return;
+      }
+      activeIdx = ((nextIdx % links.length) + links.length) % links.length;
+      resEl.setAttribute('data-cmdk-active-idx', String(activeIdx));
+      links.forEach((a, i) => {
+        const on = i === activeIdx;
+        a.setAttribute('aria-selected', on ? 'true' : 'false');
+        if (on) {
+          a.setAttribute('data-active', '1');
+          a.style.borderColor = 'rgba(79,70,229,0.55)';
+          a.style.background = isDark ? 'rgba(79,70,229,0.22)' : 'rgba(79,70,229,0.08)';
+          try { a.scrollIntoView({ block: 'nearest' }); } catch (_) {}
+        } else {
+          a.removeAttribute('data-active');
+          a.style.borderColor = 'transparent';
+          a.style.background = a.parentElement === resEl ? itemBg : 'transparent';
+        }
+      });
+    };
+
     const paint = (html) => {
       resEl.innerHTML = html;
       resEl.querySelectorAll('.htq-cmdk-link').forEach(a => a.addEventListener('click', closeCommandPalette));
+      syncActive(0);
     };
 
     let searchSeq = 0;
@@ -15588,7 +15872,24 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     inp.addEventListener('keyup', handleChange);
     inp.addEventListener('change', handleChange);
     inp.addEventListener('compositionend', handleChange);
-    inp.addEventListener('keydown', ev => { if (ev.key === 'Escape') closeCommandPalette(); });
+    inp.addEventListener('keydown', ev => {
+      if (ev.key === 'Escape') {
+        ev.preventDefault();
+        closeCommandPalette();
+      } else if (ev.key === 'ArrowDown') {
+        ev.preventDefault();
+        syncActive(activeIdx + 1);
+      } else if (ev.key === 'ArrowUp') {
+        ev.preventDefault();
+        syncActive(activeIdx - 1);
+      } else if (ev.key === 'Enter') {
+        const target = resEl.querySelector('.htq-cmdk-link[data-active="1"]') || resEl.querySelector('.htq-cmdk-link');
+        if (target) {
+          ev.preventDefault();
+          target.click();
+        }
+      }
+    });
     htqCmdkPollTimer = setInterval(() => {
       if (!document.body.contains(inp)) { closeCommandPalette(); return; }
       handleChange();
@@ -15740,26 +16041,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
     }
 
+    let scrubTimer = 0;
     let scrubRaf = 0;
+    const IGNORED_OBS_SEL = '#htq-ambient-petals, #htq-toast-stack, #htq-scroll-progress, #htq-buddy-dock, #htq-cmdk-overlay, #htq-confetti-layer';
+    const isTransientOverlayNode = (el) => {
+      if (!el || el.nodeType !== 1) return false;
+      if (el.closest && el.closest(IGNORED_OBS_SEL)) return true;
+      return false;
+    };
     const obs = new MutationObserver(mutations => {
       if (!htqHydrationSettled) return;
-      cleanDocumentTitle();
+      let sawContentMutation = false;
       for (const m of mutations) {
+        if (isTransientOverlayNode(m.target)) continue;
+        sawContentMutation = true;
         m.addedNodes.forEach(node => {
-          if (node.nodeType === 1) rewriteDomMedia(node);
+          if (node.nodeType === 1 && !isTransientOverlayNode(node)) rewriteDomMedia(node);
         });
       }
-      enhanceAccountPageAuthUI();
-      enhanceWorksheetAndPdfTools();
-      if (!scrubRaf) {
-        scrubRaf = requestAnimationFrame(() => {
-          scrubRaf = 0;
-          scrubBrandingAndLogos(document.body);
-        });
+      if (!sawContentMutation) return;
+      cleanDocumentTitle();
+      const curPath = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
+      if (/^\/(tai-khoan|dang-nhap|dang-ky|xoa-tai-khoan)(\/|$|\.html$)/.test(curPath)) {
+        enhanceAccountPageAuthUI();
+      }
+      if (curPath === '/tao-vo-tap-viet' || curPath === '/flashcard-pdf') {
+        enhanceWorksheetAndPdfTools();
+      }
+      if (!scrubTimer) {
+        scrubTimer = setTimeout(() => {
+          scrubTimer = 0;
+          if (!scrubRaf) {
+            scrubRaf = requestAnimationFrame(() => {
+              scrubRaf = 0;
+              scrubBrandingAndLogos(document.body);
+            });
+          }
+        }, 120);
       }
     });
-    if (document.documentElement) {
-      obs.observe(document.documentElement, { childList: true, subtree: true });
+    const obsRoot = document.body || document.documentElement;
+    if (obsRoot) {
+      obs.observe(obsRoot, { childList: true, subtree: true });
     }
   }
 

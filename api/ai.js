@@ -126,13 +126,85 @@ async function googleTranslateFallback(text, sourceLang, targetLang, script) {
   };
 }
 
+const ALLOWED_ACTIONS = new Set([
+  "ping",
+  "translate",
+  "companion-chat",
+  "speaking-assess",
+  "result-ai-readout",
+  "practice-readout",
+  "result-ai-reply"
+]);
+
+const RATE_LIMIT_WINDOW_MS = 60_000;
+const RATE_LIMIT_MAX_REQUESTS = 45;
+const rateLimitStore = new Map();
+
+function resolveAllowedOrigin(req) {
+  const origin = String(req?.headers?.origin || req?.headers?.Origin || "").trim();
+  if (!origin) return "";
+  if (
+    origin === "https://hoctiengtrungquoc.vercel.app" ||
+    /^https:\/\/hoctiengtrungquoc-[a-z0-9-]+\.vercel\.app$/i.test(origin) ||
+    /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)
+  ) {
+    return origin;
+  }
+  return "";
+}
+
+function getClientIp(req) {
+  const xff = String(req?.headers?.["x-forwarded-for"] || "").split(",")[0].trim();
+  if (xff) return xff;
+  const xri = String(req?.headers?.["x-real-ip"] || "").trim();
+  if (xri) return xri;
+  return String(req?.socket?.remoteAddress || "unknown");
+}
+
+function checkRateLimit(ip) {
+  const now = Date.now();
+  if (rateLimitStore.size > 2000) {
+    for (const [key, entry] of rateLimitStore.entries()) {
+      if (!entry || now - entry.windowStart >= RATE_LIMIT_WINDOW_MS) {
+        rateLimitStore.delete(key);
+      }
+    }
+  }
+  const existing = rateLimitStore.get(ip);
+  if (!existing || now - existing.windowStart >= RATE_LIMIT_WINDOW_MS) {
+    rateLimitStore.set(ip, { count: 1, windowStart: now });
+    return true;
+  }
+  if (existing.count >= RATE_LIMIT_MAX_REQUESTS) {
+    return false;
+  }
+  existing.count += 1;
+  return true;
+}
+
 module.exports = async function handler(req, res) {
-  res.setHeader("Access-Control-Allow-Origin", "*");
+  const allowedOrigin = resolveAllowedOrigin(req);
+  if (allowedOrigin) {
+    res.setHeader("Access-Control-Allow-Origin", allowedOrigin);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,POST,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Device-Id");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Cache-Control", "no-store");
 
   if (req.method === "OPTIONS") {
     return res.status(200).end();
+  }
+
+  if (req.method !== "GET" && req.method !== "POST") {
+    return res.status(405).json({ error: "METHOD_NOT_ALLOWED", message: "Phương thức không được hỗ trợ." });
+  }
+
+  const clientIp = getClientIp(req);
+  if (!checkRateLimit(clientIp)) {
+    res.setHeader("Retry-After", "60");
+    return res.status(429).json({ error: "RATE_LIMITED", message: "Bạn gửi yêu cầu quá nhanh, vui lòng thử lại sau ít giây." });
   }
 
   const reqUrl = String(req.url || "");
@@ -140,19 +212,44 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, count: 18, online: 18, n: 18 });
   }
 
+  const declaredLen = Number(req?.headers?.["content-length"] || 0) || 0;
+  if (declaredLen > 3_145_728) {
+    return res.status(413).json({ error: "PAYLOAD_TOO_LARGE", message: "Dữ liệu gửi lên vượt quá giới hạn cho phép." });
+  }
+  if (typeof req.body === "string" && Buffer.byteLength(req.body, "utf8") > 3_145_728) {
+    return res.status(413).json({ error: "PAYLOAD_TOO_LARGE", message: "Dữ liệu gửi lên vượt quá giới hạn cho phép." });
+  }
+
   let rawBody = {};
   try {
     rawBody = typeof req.body === "string" ? JSON.parse(req.body || "{}") : (req.body || {});
   } catch (_) {
+    return res.status(400).json({ error: "INVALID_JSON", message: "Dữ liệu JSON không hợp lệ." });
+  }
+  if (!rawBody || typeof rawBody !== "object" || Array.isArray(rawBody)) {
     rawBody = {};
   }
-  const clientApiKey = rawBody.apiKey || "";
+
+  const rawKey = typeof rawBody.apiKey === "string" ? rawBody.apiKey.trim() : "";
+  const clientApiKey = /^[A-Za-z0-9_-]{20,120}$/.test(rawKey) ? rawKey : "";
   const body =
     rawBody.payload && typeof rawBody.payload === "object"
       ? { ...rawBody, ...rawBody.payload }
       : rawBody;
 
-  const action = req.query?.action || body.action || (req.method === "GET" ? "ping" : "translate");
+  const action = String(req.query?.action || body.action || (req.method === "GET" ? "ping" : "translate")).trim();
+  if (!ALLOWED_ACTIONS.has(action)) {
+    return res.status(400).json({ error: "INVALID_ACTION", message: "Tác vụ không hợp lệ." });
+  }
+
+  const bodySize = typeof req.body === "string"
+    ? Buffer.byteLength(req.body, "utf8")
+    : Math.max(declaredLen, Buffer.byteLength(JSON.stringify(rawBody), "utf8"));
+  const maxAllowedBytes = action === "speaking-assess" ? 3_145_728 : 32_768;
+  if (bodySize > maxAllowedBytes) {
+    return res.status(413).json({ error: "PAYLOAD_TOO_LARGE", message: "Dữ liệu gửi lên vượt quá giới hạn cho phép." });
+  }
+
   if (action === "ping") {
     return res.status(200).json({ ok: true, count: 18, online: 18 });
   }
@@ -304,7 +401,7 @@ module.exports = async function handler(req, res) {
       }
 
       const llmRes = await callLlmJson(
-        "Bạn là chuyên gia dịch thuật tiếng Trung - tiếng Việt của XieHanzi. Trả về JSON với các trường: translation (bản dịch tự nhiên, chuẩn xác), pinyin (phiên âm Pinyin có dấu thanh cho phần tiếng Trung), note (ghi chú ngắn gọn về từ vựng/ngữ pháp hoặc âm Hán Việt đáng chú ý bằng tiếng Việt).",
+        "Bạn là chuyên gia dịch thuật tiếng Trung - tiếng Việt của Học Tiếng Trung (Hán Ngữ Studio). Trả về JSON với các trường: translation (bản dịch tự nhiên, chuẩn xác), pinyin (phiên âm Pinyin có dấu thanh cho phần tiếng Trung), note (ghi chú ngắn gọn về từ vựng/ngữ pháp hoặc âm Hán Việt đáng chú ý bằng tiếng Việt).",
         JSON.stringify({ text, source, target, script }),
         clientApiKey
       );
@@ -417,7 +514,7 @@ module.exports = async function handler(req, res) {
       const mistakes = Array.isArray(body.mistakes) ? body.mistakes : [];
 
       const llmRes = await callLlmJson(
-        "Bạn là gia sư tiếng Trung XieHanzi thân thiện. Hãy nhận xét ngắn gọn (2-3 câu) bằng tiếng Việt về kết quả luyện tập của học viên và đặt 1 câu hỏi gợi mở ôn tập. Trả về JSON: { message, question }.",
+        "Bạn là gia sư tiếng Trung Học Tiếng Trung (Hán Ngữ Studio) thân thiện. Hãy nhận xét ngắn gọn (2-3 câu) bằng tiếng Việt về kết quả luyện tập của học viên và đặt 1 câu hỏi gợi mở ôn tập. Trả về JSON: { message, question }.",
         JSON.stringify({ correct, total, pct, mistakes: mistakes.slice(0, 5) }),
         clientApiKey
       );
@@ -457,7 +554,7 @@ module.exports = async function handler(req, res) {
     if (action === "result-ai-reply") {
       const userMsg = String(body.message || body.prompt || body.question || "").trim();
       const llmRes = await callLlmJson(
-        "Bạn là gia sư tiếng Trung XieHanzi. Trả lời ngắn gọn, dễ hiểu, khích lệ học viên bằng tiếng Việt. Trả về JSON: { reply }.",
+        "Bạn là gia sư tiếng Trung Học Tiếng Trung (Hán Ngữ Studio). Trả lời ngắn gọn, dễ hiểu, khích lệ học viên bằng tiếng Việt. Trả về JSON: { reply }.",
         userMsg,
         clientApiKey
       );
@@ -471,13 +568,13 @@ module.exports = async function handler(req, res) {
     }
 
     return res.status(200).json({ ok: true });
-  } catch (err) {
+  } catch (_err) {
     return res.status(200).json({
       ok: true,
-      status: "ok",
-      translation: body.text || "",
+      status: "fallback",
+      translation: String(body.text || "").slice(0, 1500),
       message: "Hệ thống đã ghi nhận kết quả của bạn.",
-      error: String(err?.message || err)
+      errorCode: "UPSTREAM_UNAVAILABLE"
     });
   }
 };

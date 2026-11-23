@@ -1,7 +1,9 @@
 User-agent: *
 Allow: /
-
 Disallow: /api/
 Disallow: /auth/
+Disallow: /tai-khoan-moi
+Disallow: /kho-du-lieu
+Disallow: /xoa-tai-khoan
 
-Sitemap: https://xiehanzi.com/sitemap.xml
+Sitemap: https://hoctiengtrungquoc.vercel.app/sitemap.xml
