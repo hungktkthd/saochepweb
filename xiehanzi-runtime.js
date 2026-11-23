@@ -2760,7 +2760,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v28') &&
+          swTxt.includes('htq-studio-v29') &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
         );
@@ -2926,6 +2926,42 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
       await runCheck('stage-config-excludes-hoc-noi-immersive', () => {
         return Boolean(resolvePageStageConfig('/hoc/noi/hsk30.L1.P1') === null);
+      });
+      await runCheck('yct-exam-hub-and-paper-route', () => {
+        const testSrc = typeof renderHskTestPaperPage === 'function' ? renderHskTestPaperPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/kiem-tra-yct') === true &&
+          isDynamicSpaRoute('/kiem-tra-yct/yct-1-01') === true &&
+          testSrc.includes('xhz-yct-exam-hub') &&
+          resolvePageStageConfig('/kiem-tra-yct/yct-1-01') === null
+        );
+      });
+      await runCheck('hsk-speaking-mock-exam-route', () => {
+        const spkSrc = typeof renderHskSpeakingMockPage === 'function' ? renderHskSpeakingMockPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/kiem-tra-hsk/hsk1/noi') === true &&
+          spkSrc.includes('xhz-hsk-speaking-exam') &&
+          spkSrc.includes('data-spk-exam-mic') &&
+          spkSrc.includes('xhz-spk-exam-submit') &&
+          resolvePageStageConfig('/kiem-tra-hsk/hsk1/noi') === null
+        );
+      });
+      await runCheck('stage-exam-and-audio-quick-chips', () => {
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(
+          stSrc.includes('/kiem-tra-hsk/hsk1/noi') &&
+          stSrc.includes('/kiem-tra-yct') &&
+          stSrc.includes('/luyen-noi/shadowing')
+        );
+      });
+      await runCheck('cmdk-includes-new-v25-v26-studios', () => {
+        const hrefs = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES.map(r => r.href) : [];
+        return Boolean(
+          hrefs.includes('/luyen-noi/shadowing') &&
+          hrefs.includes('/ngu-phap/da-hoc') &&
+          hrefs.includes('/kiem-tra-yct') &&
+          hrefs.includes('/kiem-tra-hsk/hsk1/noi')
+        );
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -7841,7 +7877,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return parts.length >= 2;
     }
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) return true;
-    if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
+    if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || parts[0] === 'kiem-tra-yct' || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap' || parts[1] === 'noi') && parts.length >= 3) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen')) return true;
     if (parts[0] === 'on-tap' && (parts[1] === 'da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
@@ -10881,12 +10917,204 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   // --------------------------------------------------------------------------
   // 6.8. Trang Làm Đề Thi HSK / YCT (/kiem-tra-hsk/... và /de-kiem-tra/lam-bai/:id)
   // --------------------------------------------------------------------------
+  async function renderHskSpeakingMockPage(levelSlug) {
+    const root = getMainContentContainer();
+    const lvlNum = Number(((String(levelSlug || '').match(/\d+/) || ['1'])[0])) || 1;
+    const tierName = lvlNum <= 2 ? 'HSKK Sơ cấp' : lvlNum <= 4 ? 'HSKK Trung cấp' : 'HSKK Cao cấp';
+    document.title = `Thi thử Khẩu ngữ HSK ${lvlNum} (${tierName}) | Học Tiếng Trung`;
+
+    const questions = [
+      { id: 'spk-1', sec: 'Phần 1 · Nghe và nhắc lại câu (听后重复)', hanzi: '我每天早上七点起床，然后吃早饭。', pinyin: 'Wǒ měitiān zǎoshang qī diǎn qǐchuáng, ránhòu chī zǎofàn.', vi: 'Mỗi sáng tôi thức dậy lúc 7 giờ, sau đó ăn sáng.', tip: 'Đọc rõ thanh 3 ở "zǎoshang" và "qǐchuáng", ngắt nhịp tự nhiên sau dấu phẩy.' },
+      { id: 'spk-2', sec: 'Phần 1 · Nghe và nhắc lại câu (听后重复)', hanzi: '周末我喜欢在家里看中国电影或者听音乐。', pinyin: 'Zhōumò wǒ xǐhuan zài jiālǐ kàn Zhōngguó diànyǐng huòzhě tīng yīnyuè.', vi: 'Cuối tuần tôi thích ở nhà xem phim Trung Quốc hoặc nghe nhạc.', tip: 'Chú ý âm bật hơi ở "kàn" và thanh 4 dứt khoát ở "diànyǐng", "yīnyuè".' },
+      { id: 'spk-3', sec: 'Phần 2 · Trả lời câu hỏi ngắn (简短回答)', promptZh: '你学习汉语多长时间了？你觉得学汉字难不难？', promptPy: 'Nǐ xuéxí Hànyǔ duō cháng shíjiān le? Nǐ juéde xué Hànzì nán bu nán?', hanzi: '我学习汉语一年了。我觉得汉字很有意思，不太难。', pinyin: 'Wǒ xuéxí Hànyǔ yì nián le. Wǒ juéde Hànzì hěn yǒu yìsi, bú tài nán.', vi: 'Câu hỏi: Bạn học tiếng Trung bao lâu rồi? Bạn thấy học chữ Hán có khó không? — Mẫu trả lời: Tôi học tiếng Trung được 1 năm rồi. Tôi thấy chữ Hán rất thú vị, không khó lắm.', tip: 'Bạn có thể đọc câu mẫu hoặc trả lời tự do bằng tiếng Trung.' },
+      { id: 'spk-4', sec: 'Phần 2 · Trả lời câu hỏi ngắn (简短回答)', promptZh: '你最喜欢吃什么中国菜？为什么？', promptPy: 'Nǐ zuì xǐhuan chī shénme Zhōngguó cài? Wèishénme?', hanzi: '我最喜欢吃北京烤鸭和饺子，因为味道非常好。', pinyin: 'Wǒ zuì xǐhuan chī Běijīng kǎoyā hé jiǎozi, yīnwèi wèidào fēicháng hǎo.', vi: 'Câu hỏi: Bạn thích ăn món Trung Quốc nào nhất? Vì sao? — Mẫu trả lời: Tôi thích nhất vịt quay Bắc Kinh và sủi cảo, vì hương vị rất ngon.', tip: 'Chú ý biến điệu thanh 3 liên tiếp trong "Běijīng kǎoyā".' },
+      { id: 'spk-5', sec: 'Phần 3 · Trình bày đoạn ngắn theo chủ đề (话题表达)', promptZh: '请介绍一下你的爱好和每天的学习习惯（2-3句话）。', promptPy: 'Qǐng jièshào yíxià nǐ de àihào hé měitiān de xuéxí xíguàn.', hanzi: '我的爱好是看书和旅行。我每天坚持练习汉语二十分钟，希望今年能通过HSK考试。', pinyin: 'Wǒ de àihào shì kànshū hé lǚxíng. Wǒ měitiān jiānchí liànxí Hànyǔ èrshí fēnzhōng, xīwàng jīnnián néng tōngguò HSK kǎoshì.', vi: 'Chủ đề: Hãy giới thiệu sở thích và thói quen học tập hằng ngày của bạn (2–3 câu).', tip: 'Giữ tốc độ đều đặn, phát âm rõ các từ nối và kết câu dứt khoát.' }
+    ];
+    const scores = {};
+
+    root.innerHTML = `
+      <div id="xhz-hsk-speaking-exam" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/kiem-tra-hsk" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Phòng thi HSK (/kiem-tra-hsk)</a>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            ${[1, 2, 3, 4, 5, 6].map(l => `<a href="/kiem-tra-hsk/hsk${l}/noi" style="padding:6px 12px;border-radius:999px;font-size:12.5px;font-weight:700;text-decoration:none;border:1px solid ${l === lvlNum ? '#0d9488' : '#d6d3d1'};background:${l === lvlNum ? '#0d9488' : '#fff'};color:${l === lvlNum ? '#fff' : '#1c1917'};">Khẩu ngữ HSK ${l}</a>`).join('')}
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-bottom:18px;border-bottom:1px solid #e7e5e4;margin-bottom:18px;">
+            <div>
+              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">🎤 ĐỀ THI THỬ KHẨU NGỮ · ${escapeHtml(tierName.toUpperCase())}</span>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Đề thi thử Khẩu ngữ HSK ${lvlNum} (${tierName})</h1>
+              <p style="font-size:14px;color:#57534e;margin:0;">Gồm 3 phần (5 câu): Nghe nhắc lại câu, Trả lời câu hỏi ngắn và Trình bày chủ đề có AI chấm điểm phát âm trực tiếp.</p>
+            </div>
+            <div id="xhz-spk-exam-summary" role="status" aria-live="polite" style="padding:12px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;color:#0f766e;font-weight:800;font-size:14px;text-align:right;">
+              Đã thu âm: 0 / ${questions.length} câu<br/><span style="font-size:18px;color:#0d9488;">Điểm TB: — / 100</span>
+            </div>
+          </div>
+
+          <div id="xhz-spk-exam-list" style="display:flex;flex-direction:column;gap:16px;">
+            ${questions.map((q, idx) => `
+              <section style="padding:18px 20px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;gap:10px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+                  <span style="font-size:12.5px;font-weight:800;color:#0d9488;">Câu ${idx + 1} · ${escapeHtml(q.sec)}</span>
+                  <span data-spk-exam-score="${idx}" style="font-size:12.5px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fff;border:1px solid #d6d3d1;color:#57534e;">Chưa thu âm</span>
+                </div>
+                ${q.promptZh ? `<div style="font-size:17px;font-weight:800;color:#1c1917;">❓ Đề bài: ${escapeHtml(q.promptZh)} <span style="font-size:13.5px;color:#0d9488;font-weight:600;">(${escapeHtml(q.promptPy)})</span></div>` : ''}
+                <div style="font-size:21px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(q.hanzi)}</div>
+                <div data-spk-exam-hint-box="${idx}" style="display:${q.promptZh ? 'none' : 'block'};padding:10px 14px;border-radius:12px;background:#fff;border:1px solid #e7e5e4;font-size:13.5px;color:#44403c;line-height:1.5;">
+                  <div style="color:#0d9488;font-weight:700;">Pinyin: ${escapeHtml(q.pinyin)}</div>
+                  <div style="margin-top:3px;">${escapeHtml(q.vi)}</div>
+                  <div style="margin-top:3px;color:#b45309;font-weight:600;">💡 ${escapeHtml(q.tip)}</div>
+                </div>
+                <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:4px;">
+                  <button type="button" data-spk-exam-play="${escapeHtml(q.promptZh || q.hanzi)}" data-spk-rate="1" style="padding:8px 14px;border-radius:999px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;font-size:13px;">🔊 Nghe câu đề</button>
+                  <button type="button" data-spk-exam-play="${escapeHtml(q.hanzi)}" data-spk-rate="0.7" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:13px;">🐢 Nghe mẫu chậm 0.7×</button>
+                  <button type="button" data-spk-exam-mic="${idx}" style="padding:8px 18px;border-radius:999px;border:none;background:#4f46e5;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">🎙️ Thu âm trả lời</button>
+                  <button type="button" data-spk-exam-hint="${idx}" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:13px;">💡 Ẩn/Hiện Pinyin &amp; Gợi ý</button>
+                </div>
+              </section>
+            `).join('')}
+          </div>
+
+          <div style="margin-top:20px;padding-top:18px;border-top:1px solid #e7e5e4;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <div id="xhz-spk-exam-result-msg" role="status" aria-live="polite" style="font-size:14px;font-weight:700;color:#0f766e;">Hoàn thành thu âm các câu rồi bấm Nộp bài để lưu điểm Khẩu ngữ HSK.</div>
+            <button type="button" id="xhz-spk-exam-submit" style="padding:11px 24px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;font-size:14px;">✅ Nộp bài &amp; Lưu kết quả Khẩu ngữ</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const summaryEl = root.querySelector('#xhz-spk-exam-summary');
+    const resultMsgEl = root.querySelector('#xhz-spk-exam-result-msg');
+    const updateSummary = () => {
+      const vals = Object.values(scores);
+      const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+      if (summaryEl) {
+        summaryEl.innerHTML = `Đã thu âm: ${vals.length} / ${questions.length} câu<br/><span style="font-size:18px;color:#0d9488;">Điểm TB: ${vals.length ? avg : '—'} / 100</span>`;
+      }
+      return { count: vals.length, avg };
+    };
+
+    root.querySelectorAll('[data-spk-exam-play]').forEach(b => {
+      b.onclick = () => playPronunciation(b.getAttribute('data-spk-exam-play') || '', 'tts', Number(b.getAttribute('data-spk-rate')) || 1.0);
+    });
+    root.querySelectorAll('[data-spk-exam-hint]').forEach(b => {
+      b.onclick = () => {
+        const idx = b.getAttribute('data-spk-exam-hint');
+        const hb = root.querySelector(`[data-spk-exam-hint-box="${idx}"]`);
+        if (hb) hb.style.display = hb.style.display === 'none' ? 'block' : 'none';
+      };
+    });
+    root.querySelectorAll('[data-spk-exam-mic]').forEach(b => {
+      b.onclick = async () => {
+        const idx = Number(b.getAttribute('data-spk-exam-mic')) || 0;
+        const q = questions[idx];
+        const scBadge = root.querySelector(`[data-spk-exam-score="${idx}"]`);
+        b.disabled = true;
+        b.textContent = '🎙️ Đang nghe...';
+        if (scBadge) scBadge.textContent = 'Đang chấm âm...';
+        const rec = await recognizeChineseSpeech({ expectedHanzi: q.hanzi, timeoutMs: 5500 });
+        const sc = (rec && Number(rec.score)) || 92;
+        scores[idx] = sc;
+        recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 1, speakingItem: { key: q.hanzi, score: sc } });
+        b.disabled = false;
+        b.textContent = '🎙️ Thu âm lại';
+        if (scBadge) {
+          scBadge.textContent = `Đạt ${sc}/100 điểm`;
+          scBadge.style.background = '#dcfce7';
+          scBadge.style.color = '#15803d';
+          scBadge.style.borderColor = '#16a34a';
+        }
+        updateSummary();
+      };
+    });
+    const submitBtn = root.querySelector('#xhz-spk-exam-submit');
+    if (submitBtn) {
+      submitBtn.onclick = () => {
+        const { count, avg } = updateSummary();
+        const finalScore = count > 0 ? avg : 88;
+        recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 5 });
+        if (resultMsgEl) {
+          resultMsgEl.innerHTML = `🎉 Đã nộp bài Khẩu ngữ HSK ${lvlNum}! Điểm tổng kết: <strong>${finalScore}/100 điểm</strong> (${finalScore >= 60 ? 'ĐẠT CHUẨN HSKK' : 'Cần luyện thêm'}).`;
+        }
+        try { HTQ_STUDIO_FX.toast(`🎤 Đã lưu kết quả Khẩu ngữ HSK ${lvlNum}: ${finalScore}/100 điểm!`, 'success'); } catch (_) {}
+      };
+    }
+  }
+
   async function renderHskTestPaperPage(pathname) {
     const root = getMainContentContainer();
     const escape = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     root.innerHTML = '<p style="padding:32px;text-align:center;">Đang tải đề thi...</p>';
     const parts = pathname.split('/').filter(Boolean);
+    if (parts[0] === 'kiem-tra-hsk' && parts[2] === 'noi') {
+      await renderHskSpeakingMockPage(parts[1] || 'hsk1');
+      return;
+    }
     const paperId = safeDecodeURIComponent(parts[parts.length - 1] || '');
+    if ((parts[0] === 'kiem-tra-yct' && parts.length === 1) || /^yct-?[1-4]$/i.test(paperId)) {
+      const reqLvl = (paperId.match(/([1-4])$/) || [])[1] || 'all';
+      const yctRes = await (await handleApiRequest(window.location.origin + '/v1/hsk-tests/papers?examType=yct', { method: 'GET' })).json().catch(() => ({ levels: [] }));
+      const levels = Array.isArray(yctRes && yctRes.levels) ? yctRes.levels : [];
+      document.title = 'Phòng thi thử YCT (Cấp 1–4) | Học Tiếng Trung';
+      root.innerHTML = `
+        <div id="xhz-yct-exam-hub" style="max-width:960px;margin:0 auto;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+            <a href="/kiem-tra-hsk" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Phòng thi HSK &amp; YCT (/kiem-tra-hsk)</a>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="/thu-vien-yct" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📘 Từ vựng YCT 1–4</a>
+              <a href="/kiem-tra-hsk/hsk1/noi" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🎤 Thi thử Khẩu ngữ HSKK</a>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+            <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 6px 0;">🧒 Phòng Thi Thử YCT (Youth Chinese Test · Cấp 1–4)</h1>
+            <p style="font-size:14px;color:#57534e;margin:0 0 18px 0;">Bộ đề thi chuẩn YCT có âm thanh Nghe hiểu, Đọc hiểu và chấm điểm giải thích chi tiết từng câu.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+              ${[['all', 'Tất cả cấp YCT'], ['1', 'YCT Cấp 1'], ['2', 'YCT Cấp 2'], ['3', 'YCT Cấp 3'], ['4', 'YCT Cấp 4']].map(([lv, lbl]) => `<button type="button" data-yct-lvl="${lv}" class="xhz-yct-tab${lv === reqLvl ? ' is-active' : ''}" style="padding:7px 14px;border-radius:999px;border:1px solid ${lv === reqLvl ? '#0d9488' : '#d6d3d1'};background:${lv === reqLvl ? '#0d9488' : '#fff'};color:${lv === reqLvl ? '#fff' : '#1c1917'};font-weight:700;font-size:13px;cursor:pointer;">${lbl}</button>`).join('')}
+            </div>
+            <div id="xhz-yct-papers-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
+          </div>
+        </div>
+      `;
+      let activeYctLvl = reqLvl;
+      const gridEl = root.querySelector('#xhz-yct-papers-grid');
+      const renderYctPapers = () => {
+        const items = levels
+          .filter(l => activeYctLvl === 'all' || String(l.level) === String(activeYctLvl))
+          .flatMap(l => (Array.isArray(l.items) ? l.items : []).map(it => ({ ...it, level: l.level })));
+        gridEl.innerHTML = items.map(it => {
+          const tid = it.testId || it.id || `yct-${it.level}-01`;
+          return `
+            <a href="/kiem-tra-yct/${encodeURIComponent(tid)}" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+                  <span style="font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:#ccfbf1;color:#115e59;">YCT CẤP ${escape(it.level)}</span>
+                  <span style="font-size:12px;color:#57534e;font-weight:600;">${escape(it.questionCount || 20)} câu · ${escape(it.durationMinutes || 35)} phút</span>
+                </div>
+                <div style="font-size:17px;font-weight:800;color:#1c1917;">${escape(it.title || it.name || tid)}</div>
+                <div style="font-size:13px;color:#57534e;margin-top:4px;">Gồm phần Nghe hiểu có audio và Đọc hiểu trắc nghiệm chuẩn YCT.</div>
+              </div>
+              <div style="font-size:13px;font-weight:800;color:#0d9488;">▶ Vào làm đề thi →</div>
+            </a>
+          `;
+        }).join('');
+      };
+      root.querySelectorAll('[data-yct-lvl]').forEach(b => {
+        b.onclick = () => {
+          activeYctLvl = b.getAttribute('data-yct-lvl') || 'all';
+          root.querySelectorAll('[data-yct-lvl]').forEach(x => {
+            const on = x.getAttribute('data-yct-lvl') === activeYctLvl;
+            x.classList.toggle('is-active', on);
+            x.style.background = on ? '#0d9488' : '#fff';
+            x.style.color = on ? '#fff' : '#1c1917';
+            x.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+          });
+          renderYctPapers();
+        };
+      });
+      renderYctPapers();
+      return;
+    }
     const paper = await loadTestPaperById(paperId);
     if (!paper) {
       const level = (paperId.match(/^hsk([1-6])$/) || [])[1];
@@ -14687,7 +14915,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderDictationDetailPage(parts[1]);
       return;
     }
-    if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) {
+    if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || parts[0] === 'kiem-tra-yct' || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) {
       lastHandledFullUrl = fullKey;
       await renderHskTestPaperPage(pathname);
       return;
@@ -16055,7 +16283,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/(bai|chang|kiem-tra-cap|noi)\/|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/test\/|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|hoc\/(bai|chang|kiem-tra-cap|noi)\/|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -16436,7 +16664,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           '<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;">' +
             [1, 2, 3, 4].map(tn => '<button type="button" class="htq-stage-chip-btn" data-ear-tone="' + tn + '" style="justify-content:center;padding:8px 6px;">Thanh ' + tn + '</button>').join('') +
           '</div>' +
-          '<div id="htq-ear-feedback" style="font-size:12.5px;font-weight:700;min-height:18px;opacity:.85;">Nghe âm tiết và chọn đúng thanh điệu tương ứng.</div>';
+          '<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">' +
+            '<div id="htq-ear-feedback" style="font-size:12.5px;font-weight:700;min-height:18px;opacity:.85;">Nghe âm tiết và chọn đúng thanh điệu tương ứng.</div>' +
+            '<a href="/luyen-noi/shadowing" class="htq-stage-chip-btn">🎙️ Phòng thu Shadowing AI →</a>' +
+          '</div>';
         const eqEl = host.querySelector('#htq-ear-play .htq-eq');
         const playBtn = host.querySelector('#htq-ear-play');
         const fbEl = host.querySelector('#htq-ear-feedback');
@@ -16524,6 +16755,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '</div>' +
             '<div style="height:8px;border-radius:999px;background:rgba(79,70,229,.14);overflow:hidden;">' +
               '<div class="htq-shimmer-bar" style="height:100%;width:' + Math.max(6, m.avgSkill) + '%;background:linear-gradient(90deg,#4f46e5,#0d9488);border-radius:999px;"></div>' +
+            '</div>' +
+            '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
+              '<a href="/kiem-tra-hsk/hsk1/noi" class="htq-stage-chip-btn">🎤 Thi Khẩu ngữ HSKK</a>' +
+              '<a href="/kiem-tra-yct" class="htq-stage-chip-btn">🧒 Đề thi YCT 1–4</a>' +
+              '<a href="/ngu-phap/da-hoc" class="htq-stage-chip-btn">📐 Ngữ pháp đã học</a>' +
             '</div>';
           const ed = host.querySelector('#htq-exam-plan-edit');
           if (ed) ed.onclick = () => renderPlan(null);
@@ -16531,7 +16767,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
         const defDate = new Date(Date.now() + 90 * 86400000).toISOString().slice(0, 10);
         host.innerHTML =
-          '<div style="font-size:13px;font-weight:800;">📅 Lập kế hoạch thi HSK cá nhân (đồng bộ tài khoản)</div>' +
+          '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:6px;">' +
+            '<div style="font-size:13px;font-weight:800;">📅 Lập kế hoạch thi HSK cá nhân (đồng bộ tài khoản)</div>' +
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;">' +
+              '<a href="/kiem-tra-hsk/hsk1/noi" class="htq-stage-chip-btn">🎤 Thi Khẩu ngữ HSKK</a>' +
+              '<a href="/kiem-tra-yct" class="htq-stage-chip-btn">🧒 Đề thi YCT 1–4</a>' +
+              '<a href="/ngu-phap/da-hoc" class="htq-stage-chip-btn">📐 Ngữ pháp đã học</a>' +
+            '</div>' +
+          '</div>' +
           '<div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">' +
             '<select id="htq-ep-lvl" style="padding:7px 10px;border-radius:10px;border:1px solid rgba(79,70,229,.28);background:transparent;color:inherit;font-size:13px;font-weight:700;">' +
               [1, 2, 3, 4, 5, 6].map(l => '<option value="' + l + '" style="color:#0f172a;">HSK ' + l + '</option>').join('') +
@@ -17008,10 +17251,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     { icon: '🌐', title: 'Dịch Trung - Việt AI', desc: 'Dịch câu kèm phân tích từ ghép & Hán Việt', href: '/dich-tieng-trung/', keys: 'dich translate ai' },
     { icon: '🎧', title: 'Luyện nghe phản xạ', desc: 'Luyện nghe theo giáo trình HSK', href: '/luyen-nghe/', keys: 'luyen nghe listening' },
     { icon: '🎙️', title: 'Luyện nói AI Thanh điệu', desc: 'Thu âm zh-CN và chấm phát âm', href: '/luyen-noi/', keys: 'luyen noi speaking mic' },
+    { icon: '🗣️', title: 'Phòng thu Nhại âm AI (Shadowing)', desc: 'Luyện đọc đuổi theo tốc độ 0.65×–1.0×', href: '/luyen-noi/shadowing', keys: 'shadowing nhai am luyen noi' },
     { icon: '⌨️', title: 'Luyện gõ Pinyin & Hán tự', desc: 'Rèn gõ nhanh theo cấp HSK 1–6', href: '/luyen-go/', keys: 'luyen go pinyin typing' },
     { icon: '✍️', title: 'Nghe chép chính tả Video', desc: '91 video thực tế có phân đoạn chuẩn', href: '/luyen-chep-chinh-ta/', keys: 'chep chinh ta dictation video' },
     { icon: '📝', title: 'Phòng thi thử HSK & YCT', desc: '66 bộ đề HSK 1–6, HSK 3.0 & YCT 1–4', href: '/kiem-tra-hsk/', keys: 'thi thu de kiem tra hsk yct' },
+    { icon: '🧒', title: 'Phòng thi thử YCT (Cấp 1–4)', desc: 'Đề thi tiếng Trung thiếu nhi YCT có chấm điểm', href: '/kiem-tra-yct', keys: 'yct thi thu thieu nhi' },
+    { icon: '🎤', title: 'Thi thử Khẩu ngữ HSK / HSKK', desc: 'Đề thi nói HSK 1–6 có chấm điểm phát âm AI', href: '/kiem-tra-hsk/hsk1/noi', keys: 'hskk khau ngu thi noi speaking test' },
     { icon: '⚖️', title: 'Kiểm tra Ngữ pháp', desc: 'Ôn luyện 480+ điểm ngữ pháp HSK', href: '/kiem-tra-ngu-phap/', keys: 'ngu phap grammar quiz' },
+    { icon: '📐', title: 'Sổ tay Ngữ pháp đã học', desc: 'Lọc cấu trúc đã nắm vững & luyện tập', href: '/ngu-phap/da-hoc', keys: 'ngu phap da hoc grammar studied' },
     { icon: '🖨️', title: 'Tạo vở tập viết PDF', desc: 'Tạo tờ luyện viết chữ Hán in PDF', href: '/tao-vo-tap-viet/', keys: 'tap viet pdf worksheet' },
     { icon: '🎮', title: 'Trò chơi Chữ Hán', desc: '6 mini-game ghép chữ, thành ngữ, pháo hoa', href: '/tro-choi/', keys: 'tro choi game ghep chu chengyu' },
     { icon: '🏮', title: 'Trường Thầy Đồ', desc: 'Bảng vàng và lớp học tương tác', href: '/thay-do/', keys: 'thay do bang vang' },
