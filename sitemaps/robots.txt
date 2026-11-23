@@ -4,4 +4,4 @@ Allow: /
 Disallow: /api/
 Disallow: /auth/
 
-Sitemap: https://xiehanzi.com/sitemap.xml
+Sitemap: https://hoctiengtrungquoc.vercel.app/sitemap.xml

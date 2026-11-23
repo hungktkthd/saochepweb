@@ -373,7 +373,8 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-dynamic-page-root [style*="background: #ffffff"],
 .dark #xhz-dynamic-page-root [style*="background: rgb(255, 255, 255)"],
 .dark #xhz-dynamic-page-root [style*="background:rgb(255, 255, 255)"],
-.dark #xhz-dynamic-page-root .xhz-lw-filter:not(.is-active) {
+.dark #xhz-dynamic-page-root .xhz-lw-filter:not(.is-active),
+.dark #xhz-dynamic-page-root .xhz-rev-tab:not(.is-active) {
   background: #13182b !important; color: #f1f5f9 !important; border-color: rgba(129,140,248,.28) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#fafaf9"],
@@ -2164,6 +2165,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   window.__xhzExportVocabularyCsv = async function (triggerDownload = false) {
     const prog = getRealProgress();
     const state = getLocalState();
+    let lsMn = {};
+    try { lsMn = JSON.parse(localStorage.getItem('httq_user_mnemonics_v1') || '{}') || {}; } catch (_) {}
+    const mnMap = mergeMnemonicMaps(prog.userMnemonics, lsMn);
     const cards = (state.collections && Array.isArray(state.collections.reviewCards)) ? state.collections.reviewCards : [];
     const cardByHz = new Map();
     cards.forEach(c => {
@@ -2174,14 +2178,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     });
     const allHz = [...new Set([
       ...(Array.isArray(prog.learnedWords) ? prog.learnedWords : []),
-      ...Array.from(cardByHz.keys())
+      ...Array.from(cardByHz.keys()),
+      ...Object.keys(mnMap).filter(k => Array.isArray(mnMap[k]) && mnMap[k].length > 0)
     ].map(w => String(w || '').replace(/^w:|^c:/, '').trim()).filter(Boolean))];
     const vIdx = (await loadLocalJson('/data/vocabulary/index.json')) || [];
     const cIdx = (await loadLocalJson('/data/characters/index.json')) || [];
     const vMap = new Map((Array.isArray(vIdx) ? vIdx : []).map(x => [String(x.w || '').replace(/\{|\}/g, ''), x]));
     const cMap = new Map((Array.isArray(cIdx) ? cIdx : []).map(x => [x.c || x.character, x]));
     const escCsv = v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`;
-    const rows = ['Hanzi,Pinyin,HanViet,MeaningVi,Status'];
+    const rows = ['Hanzi,Pinyin,HanViet,MeaningVi,Status,Mnemonic'];
     for (const hz of allHz) {
       const card = cardByHz.get(hz);
       const v = vMap.get(hz);
@@ -2190,7 +2195,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const hv = (v && v.hv) || (c && c.hv) || '';
       const mv = (card && card.content && card.content.meaningVi) || (v && v.m) || (c && c.m) || '';
       const st = card && card.state === 'review' ? 'Đã thuộc' : 'Đang học';
-      rows.push([hz, py, hv, mv, st].map(escCsv).join(','));
+      const mnList = Array.isArray(mnMap[hz]) ? mnMap[hz] : [];
+      const mnNote = (mnList[0] && mnList[0].note) ? String(mnList[0].note) : '';
+      rows.push([hz, py, hv, mv, st, mnNote].map(escCsv).join(','));
     }
     const csv = '\uFEFF' + rows.join('\r\n');
     if (triggerDownload && typeof Blob !== 'undefined') {
@@ -2661,6 +2668,48 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           lwSrc.includes("get('filter')") &&
           prSrc.includes('xhz-progress-mnemonic-card') &&
           prSrc.includes('/on-tap/da-hoc?filter=mnemonic')
+        );
+      });
+      await runCheck('csv-export-includes-mnemonics', async () => {
+        const mn = await (await fetch('/v1/ugc/mnemonic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: '学', note: 'Con trẻ học dưới mái nhà' })
+        })).json();
+        const csv = typeof window.__xhzExportVocabularyCsv === 'function' ? await window.__xhzExportVocabularyCsv(false) : '';
+        return Boolean(
+          mn && mn.ok &&
+          csv.includes('Hanzi,Pinyin,HanViet,MeaningVi,Status,Mnemonic') &&
+          csv.includes('Con trẻ học dưới mái nhà')
+        );
+      });
+      await runCheck('srs-back-mnemonic-and-rev-tab-dark', () => {
+        injectMasterV3Styles();
+        const revSrc = typeof renderReviewSessionPage === 'function' ? renderReviewSessionPage.toString() : '';
+        const f = document.getElementById('htq-v14-fx-css');
+        return Boolean(
+          revSrc.includes('data-srs-mnemonic="1"') &&
+          revSrc.includes("classList.toggle('is-active'") &&
+          f && f.textContent.includes('.xhz-rev-tab:not(.is-active)')
+        );
+      });
+      await runCheck('learned-words-dict-enrichment', () => {
+        const lwSrc = typeof renderMistakeBookOrLearnedWordsPage === 'function' ? renderMistakeBookOrLearnedWordsPage.toString() : '';
+        return Boolean(
+          lwSrc.includes('/data/vocabulary/index.json') &&
+          lwSrc.includes('/data/characters/index.json') &&
+          lwSrc.includes('min-width:265px')
+        );
+      });
+      await runCheck('offline-online-resync-and-runner-h1', () => {
+        initNetworkSyncListener();
+        const netSrc = typeof initNetworkSyncListener === 'function' ? initNetworkSyncListener.toString() : '';
+        const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        return Boolean(
+          window.__xhzNetworkSyncBound === true &&
+          netSrc.includes('online') &&
+          netSrc.includes('offline') &&
+          runSrc.includes('<h1 ')
         );
       });
     } finally {
@@ -10850,12 +10899,29 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       <div id="xhz-rev-panel-mc" style="display:none;flex-direction:column;gap:14px;"></div>
       <div id="xhz-rev-panel-typing" style="display:none;flex-direction:column;gap:14px;"></div>`;
     const srsPanel = bodyEl.querySelector('#xhz-rev-panel-srs');
+    let revLsMn = {};
+    try { revLsMn = JSON.parse(localStorage.getItem('httq_user_mnemonics_v1') || '{}') || {}; } catch (_) {}
+    const revMnMap = mergeMnemonicMaps((typeof getRealProgress === 'function' ? getRealProgress().userMnemonics : {}), revLsMn);
+    const getMnemonicForItem = (hzStr) => {
+      const k = String(hzStr || '').trim();
+      if (!k) return '';
+      if (Array.isArray(revMnMap[k]) && revMnMap[k][0] && revMnMap[k][0].note) return String(revMnMap[k][0].note);
+      if (k.length > 1) {
+        for (const ch of Array.from(k)) {
+          if (Array.isArray(revMnMap[ch]) && revMnMap[ch][0] && revMnMap[ch][0].note) {
+            return `${ch}: ${String(revMnMap[ch][0].note)}`;
+          }
+        }
+      }
+      return '';
+    };
     let currentIndex = 0;
     function renderCard() {
       const item = items[currentIndex];
       if (!item) { srsPanel.innerHTML = '<div style="padding:30px;font-weight:700;line-height:1.8;">Đã lưu kết quả của toàn bộ thẻ trong phiên này.<br/><a href="/on-tap" style="color:#0d9488;">Xem lịch ôn mới →</a></div>'; return; }
       let flipped = false;
       const goodDays = [1, 3, 7, 14, 30][Math.min(4, item.correctStreak || 0)];
+      const itemMnemonic = getMnemonicForItem(item.hanzi);
       srsPanel.innerHTML = `<div style="margin-bottom:12px;color:#78716c;font-weight:700;">Thẻ ${currentIndex + 1} / ${items.length}</div>
         <button id="xhz-srs-card" style="width:100%;padding:32px 24px;min-height:250px;border-radius:22px;border:2px solid #5eead4;background:#f0fdfa;color:#1c1917;cursor:pointer;">
           <div style="font-size:48px;font-weight:800;overflow-wrap:anywhere;">${escape(item.hanzi)}</div>
@@ -10863,6 +10929,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div id="xhz-srs-back" style="display:none;margin-top:16px;padding-top:14px;border-top:1px dashed #5eead4;">
             <div style="font-size:22px;font-weight:700;">${escape(item.meaningVi)}</div>
             ${item.exampleZh ? `<div style="font-size:15px;margin-top:8px;">${escape(item.exampleZh)} ${escape(item.exampleVi)}</div>` : ''}
+            ${itemMnemonic ? `<div data-srs-mnemonic="1" style="margin-top:10px;padding:8px 12px;border-radius:12px;background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca;font-size:13.5px;font-weight:600;line-height:1.45;word-break:break-word;">📝 Mẹo nhớ của bạn: ${escape(itemMnemonic)}</div>` : ''}
           </div><div style="margin-top:16px;font-size:13px;color:#115e59;">Bấm để lật thẻ và đánh giá mức độ nhớ</div></button>
         <div style="display:flex;gap:10px;justify-content:center;margin-top:14px;"><button id="xhz-srs-speak" style="${buttonStyle}">🔊 Nghe</button><button id="xhz-srs-flip" style="${buttonStyle}">Lật thẻ</button></div>
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
@@ -10889,7 +10956,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     populateQuiz(bodyEl.querySelector('#xhz-rev-panel-mc'));
     populateTyping(bodyEl.querySelector('#xhz-rev-panel-typing'));
     function switchTab(tab) {
-      bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { const active = button.getAttribute('data-tab') === tab; button.style.background = active ? '#0d9488' : '#fff'; button.style.color = active ? '#fff' : '#1c1917'; });
+      bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { const active = button.getAttribute('data-tab') === tab; button.classList.toggle('is-active', active); button.style.background = active ? '#0d9488' : '#fff'; button.style.color = active ? '#fff' : '#1c1917'; });
       for (const name of ['srs', 'mc', 'typing']) bodyEl.querySelector(`#xhz-rev-panel-${name}`).style.display = tab === name ? name === 'srs' ? 'block' : 'flex' : 'none';
     }
     bodyEl.querySelectorAll('.xhz-rev-tab').forEach(button => { button.onclick = () => switchTab(button.getAttribute('data-tab')); });
@@ -10904,7 +10971,23 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       return;
     }
     const root = getMainContentContainer();
-    const res = await (await handleApiRequest(window.location.origin + '/v2/review/words', { method: 'GET' })).json();
+    const [res, vIdx, cIdx] = await Promise.all([
+      (await handleApiRequest(window.location.origin + '/v2/review/words', { method: 'GET' })).json(),
+      loadLocalJson('/data/vocabulary/index.json').catch(() => []),
+      loadLocalJson('/data/characters/index.json').catch(() => [])
+    ]);
+    const vMap = new Map((Array.isArray(vIdx) ? vIdx : []).map(x => [String((x && x.w) || '').replace(/\{|\}/g, ''), x]));
+    const cMap = new Map((Array.isArray(cIdx) ? cIdx : []).map(x => [String((x && (x.c || x.character)) || ''), x]));
+    const enrichWordMeta = (it) => {
+      const k = String((it && it.hanzi) || '').trim();
+      const d = vMap.get(k) || cMap.get(k) || null;
+      const py = String((it && it.pinyin) || (d && d.p) || '').trim();
+      const hv = String((it && it.hanviet) || (d && d.hv) || '').trim();
+      const rawMv = String((it && it.meaningVi) || '').trim();
+      const isGeneric = !rawMv || rawMv === 'Từ vựng đã học' || rawMv === 'Có ghi chú ghi nhớ cá nhân';
+      const mv = (!isGeneric ? rawMv : String((d && d.m) || rawMv || 'Từ vựng đã học')).trim();
+      return { ...it, pinyin: py, hanviet: hv, meaningVi: mv };
+    };
     const rawItems = Array.isArray(res && res.items) ? res.items : [];
     const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
     let lsMn = {};
@@ -10915,12 +10998,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const k = String((it && it.hanzi) || '').trim();
       if (k) seenKeys.add(k);
       const list = Array.isArray(mnMap[k]) ? mnMap[k] : [];
-      return { ...it, mnemonicNote: (list[0] && list[0].note) ? String(list[0].note) : '' };
+      return enrichWordMeta({ ...it, mnemonicNote: (list[0] && list[0].note) ? String(list[0].note) : '' });
     });
     for (const [k, list] of Object.entries(mnMap)) {
       if (k && !seenKeys.has(k) && Array.isArray(list) && list.length > 0 && list[0] && list[0].note) {
         seenKeys.add(k);
-        items.push({ hanzi: k, pinyin: '', meaningVi: 'Có ghi chú ghi nhớ cá nhân', state: 'learning', mnemonicNote: String(list[0].note) });
+        items.push(enrichWordMeta({ hanzi: k, pinyin: '', meaningVi: 'Có ghi chú ghi nhớ cá nhân', state: 'learning', mnemonicNote: String(list[0].note) }));
       }
     }
     const mnemonicItemsCount = items.filter(i => i.mnemonicNote).length;
@@ -10942,7 +11025,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0;">📚 Từ vựng đã học (${items.length} từ)</h1>
               <p style="font-size:14px;color:#57534e;margin:4px 0 0 0;">Tổng hợp toàn bộ chữ Hán, từ vựng và mẹo nhớ cá nhân trong quá trình học tập của bạn.</p>
             </div>
-            <input id="xhz-lw-search" type="text" aria-label="Tìm trong từ đã học" placeholder="🔍 Lọc từ vựng, pinyin, nghĩa, mẹo nhớ..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:220px;" />
+            <input id="xhz-lw-search" type="text" aria-label="Tìm trong từ đã học" placeholder="🔍 Lọc từ, pinyin, Hán Việt, mẹo..." style="padding:9px 14px;border-radius:999px;border:1px solid #d6d3d1;font-size:14px;min-width:265px;max-width:100%;box-sizing:border-box;" />
           </div>
           <div id="xhz-lw-filters" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">
             <button type="button" data-status="all" class="xhz-lw-filter" style="padding:6px 14px;border-radius:999px;border:1px solid #0d9488;background:#0d9488;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">Tất cả (${items.length})</button>
@@ -10975,7 +11058,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         if (activeStatus === 'learning' && it.state === 'review') return false;
         if (activeStatus === 'mnemonic' && !it.mnemonicNote) return false;
         if (!norm) return true;
-        return it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm) || (it.mnemonicNote || '').toLowerCase().includes(norm);
+        return it.hanzi.includes(norm) || (it.pinyin || '').toLowerCase().includes(norm) || (it.hanviet || '').toLowerCase().includes(norm) || (it.meaningVi || '').toLowerCase().includes(norm) || (it.mnemonicNote || '').toLowerCase().includes(norm);
       });
       if (filtered.length === 0) {
         grid.innerHTML = `<div style="grid-column:1/-1;padding:28px;text-align:center;color:#78716c;">Chưa có từ vựng nào khớp với bộ lọc. Hãy hoàn thành bài học trên <a href="/hoc" style="color:#0d9488;font-weight:700;">Lộ trình học</a> hoặc thêm mẹo nhớ ở trang chi tiết chữ/từ nhé!</div>`;
@@ -10993,7 +11076,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 <button type="button" data-xhz-play="${escapeHtml(it.hanzi || '')}" aria-label="Nghe phát âm" style="border:none;background:#f0fdfa;color:#115e59;border-radius:999px;padding:4px 10px;font-weight:700;cursor:pointer;font-size:12px;">🔊</button>
               </div>
             </div>
-            ${it.pinyin ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${escapeHtml(it.pinyin)}</div>` : ''}
+            ${(it.pinyin || it.hanviet) ? `<div style="font-size:14px;color:#0d9488;font-weight:700;">${escapeHtml(it.pinyin)}${it.hanviet ? `<span style="opacity:.82;font-size:12.5px;">${it.pinyin ? ' · ' : ''}[${escapeHtml(it.hanviet.toUpperCase())}]</span>` : ''}</div>` : ''}
             <div style="font-size:14px;color:#44403c;line-height:1.4;">${escapeHtml(it.meaningVi || 'Từ vựng đã học')}</div>
             ${it.mnemonicNote ? `<div data-lw-mnemonic="1" style="font-size:12.5px;color:#4338ca;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:6px 10px;line-height:1.4;word-break:break-word;">📝 ${escapeHtml(it.mnemonicNote)}</div>` : ''}
           </div>
@@ -13234,7 +13317,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               Bài này có ${introWords.length || 3} từ mới, chừng ${run.estMinutes || 6} phút. Mình đi cùng bạn nhé!
             </div>
             <div>
-              <h2>${run.titleVi || 'Từ mới: Bốn thanh và thanh nhẹ'}</h2>
+              <h1 style="font-size:clamp(1.35rem,2.6vw,1.85rem);font-weight:800;line-height:1.25;margin:0;">${run.titleVi || 'Từ mới: Bốn thanh và thanh nhẹ'}</h1>
             </div>
             ${
               introWords.length > 0
@@ -16405,7 +16488,24 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }, 1100);
   });
 
+  function initNetworkSyncListener() {
+    if (window.__xhzNetworkSyncBound) return;
+    window.__xhzNetworkSyncBound = true;
+    window.addEventListener('offline', () => {
+      try { HTQ_STUDIO_FX.toast('📡 Đang học ngoại tuyến — tiến độ vẫn lưu an toàn trên máy.', 'info'); } catch (_) {}
+    });
+    window.addEventListener('online', () => {
+      try {
+        HTQ_STUDIO_FX.toast('🌐 Đã kết nối mạng — đang đồng bộ tiến độ học...', 'success');
+        if (!window.__xhzDiagRunning && typeof syncProgressToSupabaseAuth === 'function') {
+          syncProgressToSupabaseAuth(getRealProgress()).catch(() => {});
+        }
+      } catch (_) {}
+    });
+  }
+
   function boot() {
+    initNetworkSyncListener();
     supabaseFetchInitial();
     try {
       const pNow = (window.location.pathname || '/').replace(/\/+$/, '') || '/';
