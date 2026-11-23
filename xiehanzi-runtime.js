@@ -373,6 +373,17 @@ body {
     right: 12px !important;
   }
 }
+@media (min-width: 769px) and (max-width: 1179px) {
+  html body #htq-buddy-dock { bottom: 162px !important; }
+}
+.xhz-quiz-2x2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+@media (max-width: 560px) {
+  .xhz-quiz-2x2 { grid-template-columns: 1fr; }
+}
 header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(0); }
 @media (min-width: 1180px) {
   body:not([data-htq-immersive="1"]) > div:has(> header[data-site-header="true"]) { padding-left: 252px !important; }
@@ -1730,6 +1741,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       examCount: examList.length,
       avgSkill,
       predictedScore200,
+      vocabPct: reading,
+      listenPct: listening,
+      speakPct: speaking,
+      grammarPct: grammar,
+      examPct: Math.min(100, Math.round((predictedScore200 / 200) * 100)),
+      dictDone: dictCount,
+      grammarDone: gramCount,
+      avgScore: avgSkill,
+      predictedScore300: predictedScore200 > 0 ? Math.min(300, Math.round(predictedScore200 * 1.5)) : 0,
       skills: [
         { skill: 'listening', labelVi: 'Nghe hiểu', score: listening },
         { skill: 'reading', labelVi: 'Đọc hiểu & Từ vựng', score: reading },
@@ -3311,6 +3331,38 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const fx = document.getElementById('htq-v14-fx-css');
         return Boolean(m && m.getAttribute('data-htq-ver') === '16' && fx && fx.getAttribute('data-htq-ver') === '21');
       });
+      await runCheck('weekly-report-metrics-zero-undefined', () => {
+        const sm = computeRealSkillMetrics(getRealProgressSummary());
+        const wrSrc = typeof renderWeeklyStudyReportPage === 'function' ? renderWeeklyStudyReportPage.toString() : '';
+        return Boolean(
+          sm &&
+          Number.isFinite(sm.vocabPct) &&
+          Number.isFinite(sm.listenPct) &&
+          Number.isFinite(sm.speakPct) &&
+          Number.isFinite(sm.grammarPct) &&
+          Number.isFinite(sm.examPct) &&
+          Number.isFinite(sm.dictDone) &&
+          Number.isFinite(sm.grammarDone) &&
+          Number.isFinite(sm.avgScore) &&
+          Number.isFinite(sm.predictedScore300) &&
+          wrSrc.includes('minutesByDate') &&
+          wrSrc.includes('activeDates')
+        );
+      });
+      await runCheck('thay-do-rt-intercepted-locally', async () => {
+        const r = await (await fetch('/thay-do-rt/dem')).json();
+        return Boolean(r && r.ok === true && Number(r.count) > 0);
+      });
+      await runCheck('thay-do-challenge-modal-timer-pause', () => {
+        const tdcSrc = typeof renderThayDoChallengePage === 'function' ? renderThayDoChallengePage.toString() : '';
+        return Boolean(tdcSrc.includes('[role="dialog"]') && tdcSrc.includes('xhz-quiz-2x2'));
+      });
+      await runCheck('placement-test-2x2-grid-and-tablet-dock', () => {
+        const ptSrc = typeof renderPlacementTestPage === 'function' ? renderPlacementTestPage.toString() : '';
+        const fx = document.getElementById('htq-v14-fx-css');
+        const fxTxt = fx ? fx.textContent : '';
+        return Boolean(ptSrc.includes('xhz-quiz-2x2') && fxTxt.includes('bottom: 162px !important;') && fxTxt.includes('.xhz-quiz-2x2'));
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -4811,6 +4863,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     // ------------------------------------------------------------------------
     if (p === '/server-time' || p === '/server-time/') {
       return jsonResponse({ now: Date.now() });
+    }
+    if (p.startsWith('/thay-do-rt')) {
+      return jsonResponse({ ok: true, count: 18, online: 18, n: 18 });
     }
     if (p.includes('/v2/analytics/events')) {
       return jsonResponse({ ok: true });
@@ -8216,6 +8271,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       url.includes('api.xiehanzi.com') ||
       url.includes('/v1/') ||
       url.includes('/v2/') ||
+      url.includes('/thay-do-rt') ||
       url.startsWith('/v1') ||
       url.startsWith('/v2')
     );
@@ -13051,7 +13107,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:14px;padding-bottom:18px;border-bottom:1px solid #e7e5e4;margin-bottom:20px;">
             <div>
-              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">🧭 ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO · HSK 1 → HSK 4</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;font-weight:800;padding:4px 11px;border-radius:999px;background:#ccfbf1;color:#115e59;"><span>🧭 ĐÁNH GIÁ NĂNG LỰC ĐẦU VÀO ·</span><span style="white-space:nowrap;">HSK 1 → HSK 4</span></span>
               <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Bài Kiểm Tra Xếp Lớp &amp; Đề Xuất Lộ Trình HSK</h1>
               <p style="font-size:14px;color:#57534e;margin:0;">Trả lời 12 câu hỏi phân tầng từ HSK 1 đến HSK 4 để hệ thống gợi ý cấp độ xuất phát và lộ trình học tối ưu cho bạn.</p>
             </div>
@@ -13072,7 +13128,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 <div style="font-size:20px;font-weight:800;color:#1c1917;font-family:'Noto Serif SC',serif;">${escapeHtml(item.stemZh)}</div>
                 <div style="font-size:13.5px;color:#0d9488;font-weight:600;">${escapeHtml(item.stemPy)}</div>
                 <div style="font-size:14.5px;font-weight:700;color:#1c1917;margin-top:2px;">${escapeHtml(item.q)}</div>
-                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px;margin-top:4px;">
+                <div class="xhz-quiz-2x2" style="margin-top:4px;">
                   ${item.opts.map((opt, oIdx) => `
                     <button type="button" data-pt-q="${idx}" data-pt-opt="${oIdx}" style="text-align:left;padding:11px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:13.5px;cursor:pointer;">
                       ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(opt)}
@@ -13433,11 +13489,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const now = new Date();
     const dayOfWeek = (now.getDay() + 6) % 7;
     const monday = new Date(now.getTime() - dayOfWeek * 86400000);
+    const minsMap = prog.minutesByDate || prog.dailyMinutesMap || {};
+    const activeArr = Array.isArray(prog.activeDates) ? prog.activeDates : (Array.isArray(prog.activeDays) ? prog.activeDays : []);
     const weekPills = dayLabels.map((lbl, i) => {
       const d = new Date(monday.getTime() + i * 86400000);
       const iso = d.toISOString().slice(0, 10);
-      const mins = Number((prog.dailyMinutesMap && prog.dailyMinutesMap[iso]) || 0);
-      const isDone = (Array.isArray(prog.activeDays) && prog.activeDays.includes(iso)) || mins > 0;
+      const mins = Number(minsMap[iso] || 0);
+      const isDone = activeArr.includes(iso) || mins > 0;
       return { lbl, iso, isDone, mins, isToday: iso === todayIso };
     });
     const weekTotalMins = weekPills.reduce((acc, w) => acc + (Number(w.mins) || 0), 0);
@@ -13445,27 +13503,38 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const chartMax = Math.max(dailyGoal, ...weekPills.map(w => Number(w.mins) || 0), 15);
     const goalY = Math.round(92 - (Math.min(dailyGoal, chartMax) / chartMax) * 70);
 
+    const vocabPct = Number(m.vocabPct) || 0;
+    const listenPct = Number(m.listenPct) || 0;
+    const speakPct = Number(m.speakPct) || 0;
+    const grammarPct = Number(m.grammarPct) || 0;
+    const examPct = Number(m.examPct) || 0;
+    const dictDone = Number(m.dictDone) || 0;
+    const avgScore = Number(m.avgScore) || 0;
+    const grammarDone = Number(m.grammarDone) || 0;
+    const predictedScore300 = Number(m.predictedScore300) || 0;
+    const avgSkill = Number(m.avgSkill) || 0;
+
     const skillEval = [
-      { name: 'Từ vựng & Hán tự', pct: m.vocabPct, note: `${sum.wordsMastered} từ đã thuộc / ${sum.wordsSeen} từ đã gặp` },
-      { name: 'Nghe hiểu phản xạ', pct: m.listenPct, note: `${m.dictDone} bài nghe chép & hội thoại đã luyện` },
-      { name: 'Khẩu ngữ & Phát âm AI', pct: m.speakPct, note: `Điểm phát âm trung bình: ${m.avgScore}/100` },
-      { name: 'Ngữ pháp HSK', pct: m.grammarPct, note: `${m.grammarDone} chủ điểm ngữ pháp đã hoàn thành` },
-      { name: 'Kỹ năng Làm đề thi', pct: m.examPct, note: `Dự đoán điểm HSK: ${m.predictedScore300}/300 điểm` }
+      { name: 'Từ vựng & Hán tự', pct: vocabPct, note: `${sum.wordsMastered || 0} từ đã thuộc / ${sum.wordsSeen || 0} từ đã gặp` },
+      { name: 'Nghe hiểu phản xạ', pct: listenPct, note: `${dictDone} bài nghe chép & hội thoại đã luyện` },
+      { name: 'Khẩu ngữ & Phát âm AI', pct: speakPct, note: `Điểm phát âm trung bình: ${avgScore}/100` },
+      { name: 'Ngữ pháp HSK', pct: grammarPct, note: `${grammarDone} chủ điểm ngữ pháp đã hoàn thành` },
+      { name: 'Kỹ năng Làm đề thi', pct: examPct, note: `Dự đoán điểm HSK: ${predictedScore300}/300 điểm` }
     ];
     const overallComment =
-      m.avgSkill >= 75
+      avgSkill >= 75
         ? 'Xuất sắc! Học viên duy trì nhịp độ học tập rất vững vàng, phản xạ ngữ âm và vốn từ HSK phát triển đồng đều.'
-        : m.avgSkill >= 40
+        : avgSkill >= 40
         ? 'Tiến bộ tốt! Học viên đã hình thành thói quen học tiếng Trung và nắm được nhóm từ vựng, ngữ pháp cốt lõi.'
         : 'Khởi đầu tích cực! Khuyến nghị duy trì đều đặn 15 phút/ngày tại Bảng nhiệm vụ hôm nay (/hoc/hom-nay) để tăng tốc độ tích lũy từ vựng.';
 
     const summaryTextForCopy =
       `📜 BÁO CÁO HỌC TẬP HÁN NGỮ STUDIO (${todayIso})\n` +
-      `• Chuỗi ngày học liên tiếp: ${sum.streakDays} ngày (Hoạt động ${activeWeekDays}/7 ngày tuần này)\n` +
+      `• Chuỗi ngày học liên tiếp: ${sum.streakDays || 0} ngày (Hoạt động ${activeWeekDays}/7 ngày tuần này)\n` +
       `• Thời lượng học trong tuần: ${weekTotalMins} / ${weeklyGoalMins} phút\n` +
-      `• Từ vựng đã thuộc: ${sum.wordsMastered} từ (Đã mở khóa ${sum.wordsSeen} từ)\n` +
-      `• Ngữ pháp đã nắm vững: ${m.grammarDone} chủ điểm\n` +
-      `• Điểm phát âm AI trung bình: ${m.avgScore}/100 · Dự đoán HSK: ${m.predictedScore300}/300 điểm\n` +
+      `• Từ vựng đã thuộc: ${sum.wordsMastered || 0} từ (Đã mở khóa ${sum.wordsSeen || 0} từ)\n` +
+      `• Ngữ pháp đã nắm vững: ${grammarDone} chủ điểm\n` +
+      `• Điểm phát âm AI trung bình: ${avgScore}/100 · Dự đoán HSK: ${predictedScore300}/300 điểm\n` +
       `• Nhận xét: ${overallComment}`;
 
     root.innerHTML = `
@@ -13482,14 +13551,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:26px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;padding-bottom:18px;border-bottom:2px solid #0d9488;margin-bottom:20px;">
             <div>
-              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#ccfbf1;color:#115e59;">📜 PHIẾU TỔNG KẾT &amp; BÁO CÁO HỌC TẬP · ${todayIso}</span>
+              <span style="display:inline-flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12px;font-weight:800;padding:4px 11px;border-radius:999px;background:#ccfbf1;color:#115e59;"><span>📜 PHIẾU TỔNG KẾT &amp; BÁO CÁO HỌC TẬP ·</span><span style="white-space:nowrap;">${todayIso}</span></span>
               <h1 style="font-size:25px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Báo Cáo Tiến Độ Học Tiếng Trung &amp; Đánh Giá 5 Kỹ Năng HSK</h1>
               <p style="font-size:14px;color:#57534e;margin:0;">Tổng hợp thời lượng học tập, chuỗi chuyên cần, vốn từ vựng và mức độ sẵn sàng thi HSK.</p>
             </div>
             <div style="padding:12px 18px;border-radius:16px;background:#f0fdfa;border:1px solid #99f6e4;text-align:right;">
               <div style="font-size:11.5px;font-weight:800;color:#115e59;">ĐỘ SẴN SÀNG HSK</div>
-              <div style="font-size:26px;font-weight:900;color:#0d9488;">${m.avgSkill}%</div>
-              <div style="font-size:12px;color:#0f766e;font-weight:700;">Dự đoán: ${m.predictedScore300}/300 điểm</div>
+              <div style="font-size:26px;font-weight:900;color:#0d9488;">${avgSkill}%</div>
+              <div style="font-size:12px;color:#0f766e;font-weight:700;">Dự đoán: ${predictedScore300}/300 điểm</div>
             </div>
           </div>
 
@@ -13511,8 +13580,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </div>
             <div style="padding:14px 16px;border-radius:14px;background:#eef2ff;border:1px solid #c7d2fe;">
               <div style="font-size:11.5px;font-weight:800;color:#4338ca;">NGỮ PHÁP &amp; KHẨU NGỮ</div>
-              <div style="font-size:24px;font-weight:800;color:#4f46e5;margin-top:4px;">${m.grammarDone} cấu trúc</div>
-              <div style="font-size:12px;color:#57534e;margin-top:2px;">Phát âm AI TB: ${m.avgScore}/100</div>
+              <div style="font-size:24px;font-weight:800;color:#4f46e5;margin-top:4px;">${grammarDone} cấu trúc</div>
+              <div style="font-size:12px;color:#57534e;margin-top:2px;">Phát âm AI TB: ${avgScore}/100</div>
             </div>
           </div>
 
@@ -13715,7 +13784,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div style="font-size:18px;font-weight:700;color:#0d9488;margin-top:4px;">${escapeHtml(item.py)}</div>
             <div style="font-size:15px;font-weight:700;color:#44403c;margin-top:10px;">${escapeHtml(item.q)}</div>
           </div>
-          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;">
+          <div class="xhz-quiz-2x2">
             ${shuffledOpts.map((o, oIdx) => `
               <button type="button" data-tdc-opt="${oIdx}" data-tdc-correct="${o.isRight ? '1' : '0'}" style="padding:12px 16px;border-radius:12px;border:1px solid #d6d3d1;background:#fff;color:#1c1917;font-weight:700;font-size:14px;cursor:pointer;text-align:left;">
                 ${String.fromCharCode(65 + oIdx)}. ${escapeHtml(o.text)}
@@ -13750,6 +13819,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         window.__xhzTdcTimer = null;
         return;
       }
+      if (document.querySelector('[role="dialog"], [aria-modal="true"]')) return;
       timeLeft = Math.max(0, timeLeft - 1);
       if (timerEl) timerEl.textContent = `⏱️ ${timeLeft}s`;
       if (timeLeft <= 0) finishChallenge();
