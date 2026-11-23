@@ -103,7 +103,7 @@
       var root = document.head || document.documentElement;
       if (!root) return;
       var st = document.getElementById('htq-v14-fx-css');
-      if (st && st.getAttribute('data-htq-ver') === '18') return;
+      if (st && st.getAttribute('data-htq-ver') === '21') return;
       if (!st) {
         st = document.createElement('style');
         st.id = 'htq-v14-fx-css';
@@ -540,6 +540,19 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .htq-sticker-tile:not(.is-unlocked) > img { filter: grayscale(.65) opacity(.68); }
 .htq-sticker-tile:hover > img { transform: scale(1.12) rotate(4deg); }
 
+#xhz-week-minutes-chart .xhz-chart-axis { stroke: #e7e5e4; }
+#xhz-week-minutes-chart .xhz-chart-lbl { fill: #57534e; font-size: 11px; font-weight: 700; }
+#xhz-week-minutes-chart .xhz-chart-lbl.is-today { fill: #0d9488; font-weight: 800; }
+#xhz-week-minutes-chart .xhz-chart-val { fill: #44403c; font-size: 10.5px; font-weight: 700; }
+#xhz-week-minutes-chart .xhz-chart-zero-bar { fill: #e7e5e4; }
+#xhz-week-minutes-chart .xhz-chart-goal-lbl { fill: #b45309; font-size: 10px; font-weight: 700; }
+.dark #xhz-week-minutes-chart .xhz-chart-axis { stroke: rgba(148,163,184,.24); }
+.dark #xhz-week-minutes-chart .xhz-chart-lbl { fill: #cbd5e1; }
+.dark #xhz-week-minutes-chart .xhz-chart-lbl.is-today { fill: #5eead4; }
+.dark #xhz-week-minutes-chart .xhz-chart-val { fill: #e2e8f0; }
+.dark #xhz-week-minutes-chart .xhz-chart-zero-bar { fill: rgba(148,163,184,.25); }
+.dark #xhz-week-minutes-chart .xhz-chart-goal-lbl { fill: #fcd34d; }
+
 @media (prefers-reduced-motion: reduce) {
   .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble, .htq-petal, .htq-sparkle-dot, .htq-story-card, .htq-sticker-tile, .htq-story-card-img-wrap > img, .htq-buddy-fab {
     animation: none !important; transition: none !important;
@@ -549,7 +562,7 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 }
 `;
       if (st.textContent !== fxCss) st.textContent = fxCss;
-      st.setAttribute('data-htq-ver', '18');
+      st.setAttribute('data-htq-ver', '21');
     } catch (_e) {}
   }
   injectMasterV3Styles();
@@ -2574,7 +2587,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         injectMasterV3Styles();
         const m = document.getElementById('htq-v3-master-css');
         const f = document.getElementById('htq-v14-fx-css');
-        return Boolean(m && m.getAttribute('data-htq-ver') === '16' && m.textContent.includes(':focus-visible') && f && f.getAttribute('data-htq-ver') === '18');
+        return Boolean(m && m.getAttribute('data-htq-ver') === '16' && m.textContent.includes(':focus-visible') && f && f.getAttribute('data-htq-ver') === '21');
       });
       await runCheck('seo-robots-and-sitemap', async () => {
         const rb = await originalFetch('/robots.txt').then(r => r.ok ? r.text() : '').catch(() => '');
@@ -2645,7 +2658,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const f = document.getElementById('htq-v14-fx-css');
         const t = f ? f.textContent : '';
         return Boolean(
-          f && f.getAttribute('data-htq-ver') === '18' &&
+          f && f.getAttribute('data-htq-ver') === '21' &&
           t.includes('#eef2ff') && t.includes('#fff1f2') && t.includes('#fef3c7') && t.includes('#fffbeb') && t.includes('#ecfdf5')
         );
       });
@@ -2737,9 +2750,47 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v23') &&
+          swTxt.includes('htq-studio-v24') &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
+        );
+      });
+      await runCheck('progress-week-minutes-svg-chart', () => {
+        injectMasterV3Styles();
+        const prSrc = typeof renderProgressOrHabitPage === 'function' ? renderProgressOrHabitPage.toString() : '';
+        const f = document.getElementById('htq-v14-fx-css');
+        return Boolean(
+          prSrc.includes('xhz-week-minutes-chart') &&
+          prSrc.includes('role="img"') &&
+          prSrc.includes('xhz-week-minutes-chart-wrap') &&
+          f && f.textContent.includes('.dark #xhz-week-minutes-chart')
+        );
+      });
+      await runCheck('srs-keyboard-shortcut-m-and-hint', () => {
+        const kbdSrc = typeof htqGlobalKeydownHandler === 'function' ? htqGlobalKeydownHandler.toString() : '';
+        const revSrc = typeof renderReviewSessionPage === 'function' ? renderReviewSessionPage.toString() : '';
+        return Boolean(
+          kbdSrc.includes('xhz-srs-mn-toggle') &&
+          revSrc.includes('<strong>M</strong> mẹo nhớ')
+        );
+      });
+      await runCheck('detail-pages-copy-worksheet-and-h1', () => {
+        const chSrc = typeof renderCharacterDetailPage === 'function' ? renderCharacterDetailPage.toString() : '';
+        const voSrc = typeof renderVocabularyDetailPage === 'function' ? renderVocabularyDetailPage.toString() : '';
+        return Boolean(
+          typeof copyStudyText === 'function' &&
+          chSrc.includes('<h1 ') &&
+          chSrc.includes('xhz-btn-copy-char') &&
+          chSrc.includes('xhz-btn-worksheet-char') &&
+          voSrc.includes('xhz-btn-copy-word') &&
+          voSrc.includes('xhz-btn-worksheet-word')
+        );
+      });
+      await runCheck('zero-runtime-imgs-missing-decoding-async', () => {
+        const testSrc = typeof renderHskTestPaperPage === 'function' ? renderHskTestPaperPage.toString() : '';
+        return Boolean(
+          testSrc.includes('loading="lazy" decoding="async"') &&
+          !testSrc.includes('loading="lazy">')
         );
       });
     } finally {
@@ -8114,6 +8165,37 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   window.__xhzBuildMnemonicSectionHtml = buildMnemonicSectionHtml;
   window.__xhzWireMnemonicSection = wireMnemonicSection;
 
+  async function copyStudyText(text, label) {
+    const value = String(text || '').trim();
+    if (!value) return false;
+    let copied = false;
+    try {
+      if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        await navigator.clipboard.writeText(value);
+        copied = true;
+      }
+    } catch (_) {}
+    if (!copied) {
+      try {
+        const ta = document.createElement('textarea');
+        ta.value = value;
+        ta.setAttribute('readonly', 'readonly');
+        ta.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+        document.body.appendChild(ta);
+        ta.select();
+        copied = document.execCommand('copy');
+        ta.remove();
+      } catch (_) {}
+    }
+    try {
+      HTQ_STUDIO_FX.toast(
+        copied ? `📋 Đã sao chép "${label || value}"` : 'Không thể sao chép tự động, vui lòng bôi đen để chép.',
+        copied ? 'success' : 'warn'
+      );
+    } catch (_) {}
+    return copied;
+  }
+
   async function renderCharacterDetailPage(slug) {
     const root = getMainContentContainer();
     root.innerHTML = `<div style="padding:32px;text-align:center;color:#78716c;">Đang tải dữ liệu chữ Hán...</div>`;
@@ -8151,11 +8233,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <button type="button" id="xhz-btn-animate" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">✍️ Xem thứ tự nét</button>
             <button type="button" id="xhz-btn-quiz-stroke" style="padding:8px 16px;border-radius:999px;background:#fef3c7;color:#92400e;border:1px solid #fde68a;font-weight:600;cursor:pointer;">🎯 Tập viết chữ</button>
             <button type="button" id="xhz-btn-save-notebook" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">⭐ Lưu vào Sổ tay</button>
+            <button type="button" id="xhz-btn-copy-char" style="padding:8px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:600;cursor:pointer;">📋 Sao chép</button>
+            <a id="xhz-btn-worksheet-char" href="/tao-vo-tap-viet?text=${encodeURIComponent(ch)}" style="padding:8px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;">📝 In vở tập viết</a>
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:12px;">
           <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-            <span style="font-size:36px;font-weight:800;color:#1c1917;">${escapeHtml(ch)}</span>
+            <h1 style="font-size:36px;font-weight:800;color:#1c1917;margin:0;line-height:1.1;">${escapeHtml(ch)}</h1>
             <span style="font-size:22px;color:#0d9488;font-weight:700;">[${escapeHtml(pinyin)}]</span>
             ${hanviet ? `<span style="padding:4px 12px;border-radius:999px;background:#ccfbf1;color:#115e59;font-weight:700;text-transform:uppercase;">Hán Việt: ${escapeHtml(hanviet)}</span>` : ''}
             ${hsk ? `<span style="padding:4px 10px;border-radius:999px;background:#e0f2fe;color:#0369a1;font-weight:600;font-size:13px;">HSK ${escapeHtml(hsk)}</span>` : ''}
@@ -8217,6 +8301,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const speakBtn = document.getElementById('xhz-btn-speak');
     if (speakBtn) speakBtn.onclick = () => playPronunciation(ch, audioSrc);
+    const copyCharBtn = document.getElementById('xhz-btn-copy-char');
+    if (copyCharBtn) copyCharBtn.onclick = () => copyStudyText(pinyin ? `${ch} (${pinyin})` : ch, ch);
     wireNotebookToggleButton('xhz-btn-save-notebook', {
       key: ch,
       isChar: true,
@@ -8311,6 +8397,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
             <button type="button" id="xhz-word-speak" style="padding:10px 20px;border-radius:999px;background:#0d9488;color:#fff;border:none;font-weight:700;cursor:pointer;font-size:15px;">🔊 Nghe phát âm</button>
             <button type="button" id="xhz-btn-save-notebook" style="padding:10px 18px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:14px;">⭐ Lưu vào Sổ tay</button>
+            <button type="button" id="xhz-btn-copy-word" style="padding:10px 16px;border-radius:999px;background:#f5f5f4;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;cursor:pointer;font-size:14px;">📋 Sao chép</button>
+            <a id="xhz-btn-worksheet-word" href="/tao-vo-tap-viet?text=${encodeURIComponent(word)}" style="padding:10px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;">📝 In vở tập viết</a>
           </div>
         </div>
 
@@ -8364,6 +8452,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     `;
     const btn = document.getElementById('xhz-word-speak');
     if (btn) btn.onclick = () => playPronunciation(word, audioUrl);
+    const copyWordBtn = document.getElementById('xhz-btn-copy-word');
+    if (copyWordBtn) copyWordBtn.onclick = () => copyStudyText(pinyin ? `${word} (${pinyin})` : word, word);
     wireNotebookToggleButton('xhz-btn-save-notebook', {
       key: word,
       isChar: word.length === 1,
@@ -10693,7 +10783,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const written = ['character_fill', 'writing_sentence', 'writing_essay'].includes(type);
         const images = (Array.isArray(question.images) ? question.images : []).map(rewriteMediaUrl);
         const card = document.createElement('section'); card.className = 'exam-panel'; card.id = `xhz-qcard-${number}`;
-        card.innerHTML = `<h2>Câu ${number}${question.sectionTitle ? ` · ${escape(question.sectionTitle)}` : ''}</h2>${question.instruction ? `<p class="exam-muted">${escape(question.instruction)}</p>` : ''}<p style="font-size:20px;white-space:pre-line;">${escape(question.prompt || question.question || question.stem || question.text || '')}</p>${question.pinyin || question.transcriptPinyin ? `<p class="exam-muted">${escape(question.pinyin || question.transcriptPinyin)}</p>` : ''}${question.passage ? `<p style="white-space:pre-line;">${escape(question.passage)}</p>` : ''}<div class="exam-audio"></div>${question.imageUrl || question.image ? `<img src="${escape(rewriteMediaUrl(question.imageUrl || question.image))}" onerror="this.style.display='none'" alt="Minh họa câu ${number}" loading="lazy">` : ''}${type === 'image_match' && images.length ? `<div class="exam-images">${images.map((src, idx) => `<div><strong>Hình ${String.fromCharCode(65 + idx)}</strong><img src="${escape(src)}" onerror="this.style.display='none'" alt="Hình ${String.fromCharCode(65 + idx)}" loading="lazy"></div>`).join('')}</div>` : ''}<div class="exam-answers"></div><p class="exam-feedback" role="status"></p>`;
+        card.innerHTML = `<h2>Câu ${number}${question.sectionTitle ? ` · ${escape(question.sectionTitle)}` : ''}</h2>${question.instruction ? `<p class="exam-muted">${escape(question.instruction)}</p>` : ''}<p style="font-size:20px;white-space:pre-line;">${escape(question.prompt || question.question || question.stem || question.text || '')}</p>${question.pinyin || question.transcriptPinyin ? `<p class="exam-muted">${escape(question.pinyin || question.transcriptPinyin)}</p>` : ''}${question.passage ? `<p style="white-space:pre-line;">${escape(question.passage)}</p>` : ''}<div class="exam-audio"></div>${question.imageUrl || question.image ? `<img src="${escape(rewriteMediaUrl(question.imageUrl || question.image))}" onerror="this.style.display='none'" alt="Minh họa câu ${number}" loading="lazy" decoding="async">` : ''}${type === 'image_match' && images.length ? `<div class="exam-images">${images.map((src, idx) => `<div><strong>Hình ${String.fromCharCode(65 + idx)}</strong><img src="${escape(src)}" onerror="this.style.display='none'" alt="Hình ${String.fromCharCode(65 + idx)}" loading="lazy" decoding="async"></div>`).join('')}</div>` : ''}<div class="exam-answers"></div><p class="exam-feedback" role="status"></p>`;
         list.appendChild(card);
         mountAudio(card.querySelector('.exam-audio'), question.audio || question.audioUrl, key);
         const answerRoot = card.querySelector('.exam-answers');
@@ -10728,7 +10818,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             const image = typeof option === 'object' && (option.image || option.imageUrl) ? rewriteMediaUrl(option.image || option.imageUrl) : type === 'image_choice' ? images[optionIndex] : '';
             const label = document.createElement('label'); label.className = 'exam-option';
             const input = document.createElement('input'); input.type = 'radio'; input.name = `xhz-exam-answer-${key}`; input.value = optionKey; input.checked = attempt.answers[key] === optionKey; input.disabled = submitted; input.setAttribute('aria-label', `Câu ${number}, ${optionKey}: ${text}`);
-            const body = document.createElement('span'); body.innerHTML = `<strong>${escape(optionKey)}.</strong> ${escape(text)}${typeof option === 'object' && option.pinyin ? `<small class="exam-muted"> ${escape(option.pinyin)}</small>` : ''}${image ? `<img src="${escape(image)}" onerror="this.style.display='none'" alt="Câu ${number}, phương án ${escape(optionKey)}" loading="lazy">` : ''}`;
+            const body = document.createElement('span'); body.innerHTML = `<strong>${escape(optionKey)}.</strong> ${escape(text)}${typeof option === 'object' && option.pinyin ? `<small class="exam-muted"> ${escape(option.pinyin)}</small>` : ''}${image ? `<img src="${escape(image)}" onerror="this.style.display='none'" alt="Câu ${number}, phương án ${escape(optionKey)}" loading="lazy" decoding="async">` : ''}`;
             input.onchange = () => { if (input.checked) saveAnswer(input.value); };
             label.append(input, body); answerRoot.appendChild(label);
           });
@@ -10969,7 +11059,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;">
           ${[['again', 'Quên', '1 phút', '1'], ['hard', 'Khó', '10 phút', '2'], ['good', 'Tốt', `${goodDays} ngày`, '3'], ['easy', 'Dễ', `${Math.max(4, goodDays)} ngày`, '4']].map(([grade, label, interval, keyHint]) => `<button class="xhz-srs-grade" data-grade="${grade}" data-key="${keyHint}" disabled style="${buttonStyle}opacity:0.5;padding:12px 4px;">${label}<div style="font-size:11px;margin-top:4px;">${interval} · [${keyHint}]</div></button>`).join('')}
         </div>
-        <div id="xhz-srs-kbd-hint" style="margin-top:12px;font-size:12px;color:#78716c;">⌨️ Phím tắt: <strong>Space</strong> lật thẻ · <strong>R</strong> nghe lại · <strong>1–4</strong> chấm mức nhớ</div>`;
+        <div id="xhz-srs-kbd-hint" style="margin-top:12px;font-size:12px;color:#78716c;">⌨️ Phím tắt: <strong>Space</strong> lật thẻ · <strong>R</strong> nghe lại · <strong>M</strong> mẹo nhớ · <strong>1–4</strong> chấm mức nhớ</div>`;
       const flip = () => {
         flipped = !flipped; srsPanel.querySelector('#xhz-srs-back').style.display = flipped ? 'block' : 'none';
         srsPanel.querySelector('.xhz-srs-pinyin').textContent = hidePinyin && !flipped ? '' : item.pinyin;
@@ -10989,6 +11079,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             try { mnInp.focus(); } catch (_) {}
           }
         };
+        mnInp.addEventListener('keydown', ev => {
+          if (ev.key === 'Escape') {
+            ev.preventDefault();
+            mnForm.style.display = 'none';
+            try { mnInp.blur(); } catch (_) {}
+          }
+        });
         mnForm.onsubmit = async ev => {
           ev.preventDefault();
           const note = String(mnInp.value || '').trim();
@@ -11218,6 +11315,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     // Build Mon-Sun tracker
     const now = new Date();
+    const todayIso = now.toISOString().slice(0, 10);
     const dow = now.getDay(); // 0=Sun..6=Sat
     const mondayOffset = dow === 0 ? -6 : 1 - dow;
     const dayLabels = ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'];
@@ -11229,8 +11327,43 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const iso = d.toISOString().slice(0, 10);
       const isDone = activeSet.has(iso) || (Number((prog.minutesByDate || {})[iso]) || 0) > 0;
       const mins = Number((prog.minutesByDate || {})[iso]) || 0;
-      return { lbl, iso, isDone, mins };
+      return { lbl, iso, isDone, mins, isToday: iso === todayIso };
     });
+
+    function buildWeekMinutesChartHtml(pills, goalMins) {
+      const safeGoal = Math.max(5, Number(goalMins) || 15);
+      const totalMins = pills.reduce((acc, w) => acc + (Number(w.mins) || 0), 0);
+      const goalDays = pills.filter(w => (Number(w.mins) || 0) >= safeGoal).length;
+      const maxVal = Math.max(safeGoal * 1.25, ...pills.map(w => Number(w.mins) || 0), 15);
+      const baseY = 126;
+      const chartH = 96;
+      const colW = 56;
+      const startX = 14;
+      const barW = 30;
+      const goalY = Math.round(baseY - (safeGoal / maxVal) * chartH);
+      const cols = pills.map((wp, idx) => {
+        const m = Number(wp.mins) || 0;
+        const barH = m > 0 ? Math.max(6, Math.round((m / maxVal) * chartH)) : 4;
+        const y = baseY - barH;
+        const x = startX + idx * colW + Math.round((colW - barW) / 2);
+        const cx = x + Math.round(barW / 2);
+        const fillAttr = m >= safeGoal ? 'fill="#0d9488"' : m > 0 ? 'fill="#6366f1"' : 'class="xhz-chart-zero-bar"';
+        return `<g><title>${wp.lbl} (${wp.iso}): ${m} phút</title><rect x="${x}" y="${y}" width="${barW}" height="${barH}" rx="6" ${fillAttr} /><text class="xhz-chart-val" x="${cx}" y="${Math.max(12, y - 5)}" text-anchor="middle">${m}p</text><text class="xhz-chart-lbl${wp.isToday ? ' is-today' : ''}" x="${cx}" y="144" text-anchor="middle">${wp.lbl}${wp.isToday ? '•' : ''}</text></g>`;
+      }).join('');
+      return `
+        <section style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <h3 style="font-size:16px;font-weight:800;color:#1c1917;margin:0;">📈 Thời lượng học 7 ngày qua (T2 → CN)</h3>
+            <span style="font-size:12.5px;font-weight:700;color:#44403c;background:#fff;border:1px solid #e7e5e4;padding:4px 10px;border-radius:999px;">Tổng ${totalMins} phút · Đạt mục tiêu ${goalDays}/7 ngày</span>
+          </div>
+          <svg id="xhz-week-minutes-chart" viewBox="0 0 420 156" role="img" aria-label="Biểu đồ thời lượng học 7 ngày qua" style="width:100%;max-width:720px;height:auto;display:block;margin:0 auto;">
+            <line class="xhz-chart-axis" x1="10" y1="${baseY}" x2="410" y2="${baseY}" stroke-width="1" />
+            <line x1="10" y1="${goalY}" x2="410" y2="${goalY}" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4 4" />
+            <text class="xhz-chart-goal-lbl" x="408" y="${Math.max(12, goalY - 4)}" text-anchor="end">Mục tiêu ${safeGoal}p</text>
+            ${cols}
+          </svg>
+        </section>`;
+    }
 
     const weeks12 = Array.isArray(sum.activity12Weeks) ? sum.activity12Weeks : [];
     let lsMn = {};
@@ -11356,6 +11489,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             </div>
           `}
 
+          <div id="xhz-week-minutes-chart-wrap" style="margin-bottom:22px;">${buildWeekMinutesChartHtml(weekPills, dailyGoal)}</div>
+
           <div style="display:flex;gap:12px;flex-wrap:wrap;">
             <a href="/hoc/bai/hsk30.L1.P1.learn.1" style="padding:12px 22px;border-radius:14px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;">▶ Tiếp tục học Bài 1</a>
             <a href="/hoc/bai/on-tap-den-han" style="padding:12px 22px;border-radius:14px;background:#ffedd5;color:#9a3412;border:1px solid #fdba74;font-weight:800;text-decoration:none;">🔄 Ôn bài đến hạn (${sum.dueTotal})</a>
@@ -11374,6 +11509,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         recordStudyProgress({
           habitSettings: { weeklySessionsGoal: sessVal, weeklyGoal: sessVal, dailyMinutesGoal: minVal, dailyMinutes: minVal }
         });
+        const chartWrap = document.getElementById('xhz-week-minutes-chart-wrap');
+        if (chartWrap) chartWrap.innerHTML = buildWeekMinutesChartHtml(weekPills, minVal);
         try {
           await fetch('/v2/me/habit/weekly-goal', {
             method: 'PATCH',
@@ -16472,6 +16609,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       } else if (k.toLowerCase() === 'r') {
         const spkBtn = document.getElementById('xhz-srs-speak');
         if (spkBtn) { ev.preventDefault(); spkBtn.click(); }
+      } else if (k.toLowerCase() === 'm') {
+        const mnBtn = document.getElementById('xhz-srs-mn-toggle');
+        if (mnBtn) { ev.preventDefault(); mnBtn.click(); }
       } else if (['1', '2', '3', '4'].includes(k)) {
         const gBtn = srsPanel.querySelector(`.xhz-srs-grade[data-key="${k}"]:not([disabled])`);
         if (gBtn) { ev.preventDefault(); gBtn.click(); }
