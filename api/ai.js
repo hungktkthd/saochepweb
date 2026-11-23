@@ -102,31 +102,155 @@ async function callLlmJson(systemPrompt, userPrompt, clientApiKey) {
   return null;
 }
 
+const CORE_PHRASE_DICT = [
+  { zh: "你好", py: "nǐ hǎo", hv: "nhĩ hảo", vi: "xin chào" },
+  { zh: "您好", py: "nín hǎo", hv: "nâm hảo", vi: "xin chào (kính ngữ)" },
+  { zh: "谢谢", py: "xièxie", hv: "tạ tạ", vi: "cảm ơn" },
+  { zh: "谢谢你", py: "xièxie nǐ", hv: "tạ tạ nhĩ", vi: "cảm ơn bạn" },
+  { zh: "不客气", py: "bù kèqi", hv: "bất khách khí", vi: "không có gì" },
+  { zh: "不用谢", py: "búyòng xiè", hv: "bất dụng tạ", vi: "không cần cảm ơn" },
+  { zh: "对不起", py: "duìbuqǐ", hv: "đối bất khởi", vi: "xin lỗi" },
+  { zh: "没关系", py: "méi guānxi", hv: "một quan hệ", vi: "không sao đâu" },
+  { zh: "再见", py: "zàijiàn", hv: "tái kiến", vi: "tạm biệt" },
+  { zh: "明天见", py: "míngtiān jiàn", hv: "minh thiên kiến", vi: "hẹn gặp lại ngày mai" },
+  { zh: "好", py: "hǎo", hv: "hảo", vi: "tốt, hay, đẹp" },
+  { zh: "我爱你", py: "wǒ ài nǐ", hv: "ngã ái nhĩ", vi: "tôi yêu bạn" },
+  { zh: "学习", py: "xuéxí", hv: "học tập", vi: "học tập" },
+  { zh: "汉语", py: "Hànyǔ", hv: "Hán ngữ", vi: "tiếng Hán, tiếng Trung" },
+  { zh: "中文", py: "Zhōngwén", hv: "Trung văn", vi: "tiếng Trung" },
+  { zh: "中国", py: "Zhōngguó", hv: "Trung Quốc", vi: "Trung Quốc" },
+  { zh: "越南", py: "Yuènán", hv: "Việt Nam", vi: "Việt Nam" },
+  { zh: "早上好", py: "zǎoshang hǎo", hv: "tảo thượng hảo", vi: "chào buổi sáng" },
+  { zh: "晚安", py: "wǎn'ān", hv: "vãn an", vi: "chúc ngủ ngon" },
+  { zh: "请问", py: "qǐngwèn", hv: "thỉnh vấn", vi: "xin hỏi" },
+  { zh: "多少钱", py: "duōshao qián", hv: "đa thiểu tiền", vi: "bao nhiêu tiền" },
+  { zh: "老师", py: "lǎoshī", hv: "lão sư", vi: "giáo viên, thầy cô" },
+  { zh: "学生", py: "xuésheng", hv: "học sinh", vi: "học sinh, sinh viên" },
+  { zh: "朋友", py: "péngyou", hv: "bằng hữu", vi: "bạn bè" },
+  { zh: "加油", py: "jiāyóu", hv: "gia du", vi: "cố lên" },
+  { zh: "很高兴认识你", py: "hěn gāoxìng rènshi nǐ", hv: "", vi: "rất vui được làm quen với bạn" },
+  { zh: "吃饭", py: "chīfàn", hv: "ngật phạn", vi: "ăn cơm" },
+  { zh: "喝水", py: "hēshuǐ", hv: "hát thủy", vi: "uống nước" },
+  { zh: "工作", py: "gōngzuò", hv: "công tác", vi: "công việc, làm việc" },
+  { zh: "开心", py: "kāixīn", hv: "khai tâm", vi: "vui vẻ" },
+  { zh: "喜欢", py: "xǐhuan", hv: "hỉ hoan", vi: "thích" },
+  { zh: "帮助", py: "bāngzhù", hv: "bang trợ", vi: "giúp đỡ" },
+  { zh: "没问题", py: "méi wèntí", hv: "một vấn đề", vi: "không thành vấn đề" },
+  { zh: "欢迎", py: "huānyíng", hv: "hoan nghênh", vi: "hoan nghênh, chào mừng" },
+  { zh: "生日快乐", py: "shēngrì kuàilè", hv: "sinh nhật khoái lạc", vi: "chúc mừng sinh nhật" },
+  { zh: "新年快乐", py: "xīnnián kuàilè", hv: "tân niên khoái lạc", vi: "chúc mừng năm mới" },
+  { zh: "辛苦了", py: "xīnkǔ le", hv: "tân khổ liễu", vi: "vất vả rồi" },
+  { zh: "慢慢来", py: "mànmàn lái", hv: "mạn mạn lai", vi: "cứ từ từ thôi" },
+  { zh: "当然", py: "dāngrán", hv: "đương nhiên", vi: "đương nhiên" },
+  { zh: "知道", py: "zhīdào", hv: "tri đạo", vi: "biết" },
+  { zh: "明白", py: "míngbai", hv: "minh bạch", vi: "hiểu rõ" },
+  { zh: "准备", py: "zhǔnbèi", hv: "chuẩn bị", vi: "chuẩn bị" },
+  { zh: "今天天气很好", py: "jīntiān tiānqì hěn hǎo", hv: "", vi: "hôm nay thời tiết rất đẹp" }
+];
+
+function normalizeViForLookup(s) {
+  return String(s || "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[đĐ]/g, "d")
+    .replace(/[?!.,;:()[\]"']/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function lookupCorePhrase(text, direction) {
+  const clean = String(text || "").trim();
+  if (!clean) return null;
+  if (direction === "zh-vi") {
+    const cleanZh = clean.replace(/[\s，。？！,.?!]+/g, "");
+    const hit = CORE_PHRASE_DICT.find((e) => e.zh === cleanZh || e.zh === clean);
+    return hit ? { target: hit.vi, py: hit.py, hv: hit.hv || null, source: "dict" } : null;
+  }
+  const norm = normalizeViForLookup(clean);
+  if (!norm) return null;
+  const hit = CORE_PHRASE_DICT.find((e) => {
+    const primary = normalizeViForLookup(e.vi.split("(")[0].split(",")[0]);
+    const parts = e.vi.split(",").map((p) => normalizeViForLookup(p.split("(")[0]));
+    return norm === primary || parts.includes(norm);
+  });
+  return hit ? { target: hit.zh, py: hit.py, hv: hit.hv || null, source: "dict" } : null;
+}
+
 async function googleTranslateFallback(text, sourceLang, targetLang, script) {
-  const safeText = String(text || "").slice(0, 1500);
+  const safeText = String(text || "").slice(0, 1500).trim();
   const sl = sourceLang === "zh" ? "zh-CN" : sourceLang === "vi" ? "vi" : "auto";
   const tl = targetLang === "zh" ? (script === "traditional" ? "zh-TW" : "zh-CN") : "vi";
-  const url =
-    `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&dt=rm&q=` +
-    encodeURIComponent(safeText);
-  const resp = await fetchWithTimeout(url, {
-    headers: { "User-Agent": "Mozilla/5.0" }
-  }, 6000);
-  if (!resp.ok) throw new Error("GTX status " + resp.status);
-  const data = await resp.json();
-  let translation = "";
-  let translit = "";
-  if (Array.isArray(data?.[0])) {
-    for (const seg of data[0]) {
-      if (seg?.[0]) translation += seg[0];
-      if (seg?.[2]) translit += (translit ? " " : "") + seg[2];
-      else if (seg?.[3]) translit += (translit ? " " : "") + seg[3];
+  const isSame = sl === tl;
+
+  // 1. Primary Google Translate GTX
+  try {
+    const url =
+      `https://translate.googleapis.com/translate_a/single?client=gtx&sl=${sl}&tl=${tl}&dt=t&dt=rm&q=` +
+      encodeURIComponent(safeText);
+    const resp = await fetchWithTimeout(url, { headers: { "User-Agent": "Mozilla/5.0" } }, 4500);
+    if (resp.ok) {
+      const data = await resp.json();
+      let translation = "";
+      let translit = "";
+      if (Array.isArray(data?.[0])) {
+        for (const seg of data[0]) {
+          if (seg?.[0]) translation += seg[0];
+          if (seg?.[2]) translit += (translit ? " " : "") + seg[2];
+          else if (seg?.[3]) translit += (translit ? " " : "") + seg[3];
+        }
+      }
+      const cleanT = translation.trim();
+      if (cleanT && (isSame || cleanT.toLowerCase() !== safeText.toLowerCase())) {
+        return { translation: cleanT, pinyin: translit.trim() || null, source: "gtx" };
+      }
     }
+  } catch (_) {}
+
+  // 2. Secondary Google Clients5 endpoint
+  try {
+    const url2 =
+      `https://clients5.google.com/translate_a/single?client=dict-chrome-ex&sl=${sl}&tl=${tl}&dt=t&q=` +
+      encodeURIComponent(safeText);
+    const resp2 = await fetchWithTimeout(url2, { headers: { "User-Agent": "Mozilla/5.0" } }, 4500);
+    if (resp2.ok) {
+      const data2 = await resp2.json();
+      let tr2 = "";
+      if (Array.isArray(data2?.[0])) {
+        for (const seg of data2[0]) {
+          if (seg?.[0]) tr2 += seg[0];
+        }
+      }
+      const cleanT2 = tr2.trim();
+      if (cleanT2 && (isSame || cleanT2.toLowerCase() !== safeText.toLowerCase())) {
+        const localHit = lookupCorePhrase(safeText, sourceLang === "zh" ? "zh-vi" : "vi-zh");
+        return { translation: cleanT2, pinyin: (localHit && localHit.py) || null, source: "clients5" };
+      }
+    }
+  } catch (_) {}
+
+  // 3. Tertiary MyMemory endpoint
+  try {
+    const mmSl = sl === "auto" ? "zh-CN" : sl;
+    const url3 = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(safeText.slice(0, 500))}&langpair=${encodeURIComponent(mmSl + "|" + tl)}`;
+    const resp3 = await fetchWithTimeout(url3, { headers: { "User-Agent": "Mozilla/5.0" } }, 5000);
+    if (resp3.ok) {
+      const data3 = await resp3.json();
+      const tr3 = String(data3?.responseData?.translatedText || "").trim();
+      if (tr3 && !/MYMEMORY WARNING|INVALID LANGUAGE|QUERY LENGTH/i.test(tr3) && (isSame || tr3.toLowerCase() !== safeText.toLowerCase())) {
+        const localHit = lookupCorePhrase(safeText, sourceLang === "zh" ? "zh-vi" : "vi-zh");
+        return { translation: tr3, pinyin: (localHit && localHit.py) || null, source: "mymemory" };
+      }
+    }
+  } catch (_) {}
+
+  // 4. Built-in curated phrasebook fallback
+  const dictHit = lookupCorePhrase(safeText, sourceLang === "zh" ? "zh-vi" : "vi-zh");
+  if (dictHit) {
+    return { translation: dictHit.target, pinyin: dictHit.py || null, hanviet: dictHit.hv || null, source: "dict" };
   }
-  return {
-    translation: translation.trim() || safeText,
-    pinyin: translit.trim() || null
-  };
+
+  throw new Error("All translate upstreams unavailable");
 }
 
 const ALLOWED_ACTIONS = new Set([
@@ -344,7 +468,8 @@ module.exports = async function handler(req, res) {
       // C. Nếu có khớp trực tiếp trong từ điển (dictMatches)
       if (dictMatches.length > 0 && msg.length <= 25) {
         const lines = dictMatches.slice(0, 3).map((d) => {
-          return `• **${d.hanzi}** [${d.pinyin || ""}]${d.hanviet ? ` (Hán Việt: *${d.hanviet.toUpperCase()}*)` : ""}: **${d.meaningVi || ""}**`;
+          const hv = d.hanViet || d.hanviet || "";
+          return `• **${d.hanzi}** [${d.pinyin || ""}]${hv ? ` (Hán Việt: *${hv.toUpperCase()}*)` : ""}: **${d.meaningVi || ""}**`;
         });
         return res.status(200).json({
           ok: true,
@@ -352,7 +477,7 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // D. Dịch tự động Trung ↔ Việt bằng Google Translate GTX kèm Pinyin (luôn có fallback an toàn)
+      // D. Dịch tự động Trung ↔ Việt qua cascade đa nguồn + từ điển cốt lõi
       const hanziTokens = msg.match(/[\u4e00-\u9fff]+/g) || [];
       const hanziOnly = hanziTokens.join(" ");
       const hasHanzi = hanziTokens.length > 0;
@@ -362,11 +487,26 @@ module.exports = async function handler(req, res) {
             ? "\n\n📚 **Từ vựng liên quan:**\n" +
               dictMatches
                 .slice(0, 4)
-                .map((d) => `• **${d.hanzi}** (${d.pinyin || ""}): ${d.meaningVi || ""}${d.hanviet ? ` [HV: ${d.hanviet}]` : ""}`)
+                .map((d) => {
+                  const hv = d.hanViet || d.hanviet || "";
+                  return `• **${d.hanzi}** (${d.pinyin || ""}): ${d.meaningVi || ""}${hv ? ` [HV: ${hv}]` : ""}`;
+                })
                 .join("\n")
             : "";
+        const queryZh = hanziOnly && msg.length > hanziOnly.length + 3 && hanziOnly.length <= 24 ? hanziOnly : msg;
+        const coreHitZh = lookupCorePhrase(queryZh, "zh-vi");
+        if (coreHitZh) {
+          return res.status(200).json({
+            ok: true,
+            reply:
+              `Giải nghĩa cho bạn **${queryZh}**:\n` +
+              (coreHitZh.py ? `• **Pinyin:** ${coreHitZh.py}\n` : "") +
+              (coreHitZh.hv ? `• **Hán Việt:** ${coreHitZh.hv.toUpperCase()}\n` : "") +
+              `• **Nghĩa tiếng Việt:** ${coreHitZh.target}` +
+              dictNote
+          });
+        }
         try {
-          const queryZh = hanziOnly && msg.length > hanziOnly.length + 3 && hanziOnly.length <= 24 ? hanziOnly : msg;
           const gtxVi = await googleTranslateFallback(queryZh, "zh", "vi", "simplified");
           return res.status(200).json({
             ok: true,
@@ -389,9 +529,20 @@ module.exports = async function handler(req, res) {
       } else {
         // Câu tiếng Việt -> Dịch sang tiếng Trung + Pinyin
         const cleanQuery = msg
-          .replace(/^(dịch giúp mình|dịch câu|dịch|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s]*/i, "")
-          .replace(/\s*(trong tiếng trung là gì|tiếng trung là gì|nói tiếng trung thế nào)\??$/i, "")
+          .replace(/^(dịch giúp mình|dịch câu|dịch|cho mình hỏi|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s]*/i, "")
+          .replace(/\s*(trong tiếng trung là gì|tiếng trung nói thế nào|tiếng trung nói sao|tieng trung noi the nao|tieng trung noi sao|tiếng trung là gì|nói tiếng trung thế nào|nói sao|nghĩa là gì|la gi)\??$/i, "")
           .trim() || msg;
+        const coreHitVi = lookupCorePhrase(cleanQuery, "vi-zh");
+        if (coreHitVi) {
+          return res.status(200).json({
+            ok: true,
+            reply:
+              `Trong tiếng Trung, **"${cleanQuery}"** được diễn đạt là:\n` +
+              `👉 **${coreHitVi.target}**\n` +
+              `${coreHitVi.py ? `🔊 **Pinyin:** *${coreHitVi.py}*\n` : ""}` +
+              `\nBạn có thể bấm nút 🔊 **Nghe** bên dưới để nghe phát âm chuẩn nhé!`
+          });
+        }
         try {
           const gtxZh = await googleTranslateFallback(cleanQuery, "vi", "zh", "simplified");
           return res.status(200).json({
@@ -451,10 +602,12 @@ module.exports = async function handler(req, res) {
 
       const bdArr = Array.isArray(body.breakdown) ? body.breakdown : [];
       const autoNote = body.fallbackNote || (bdArr.length > 0
-        ? "Chiết tự & từ ghép: " + bdArr.slice(0, 6).map(b => `${b.word || b.character || ""}${b.hanviet ? ` [${b.hanviet}]` : ""}: ${b.meaningVi || ""}`).join(" · ")
+        ? "Chiết tự & từ ghép: " + bdArr.slice(0, 6).map(b => `${b.word || b.character || ""}${(b.hanViet || b.hanviet) ? ` [${b.hanViet || b.hanviet}]` : ""}: ${b.meaningVi || ""}`).join(" · ")
         : null);
+      const coreDirHit = lookupCorePhrase(text, source === "zh" ? "zh-vi" : "vi-zh");
       try {
         const gtx = await googleTranslateFallback(text, source, target, script);
+        const hvNote = autoNote || (coreDirHit && coreDirHit.hv ? `Hán Việt: ${coreDirHit.hv.toUpperCase()}` : null);
         return res.status(200).json({
           ok: true,
           status: "ok",
@@ -464,12 +617,28 @@ module.exports = async function handler(req, res) {
           script,
           translatedText: gtx.translation,
           translation: gtx.translation,
-          pinyin: gtx.pinyin || body.fallbackPinyin || null,
-          note: autoNote,
+          pinyin: gtx.pinyin || (coreDirHit && coreDirHit.py) || body.fallbackPinyin || null,
+          note: hvNote,
           breakdown: bdArr,
-          source: "ai"
+          source: gtx.source || "ai"
         });
       } catch (_gtxErr) {
+        if (coreDirHit) {
+          return res.status(200).json({
+            ok: true,
+            status: "ok",
+            sourceText: text,
+            sourceLang: source,
+            targetLang: target,
+            script,
+            translatedText: coreDirHit.target,
+            translation: coreDirHit.target,
+            pinyin: coreDirHit.py || body.fallbackPinyin || null,
+            note: autoNote || (coreDirHit.hv ? `Hán Việt: ${coreDirHit.hv.toUpperCase()}` : null),
+            breakdown: bdArr,
+            source: "dict"
+          });
+        }
         return res.status(200).json({
           ok: true,
           status: "fallback",

@@ -2301,7 +2301,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       'httq_state', studyKey, 'xhz-seen-words-v1', 'xhz-practice-v1',
       'httq_current_stage_key', 'httq_current_lesson_id',
       'httq_active_dates', 'httq_minutes_by_date', 'httq_sessions_by_date',
-      'httq_user_mnemonics_v1'
+      'httq_user_mnemonics_v1', 'httq_companion_chat_turns'
     ];
     const snapshot = {};
     diagKeys.forEach(k => { snapshot[k] = localStorage.getItem(k); });
@@ -3242,6 +3242,31 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const c1 = resolvePageStageConfig('/ho-so');
         const c2 = resolvePageStageConfig('/cai-dat');
         return Boolean(c1 && c1.id === 'account' && c2 && c2.id === 'account');
+      });
+      await runCheck('dynamic-stage-h1-no-race-guard', () => {
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(stSrc.includes('allowStageH1') && stSrc.includes('!isDynamicSpaRoute(norm)'));
+      });
+      await runCheck('dynamic-main-landmark-aria-sync', () => {
+        const gSrc = typeof getMainContentContainer === 'function' ? getMainContentContainer.toString() : '';
+        return Boolean(gSrc.includes('aria-hidden') && gSrc.includes("'role', 'main'"));
+      });
+      await runCheck('translate-local-dict-fallback-usable', async () => {
+        const trRes = await (await fetch('/v1/translate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text: '你好' })
+        })).json();
+        return Boolean(trRes && trRes.ok && trRes.translatedText && trRes.translatedText !== '你好');
+      });
+      await runCheck('companion-chat-live-turn-shape', async () => {
+        const chatRes = await (await fetch('/v2/companion/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: '你好' })
+        })).json();
+        const turnTxt = (chatRes && ((chatRes.turn && chatRes.turn.text) || chatRes.reply || (Array.isArray(chatRes.turns) && chatRes.turns.slice(-1)[0] && chatRes.turns.slice(-1)[0].text))) || '';
+        return Boolean(chatRes && chatRes.ok && String(turnTxt).trim().length > 0);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -7948,31 +7973,50 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         ? `Âm Hán Việt: ${charMatches.map(c => `${c.character} (${c.hanviet || c.pinyin})`).join(' · ')}`
         : '';
 
+      let viFallbackZh = '';
+      let viFallbackPy = '';
+      let viFallbackNote = '';
+      if (hanziChars.length === 0 && Array.isArray(vocabIdx)) {
+        const normQ = text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase().replace(/\s+/g, ' ').trim();
+        const viHit = vocabIdx.find(x => {
+          const m = String((x && x.m) || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').toLowerCase();
+          return m && (m === normQ || m.startsWith(normQ + ',') || m.startsWith(normQ + ';') || m.includes(', ' + normQ));
+        });
+        if (viHit) {
+          viFallbackZh = String(viHit.w || viHit.word || viHit.hanzi || '').replace(/\{|\}/g, '').trim();
+          viFallbackPy = viHit.p || viHit.pinyin || '';
+          viFallbackNote = viHit.hv ? `Âm Hán Việt: ${viHit.hv}` : '';
+        }
+      }
+
       const aiRes = await callAiEndpoint('translate', {
         text,
         direction: body.direction || 'auto',
         breakdown,
-        fallbackPinyin,
-        fallbackNote
+        fallbackPinyin: fallbackPinyin || viFallbackPy,
+        fallbackNote: fallbackNote || viFallbackNote
       });
-      if (aiRes && aiRes.ok) {
+      const aiText = String((aiRes && (aiRes.translatedText || aiRes.translation)) || '').trim();
+      const aiUsable = Boolean(aiRes && aiRes.ok && aiRes.status !== 'fallback' && aiText && aiText.toLowerCase() !== text.toLowerCase());
+      if (aiUsable) {
         return jsonResponse({
           ...aiRes,
-          pinyin: aiRes.pinyin || fallbackPinyin,
-          note: aiRes.note || fallbackNote,
+          pinyin: aiRes.pinyin || fallbackPinyin || viFallbackPy,
+          note: aiRes.note || fallbackNote || viFallbackNote,
           breakdown: (Array.isArray(aiRes.breakdown) && aiRes.breakdown.length > 0) ? aiRes.breakdown : breakdown,
           words: wordMatches,
           characters: charMatches
         });
       }
 
+      const localResolved = fallbackMeaning || viFallbackZh || aiText || text;
       return jsonResponse({
         ok: true,
         sourceText: text,
-        translatedText: fallbackMeaning || text,
-        translation: fallbackMeaning || text,
-        pinyin: fallbackPinyin,
-        note: fallbackNote,
+        translatedText: localResolved,
+        translation: localResolved,
+        pinyin: fallbackPinyin || viFallbackPy || (aiRes && aiRes.pinyin) || '',
+        note: fallbackNote || viFallbackNote || (aiRes && aiRes.note) || '',
         breakdown,
         words: wordMatches,
         characters: charMatches
@@ -8365,11 +8409,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const main = document.querySelector('main');
     if (main) {
       main.style.display = 'none';
+      main.setAttribute('aria-hidden', 'true');
+    }
+    const stageH1 = document.querySelector('#htq-page-stage h1');
+    if (stageH1 && stageH1.parentNode) {
+      const divTitle = document.createElement('div');
+      divTitle.setAttribute('data-htq-stage-title', '1');
+      divTitle.style.cssText = stageH1.style.cssText;
+      divTitle.textContent = stageH1.textContent;
+      stageH1.parentNode.replaceChild(divTitle, stageH1);
     }
     if (!customRoot || !customRoot.isConnected) {
       customRoot = document.createElement('div');
       customRoot.id = 'xhz-dynamic-page-root';
       customRoot.className = 'mx-auto max-w-5xl px-4 py-8';
+      customRoot.setAttribute('role', 'main');
       customRoot.style.color = 'inherit';
       const siteHdr = document.querySelector('header[data-site-header="true"]');
       if (main && main.parentNode) {
@@ -8380,6 +8434,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         document.body.appendChild(customRoot);
       }
     }
+    customRoot.setAttribute('role', 'main');
     customRoot.style.color = 'inherit';
     customRoot.style.width = '100%';
     customRoot.style.boxSizing = 'border-box';
@@ -8415,6 +8470,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const main = document.querySelector('main');
     if (main) {
       main.style.display = '';
+      main.removeAttribute('aria-hidden');
     }
     document.body.style.overflow = '';
   }
@@ -18217,7 +18273,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const activeH1Host = useDynHost ? dynRoot : (main || document.querySelector('main'));
     const hasPageH1 = Boolean(activeH1Host && activeH1Host.querySelector('h1'));
-    const stageTitleTag = hasPageH1 ? 'div' : 'h1';
+    const allowStageH1 = !useDynHost && !isDynamicSpaRoute(norm) && !hasPageH1;
+    const stageTitleTag = allowStageH1 ? 'h1' : 'div';
 
     wrap.innerHTML =
       '<div class="htq-stage-shell">' +
