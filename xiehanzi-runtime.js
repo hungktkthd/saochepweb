@@ -7804,7 +7804,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         </div>
         <form id="xhz-mnemonic-form" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;">
           <input id="xhz-mnemonic-input" type="text" maxlength="280" placeholder="Nhập mẹo nhớ chiết tự hoặc câu chuyện cho chữ ${escapeHtml(ch)}..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-size:14px;" />
-          <button type="submit" style="padding:10px 18px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">Lưu mẹo nhớ</button>
+          <button type="submit" id="xhz-mnemonic-submit" style="padding:10px 18px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:700;cursor:pointer;font-size:14px;">Lưu mẹo nhớ</button>
         </form>
         <div id="xhz-mnemonic-list" style="display:flex;flex-direction:column;gap:8px;font-size:14px;color:#44403c;">Chưa có ghi chú nào. Hãy thêm mẹo nhớ đầu tiên của bạn!</div>
       </div>
@@ -7820,6 +7820,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const mnemonicForm = document.getElementById('xhz-mnemonic-form');
     const mnemonicInp = document.getElementById('xhz-mnemonic-input');
+    const mnemonicSubmitBtn = document.getElementById('xhz-mnemonic-submit');
     const mnemonicList = document.getElementById('xhz-mnemonic-list');
     const renderMnemonicList = (items) => {
       if (!mnemonicList) return;
@@ -7834,51 +7835,61 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           `<button type="button" data-mn-vote="${escapeHtml(it.id || '')}" aria-label="Thích ghi chú" style="border:1px solid #d6d3d1;background:#fff;color:#4338ca;border-radius:999px;padding:4px 11px;font-size:12.5px;font-weight:700;cursor:pointer;flex-shrink:0;">👍 ${Number(it.votes) || 1}</button>` +
         `</div>`
       ).join('');
+      mnemonicList.querySelectorAll('[data-mn-vote]').forEach(btn => {
+        bindStudioClick(btn, async () => {
+          const vid = btn.getAttribute('data-mn-vote') || '';
+          if (!vid) return;
+          try {
+            const r = await (await fetch('/v1/ugc/mnemonic/vote', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ target: ch, id: vid })
+            })).json();
+            if (r && r.ok && Array.isArray(r.items)) renderMnemonicList(r.items);
+          } catch (_) {}
+        });
+      });
     };
     if (mnemonicList) {
-      mnemonicList.addEventListener('click', async ev => {
-        const btn = ev.target && ev.target.closest ? ev.target.closest('[data-mn-vote]') : null;
-        if (!btn) return;
-        const vid = btn.getAttribute('data-mn-vote') || '';
-        if (!vid) return;
-        try {
-          const r = await (await fetch('/v1/ugc/mnemonic/vote', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target: ch, id: vid })
-          })).json();
-          if (r && r.ok && Array.isArray(r.items)) renderMnemonicList(r.items);
-        } catch (_) {}
-      });
       fetch('/v1/ugc/mnemonic?target=' + encodeURIComponent(ch))
         .then(r => r.json())
         .then(d => { if (d && Array.isArray(d.items)) renderMnemonicList(d.items); })
         .catch(() => {});
     }
-    if (mnemonicForm && mnemonicInp) {
-      mnemonicForm.addEventListener('submit', async ev => {
-        ev.preventDefault();
-        const note = String(mnemonicInp.value || '').trim();
-        if (note.length < 2) {
-          HTQ_STUDIO_FX.toast('Vui lòng nhập mẹo nhớ dài ít nhất 2 ký tự.', 'warn');
-          mnemonicInp.focus();
-          return;
+    let submittingMnemonic = false;
+    const submitMnemonic = async () => {
+      if (submittingMnemonic || !mnemonicInp) return;
+      const note = String(mnemonicInp.value || '').trim();
+      if (note.length < 2) {
+        HTQ_STUDIO_FX.toast('Vui lòng nhập mẹo nhớ dài ít nhất 2 ký tự.', 'warn');
+        mnemonicInp.focus();
+        return;
+      }
+      submittingMnemonic = true;
+      try {
+        const res = await (await fetch('/v1/ugc/mnemonic', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ target: ch, note })
+        })).json();
+        if (res && res.ok) {
+          mnemonicInp.value = '';
+          renderMnemonicList(res.items);
+          HTQ_STUDIO_FX.toast('✨ Đã lưu mẹo nhớ cho chữ ' + ch + '!', 'success');
+        } else {
+          HTQ_STUDIO_FX.toast((res && res.error) || 'Không thể lưu ghi chú.', 'warn');
         }
-        try {
-          const res = await (await fetch('/v1/ugc/mnemonic', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ target: ch, note })
-          })).json();
-          if (res && res.ok) {
-            mnemonicInp.value = '';
-            renderMnemonicList(res.items);
-            HTQ_STUDIO_FX.toast('✨ Đã lưu mẹo nhớ cho chữ ' + ch + '!', 'success');
-          } else {
-            HTQ_STUDIO_FX.toast((res && res.error) || 'Không thể lưu ghi chú.', 'warn');
-          }
-        } catch (_) {}
+      } catch (_) {}
+      submittingMnemonic = false;
+    };
+    if (mnemonicForm && mnemonicInp) {
+      mnemonicForm.addEventListener('submit', ev => {
+        ev.preventDefault();
+        submitMnemonic();
       });
+    }
+    if (mnemonicSubmitBtn) {
+      bindStudioClick(mnemonicSubmitBtn, () => submitMnemonic());
     }
 
     const initWriter = () => {
@@ -14372,6 +14383,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           applyDirect();
         }
         const isDarkNow = document.documentElement.classList.contains('dark');
+        document.querySelectorAll('header[data-site-header="true"] button[aria-label*="giao diện"]').forEach(hb => {
+          hb.setAttribute('aria-label', isDarkNow ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+        });
         document.querySelectorAll('img[data-htq-light-src][data-htq-dark-src]').forEach(img => {
           img.src = isDarkNow ? img.getAttribute('data-htq-dark-src') : img.getAttribute('data-htq-light-src');
         });
