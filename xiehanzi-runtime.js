@@ -370,8 +370,11 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-dynamic-page-root [style*="background:#fff"],
 .dark #xhz-dynamic-page-root [style*="background: #fff"],
 .dark #xhz-dynamic-page-root [style*="background:#ffffff"],
-.dark #xhz-dynamic-page-root [style*="background: #ffffff"] {
-  background: #13182b !important; color: #f1f5f9 !important; border-color: rgba(129,140,248,.22) !important;
+.dark #xhz-dynamic-page-root [style*="background: #ffffff"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(255, 255, 255)"],
+.dark #xhz-dynamic-page-root [style*="background:rgb(255, 255, 255)"],
+.dark #xhz-dynamic-page-root .xhz-lw-filter:not(.is-active) {
+  background: #13182b !important; color: #f1f5f9 !important; border-color: rgba(129,140,248,.28) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#fafaf9"],
 .dark #xhz-dynamic-page-root [style*="background: #fafaf9"],
@@ -10959,6 +10962,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const applyFilterBtnStyles = () => {
       root.querySelectorAll('.xhz-lw-filter').forEach(b => {
         const on = (b.getAttribute('data-status') || 'all') === activeStatus;
+        b.classList.toggle('is-active', on);
         b.style.background = on ? '#0d9488' : '#fff';
         b.style.color = on ? '#fff' : '#1c1917';
         b.style.borderColor = on ? '#0d9488' : '#d6d3d1';
@@ -11110,7 +11114,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <div id="xhz-progress-mnemonic-card" style="padding:16px;border-radius:16px;background:#eef2ff;border:1px solid #c7d2fe;">
               <div style="font-size:12px;font-weight:700;color:#4338ca;">MẸO NHỚ CÁ NHÂN</div>
               <div style="font-size:28px;font-weight:800;color:#4338ca;margin-top:4px;">${mnTargetCount} mục</div>
-              <div style="font-size:12px;color:#78716c;margin-top:4px;">${mnNoteCount} ghi chú · <a href="/on-tap/da-hoc?filter=mnemonic" style="color:#4338ca;font-weight:700;">Xem & lọc mẹo nhớ →</a></div>
+              <div style="font-size:12px;color:#78716c;margin-top:4px;">${mnNoteCount} ghi chú · <a href="/on-tap/da-hoc?filter=mnemonic" style="color:#4338ca;font-weight:700;display:inline-block;white-space:nowrap;">Xem &amp; lọc →</a></div>
             </div>
           </div>
 
