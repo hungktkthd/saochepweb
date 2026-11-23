@@ -554,6 +554,14 @@ header[data-site-header="true"] { z-index: 50 !important; transform: translateZ(
 .dark #xhz-week-minutes-chart .xhz-chart-val { fill: #e2e8f0; }
 .dark #xhz-week-minutes-chart .xhz-chart-zero-bar { fill: rgba(148,163,184,.25); }
 .dark #xhz-week-minutes-chart .xhz-chart-goal-lbl { fill: #fcd34d; }
+.dark #xhz-hanzi-writer-target svg path[fill="#1c1917"],
+.dark #xhz-hanzi-writer-target svg path[fill="#0f172a"],
+.dark #xhz-hw-canvas svg path[fill="#0f172a"],
+.dark #xhz-hw-canvas svg path[fill="#1c1917"] { fill: #f8fafc !important; }
+.dark #xhz-hanzi-writer-target svg path[fill="#DDD"],
+.dark #xhz-hanzi-writer-target svg path[fill="#ddd"],
+.dark #xhz-hanzi-writer-target svg path[fill="#d6d3d1"],
+.dark #xhz-hw-canvas svg path[fill="#cbd5e1"] { fill: #475569 !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .htq-anim-up, .htq-float, .htq-pulse-soft, .htq-shimmer-bar, .htq-shake, .htq-pop, .htq-eq.is-active i, .htq-buddy-bubble, .htq-petal, .htq-sparkle-dot, .htq-story-card, .htq-sticker-tile, .htq-story-card-img-wrap > img, .htq-buddy-fab {
@@ -2752,7 +2760,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await originalFetch('/sw.js').then(r => r.ok ? r.text() : '').catch(() => '');
         const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
         return Boolean(
-          swTxt.includes('htq-studio-v26') &&
+          swTxt.includes('htq-studio-v27') &&
           swTxt.includes('/xiehanzi-runtime.js?v=htq5') &&
           runSrc.includes('decoding="async"')
         );
@@ -2856,6 +2864,39 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const f = document.getElementById('htq-v14-fx-css');
         const t = f ? f.textContent : '';
         return Boolean(t.includes('#dcf0ee') && t.includes('#d7ebe9'));
+      });
+      await runCheck('dictation-worksheet-and-reveal-copy', () => {
+        const dcSrc = typeof renderDictationDetailPage === 'function' ? renderDictationDetailPage.toString() : '';
+        return Boolean(
+          dcSrc.includes('xhz-dict-worksheet-link') &&
+          dcSrc.includes('xhz-dict-rev-copy') &&
+          dcSrc.includes('xhz-dict-rev-worksheet') &&
+          dcSrc.includes('xhz-dict-rev-kbd')
+        );
+      });
+      await runCheck('dictation-reveal-keyboard-shortcuts', () => {
+        const kbdSrc = typeof htqGlobalKeydownHandler === 'function' ? htqGlobalKeydownHandler.toString() : '';
+        return Boolean(
+          kbdSrc.includes('xhz-dict-rev-next') &&
+          kbdSrc.includes('xhz-dict-rev-replay') &&
+          kbdSrc.includes('!ae.disabled')
+        );
+      });
+      await runCheck('hanzi-writer-dark-mode-contrast', () => {
+        injectMasterV3Styles();
+        const chSrc = typeof renderCharacterDetailPage === 'function' ? renderCharacterDetailPage.toString() : '';
+        const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        const f = document.getElementById('htq-v14-fx-css');
+        const t = f ? f.textContent : '';
+        return Boolean(
+          chSrc.includes("isDarkChar ? '#f8fafc'") &&
+          runSrc.includes("isDarkRunner ? '#f8fafc'") &&
+          t.includes('.dark #xhz-hanzi-writer-target svg path')
+        );
+      });
+      await runCheck('lesson-runner-done-worksheet-link', () => {
+        const runSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        return Boolean(runSrc.includes('xhz-done-worksheet-link'));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -8379,6 +8420,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const target = document.getElementById('xhz-hanzi-writer-target');
       if (!target) return;
       target.innerHTML = '';
+      const isDarkChar = document.documentElement.classList.contains('dark');
       const writer = window.HanziWriter.create(target, ch, {
         width: 190,
         height: 190,
@@ -8386,8 +8428,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         showOutline: true,
         strokeAnimationSpeed: 1.2,
         delayBetweenStrokes: 180,
-        strokeColor: '#1c1917',
-        radicalColor: '#0d9488'
+        strokeColor: isDarkChar ? '#f8fafc' : '#1c1917',
+        outlineColor: isDarkChar ? '#475569' : '#d6d3d1',
+        radicalColor: isDarkChar ? '#2dd4bf' : '#0d9488'
       });
       const animBtn = document.getElementById('xhz-btn-animate');
       if (animBtn) animBtn.onclick = () => writer.animateCharacter();
@@ -10103,6 +10146,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       6: 'background:#dcfce7;color:#166534;'
     };
     const hskBadgeStyle = hskColors[video.hskLevel] || hskColors[1];
+    const dictCharSample = Array.from(new Set(segments.flatMap(s => Array.from(String((s && s.hanzi) || '')).filter(c => /[\u4e00-\u9fff]/.test(c))))).slice(0, 24);
 
     document.title = `${video.seoTitle || video.title || 'Luyện chép chính tả'} | Học Tiếng Trung`;
 
@@ -10116,6 +10160,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             <span style="padding:2px 8px;border-radius:6px;font-weight:700;${hskBadgeStyle}">HSK ${video.hskLevel || 1}</span>
             ${video.partCount && video.partCount > 1 ? `<span style="padding:2px 8px;border-radius:6px;background:#f5f5f4;color:#44403c;font-weight:600;">Phần ${video.part || 1}/${video.partCount}</span>` : ''}
             <span>kênh ${escapeHtml(video.channelName || 'Chinese')} · ${segments.length} câu</span>
+            ${dictCharSample.length > 0 ? `<a id="xhz-dict-worksheet-link" href="/tao-vo-tap-viet?text=${encodeURIComponent(dictCharSample.join(' '))}" style="padding:3px 10px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;font-size:11.5px;text-decoration:none;">📝 In vở tập viết video này (${dictCharSample.length} chữ)</a>` : ''}
             ${siblingParts.length > 1 ? `<span style="display:inline-flex;gap:4px;margin-left:auto;">${siblingParts.map(sp => {
               const spHref = `/luyen-chep-chinh-ta/${encodeURIComponent(sp.slugVi || sp.id)}`;
               const isCurPart = (sp.id || sp._id) === vidId;
@@ -10575,10 +10620,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           ${seg.pinyin ? `<div style="font-size:15px;font-weight:600;color:#b45309;margin-top:4px;">/${seg.pinyin}/</div>` : ''}
           ${seg.hanviet ? `<div style="font-size:12px;color:#57534e;margin-top:4px;">Hán Việt: <strong style="text-transform:uppercase;color:#1c1917;">${seg.hanviet}</strong></div>` : ''}
           ${seg.vi ? `<div style="font-size:15px;color:#1c1917;margin-top:6px;">Nghĩa: <strong>${seg.vi}</strong></div>` : ''}
-          <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;">
+          <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
             <button type="button" id="xhz-dict-rev-replay" style="border-radius:8px;border:1px solid #d6d3d1;background:#fff;padding:7px 14px;font-size:13px;font-weight:700;color:#1c1917;cursor:pointer;">↻ Nghe lại</button>
+            <button type="button" id="xhz-dict-rev-copy" style="border-radius:8px;border:1px solid #d6d3d1;background:#fff;padding:7px 14px;font-size:13px;font-weight:700;color:#1c1917;cursor:pointer;">📋 Sao chép câu</button>
+            <a id="xhz-dict-rev-worksheet" href="/tao-vo-tap-viet?text=${encodeURIComponent(seg.hanzi || '')}" style="border-radius:8px;border:1px solid #fdba74;background:#fff7ed;padding:7px 14px;font-size:13px;font-weight:700;color:#9a3412;text-decoration:none;display:inline-flex;align-items:center;">📝 Tập viết câu này</a>
             <button type="button" id="xhz-dict-rev-retry" style="border-radius:8px;border:1px solid #d6d3d1;background:#fff;padding:7px 14px;font-size:13px;font-weight:700;color:#1c1917;cursor:pointer;">⟲ Thử lại câu này</button>
             <button type="button" id="xhz-dict-rev-next" style="border-radius:8px;border:none;background:#1c1917;padding:7px 16px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">Câu tiếp theo →</button>
+            <span id="xhz-dict-rev-kbd" style="font-size:11.5px;color:#78716c;margin-left:auto;">⌨️ Enter: Câu tiếp · R: Nghe lại</span>
           </div>
         </div>
       ` : '';
@@ -10769,6 +10817,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       }
       const btnRevReplay = document.getElementById('xhz-dict-rev-replay');
       if (btnRevReplay) btnRevReplay.onclick = () => playCurrentSegment();
+      const btnRevCopy = document.getElementById('xhz-dict-rev-copy');
+      if (btnRevCopy) {
+        btnRevCopy.onclick = () => copyStudyText(seg.pinyin ? `${seg.hanzi || ''} (${seg.pinyin})` : (seg.hanzi || ''), seg.hanzi || '');
+      }
       const btnRevRetry = document.getElementById('xhz-dict-rev-retry');
       if (btnRevRetry) {
         btnRevRetry.onclick = () => {
@@ -12786,6 +12838,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
         targetEl.innerHTML = '';
         try {
+          const isDarkRunner = document.documentElement.classList.contains('dark');
           const writer = window.HanziWriter.create(targetEl, ch, {
             width: 256,
             height: 256,
@@ -12794,8 +12847,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             showOutline: phase !== 'recall',
             strokeAnimationSpeed: 1.1,
             delayBetweenStrokes: 220,
-            strokeColor: '#0f172a',
-            outlineColor: '#cbd5e1',
+            strokeColor: isDarkRunner ? '#f8fafc' : '#0f172a',
+            outlineColor: isDarkRunner ? '#475569' : '#cbd5e1',
             drawingColor: '#0d9488',
             highlightColor: '#4f46e5',
             drawingWidth: 22,
@@ -12879,6 +12932,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 <div style="display:flex;flex-direction:column;gap:10px;width:100%;max-width:380px;margin-top:16px;">
                   <button type="button" id="xhz-done-continue" class="lp-btn3d">Về lộ trình <kbd class="lp-kbd lp-kbd-in-btn">Enter</kbd></button>
                   <button type="button" id="xhz-done-next-lesson" class="lp-btn-text" style="font-weight:800;color:var(--lp-blue);">Học bài tiếp theo →</button>
+                  <a id="xhz-done-worksheet-link" href="/tao-vo-tap-viet?text=${encodeURIComponent((introWords.length ? introWords : ['你', '好']).join(' '))}" class="lp-btn-text" style="text-align:center;text-decoration:none;font-weight:700;color:#ea580c;">📝 In vở tập viết từ vừa học</a>
                   <button type="button" id="xhz-done-retry" class="lp-btn-text">Học lại bài này</button>
                 </div>
               </div>
@@ -16833,7 +16887,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (ev.ctrlKey || ev.metaKey || ev.altKey) return;
     if (document.getElementById('htq-cmdk-overlay')) return;
     const ae = document.activeElement;
-    if (ae && (['INPUT', 'TEXTAREA', 'SELECT'].includes(ae.tagName) || ae.isContentEditable)) return;
+    if (ae && !ae.disabled && (['INPUT', 'TEXTAREA', 'SELECT'].includes(ae.tagName) || ae.isContentEditable)) return;
 
     const srsPanel = document.getElementById('xhz-rev-panel-srs');
     if (srsPanel && srsPanel.style.display !== 'none') {
@@ -16852,6 +16906,19 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         if (gBtn) { ev.preventDefault(); gBtn.click(); }
       }
       return;
+    }
+
+    const dictNextBtn = document.getElementById('xhz-dict-rev-next');
+    if (dictNextBtn && dictNextBtn.offsetParent !== null) {
+      const k = String(ev.key || '');
+      if (k === 'Enter' && (!ae || !['BUTTON', 'A'].includes(ae.tagName))) {
+        ev.preventDefault();
+        dictNextBtn.click();
+        return;
+      } else if (k.toLowerCase() === 'r') {
+        const repBtn = document.getElementById('xhz-dict-rev-replay');
+        if (repBtn) { ev.preventDefault(); repBtn.click(); return; }
+      }
     }
 
     const fcCard = document.getElementById('xhz-fc-card');
