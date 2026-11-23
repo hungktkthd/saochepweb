@@ -158,6 +158,12 @@
     { "source": "/phu-huynh/:path*", "destination": "/hoc" },
     { "source": "/tai-app", "destination": "/index" },
     { "source": "/cac-goi", "destination": "/index" },
+    { "source": "/bo-thu", "destination": "/tra-chu" },
+    { "source": "/tra-chu/bo-thu", "destination": "/tra-chu" },
+    { "source": "/ho-so", "destination": "/tai-khoan" },
+    { "source": "/cai-dat", "destination": "/tai-khoan" },
+    { "source": "/tu-vung-tieng-trung", "destination": "/tu-vung" },
+    { "source": "/du-lieu-tieng-trung", "destination": "/kho-du-lieu" },
     { "source": "/quen-mat-khau", "destination": "/dang-nhap" },
     { "source": "/dat-lai-mat-khau", "destination": "/dang-nhap" }
   ]

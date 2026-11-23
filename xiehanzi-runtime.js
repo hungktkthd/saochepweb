@@ -3216,6 +3216,33 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const hrefs = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES.map(r => r.href) : [];
         return Boolean(hrefs.includes('/tai-app'));
       });
+      await runCheck('radical-directory-routes-and-renderer', () => {
+        const radSrc = typeof renderRadicalDirectoryPage === 'function' ? renderRadicalDirectoryPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/bo-thu') === true &&
+          isDynamicSpaRoute('/tra-chu/bo-thu') === true &&
+          isDynamicSpaRoute('/hoc/bo-thu') === true &&
+          radSrc.includes('xhz-radical-dir-root') &&
+          radSrc.includes('xhz-rad-dir-search') &&
+          radSrc.includes('aria-label=')
+        );
+      });
+      await runCheck('hoc-tu-vung-hsk-subroute-dispatch', () => {
+        return Boolean(
+          isDynamicSpaRoute('/hoc/tu-vung-hsk-1') === true &&
+          isDynamicSpaRoute('/hoc/tu-vung-hsk-6') === true &&
+          resolvePageStageConfig('/hoc/tu-vung-hsk-1') === null
+        );
+      });
+      await runCheck('stage-semantic-h1-fallback-guard', () => {
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(stSrc.includes('hasPageH1') && stSrc.includes('stageTitleTag'));
+      });
+      await runCheck('account-alias-stage-mapping', () => {
+        const c1 = resolvePageStageConfig('/ho-so');
+        const c2 = resolvePageStageConfig('/cai-dat');
+        return Boolean(c1 && c1.id === 'account' && c2 && c2.id === 'account');
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -8141,6 +8168,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if ((parts[0] === 'bat-dau' && parts[1] === 'kiem-tra') || (parts[0] === 'hoc' && parts[1] === 'bat-dau' && parts[2] === 'kiem-tra')) return true;
     if ((parts[0] === 'so-tay' && parts.length >= 2) || parts[0] === 'bo-suu-tap') return true;
     if ((parts[0] === 'on-tap' || parts[0] === 'hoc') && (parts[1] === 'da-hoc' || parts[1] === 'tu-da-hoc' || parts[1] === 'so-loi' || parts[1] === 'loi-sai' || parts[1] === 'ngu-phap-da-hoc')) return true;
+    if (parts[0] === 'bo-thu' || (parts[0] === 'hoc' && parts[1] === 'bo-thu')) return true;
+    if (parts[0] === 'hoc' && /^tu-vung-hsk-[1-9]$/i.test(parts[1] || '')) return true;
+    if (parts[0] === 'tra-chu' && parts[1] === 'bo-thu' && parts.length === 2) return true;
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) return true;
     if (parts[0] === 'tai-app' || parts[0] === 'cac-goi' || parts[0] === '404' || parts[0] === '404.html') return true;
     return false;
@@ -13961,6 +13991,98 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (cmdkBtn) cmdkBtn.onclick = () => openCommandPalette();
   }
 
+  async function renderRadicalDirectoryPage() {
+    const root = getMainContentContainer();
+    const index = await loadLocalJson('/data/characters/index.json');
+    const byRad = new Map();
+    if (Array.isArray(index)) {
+      index.forEach(item => {
+        const rad = String((item && item.r) || '').trim();
+        if (!rad) return;
+        let bucket = byRad.get(rad);
+        if (!bucket) {
+          bucket = { rad, count: 0, samples: [], searchParts: [rad] };
+          byRad.set(rad, bucket);
+        }
+        bucket.count += 1;
+        if (item.c && bucket.samples.length < 6 && !bucket.samples.includes(item.c)) {
+          bucket.samples.push(item.c);
+        }
+        if (bucket.searchParts.length < 24) {
+          if (item.c) bucket.searchParts.push(item.c);
+          if (item.hv) bucket.searchParts.push(item.hv);
+        }
+      });
+    }
+    const radicals = Array.from(byRad.values()).sort((a, b) => b.count - a.count);
+    document.title = '214 Bộ thủ chữ Hán & Kho Chiết tự | Học Tiếng Trung';
+    root.innerHTML = `
+      <style>
+        #xhz-radical-dir-root { --rad-ink:#1c1917; --rad-muted:#57534e; --rad-card:#ffffff; --rad-soft:#fafaf9; --rad-border:#e7e5e4; color:var(--rad-ink); }
+        html.dark #xhz-radical-dir-root { --rad-ink:#f1f5f9; --rad-muted:#cbd5e1; --rad-card:#111827; --rad-soft:#0f172a; --rad-border:#334155; }
+        #xhz-radical-dir-root .xhz-rad-card { display:flex; flex-direction:column; justify-content:space-between; padding:14px; border-radius:16px; border:1px solid var(--rad-border); background:var(--rad-card); color:var(--rad-ink); text-decoration:none; transition:border-color .15s, transform .15s; }
+        #xhz-radical-dir-root .xhz-rad-card:hover { border-color:#0d9488; transform:translateY(-2px); }
+        #xhz-radical-dir-root .xhz-rad-chip { padding:7px 14px; border-radius:999px; border:1px solid var(--rad-border); background:var(--rad-soft); color:var(--rad-ink); font-size:13px; font-weight:700; cursor:pointer; }
+        #xhz-radical-dir-root .xhz-rad-chip.active { background:#0d9488; border-color:#0d9488; color:#ffffff; }
+      </style>
+      <section id="xhz-radical-dir-root" style="max-width:1100px;margin:auto;padding:8px 0 32px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;">
+          <a href="/tra-chu" style="color:#0d9488;font-weight:700;text-decoration:none;">← Từ điển Hán - Việt</a>
+          <a href="/tao-vo-tap-viet" style="padding:8px 14px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fdba74;font-weight:700;font-size:13px;text-decoration:none;">📝 Tạo vở tập viết</a>
+        </div>
+        <h1 style="font-size:28px;font-weight:800;margin:0 0 8px;">214 Bộ thủ chữ Hán &amp; Kho Chiết tự</h1>
+        <p id="xhz-rad-dir-count" role="status" style="color:var(--rad-muted);margin:0 0 18px;">Đang hiển thị ${radicals.length} bộ thủ từ kho ${Array.isArray(index) ? index.length : 0} chữ Hán chuẩn.</p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;">
+          <input id="xhz-rad-dir-search" type="search" aria-label="Tìm bộ thủ theo ký tự, chữ Hán mẫu hoặc âm Hán Việt" placeholder="Tìm bộ thủ (vd: 亻, 水, 心, 木 hoặc chữ mẫu như 好, 河)..." style="flex:1;min-width:240px;padding:11px 14px;border-radius:12px;border:1px solid var(--rad-border);background:var(--rad-card);color:var(--rad-ink);font-size:14px;" />
+          <button type="button" class="xhz-rad-chip active" data-rad-filter="all">Tất cả (${radicals.length})</button>
+          <button type="button" class="xhz-rad-chip" data-rad-filter="top">Phổ biến (≥20 chữ)</button>
+          <button type="button" class="xhz-rad-chip" data-rad-filter="basic">Cơ bản (5–19 chữ)</button>
+        </div>
+        <div id="xhz-rad-dir-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;"></div>
+      </section>
+    `;
+
+    const gridEl = root.querySelector('#xhz-rad-dir-grid');
+    const searchEl = root.querySelector('#xhz-rad-dir-search');
+    const countEl = root.querySelector('#xhz-rad-dir-count');
+    const filterBtns = Array.from(root.querySelectorAll('.xhz-rad-chip'));
+    let curMode = 'all';
+
+    const renderList = () => {
+      const q = String((searchEl && searchEl.value) || '').trim().toLowerCase();
+      const filtered = radicals.filter(item => {
+        if (curMode === 'top' && item.count < 20) return false;
+        if (curMode === 'basic' && (item.count < 5 || item.count >= 20)) return false;
+        if (!q) return true;
+        return item.searchParts.join(' ').toLowerCase().includes(q);
+      });
+      if (countEl) {
+        countEl.textContent = `Hiển thị ${filtered.length}/${radicals.length} bộ thủ (${Array.isArray(index) ? index.length : 0} chữ Hán)`;
+      }
+      if (gridEl) {
+        gridEl.innerHTML = filtered.slice(0, 240).map(item => `
+          <a href="/tra-chu/bo-thu/${encodeURIComponent(item.rad)}" class="xhz-rad-card">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:8px;">
+              <span style="font-size:32px;font-weight:800;line-height:1;">${escapeHtml(item.rad)}</span>
+              <span style="font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:999px;background:#f0fdfa;color:#0f766e;">${item.count} chữ</span>
+            </div>
+            <div style="font-size:15px;letter-spacing:2px;color:var(--rad-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(item.samples.join(' '))}</div>
+          </a>
+        `).join('') || `<div style="grid-column:1/-1;padding:24px;text-align:center;color:var(--rad-muted);">Không tìm thấy bộ thủ phù hợp với từ khóa của bạn.</div>`;
+      }
+    };
+
+    if (searchEl) searchEl.addEventListener('input', renderList);
+    filterBtns.forEach(btn => {
+      btn.onclick = () => {
+        curMode = btn.getAttribute('data-rad-filter') || 'all';
+        filterBtns.forEach(b => b.classList.toggle('active', b === btn));
+        renderList();
+      };
+    });
+    renderList();
+  }
+
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
@@ -16594,6 +16716,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderMistakeBookOrLearnedWordsPage(pathname);
       return;
     }
+    if (parts[0] === 'bo-thu' || (parts[0] === 'tra-chu' && parts[1] === 'bo-thu' && parts.length === 2) || (parts[0] === 'hoc' && parts[1] === 'bo-thu')) {
+      lastHandledFullUrl = fullKey;
+      await renderRadicalDirectoryPage();
+      return;
+    }
+    if (parts[0] === 'hoc' && /^tu-vung-hsk-[1-9]$/i.test(parts[1] || '')) {
+      lastHandledFullUrl = fullKey;
+      const lvlNum = (parts[1].match(/[1-9]/) || ['1'])[0];
+      await renderCurriculumSubPage('/thu-vien-new-hsk/hsk-' + lvlNum);
+      return;
+    }
     if (parts[0] === 'tra-chu' && (parts[1] === 'bo-thu' || parts[1] === 'hsk') && parts.length >= 3) {
       lastHandledFullUrl = fullKey;
       await renderCharacterBrowseSubPage(pathname);
@@ -17948,7 +18081,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|bo-thu|tra-chu\/bo-thu|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/bo-thu|hoc\/tu-vung-hsk-[1-9]|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -17985,13 +18118,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         sub: isWriting ? 'Chọn ngay nhóm từ chuẩn HSK hoặc từ bạn đã học để tạo tờ luyện viết siêu xinh.' : 'Bấm một câu mẫu bên dưới để nạp tức thì vào khung và nghe phát âm.'
       };
     }
-    if (/^\/(tai-khoan|dang-nhap|dang-ky)/.test(norm)) {
+    if (/^\/(tai-khoan|ho-so|cai-dat|dang-nhap|dang-ky)/.test(norm)) {
+      const isAcc = /^\/(tai-khoan|ho-so|cai-dat)/.test(norm);
       return {
-        id: norm === '/tai-khoan' ? 'account' : 'auth',
-        banner: norm === '/tai-khoan' ? '/images/studio/cute-lantern-party.jpg' : '/images/studio/cute-capy-study.jpg',
-        badge: norm === '/tai-khoan' ? 'Góc Thành Tích & Tem Thưởng' : 'Đồng bộ Đám mây Miễn phí',
-        title: norm === '/tai-khoan' ? 'Cấp Bậc & Bộ Sưu Tập Tem Học Giả' : 'Lưu Trọn Vẹn Tiến Độ Học Trên Mọi Thiết Bị',
-        sub: norm === '/tai-khoan' ? 'Mở khóa tem dễ thương khi bạn giữ chuỗi ngày, học từ mới và luyện đề HSK!' : 'Đăng nhập Google hoặc Email để đồng bộ tức thì với Supabase Cloud.'
+        id: isAcc ? 'account' : 'auth',
+        banner: isAcc ? '/images/studio/cute-lantern-party.jpg' : '/images/studio/cute-capy-study.jpg',
+        badge: isAcc ? 'Góc Thành Tích & Tem Thưởng' : 'Đồng bộ Đám mây Miễn phí',
+        title: isAcc ? 'Cấp Bậc & Bộ Sưu Tập Tem Học Giả' : 'Lưu Trọn Vẹn Tiến Độ Học Trên Mọi Thiết Bị',
+        sub: isAcc ? 'Mở khóa tem dễ thương khi bạn giữ chuỗi ngày, học từ mới và luyện đề HSK!' : 'Đăng nhập Google hoặc Email để đồng bộ tức thì với Supabase Cloud.'
       };
     }
     return null;
@@ -18081,6 +18215,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       cornerImg = '/images/brand/auth-tieu-man-welcome.webp';
     }
 
+    const activeH1Host = useDynHost ? dynRoot : (main || document.querySelector('main'));
+    const hasPageH1 = Boolean(activeH1Host && activeH1Host.querySelector('h1'));
+    const stageTitleTag = hasPageH1 ? 'div' : 'h1';
+
     wrap.innerHTML =
       '<div class="htq-stage-shell">' +
         '<div class="htq-stage-grid">' +
@@ -18090,7 +18228,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '<div class="htq-stage-visual-scrim">' +
               '<div style="min-width:0;">' +
                 '<div style="font-size:11px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;color:#a5b4fc;margin-bottom:3px;">' + escapeHtml(cfg.badge) + '</div>' +
-                '<div style="font-size:17px;font-weight:800;line-height:1.25;margin-bottom:4px;">' + escapeHtml(cfg.title) + '</div>' +
+                '<' + stageTitleTag + ' style="margin:0 0 4px;font-size:17px;font-weight:800;line-height:1.25;">' + escapeHtml(cfg.title) + '</' + stageTitleTag + '>' +
                 '<div style="font-size:12.5px;color:rgba(241,245,249,.88);line-height:1.4;">' + escapeHtml(cfg.sub) + '</div>' +
               '</div>' +
               (cornerImg ? '<img src="' + cornerImg + '" alt="' + escapeHtml(cfg.badge) + '" loading="lazy" decoding="async" class="htq-float" style="width:66px;height:66px;border-radius:16px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(15,23,42,.42);" />' : '') +
@@ -18935,6 +19073,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     { icon: '📒', title: 'Bộ sưu tập Sổ tay từ vựng', desc: 'Quản lý từ đã lưu & 3 bộ từ vựng chuyên đề HSK', href: '/so-tay/da-luu', keys: 'so tay bo suu tap da luu notebook' },
     { icon: '📚', title: 'Từ vựng đã học & Xuất CSV', desc: 'Lọc từ đã thuộc và xuất Anki/Excel', href: '/on-tap/da-hoc', keys: 'tu da hoc csv anki' },
     { icon: '🔍', title: 'Từ điển Chữ Hán & Bộ thủ', desc: 'Tra hơn 9.900 chữ Hán theo HSK/Bộ thủ', href: '/tra-chu/', keys: 'tu dien tra chu bo thu' },
+    { icon: '🧱', title: '214 Bộ thủ chữ Hán & Chiết tự', desc: 'Khám phá toàn bộ bộ thủ theo tần suất & chữ mẫu', href: '/bo-thu', keys: '214 bo thu radical chiet tu' },
     { icon: '🌐', title: 'Dịch Trung - Việt AI', desc: 'Dịch câu kèm phân tích từ ghép & Hán Việt', href: '/dich-tieng-trung/', keys: 'dich translate ai' },
     { icon: '🎧', title: 'Luyện nghe phản xạ', desc: 'Luyện nghe theo giáo trình HSK', href: '/luyen-nghe/', keys: 'luyen nghe listening' },
     { icon: '🎙️', title: 'Luyện nói AI Thanh điệu', desc: 'Thu âm zh-CN và chấm phát âm', href: '/luyen-noi/', keys: 'luyen noi speaking mic' },

@@ -352,42 +352,63 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      // D. Dịch tự động Trung ↔ Việt bằng Google Translate GTX kèm Pinyin
-      const hasHanzi = /[\u4e00-\u9fff]/.test(msg);
+      // D. Dịch tự động Trung ↔ Việt bằng Google Translate GTX kèm Pinyin (luôn có fallback an toàn)
+      const hanziTokens = msg.match(/[\u4e00-\u9fff]+/g) || [];
+      const hanziOnly = hanziTokens.join(" ");
+      const hasHanzi = hanziTokens.length > 0;
       if (hasHanzi) {
-        const gtxVi = await googleTranslateFallback(msg, "zh", "vi", "simplified");
-        const gtxPy = await googleTranslateFallback(msg, "zh", "zh", "simplified");
         const dictNote =
           dictMatches.length > 0
-            ? "\n\n📚 **Từ vựng trong câu:**\n" +
+            ? "\n\n📚 **Từ vựng liên quan:**\n" +
               dictMatches
                 .slice(0, 4)
-                .map((d) => `• **${d.hanzi}** (${d.pinyin}): ${d.meaningVi}${d.hanviet ? ` [HV: ${d.hanviet}]` : ""}`)
+                .map((d) => `• **${d.hanzi}** (${d.pinyin || ""}): ${d.meaningVi || ""}${d.hanviet ? ` [HV: ${d.hanviet}]` : ""}`)
                 .join("\n")
             : "";
-        return res.status(200).json({
-          ok: true,
-          reply:
-            `Giải nghĩa cho bạn câu/từ **"${msg}"**:\n` +
-            `• **Pinyin:** ${gtxPy.pinyin || gtxVi.pinyin || ""}\n` +
-            `• **Nghĩa tiếng Việt:** ${gtxVi.translation}` +
-            dictNote
-        });
+        try {
+          const queryZh = hanziOnly && msg.length > hanziOnly.length + 3 && hanziOnly.length <= 24 ? hanziOnly : msg;
+          const gtxVi = await googleTranslateFallback(queryZh, "zh", "vi", "simplified");
+          return res.status(200).json({
+            ok: true,
+            reply:
+              `Giải nghĩa cho bạn **${queryZh}**:\n` +
+              (gtxVi.pinyin ? `• **Pinyin:** ${gtxVi.pinyin}\n` : "") +
+              `• **Nghĩa tiếng Việt:** ${gtxVi.translation}` +
+              dictNote
+          });
+        } catch (_gtxErr) {
+          const tokenLinks = hanziTokens
+            .slice(0, 4)
+            .map((tok) => `• **${tok}** — xem nét viết, âm Hán Việt và ví dụ tại /han-tu/${encodeURIComponent(tok)}`)
+            .join("\n");
+          const offlineReply = dictMatches.length > 0
+            ? `Mình tổng hợp nhanh cho bạn từ kho Từ điển:${dictNote}\n\nBạn có thể mở từng chữ Hán trong Từ điển (/tra-chu) để luyện viết và nghe phát âm nhé!`
+            : `Mình đã nhận chữ Hán **${hanziOnly || msg}** từ bạn:\n${tokenLinks}\n\nHiện dịch vụ dịch nhanh trực tuyến đang tạm bận — bạn hãy bấm vào Từ điển (/tra-chu) hoặc thử nhắn lại sau vài giây nhé!`;
+          return res.status(200).json({ ok: true, reply: offlineReply, source: "fallback" });
+        }
       } else {
         // Câu tiếng Việt -> Dịch sang tiếng Trung + Pinyin
         const cleanQuery = msg
           .replace(/^(dịch giúp mình|dịch câu|dịch|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s]*/i, "")
           .replace(/\s*(trong tiếng trung là gì|tiếng trung là gì|nói tiếng trung thế nào)\??$/i, "")
           .trim() || msg;
-        const gtxZh = await googleTranslateFallback(cleanQuery, "vi", "zh", "simplified");
-        return res.status(200).json({
-          ok: true,
-          reply:
-            `Trong tiếng Trung, **"${cleanQuery}"** được diễn đạt là:\n` +
-            `👉 **${gtxZh.translation}**\n` +
-            `${gtxZh.pinyin ? `🔊 **Pinyin:** *${gtxZh.pinyin}*\n` : ""}` +
-            `\nBạn có thể bấm nút 🔊 **Nghe** bên dưới để nghe phát âm chuẩn nhé!`
-        });
+        try {
+          const gtxZh = await googleTranslateFallback(cleanQuery, "vi", "zh", "simplified");
+          return res.status(200).json({
+            ok: true,
+            reply:
+              `Trong tiếng Trung, **"${cleanQuery}"** được diễn đạt là:\n` +
+              `👉 **${gtxZh.translation}**\n` +
+              `${gtxZh.pinyin ? `🔊 **Pinyin:** *${gtxZh.pinyin}*\n` : ""}` +
+              `\nBạn có thể bấm nút 🔊 **Nghe** bên dưới để nghe phát âm chuẩn nhé!`
+          });
+        } catch (_gtxErr) {
+          return res.status(200).json({
+            ok: true,
+            reply: `Mình đã nhận câu hỏi "${cleanQuery}" từ bạn! Hiện máy chủ dịch tự động đang tạm bận — bạn có thể thử gửi lại sau vài giây, hoặc mở Từ điển (/tra-chu) và Dịch thuật (/dich-tieng-trung) để tra cứu tức thì nhé.`,
+            source: "fallback"
+          });
+        }
       }
     }
 
@@ -428,25 +449,42 @@ module.exports = async function handler(req, res) {
         });
       }
 
-      const gtx = await googleTranslateFallback(text, source, target, script);
       const bdArr = Array.isArray(body.breakdown) ? body.breakdown : [];
       const autoNote = body.fallbackNote || (bdArr.length > 0
         ? "Chiết tự & từ ghép: " + bdArr.slice(0, 6).map(b => `${b.word || b.character || ""}${b.hanviet ? ` [${b.hanviet}]` : ""}: ${b.meaningVi || ""}`).join(" · ")
         : null);
-      return res.status(200).json({
-        ok: true,
-        status: "ok",
-        sourceText: text,
-        sourceLang: source,
-        targetLang: target,
-        script,
-        translatedText: gtx.translation,
-        translation: gtx.translation,
-        pinyin: gtx.pinyin || body.fallbackPinyin || null,
-        note: autoNote,
-        breakdown: bdArr,
-        source: "ai"
-      });
+      try {
+        const gtx = await googleTranslateFallback(text, source, target, script);
+        return res.status(200).json({
+          ok: true,
+          status: "ok",
+          sourceText: text,
+          sourceLang: source,
+          targetLang: target,
+          script,
+          translatedText: gtx.translation,
+          translation: gtx.translation,
+          pinyin: gtx.pinyin || body.fallbackPinyin || null,
+          note: autoNote,
+          breakdown: bdArr,
+          source: "ai"
+        });
+      } catch (_gtxErr) {
+        return res.status(200).json({
+          ok: true,
+          status: "fallback",
+          sourceText: text,
+          sourceLang: source,
+          targetLang: target,
+          script,
+          translatedText: text,
+          translation: text,
+          pinyin: body.fallbackPinyin || null,
+          note: autoNote || "Dịch vụ dịch tự động tạm bận — vui lòng thử lại sau vài giây.",
+          breakdown: bdArr,
+          source: "fallback"
+        });
+      }
     }
 
     // ------------------------------------------------------------------------
@@ -578,6 +616,7 @@ module.exports = async function handler(req, res) {
       ok: true,
       status: "fallback",
       translation: String(body.text || "").slice(0, 1500),
+      reply: "Dương Dương tạm bận kết nối một chút — bạn thử nhắn lại sau vài giây hoặc tra nhanh tại Từ điển (/tra-chu) nhé!",
       message: "Hệ thống đã ghi nhận kết quả của bạn.",
       errorCode: "UPSTREAM_UNAVAILABLE"
     });
