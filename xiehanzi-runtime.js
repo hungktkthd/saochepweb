@@ -421,9 +421,27 @@ button[aria-label*="Cấp HSK"] {
 select[aria-label="Cấp HSK"] {
   min-width: 82px !important;
   width: auto !important;
-  padding-left: 10px !important;
-  padding-right: 10px !important;
-  line-height: 1.85rem !important;
+  padding-left: 12px !important;
+  padding-right: 28px !important;
+  line-height: normal !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 9px center !important;
+  background-size: 12px 12px !important;
+}
+#xhz-browse-sort {
+  min-width: 148px !important;
+  padding: 11px 32px 11px 12px !important;
+  line-height: normal !important;
+  white-space: nowrap !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 10px center !important;
+  background-size: 14px 14px !important;
 }
 header[data-site-header="true"] { z-index: 58 !important; }
 #xhz-dynamic-page-root { position: relative; z-index: 1; }
@@ -434,6 +452,19 @@ header[data-site-header="true"] { z-index: 58 !important; }
 #xhz-dynamic-page-root a, #xhz-dynamic-page-root button { scroll-margin-top: 96px; }
 #xhz-dict-video-wrap { position: relative; isolation: isolate; z-index: 1; overflow: hidden; border-radius: 16px; background: #0f172a; }
 #xhz-dict-video-wrap iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; z-index: 1 !important; }
+body:has(#xhz-dict-video-wrap) header[data-site-header="true"] {
+  top: 0 !important;
+  margin-top: 0 !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+  z-index: 95 !important;
+  background: #ffffff !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+html.dark body:has(#xhz-dict-video-wrap) header[data-site-header="true"] {
+  background: #121626 !important;
+}
 .dark #xhz-dynamic-page-root { color: #e2e8f0 !important; }
 .dark #xhz-dynamic-page-root h1,
 .dark #xhz-dynamic-page-root h2,
@@ -657,9 +688,15 @@ header[data-site-header="true"] { z-index: 58 !important; }
 .dark #xhz-week-minutes-chart .xhz-chart-zero-bar { fill: rgba(148,163,184,.25); }
 .dark #xhz-week-minutes-chart .xhz-chart-goal-lbl { fill: #fcd34d; }
 .dark #xhz-hanzi-writer-target svg path[fill="#1c1917"],
+.dark #xhz-hanzi-writer-target svg path[fill="#1C1917"],
+.dark #xhz-hanzi-writer-target svg path[fill="rgb(28, 25, 23)"],
 .dark #xhz-hanzi-writer-target svg path[fill="#0f172a"],
 .dark #xhz-hw-canvas svg path[fill="#0f172a"],
 .dark #xhz-hw-canvas svg path[fill="#1c1917"] { fill: #f8fafc !important; }
+.dark #xhz-hanzi-writer-target svg path[stroke="#1c1917"],
+.dark #xhz-hanzi-writer-target svg path[stroke="#1C1917"],
+.dark #xhz-hanzi-writer-target svg path[stroke="rgb(28, 25, 23)"],
+.dark #xhz-hanzi-writer-target svg path[stroke="#0f172a"] { stroke: #f8fafc !important; }
 .dark #xhz-hanzi-writer-target svg path[fill="#DDD"],
 .dark #xhz-hanzi-writer-target svg path[fill="#ddd"],
 .dark #xhz-hanzi-writer-target svg path[fill="#d6d3d1"],
@@ -3446,6 +3483,24 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const fx = document.getElementById('htq-v14-fx-css');
         const txt = fx ? fx.textContent : '';
         return Boolean(txt.includes('z-index: 58 !important;') && txt.includes('#xhz-dynamic-page-root { position: relative; z-index: 1; }') && txt.includes('min-width: 82px !important;') && txt.includes('right: 16px !important;'));
+      });
+      await runCheck('select-custom-single-line-chevron-css', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('appearance: none !important;') && txt.includes('#xhz-browse-sort') && txt.includes('background-position: right 9px center !important;'));
+      });
+      await runCheck('dictation-video-scroll-clip-and-header-mask', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        const dictSrc = typeof renderDictationDetailPage === 'function' ? renderDictationDetailPage.toString() : '';
+        const restSrc = typeof restoreOriginalMainIfStatic === 'function' ? restoreOriginalMainIfStatic.toString() : '';
+        return Boolean(txt.includes('body:has(#xhz-dict-video-wrap) header[data-site-header="true"]') && dictSrc.includes('__xhzDictScrollClipHandler') && restSrc.includes('__xhzDictScrollClipHandler'));
+      });
+      await runCheck('hanzi-writer-live-dark-color-sync', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        const sySrc = typeof syncStudioThemeUI === 'function' ? syncStudioThemeUI.toString() : '';
+        return Boolean(txt.includes('svg path[stroke="#1c1917"]') && sySrc.includes("updateColor('strokeColor'"));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -8634,6 +8689,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       window.removeEventListener('resize', window.__xhzDictResizeHandler);
       window.__xhzDictResizeHandler = null;
     }
+    if (window.__xhzDictScrollClipHandler) {
+      window.removeEventListener('scroll', window.__xhzDictScrollClipHandler);
+      window.__xhzDictScrollClipHandler = null;
+    }
+    window.__xhzActiveHanziWriter = null;
     if (window.__xhzDictYtPlayer && typeof window.__xhzDictYtPlayer.destroy === 'function') {
       try { window.__xhzDictYtPlayer.destroy(); } catch (_) {}
       window.__xhzDictYtPlayer = null;
@@ -9047,6 +9107,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         outlineColor: isDarkChar ? '#475569' : '#d6d3d1',
         radicalColor: isDarkChar ? '#2dd4bf' : '#0d9488'
       });
+      window.__xhzActiveHanziWriter = writer;
       const animBtn = document.getElementById('xhz-btn-animate');
       if (animBtn) animBtn.onclick = () => writer.animateCharacter();
       const quizBtn = document.getElementById('xhz-btn-quiz-stroke');
@@ -10632,6 +10693,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       window.removeEventListener('resize', window.__xhzDictResizeHandler);
       window.__xhzDictResizeHandler = null;
     }
+    if (window.__xhzDictScrollClipHandler) {
+      window.removeEventListener('scroll', window.__xhzDictScrollClipHandler);
+      window.__xhzDictScrollClipHandler = null;
+    }
+    window.__xhzActiveHanziWriter = null;
     if (window.__xhzDictYtPlayer && typeof window.__xhzDictYtPlayer.destroy === 'function') {
       try { window.__xhzDictYtPlayer.destroy(); } catch (_) {}
       window.__xhzDictYtPlayer = null;
@@ -10912,6 +10978,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     applyGridCols();
     window.__xhzDictResizeHandler = applyGridCols;
     window.addEventListener('resize', applyGridCols);
+    const clipVideoBelowHeader = () => {
+      const vw = document.getElementById('xhz-dict-video-wrap');
+      const hdr = document.querySelector('header[data-site-header="true"]');
+      if (!vw || !hdr) return;
+      const hr = hdr.getBoundingClientRect();
+      const vr = vw.getBoundingClientRect();
+      const overlap = Math.ceil(hr.bottom - vr.top + 2);
+      vw.style.clipPath = overlap > 0 ? `inset(${Math.min(overlap, Math.ceil(vr.height))}px 0 0 0)` : '';
+    };
+    if (window.__xhzDictScrollClipHandler) {
+      window.removeEventListener('scroll', window.__xhzDictScrollClipHandler);
+    }
+    window.__xhzDictScrollClipHandler = clipVideoBelowHeader;
+    window.addEventListener('scroll', clipVideoBelowHeader, { passive: true });
+    clipVideoBelowHeader();
 
     // YouTube IFrame API Segment Playback
     function stopSegPoll() {
@@ -14484,7 +14565,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       <p id="xhz-browse-count" role="status">${entries.length} chữ Hán trong kho dữ liệu</p>
       <div style="display:flex;gap:12px;flex-wrap:wrap;margin:20px 0;">
         <label style="flex:1;min-width:220px;">Tìm trong danh sách
-          <input id="xhz-char-browse-filter" type="search" aria-label="Lọc chữ Hán theo chữ, Pinyin, Hán Việt hoặc nghĩa" placeholder="Chữ Hán, pinyin, Hán Việt hoặc nghĩa" style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
+          <input id="xhz-char-browse-filter" type="search" aria-label="Lọc chữ Hán theo chữ, Pinyin, Hán Việt hoặc nghĩa" placeholder="Tìm chữ Hán, pinyin, nghĩa..." style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
         </label>
         <label>Sắp xếp
           <select id="xhz-browse-sort" aria-label="Sắp xếp danh sách chữ Hán" style="display:block;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;">
@@ -18046,6 +18127,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         });
       }
       buildStudioSidebar(window.location.pathname || '/');
+      try {
+        const hw = window.__xhzActiveHanziWriter;
+        if (hw && typeof hw.updateColor === 'function') {
+          hw.updateColor('strokeColor', isDarkNow ? '#f8fafc' : '#1c1917');
+          hw.updateColor('outlineColor', isDarkNow ? '#475569' : '#d6d3d1');
+          hw.updateColor('radicalColor', isDarkNow ? '#2dd4bf' : '#0d9488');
+        }
+      } catch (_) {}
     } catch (_) {}
   }
 
