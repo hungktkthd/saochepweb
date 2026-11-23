@@ -210,21 +210,24 @@ async function googleTranslateFallback(text, sourceLang, targetLang, script) {
   // 2. Secondary Google Clients5 endpoint
   try {
     const url2 =
-      `https://clients5.google.com/translate_a/single?client=dict-chrome-ex&sl=${sl}&tl=${tl}&dt=t&q=` +
+      `https://clients5.google.com/translate_a/single?client=dict-chrome-ex&sl=${sl}&tl=${tl}&dt=t&dt=rm&q=` +
       encodeURIComponent(safeText);
     const resp2 = await fetchWithTimeout(url2, { headers: { "User-Agent": "Mozilla/5.0" } }, 4500);
     if (resp2.ok) {
       const data2 = await resp2.json();
       let tr2 = "";
+      let translit2 = "";
       if (Array.isArray(data2?.[0])) {
         for (const seg of data2[0]) {
-          if (seg?.[0]) tr2 += seg[0];
+          if (typeof seg?.[0] === "string" && seg[0]) tr2 += seg[0];
+          if (typeof seg?.[2] === "string" && seg[2]) translit2 += (translit2 ? " " : "") + seg[2];
+          else if (typeof seg?.[3] === "string" && seg[3]) translit2 += (translit2 ? " " : "") + seg[3];
         }
       }
       const cleanT2 = tr2.trim();
       if (cleanT2 && (isSame || cleanT2.toLowerCase() !== safeText.toLowerCase())) {
         const localHit = lookupCorePhrase(safeText, sourceLang === "zh" ? "zh-vi" : "vi-zh");
-        return { translation: cleanT2, pinyin: (localHit && localHit.py) || null, source: "clients5" };
+        return { translation: cleanT2, pinyin: translit2.trim() || (localHit && localHit.py) || null, source: "clients5" };
       }
     }
   } catch (_) {}

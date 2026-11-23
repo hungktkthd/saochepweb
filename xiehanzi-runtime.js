@@ -3268,6 +3268,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const turnTxt = (chatRes && ((chatRes.turn && chatRes.turn.text) || chatRes.reply || (Array.isArray(chatRes.turns) && chatRes.turns.slice(-1)[0] && chatRes.turns.slice(-1)[0].text))) || '';
         return Boolean(chatRes && chatRes.ok && String(turnTxt).trim().length > 0);
       });
+      await runCheck('sync-stage-semantic-heading-guard', () => {
+        const postSrc = typeof runPostHydrationEnhancers === 'function' ? runPostHydrationEnhancers.toString() : '';
+        return Boolean(typeof syncStageSemanticHeading === 'function' && postSrc.includes('syncStageSemanticHeading'));
+      });
+      await runCheck('exam-picker-for-bare-lam-bai', () => {
+        const tpSrc = typeof renderHskTestPaperPage === 'function' ? renderHskTestPaperPage.toString() : '';
+        return Boolean(tpSrc.includes('xhz-exam-picker-root') && tpSrc.includes('qpId'));
+      });
+      await runCheck('yct-exam-hub-dark-mode-rules', () => {
+        const tpSrc = typeof renderHskTestPaperPage === 'function' ? renderHskTestPaperPage.toString() : '';
+        return Boolean(tpSrc.includes('html.dark #xhz-yct-exam-hub'));
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -11409,26 +11421,35 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await renderHskSpeakingMockPage(parts[1] || 'hsk1');
       return;
     }
-    const paperId = safeDecodeURIComponent(parts[parts.length - 1] || '');
+    const qpId = new URLSearchParams(window.location.search).get('id') || '';
+    const lastSeg = safeDecodeURIComponent(parts[parts.length - 1] || '');
+    const paperId = (lastSeg === 'lam-bai' || lastSeg === 'de-kiem-tra') ? safeDecodeURIComponent(qpId).trim() : lastSeg;
     if ((parts[0] === 'kiem-tra-yct' && parts.length === 1) || /^yct-?[1-4]$/i.test(paperId)) {
       const reqLvl = (paperId.match(/([1-4])$/) || [])[1] || 'all';
       const yctRes = await (await handleApiRequest(window.location.origin + '/v1/hsk-tests/papers?examType=yct', { method: 'GET' })).json().catch(() => ({ levels: [] }));
       const levels = Array.isArray(yctRes && yctRes.levels) ? yctRes.levels : [];
       document.title = 'Phòng thi thử YCT (Cấp 1–4) | Học Tiếng Trung';
       root.innerHTML = `
+        <style>
+          #xhz-yct-exam-hub { --yct-card:#ffffff; --yct-soft:#fafaf9; --yct-ink:#1c1917; --yct-muted:#57534e; --yct-border:#e7e5e4; color:var(--yct-ink); }
+          html.dark #xhz-yct-exam-hub { --yct-card:#111827; --yct-soft:#0f172a; --yct-ink:#f8fafc; --yct-muted:#cbd5e1; --yct-border:#334155; }
+          #xhz-yct-exam-hub .xhz-yct-shell { background:var(--yct-card); border:1px solid var(--yct-border); border-radius:22px; padding:24px; box-shadow:0 4px 20px rgba(0,0,0,0.04); }
+          #xhz-yct-exam-hub .xhz-yct-card { padding:18px; border-radius:16px; border:1px solid var(--yct-border); background:var(--yct-soft); text-decoration:none; color:var(--yct-ink); display:flex; flex-direction:column; justify-content:space-between; gap:10px; }
+          #xhz-yct-exam-hub .xhz-yct-card:hover { border-color:#0d9488; }
+        </style>
         <div id="xhz-yct-exam-hub" style="max-width:960px;margin:0 auto;">
           <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
             <a href="/kiem-tra-hsk" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Phòng thi HSK &amp; YCT (/kiem-tra-hsk)</a>
             <div style="display:flex;gap:8px;flex-wrap:wrap;">
-              <a href="/thu-vien-yct" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">📘 Từ vựng YCT 1–4</a>
+              <a href="/thu-vien-yct" style="padding:8px 14px;border-radius:999px;background:var(--yct-card);color:var(--yct-ink);border:1px solid var(--yct-border);font-weight:700;text-decoration:none;font-size:13px;">📘 Từ vựng YCT 1–4</a>
               <a href="/kiem-tra-hsk/hsk1/noi" style="padding:8px 16px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;font-size:13px;">🎤 Thi thử Khẩu ngữ HSKK</a>
             </div>
           </div>
-          <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
-            <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:0 0 6px 0;">🧒 Phòng Thi Thử YCT (Youth Chinese Test · Cấp 1–4)</h1>
-            <p style="font-size:14px;color:#57534e;margin:0 0 18px 0;">Bộ đề thi chuẩn YCT có âm thanh Nghe hiểu, Đọc hiểu và chấm điểm giải thích chi tiết từng câu.</p>
+          <div class="xhz-yct-shell">
+            <h1 style="font-size:24px;font-weight:800;color:var(--yct-ink);margin:0 0 6px 0;">🧒 Phòng Thi Thử YCT (Youth Chinese Test · Cấp 1–4)</h1>
+            <p style="font-size:14px;color:var(--yct-muted);margin:0 0 18px 0;">Bộ đề thi chuẩn YCT có âm thanh Nghe hiểu, Đọc hiểu và chấm điểm giải thích chi tiết từng câu.</p>
             <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
-              ${[['all', 'Tất cả cấp YCT'], ['1', 'YCT Cấp 1'], ['2', 'YCT Cấp 2'], ['3', 'YCT Cấp 3'], ['4', 'YCT Cấp 4']].map(([lv, lbl]) => `<button type="button" data-yct-lvl="${lv}" class="xhz-yct-tab${lv === reqLvl ? ' is-active' : ''}" style="padding:7px 14px;border-radius:999px;border:1px solid ${lv === reqLvl ? '#0d9488' : '#d6d3d1'};background:${lv === reqLvl ? '#0d9488' : '#fff'};color:${lv === reqLvl ? '#fff' : '#1c1917'};font-weight:700;font-size:13px;cursor:pointer;">${lbl}</button>`).join('')}
+              ${[['all', 'Tất cả cấp YCT'], ['1', 'YCT Cấp 1'], ['2', 'YCT Cấp 2'], ['3', 'YCT Cấp 3'], ['4', 'YCT Cấp 4']].map(([lv, lbl]) => `<button type="button" data-yct-lvl="${lv}" class="xhz-yct-tab${lv === reqLvl ? ' is-active' : ''}" style="padding:7px 14px;border-radius:999px;border:1px solid ${lv === reqLvl ? '#0d9488' : '#d6d3d1'};background:${lv === reqLvl ? '#0d9488' : 'var(--yct-card)'};color:${lv === reqLvl ? '#fff' : 'var(--yct-ink)'};font-weight:700;font-size:13px;cursor:pointer;">${lbl}</button>`).join('')}
             </div>
             <div id="xhz-yct-papers-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
           </div>
@@ -11443,14 +11464,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         gridEl.innerHTML = items.map(it => {
           const tid = it.testId || it.id || `yct-${it.level}-01`;
           return `
-            <a href="/kiem-tra-yct/${encodeURIComponent(tid)}" style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;text-decoration:none;color:#1c1917;display:flex;flex-direction:column;justify-content:space-between;gap:10px;">
+            <a href="/kiem-tra-yct/${encodeURIComponent(tid)}" class="xhz-yct-card">
               <div>
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
                   <span style="font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:#ccfbf1;color:#115e59;">YCT CẤP ${escape(it.level)}</span>
-                  <span style="font-size:12px;color:#57534e;font-weight:600;">${escape(it.questionCount || 20)} câu · ${escape(it.durationMinutes || 35)} phút</span>
+                  <span style="font-size:12px;color:var(--yct-muted);font-weight:600;">${escape(it.questionCount || 20)} câu · ${escape(it.durationMinutes || 35)} phút</span>
                 </div>
-                <div style="font-size:17px;font-weight:800;color:#1c1917;">${escape(it.title || it.name || tid)}</div>
-                <div style="font-size:13px;color:#57534e;margin-top:4px;">Gồm phần Nghe hiểu có audio và Đọc hiểu trắc nghiệm chuẩn YCT.</div>
+                <div style="font-size:17px;font-weight:800;color:var(--yct-ink);">${escape(it.title || it.name || tid)}</div>
+                <div style="font-size:13px;color:var(--yct-muted);margin-top:4px;">Gồm phần Nghe hiểu có audio và Đọc hiểu trắc nghiệm chuẩn YCT.</div>
               </div>
               <div style="font-size:13px;font-weight:800;color:#0d9488;">▶ Vào làm đề thi →</div>
             </a>
@@ -11463,14 +11484,83 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           root.querySelectorAll('[data-yct-lvl]').forEach(x => {
             const on = x.getAttribute('data-yct-lvl') === activeYctLvl;
             x.classList.toggle('is-active', on);
-            x.style.background = on ? '#0d9488' : '#fff';
-            x.style.color = on ? '#fff' : '#1c1917';
-            x.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+            x.style.background = on ? '#0d9488' : 'var(--yct-card)';
+            x.style.color = on ? '#fff' : 'var(--yct-ink)';
+            x.style.borderColor = on ? '#0d9488' : 'var(--yct-border)';
           });
           renderYctPapers();
         };
       });
       renderYctPapers();
+      return;
+    }
+    if (!paperId) {
+      const hskIndex = await loadLocalJson('/data/tests/papers-hsk.json');
+      const hskLevels = Array.isArray(hskIndex && hskIndex.levels) ? hskIndex.levels : [];
+      document.title = 'Phòng Chọn Đề Thi HSK & YCT Trực Tuyến | Học Tiếng Trung';
+      root.innerHTML = `
+        <style>
+          #xhz-exam-picker-root { --ep-card:#ffffff; --ep-soft:#fafaf9; --ep-ink:#1c1917; --ep-muted:#57534e; --ep-border:#e7e5e4; color:var(--ep-ink); }
+          html.dark #xhz-exam-picker-root { --ep-card:#111827; --ep-soft:#0f172a; --ep-ink:#f8fafc; --ep-muted:#cbd5e1; --ep-border:#334155; }
+          #xhz-exam-picker-root .xhz-ep-card { padding:16px; border-radius:16px; border:1px solid var(--ep-border); background:var(--ep-soft); text-decoration:none; color:var(--ep-ink); display:flex; flex-direction:column; justify-content:space-between; gap:8px; }
+          #xhz-exam-picker-root .xhz-ep-card:hover { border-color:#0d9488; }
+          #xhz-exam-picker-root .xhz-ep-tab { padding:7px 14px; border-radius:999px; border:1px solid var(--ep-border); background:var(--ep-card); color:var(--ep-ink); font-weight:700; font-size:13px; cursor:pointer; }
+          #xhz-exam-picker-root .xhz-ep-tab.is-active { background:#0d9488; border-color:#0d9488; color:#ffffff; }
+        </style>
+        <section id="xhz-exam-picker-root" style="max-width:980px;margin:0 auto;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+            <a href="/de-kiem-tra" style="color:#0d9488;font-weight:800;text-decoration:none;">← Trung tâm Đề kiểm tra</a>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <a href="/kiem-tra-hsk" style="padding:7px 13px;border-radius:999px;border:1px solid var(--ep-border);background:var(--ep-card);color:var(--ep-ink);font-weight:700;font-size:12.5px;text-decoration:none;">📘 HSK 3.0</a>
+              <a href="/kiem-tra-yct" style="padding:7px 13px;border-radius:999px;border:1px solid var(--ep-border);background:var(--ep-card);color:var(--ep-ink);font-weight:700;font-size:12.5px;text-decoration:none;">🧒 YCT 1–4</a>
+              <a href="/kiem-tra-hsk/hsk1/noi" style="padding:7px 13px;border-radius:999px;background:#0d9488;color:#fff;font-weight:700;font-size:12.5px;text-decoration:none;">🎤 Khẩu ngữ HSKK</a>
+              <a href="/kiem-tra-ngu-phap" style="padding:7px 13px;border-radius:999px;border:1px solid var(--ep-border);background:var(--ep-card);color:var(--ep-ink);font-weight:700;font-size:12.5px;text-decoration:none;">⚖️ Ngữ pháp</a>
+            </div>
+          </div>
+          <div style="background:var(--ep-card);border:1px solid var(--ep-border);border-radius:22px;padding:24px;">
+            <h1 style="font-size:25px;font-weight:800;margin:0 0 8px 0;">📝 Phòng Chọn Nhanh Đề Thi HSK &amp; YCT</h1>
+            <p style="font-size:14px;color:var(--ep-muted);margin:0 0 18px 0;">Chọn cấp độ và bấm trực tiếp vào bất kỳ đề thi nào để bắt đầu làm bài, bấm giờ và nhận phân tích lỗi sai chi tiết.</p>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+              ${[['all', 'Tất cả'], ['1', 'HSK 1'], ['2', 'HSK 2'], ['3', 'HSK 3'], ['4', 'HSK 4'], ['5', 'HSK 5'], ['6', 'HSK 6']].map(([lv, lbl], idx) => `<button type="button" class="xhz-ep-tab${idx === 0 ? ' is-active' : ''}" data-ep-lvl="${lv}">${lbl}</button>`).join('')}
+            </div>
+            <div id="xhz-exam-picker-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;"></div>
+          </div>
+        </section>
+      `;
+      let activeLvl = 'all';
+      const gridEl = root.querySelector('#xhz-exam-picker-grid');
+      const renderPicker = () => {
+        const list = hskLevels
+          .filter(l => activeLvl === 'all' || String(l.level) === String(activeLvl))
+          .flatMap(l => {
+            const raw = Array.isArray(l.items) ? l.items : (Array.isArray(l.papers) ? l.papers : []);
+            return raw.map(it => ({ ...it, level: l.level }));
+          });
+        if (!gridEl) return;
+        gridEl.innerHTML = list.map(it => {
+          const tid = it.testId || it.id || `hsk${it.level}-1`;
+          return `
+            <a href="/kiem-tra-hsk/hsk${encodeURIComponent(it.level)}/test/${encodeURIComponent(tid)}" class="xhz-ep-card">
+              <div>
+                <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;">
+                  <span style="font-size:11.5px;font-weight:800;padding:2px 8px;border-radius:999px;background:#e0f2fe;color:#0369a1;">HSK CẤP ${escape(it.level)}</span>
+                  <span style="font-size:12px;color:var(--ep-muted);font-weight:600;">${escape(it.questionCount || 40)} câu · ${escape(it.durationMinutes || 40)} phút</span>
+                </div>
+                <div style="font-size:16.5px;font-weight:800;">${escape(it.title || it.name || tid)}</div>
+              </div>
+              <div style="font-size:13px;font-weight:800;color:#0d9488;">▶ Bắt đầu làm đề →</div>
+            </a>
+          `;
+        }).join('') || `<div style="grid-column:1/-1;padding:20px;text-align:center;color:var(--ep-muted);">Không tìm thấy đề thi cho cấp độ này.</div>`;
+      };
+      root.querySelectorAll('[data-ep-lvl]').forEach(btn => {
+        btn.onclick = () => {
+          activeLvl = btn.getAttribute('data-ep-lvl') || 'all';
+          root.querySelectorAll('[data-ep-lvl]').forEach(b => b.classList.toggle('is-active', b === btn));
+          renderPicker();
+        };
+      });
+      renderPicker();
       return;
     }
     const paper = await loadTestPaperById(paperId);
@@ -11480,7 +11570,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const entry = index && Array.isArray(index.levels) && index.levels.find(item => String(item.level) === level);
       if (entry && entry.items && entry.items.length) {
         root.innerHTML = `<h1 style="font-size:28px;font-weight:800;">Đề thi HSK cấp ${level}</h1><p><a href="/kiem-tra-hsk">← Phòng thi HSK</a></p><div style="display:grid;gap:12px;margin-top:20px;">${entry.items.map(item => `<a href="/kiem-tra-hsk/hsk${level}/test/${encodeURIComponent(item.testId || item.id)}" style="padding:18px;border:1px solid #e7e5e4;border-radius:14px;">${escape(item.title || item.name || item.testId)}</a>`).join('')}</div>`;
-      } else root.innerHTML = '<h1>Không tìm thấy đề thi</h1><p>Đề thi này chưa có dữ liệu. <a href="/kiem-tra-hsk">Quay lại phòng thi HSK</a></p>';
+      } else {
+        root.innerHTML = `<div style="max-width:640px;margin:16px auto;padding:24px;border-radius:18px;border:1px solid #e7e5e4;background:#fff;color:#1c1917;"><h1 style="font-size:24px;font-weight:800;margin:0 0 8px;">Chưa tìm thấy mã đề "${escape(paperId)}"</h1><p style="color:#57534e;margin:0 0 16px;">Bạn có thể chọn ngay đề thi có sẵn trong Phòng Chọn Nhanh hoặc quay lại danh sách đề HSK 3.0 &amp; YCT.</p><div style="display:flex;gap:10px;flex-wrap:wrap;"><a href="/de-kiem-tra/lam-bai" style="padding:10px 16px;border-radius:10px;background:#0d9488;color:#fff;font-weight:700;text-decoration:none;">📝 Chọn đề thi có sẵn</a><a href="/kiem-tra-hsk" style="padding:10px 16px;border-radius:10px;border:1px solid #d6d3d1;color:#1c1917;font-weight:700;text-decoration:none;">← Quay lại Phòng thi HSK</a></div></div>`;
+      }
       return;
     }
     const questions = Array.isArray(paper.questions) && paper.questions.length ? paper.questions : (paper.sections || []).flatMap(section => section.questions || []);
@@ -18297,6 +18389,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const colBtn = wrap.querySelector('#htq-stage-collapse-btn');
     if (colBtn) bindStudioClick(colBtn, () => { try { sessionStorage.setItem('htq_stage_collapsed', '1'); } catch (_) {} wrap.remove(); buildPageExperienceStage(curPath); });
+    if (stageTitleTag === 'h1') {
+      setTimeout(syncStageSemanticHeading, 650);
+    }
 
     const host = wrap.querySelector('#htq-stage-activity-host');
     if (!host) return;
@@ -19111,12 +19206,30 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } catch (_) {}
   }
 
+  function syncStageSemanticHeading() {
+    try {
+      const stageH1 = document.querySelector('#htq-page-stage h1');
+      if (!stageH1 || !stageH1.parentNode) return;
+      const otherVisibleH1 = Array.from(document.querySelectorAll('h1')).some(
+        el => !el.closest('#htq-page-stage') && !el.closest('[aria-hidden="true"]')
+      );
+      if (otherVisibleH1) {
+        const divTitle = document.createElement('div');
+        divTitle.setAttribute('data-htq-stage-title', '1');
+        divTitle.style.cssText = stageH1.style.cssText;
+        divTitle.textContent = stageH1.textContent;
+        stageH1.parentNode.replaceChild(divTitle, stageH1);
+      }
+    } catch (_) {}
+  }
+
   function runPostHydrationEnhancers() {
     htqHydrationSettled = true;
     ensurePwaWired();
     rewriteDomMedia(document);
     scrubBrandingAndLogos(document.body);
     mountStudioLayout();
+    syncStageSemanticHeading();
     enhanceAccountPageAuthUI();
     enhanceWorksheetAndPdfTools();
   }
