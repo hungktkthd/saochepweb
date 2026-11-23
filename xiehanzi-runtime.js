@@ -3047,6 +3047,43 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           hrefs.includes('/thay-do/thach/hsk1')
         );
       });
+      await runCheck('kids-yct-corner-route-and-renderer', () => {
+        const kdSrc = typeof renderKidsYctCornerPage === 'function' ? renderKidsYctCornerPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/be-hoc') === true &&
+          isDynamicSpaRoute('/be-hoc/dong-vat') === true &&
+          kdSrc.includes('xhz-kids-yct-root') &&
+          kdSrc.includes('xhz-kids-worksheet-link') &&
+          kdSrc.includes('data-kids-topic') &&
+          resolvePageStageConfig('/be-hoc') === null
+        );
+      });
+      await runCheck('worksheet-templates-hub-route-and-renderer', () => {
+        const wtSrc = typeof renderWorksheetTemplatesPage === 'function' ? renderWorksheetTemplatesPage.toString() : '';
+        return Boolean(
+          isDynamicSpaRoute('/tao-vo-tap-viet/mau') === true &&
+          isDynamicSpaRoute('/worksheet-generator/templates') === true &&
+          wtSrc.includes('xhz-worksheet-templates-root') &&
+          wtSrc.includes('xhz-wt-search') &&
+          wtSrc.includes('data-wt-cat') &&
+          resolvePageStageConfig('/tao-vo-tap-viet/mau') === null
+        );
+      });
+      await runCheck('legacy-lookup-and-hoc-ontap-aliases', () => {
+        return Boolean(
+          isDynamicSpaRoute('/hoc/on-tap') === true &&
+          isDynamicSpaRoute('/hanzi-character/好') === true &&
+          isDynamicSpaRoute('/hanzi-word/你好') === true &&
+          isDynamicSpaRoute('/han-viet-lookup/hao') === true
+        );
+      });
+      await runCheck('cmdk-includes-kids-and-worksheet-templates', () => {
+        const hrefs = Array.isArray(HTQ_QUICK_ROUTES) ? HTQ_QUICK_ROUTES.map(r => r.href) : [];
+        return Boolean(
+          hrefs.includes('/be-hoc') &&
+          hrefs.includes('/tao-vo-tap-viet/mau')
+        );
+      });
     } finally {
       window.__xhzDiagRunning = false;
       diagKeys.forEach(k => {
@@ -7949,9 +7986,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function isDynamicSpaRoute(pathname) {
     const p = (pathname || '/').replace(/\/+$/, '') || '/';
     const parts = p.split('/').filter(Boolean);
-    if (parts[0] === 'han-tu' && parts.length >= 2) return true;
-    if (parts[0] === 'tu-vung' && parts.length >= 2) return true;
-    if (parts[0] === 'han-viet') return true;
+    if ((parts[0] === 'han-tu' || parts[0] === 'hanzi-character') && parts.length >= 2) return true;
+    if ((parts[0] === 'tu-vung' || parts[0] === 'hanzi-word') && parts.length >= 2) return true;
+    if (parts[0] === 'han-viet' || (parts[0] === 'han-viet-lookup' && parts.length >= 2)) return true;
+    if (parts[0] === 'be-hoc') return true;
+    if ((parts[0] === 'tao-vo-tap-viet' && parts[1] === 'mau') || (parts[0] === 'worksheet-generator' && parts[1] === 'templates')) return true;
     if (parts[0] === 'ngu-phap' && parts[1] === 'da-hoc') return true;
     if (parts[0] === 'ngu-phap' && parts.length >= 3) return true;
     if (parts[0] === 'kiem-tra-ngu-phap' && parts[1] === 'lam-bai') return true;
@@ -7964,7 +8003,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (parts[0] === 'luyen-chep-chinh-ta' && parts.length >= 2) return true;
     if ((parts[0] === 'kiem-tra-hsk' && parts.length >= 2) || parts[0] === 'kiem-tra-yct' || (parts[0] === 'de-kiem-tra' && parts[1] === 'lam-bai')) return true;
     if (parts[0] === 'hoc' && (parts[1] === 'chang' || parts[1] === 'bai' || parts[1] === 'kiem-tra-cap' || parts[1] === 'noi') && parts.length >= 3) return true;
-    if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen' || parts[1] === 'hom-nay' || parts[1] === 'bao-cao')) return true;
+    if (parts[0] === 'hoc' && (parts[1] === 'tien-do' || parts[1] === 'thoi-quen' || parts[1] === 'hom-nay' || parts[1] === 'bao-cao' || parts[1] === 'on-tap')) return true;
     if (parts[0] === 'phu-huynh') return true;
     if (parts[0] === 'thay-do' && (parts[1] === 'thach' || parts[1] === 'thu-thach')) return true;
     if ((parts[0] === 'bat-dau' && parts[1] === 'kiem-tra') || (parts[0] === 'hoc' && parts[1] === 'bat-dau' && parts[2] === 'kiem-tra')) return true;
@@ -13348,6 +13387,251 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     renderQuestion();
   }
 
+  async function renderKidsYctCornerPage(pathname) {
+    const root = getMainContentContainer();
+    const parts = String(pathname || '/be-hoc').split('/').filter(Boolean);
+    let activeTopic = safeDecodeURIComponent(parts[1] || 'dong-vat').toLowerCase();
+    const topics = {
+      'dong-vat': {
+        title: '🐾 Động Vật Đáng Yêu (动物朋友)',
+        desc: 'Học tên các loài vật gần gũi quanh bé chuẩn từ vựng YCT Cấp 1–2.',
+        items: [
+          { ico: '🐱', hanzi: '猫', pinyin: 'māo', hv: 'MIÊU', meaning: 'con mèo' },
+          { ico: '🐶', hanzi: '狗', pinyin: 'gǒu', hv: 'CẨU', meaning: 'con chó' },
+          { ico: '🐦', hanzi: '鸟', pinyin: 'niǎo', hv: 'ĐIỂU', meaning: 'con chim' },
+          { ico: '🐟', hanzi: '鱼', pinyin: 'yú', hv: 'NGƯ', meaning: 'con cá' },
+          { ico: '🐼', hanzi: '熊猫', pinyin: 'xióngmāo', hv: 'HÙNG MIÊU', meaning: 'gấu trúc' },
+          { ico: '🐰', hanzi: '兔子', pinyin: 'tùzi', hv: 'THỐ TỬ', meaning: 'con thỏ' }
+        ]
+      },
+      'trai-cay': {
+        title: '🍎 Trái Cây & Đồ Ăn Ngon (美味食物)',
+        desc: 'Các món ăn và hoa quả quen thuộc trong bữa ăn hằng ngày của bé.',
+        items: [
+          { ico: '🍎', hanzi: '苹果', pinyin: 'píngguǒ', hv: 'BÌNH QUẢ', meaning: 'quả táo' },
+          { ico: '🍌', hanzi: '香蕉', pinyin: 'xiāngjiāo', hv: 'HƯƠNG TIÊU', meaning: 'quả chuối' },
+          { ico: '🍉', hanzi: '西瓜', pinyin: 'xīguā', hv: 'TÂY QUA', meaning: 'dưa hấu' },
+          { ico: '🥛', hanzi: '牛奶', pinyin: 'niúnǎi', hv: 'NGƯU NÃI', meaning: 'sữa bò' },
+          { ico: '🍚', hanzi: '米饭', pinyin: 'mǐfàn', hv: 'MỄ PHẠN', meaning: 'cơm trắng' },
+          { ico: '🥟', hanzi: '饺子', pinyin: 'jiǎozi', hv: 'GIẢO TỬ', meaning: 'sủi cảo' }
+        ]
+      },
+      'gia-dinh': {
+        title: '👨‍👩‍👧 Gia Đình Thân Thương (我的家人)',
+        desc: 'Cách gọi ông bà, bố mẹ và anh chị em bằng tiếng Trung lễ phép.',
+        items: [
+          { ico: '👨', hanzi: '爸爸', pinyin: 'bàba', hv: 'BA BA', meaning: 'bố, ba' },
+          { ico: '👩', hanzi: '妈妈', pinyin: 'māma', hv: 'MA MA', meaning: 'mẹ, má' },
+          { ico: '👦', hanzi: '哥哥', pinyin: 'gēge', hv: 'CA CA', meaning: 'anh trai' },
+          { ico: '👧', hanzi: '姐姐', pinyin: 'jiějie', hv: 'TỈ TỈ', meaning: 'chị gái' },
+          { ico: '👶', hanzi: '弟弟', pinyin: 'dìdi', hv: 'ĐỆ ĐỆ', meaning: 'em trai' },
+          { ico: '🎀', hanzi: '妹妹', pinyin: 'mèimei', hv: 'MUỘI MUỘI', meaning: 'em gái' }
+        ]
+      },
+      'mau-sac': {
+        title: '🎨 Màu Sắc & Số Đếm (颜色与数字)',
+        desc: 'Nhận biết màu sắc tươi sáng và các con số cơ bản trong tiếng Trung.',
+        items: [
+          { ico: '🔴', hanzi: '红色', pinyin: 'hóngsè', hv: 'HỒNG SẮC', meaning: 'màu đỏ' },
+          { ico: '🟡', hanzi: '黄色', pinyin: 'huángsè', hv: 'HOÀNG SẮC', meaning: 'màu vàng' },
+          { ico: '🔵', hanzi: '蓝色', pinyin: 'lánsè', hv: 'LAM SẮC', meaning: 'màu xanh dương' },
+          { ico: '🟢', hanzi: '绿色', pinyin: 'lǜsè', hv: 'LỤC SẮC', meaning: 'màu xanh lá' },
+          { ico: '1️⃣', hanzi: '一二三', pinyin: 'yī èr sān', hv: 'NHẤT NHỊ TAM', meaning: 'một, hai, ba' },
+          { ico: '🔟', hanzi: '十', pinyin: 'shí', hv: 'THẬP', meaning: 'số mười (10)' }
+        ]
+      }
+    };
+    if (!topics[activeTopic]) activeTopic = 'dong-vat';
+    document.title = 'Góc Bé Học Tiếng Trung YCT (Cấp 1–4) | Học Tiếng Trung';
+
+    root.innerHTML = `
+      <div id="xhz-kids-yct-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/thu-vien-yct" style="color:#0d9488;font-weight:800;text-decoration:none;">← Xem toàn bộ Giáo trình YCT (/thu-vien-yct)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/kiem-tra-yct" style="padding:8px 14px;border-radius:999px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13px;">🧒 Phòng thi thử YCT 1–4</a>
+            <a href="/tro-choi/ghep-chu" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">🧩 Trò chơi Ghép chữ</a>
+            <a href="/phu-huynh" style="padding:8px 14px;border-radius:999px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;font-weight:700;text-decoration:none;font-size:13px;">📜 Báo cáo cho Phụ huynh</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;margin-bottom:18px;">
+            <div>
+              <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fef3c7;color:#92400e;">🧒 GÓC BÉ HỌC TIẾNG TRUNG · CHUẨN YCT THIẾU NHI</span>
+              <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Thẻ Tranh Từ Vựng &amp; Phát Âm Tiếng Trung Cho Bé</h1>
+              <p id="xhz-kids-topic-desc" style="font-size:14px;color:#57534e;margin:0;">${escapeHtml(topics[activeTopic].desc)}</p>
+            </div>
+            <a id="xhz-kids-worksheet-link" href="/tao-vo-tap-viet" style="padding:9px 16px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;font-weight:800;text-decoration:none;font-size:13px;">🖨️ In vở tập viết chủ đề này</a>
+          </div>
+
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
+            ${Object.entries(topics).map(([id, t]) => `
+              <button type="button" data-kids-topic="${id}" style="padding:8px 16px;border-radius:999px;border:1px solid ${id === activeTopic ? '#0d9488' : '#d6d3d1'};background:${id === activeTopic ? '#0d9488' : '#fff'};color:${id === activeTopic ? '#fff' : '#1c1917'};font-weight:800;font-size:13.5px;cursor:pointer;">
+                ${escapeHtml(t.title)}
+              </button>
+            `).join('')}
+          </div>
+
+          <div id="xhz-kids-cards-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;"></div>
+        </div>
+      </div>
+    `;
+
+    const gridEl = root.querySelector('#xhz-kids-cards-grid');
+    const descEl = root.querySelector('#xhz-kids-topic-desc');
+    const wsLink = root.querySelector('#xhz-kids-worksheet-link');
+
+    const renderTopic = () => {
+      const t = topics[activeTopic] || topics['dong-vat'];
+      if (descEl) descEl.textContent = t.desc;
+      if (wsLink) wsLink.href = `/tao-vo-tap-viet?text=${encodeURIComponent(t.items.map(x => x.hanzi).join(' '))}`;
+      gridEl.innerHTML = t.items.map(it => `
+        <div style="padding:18px;border-radius:18px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:12px;text-align:center;">
+          <div>
+            <div style="font-size:38px;line-height:1;">${it.ico}</div>
+            <div style="font-size:32px;font-weight:900;color:#1c1917;margin-top:8px;font-family:'Noto Serif SC',serif;">${escapeHtml(it.hanzi)}</div>
+            <div style="font-size:15px;font-weight:800;color:#0d9488;margin-top:2px;">${escapeHtml(it.pinyin)} · ${escapeHtml(it.hv)}</div>
+            <div style="font-size:15px;font-weight:700;color:#44403c;margin-top:4px;">${escapeHtml(it.meaning)}</div>
+          </div>
+          <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+            <button type="button" data-kids-play="${escapeHtml(it.hanzi)}" style="padding:6px 12px;border-radius:999px;border:none;background:#0d9488;color:#fff;font-weight:800;cursor:pointer;font-size:12.5px;">🔊 Nghe đọc</button>
+            <button type="button" data-kids-copy="${escapeHtml(it.hanzi)}" style="padding:6px 10px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:12px;">📋 Chép</button>
+            <a href="/tao-vo-tap-viet?text=${encodeURIComponent(it.hanzi)}" style="padding:6px 10px;border-radius:999px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-weight:700;text-decoration:none;font-size:12px;">✍️ Tập viết</a>
+          </div>
+        </div>
+      `).join('');
+
+      gridEl.querySelectorAll('[data-kids-play]').forEach(b => {
+        b.onclick = () => {
+          const hz = b.getAttribute('data-kids-play') || '';
+          playPronunciation(hz, 'tts', 0.9);
+          recordStudyProgress({ wordLearned: hz });
+        };
+      });
+      gridEl.querySelectorAll('[data-kids-copy]').forEach(b => {
+        b.onclick = () => {
+          const hz = b.getAttribute('data-kids-copy') || '';
+          copyStudyText(hz, hz);
+        };
+      });
+    };
+
+    root.querySelectorAll('[data-kids-topic]').forEach(btn => {
+      btn.onclick = () => {
+        activeTopic = btn.getAttribute('data-kids-topic') || 'dong-vat';
+        root.querySelectorAll('[data-kids-topic]').forEach(sib => {
+          const on = sib.getAttribute('data-kids-topic') === activeTopic;
+          sib.style.background = on ? '#0d9488' : '#fff';
+          sib.style.color = on ? '#fff' : '#1c1917';
+          sib.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+        });
+        renderTopic();
+      };
+    });
+    renderTopic();
+  }
+
+  async function renderWorksheetTemplatesPage() {
+    const root = getMainContentContainer();
+    document.title = 'Kho Mẫu Vở Tập Viết Chữ Hán PDF Theo Chủ Đề & HSK | Học Tiếng Trung';
+    const prog = typeof getRealProgress === 'function' ? getRealProgress() : {};
+    const learned = Array.isArray(prog.learnedWords) ? prog.learnedWords.filter(Boolean) : [];
+    const learnedSample = learned.slice(-16).join(' ') || '你 好 学 习 中 文 朋 友 高 兴';
+
+    const templates = [
+      { id: 'wt-learned', cat: 'personal', badge: 'CÁ NHÂN HÓA', title: `Từ vựng bạn đã học gần đây (${learned.length || 10} từ)`, desc: 'Tạo ngay tờ vở luyện viết từ chính danh sách chữ Hán bạn đang học.', chars: learnedSample },
+      { id: 'wt-strokes', cat: 'strokes', badge: 'NÉT CƠ BẢN', title: 'Vĩnh Tự Bát Pháp & Nét Cơ Bản (永字八法)', desc: 'Luyện 8 nét bút căn bản và các chữ Hán nền tảng chuẩn quy tắc bút thuận.', chars: '永 一 二 三 十 工 土 王 大 天 人 入' },
+      { id: 'wt-radicals', cat: 'strokes', badge: '20 BỘ THỦ CỐT LÕI', title: '20 Bộ Thủ Chữ Hán Thông Dụng Nhất', desc: 'Nắm vững 20 bộ thủ xuất hiện trong hơn 70% chữ Hán HSK 1–4.', chars: '人 口 土 女 心 手 日 月 木 水 火 田 目 石 禾 竹 米 言 金 页' },
+      { id: 'wt-hsk1-greet', cat: 'hsk', badge: 'HSK 1 · BÀI 1–3', title: 'HSK 1: Chào Hỏi, Số Đếm & Đại Từ Nhân Xưng', desc: 'Bộ chữ Hán mở đầu cho người mới bắt đầu học tiếng Trung.', chars: '你 好 我 是 老 师 学 生 谢 谢 不 客 气 再 见' },
+      { id: 'wt-hsk1-family', cat: 'hsk', badge: 'HSK 1 · BÀI 4–8', title: 'HSK 1: Gia Đình, Thời Gian & Ẩm Thực', desc: 'Luyện viết các chữ chỉ thành viên gia đình, ngày tháng và đồ ăn thức uống.', chars: '爸 爸 妈 妈 哥 哥 姐 姐 今 天 明 天 星 期 喝 茶 米 饭' },
+      { id: 'wt-hsk2-daily', cat: 'hsk', badge: 'HSK 2 · SƠ CẤP', title: 'HSK 2: Sinh Hoạt, Thời Tiết & Giao Tiếp', desc: 'Từ vựng mô tả lịch trình, sở thích thể thao, thời tiết và mua sắm.', chars: '已 经 准 备 运 动 旅 行 便 宜 帮 助 因 为 所 以 高 兴' },
+      { id: 'wt-hsk3-work', cat: 'hsk', badge: 'HSK 3 · TRUNG CẤP', title: 'HSK 3: Học Tập, Công Việc & Kế Hoạch', desc: 'Các chữ Hán trọng tâm về môi trường làm việc, thói quen và giao tiếp xã hội.', chars: '坚 持 习 惯 计 划 会 议 解 决 提 高 环 境 经 验 印 象' },
+      { id: 'wt-kids-yct', cat: 'kids', badge: 'THIẾU NHI YCT 1–2', title: 'Thiếu Nhi YCT: Động Vật, Màu Sắc & Hoa Quả', desc: 'Bộ chữ Hán sinh động dành cho trẻ em làm quen với chữ tượng hình.', chars: '猫 狗 鸟 鱼 熊 兔 苹 果 香 蕉 西 瓜 红 黄 蓝 绿' },
+      { id: 'wt-chengyu', cat: 'kids', badge: 'THƯ PHÁP & CHÚC PHÚC', title: 'Thành Ngữ Chúc Phúc & Khuyến Học Bốn Chữ', desc: 'Thích hợp luyện viết thư pháp chữ Hán và câu chúc may mắn.', chars: '大 吉 大 利 学 业 进 步 心 想 事 成 一 帆 风 顺 温 故 知 新' }
+    ];
+    let activeCat = 'all';
+
+    root.innerHTML = `
+      <div id="xhz-worksheet-templates-root" style="max-width:960px;margin:0 auto;">
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
+          <a href="/tao-vo-tap-viet" style="color:#0d9488;font-weight:800;text-decoration:none;">← Quay lại Xưởng Tạo Vở Tập Viết PDF (/tao-vo-tap-viet)</a>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <a href="/luyen-viet" style="padding:8px 14px;border-radius:999px;background:#fff;color:#1c1917;border:1px solid #d6d3d1;font-weight:700;text-decoration:none;font-size:13px;">✍️ Luyện viết bút thuận</a>
+            <a href="/flashcard-pdf" style="padding:8px 14px;border-radius:999px;background:#f0fdfa;color:#0f766e;border:1px solid #99f6e4;font-weight:700;text-decoration:none;font-size:13px;">📇 Tạo Flashcard PDF</a>
+          </div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e7e5e4;border-radius:22px;padding:24px;box-shadow:0 4px 20px rgba(0,0,0,0.04);">
+          <span style="font-size:12px;font-weight:800;padding:3px 10px;border-radius:999px;background:#fff7ed;color:#9a3412;border:1px solid #fed7aa;">🖨️ THƯ VIỆN MẪU VỞ TẬP VIẾT CHỮ HÁN PDF</span>
+          <h1 style="font-size:24px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">Kho Mẫu Vở Tập Viết Theo Cấp Độ HSK, Bộ Thủ &amp; Chủ Đề</h1>
+          <p style="font-size:14px;color:#57534e;margin:0 0 18px 0;">Chọn bất kỳ bộ mẫu nào bên dưới để nạp thẳng vào Xưởng tạo vở tập viết (ô Mễ Tự Cách / Điền Tự Cách) và xuất file PDF in ngay.</p>
+
+          <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
+            <input id="xhz-wt-search" type="search" aria-label="Tìm mẫu vở tập viết" placeholder="Tìm theo tên mẫu hoặc chữ Hán..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:14px;" />
+            <div style="display:flex;gap:6px;flex-wrap:wrap;">
+              ${[['all', 'Tất cả mẫu'], ['personal', 'Của bạn'], ['strokes', 'Nét & Bộ thủ'], ['hsk', 'Từ vựng HSK'], ['kids', 'YCT & Thư pháp']].map(([c, lbl]) => `
+                <button type="button" data-wt-cat="${c}" style="padding:8px 14px;border-radius:999px;border:1px solid ${c === activeCat ? '#0d9488' : '#d6d3d1'};background:${c === activeCat ? '#0d9488' : '#fff'};color:${c === activeCat ? '#fff' : '#1c1917'};font-weight:700;font-size:13px;cursor:pointer;">${lbl}</button>
+              `).join('')}
+            </div>
+          </div>
+
+          <div id="xhz-wt-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:14px;"></div>
+        </div>
+      </div>
+    `;
+
+    const gridEl = root.querySelector('#xhz-wt-grid');
+    const searchEl = root.querySelector('#xhz-wt-search');
+    const renderTemplates = () => {
+      const q = String((searchEl && searchEl.value) || '').trim().toLowerCase();
+      const filtered = templates.filter(t => {
+        if (activeCat !== 'all' && t.cat !== activeCat) return false;
+        if (!q) return true;
+        return t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.chars.toLowerCase().includes(q);
+      });
+      gridEl.innerHTML = filtered.map(t => `
+        <div style="padding:18px;border-radius:16px;border:1px solid #e7e5e4;background:#fafaf9;display:flex;flex-direction:column;justify-content:space-between;gap:12px;">
+          <div>
+            <span style="font-size:11px;font-weight:800;padding:2px 8px;border-radius:999px;background:#ccfbf1;color:#115e59;">${escapeHtml(t.badge)}</span>
+            <h2 style="font-size:17px;font-weight:800;color:#1c1917;margin:8px 0 4px 0;">${escapeHtml(t.title)}</h2>
+            <p style="font-size:13px;color:#57534e;margin:0 0 10px 0;line-height:1.45;">${escapeHtml(t.desc)}</p>
+            <div style="padding:10px 12px;border-radius:12px;background:#fff;border:1px dashed #d6d3d1;font-size:19px;font-weight:800;color:#1c1917;letter-spacing:2px;line-height:1.5;font-family:'Noto Serif SC',serif;">
+              ${escapeHtml(t.chars)}
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <a href="/tao-vo-tap-viet?text=${encodeURIComponent(t.chars)}" style="flex:1;text-align:center;padding:9px 12px;border-radius:10px;background:#0d9488;color:#fff;font-weight:800;text-decoration:none;font-size:13px;">🖨️ Mở &amp; In vở tập viết</a>
+            <button type="button" data-wt-play="${escapeHtml(t.chars.replace(/\s+/g, ''))}" style="padding:8px 10px;border-radius:10px;border:none;background:#ccfbf1;color:#115e59;font-weight:700;cursor:pointer;font-size:12.5px;">🔊</button>
+            <button type="button" data-wt-copy="${escapeHtml(t.chars)}" style="padding:8px 10px;border-radius:10px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:12.5px;">📋</button>
+          </div>
+        </div>
+      `).join('');
+
+      gridEl.querySelectorAll('[data-wt-play]').forEach(b => {
+        b.onclick = () => playPronunciation(b.getAttribute('data-wt-play') || '', 'tts', 0.9);
+      });
+      gridEl.querySelectorAll('[data-wt-copy]').forEach(b => {
+        b.onclick = () => copyStudyText(b.getAttribute('data-wt-copy') || '', 'Bộ chữ mẫu');
+      });
+    };
+
+    root.querySelectorAll('[data-wt-cat]').forEach(btn => {
+      btn.onclick = () => {
+        activeCat = btn.getAttribute('data-wt-cat') || 'all';
+        root.querySelectorAll('[data-wt-cat]').forEach(sib => {
+          const on = sib.getAttribute('data-wt-cat') === activeCat;
+          sib.style.background = on ? '#0d9488' : '#fff';
+          sib.style.color = on ? '#fff' : '#1c1917';
+          sib.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+        });
+        renderTemplates();
+      };
+    });
+    if (searchEl) searchEl.oninput = renderTemplates;
+    renderTemplates();
+  }
+
   async function renderCharacterBrowseSubPage(pathname) {
     const root = getMainContentContainer();
     const parts = pathname.split('/').filter(Boolean);
@@ -15843,14 +16127,34 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (fullKey === lastHandledFullUrl && document.getElementById('xhz-dynamic-page-root')) return;
 
     const parts = pathname.split('/').filter(Boolean);
-    if (parts[0] === 'han-tu' && parts.length >= 2) {
+    if ((parts[0] === 'han-tu' || parts[0] === 'hanzi-character') && parts.length >= 2) {
       lastHandledFullUrl = fullKey;
       await renderCharacterDetailPage(parts.slice(1).join('/'));
       return;
     }
-    if (parts[0] === 'tu-vung' && parts.length >= 2) {
+    if ((parts[0] === 'tu-vung' || parts[0] === 'hanzi-word') && parts.length >= 2) {
       lastHandledFullUrl = fullKey;
       await renderVocabularyDetailPage(parts.slice(1).join('/'));
+      return;
+    }
+    if (parts[0] === 'han-viet-lookup' && parts.length >= 2) {
+      lastHandledFullUrl = fullKey;
+      await renderHanVietDetailPage(parts[1]);
+      return;
+    }
+    if (parts[0] === 'be-hoc') {
+      lastHandledFullUrl = fullKey;
+      await renderKidsYctCornerPage(pathname);
+      return;
+    }
+    if ((parts[0] === 'tao-vo-tap-viet' && parts[1] === 'mau') || (parts[0] === 'worksheet-generator' && parts[1] === 'templates')) {
+      lastHandledFullUrl = fullKey;
+      await renderWorksheetTemplatesPage();
+      return;
+    }
+    if (parts[0] === 'hoc' && parts[1] === 'on-tap') {
+      lastHandledFullUrl = fullKey;
+      await renderReviewSessionPage('on-tap-den-han');
       return;
     }
     if (parts[0] === 'han-viet') {
@@ -16379,6 +16683,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               bar.innerHTML = `
                 <button type="button" id="xhz-qt-learned" style="padding:7px 14px;border-radius:999px;border:1px solid #fed7aa;background:#fff7ed;color:#9a3412;font-weight:700;font-size:13px;cursor:pointer;">📚 Từ đã học của bạn (${learned.length})</button>
                 <button type="button" id="xhz-qt-hsk1" style="padding:7px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fafaf9;color:#1c1917;font-weight:700;font-size:13px;cursor:pointer;">✨ HSK 1 Bài 1</button>
+                <a id="xhz-qt-templates" href="/tao-vo-tap-viet/mau" style="padding:7px 14px;border-radius:999px;border:1px solid #99f6e4;background:#f0fdfa;color:#0f766e;font-weight:700;font-size:13px;text-decoration:none;">📑 Kho mẫu vở tập viết</a>
                 <button type="button" id="xhz-qt-print" style="padding:7px 14px;border-radius:999px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">🖨️ In / Xuất PDF</button>
               `;
               liveTa.parentNode.insertBefore(bar, liveTa);
@@ -17293,7 +17598,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|tao-vo-tap-viet\/mau|worksheet-generator\/templates|hoc\/on-tap|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -17906,6 +18211,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         '<div style="font-size:12.5px;font-weight:800;opacity:.85;">Chọn nhanh một mẫu bên dưới để nạp tức thì vào công cụ:</div>' +
         '<div style="display:flex;flex-wrap:wrap;gap:7px;">' +
           presets.map((pr, i) => '<button type="button" class="htq-stage-chip-btn" data-preset-idx="' + i + '">' + escapeHtml(pr.label) + '</button>').join('') +
+          (cfg.id === 'tools-writing' ? '<a href="/tao-vo-tap-viet/mau" class="htq-stage-chip-btn" style="text-decoration:none;border-color:#0d9488;color:#0f766e;">📑 Kho mẫu vở tập viết</a>' : '') +
         '</div>';
       host.querySelectorAll('[data-preset-idx]').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -18284,6 +18590,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     { icon: '⚖️', title: 'Kiểm tra Ngữ pháp', desc: 'Ôn luyện 480+ điểm ngữ pháp HSK', href: '/kiem-tra-ngu-phap/', keys: 'ngu phap grammar quiz' },
     { icon: '📐', title: 'Sổ tay Ngữ pháp đã học', desc: 'Lọc cấu trúc đã nắm vững & luyện tập', href: '/ngu-phap/da-hoc', keys: 'ngu phap da hoc grammar studied' },
     { icon: '🖨️', title: 'Tạo vở tập viết PDF', desc: 'Tạo tờ luyện viết chữ Hán in PDF', href: '/tao-vo-tap-viet/', keys: 'tap viet pdf worksheet' },
+    { icon: '📑', title: 'Kho Mẫu Vở Tập Viết PDF', desc: '9 bộ mẫu Nét cơ bản, 20 Bộ thủ, HSK 1–3 & YCT in ngay', href: '/tao-vo-tap-viet/mau', keys: 'mau vo tap viet templates worksheet pdf' },
+    { icon: '🧸', title: 'Góc Bé Học Tiếng Trung YCT', desc: 'Thẻ tranh Động vật, Trái cây, Gia đình & Màu sắc cho bé', href: '/be-hoc', keys: 'be hoc thieu nhi yct kids tre em' },
     { icon: '🎮', title: 'Trò chơi Chữ Hán', desc: '6 mini-game ghép chữ, thành ngữ, pháo hoa', href: '/tro-choi/', keys: 'tro choi game ghep chu chengyu' },
     { icon: '🏮', title: 'Trường Thầy Đồ', desc: 'Bảng vàng và lớp học tương tác', href: '/thay-do/', keys: 'thay do bang vang' },
     { icon: '⚡', title: 'Đấu trường Thử thách Thầy Đồ 60s', desc: 'Khảo thí tốc độ Chữ Hán & Thành ngữ 60 giây', href: '/thay-do/thach/hsk1', keys: 'thu thach thay do 60s challenge' },
