@@ -842,7 +842,7 @@
       const etymImgs = (full.etymologyImages || []).map(img => {
         const rawU = img.url || img;
         const u = resolveMediaUrl(rawU);
-        return `<img src="${u}" onerror="this.src='${rawU}'" style="height:54px;border:1px solid var(--border);border-radius:6px;padding:4px;background:#fff;" title="${img.stage || ''}" />`;
+        return `<img src="${u}" onerror="this.src='${rawU}'" alt="Hình chiết tự ${char}" decoding="async" loading="lazy" style="height:54px;border:1px solid var(--border);border-radius:6px;padding:4px;background:#fff;" title="${img.stage || ''}" />`;
       }).join(' ');
 
       const commonWordsHtml = (full.commonWords || []).slice(0, 8).map(w => `
@@ -866,7 +866,7 @@
           <div>
             <div style="display:flex;gap:1rem;align-items:center;margin-bottom:0.85rem;">
               <div class="hanzi-big" style="font-size:4.2rem;">${char}</div>
-              ${gifUrl ? `<img src="${gifUrl}" onerror="this.src='${full.gif}'" alt="${char}" style="width:96px;height:96px;border:1px solid var(--border);border-radius:8px;background:#fff;" />` : ''}
+              ${gifUrl ? `<img src="${gifUrl}" onerror="this.src='${full.gif}'" alt="Thứ tự nét viết ${char}" decoding="async" style="width:96px;height:96px;border:1px solid var(--border);border-radius:8px;background:#fff;" />` : ''}
               <div>
                 <button class="btn ${isMastered ? 'green' : 'primary'}" id="master-char-btn" onclick="toggleMasterChar('${char}')">
                   ${isMastered ? '✓ Đã thuộc chữ này' : '+ Đánh dấu Đã thuộc'}
@@ -1161,7 +1161,7 @@
         return `
           <div class="card">
             <div style="display:flex;gap:0.85rem;align-items:center;">
-              ${imgUrl ? `<img src="${imgUrl}" onerror="this.src='${l.image}'" style="width:58px;height:58px;object-fit:contain;border-radius:8px;" />` : ''}
+              ${imgUrl ? `<img src="${imgUrl}" onerror="this.src='${l.image}'" alt="${l.name || 'Giáo trình'}" decoding="async" loading="lazy" style="width:58px;height:58px;object-fit:contain;border-radius:8px;" />` : ''}
               <div>
                 <div style="font-weight:800;font-size:1.2rem;color:var(--accent);">${l.name}</div>
                 <div class="badges">
@@ -1436,7 +1436,7 @@
                   <span class="badge red">Câu ${q.number || (qIdx + 1)} (${q.section || ''})</span>
                   ${qAudio ? `<audio controls src="${qAudio}" style="height:30px;"></audio>` : ''}
                 </div>
-                ${qImg ? `<img src="${qImg}" onerror="this.src='${q.imageUrl}'" style="max-height:140px;border-radius:8px;border:1px solid var(--border);margin:0.4rem 0;" />` : ''}
+                ${qImg ? `<img src="${qImg}" onerror="this.src='${q.imageUrl}'" alt="Hình minh họa câu ${q.number || (qIdx + 1)}" decoding="async" loading="lazy" style="max-height:140px;border-radius:8px;border:1px solid var(--border);margin:0.4rem 0;" />` : ''}
                 <div style="font-weight:700;font-size:1.05rem;margin:0.35rem 0;">${q.promptZh || q.prompt || q.transcriptZh || ''}</div>
                 <div>
                   ${opts.map((opt, oIdx) => {
@@ -1446,7 +1446,7 @@
                     return `
                       <button class="quiz-option" onclick="answerExamQuestion(${qIdx}, '${optLabel}')">
                         <strong>${optLabel}.</strong> ${optText}
-                        ${optImg ? `<br/><img src="${optImg}" style="height:70px;margin-top:4px;border-radius:4px;" />` : ''}
+                        ${optImg ? `<br/><img src="${optImg}" alt="Đáp án ${optLabel}" decoding="async" loading="lazy" style="height:70px;margin-top:4px;border-radius:4px;" />` : ''}
                       </button>
                     `;
                   }).join('')}

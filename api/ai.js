@@ -179,7 +179,8 @@ function lookupCorePhrase(text, direction) {
 
 function extractViTranslateQuery(raw) {
   let s = String(raw || "").trim();
-  s = s.replace(/^(dịch giúp mình|dịch câu|dịch|cho mình hỏi|hỏi nhanh|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s,]+/i, "").trim();
+  s = s.replace(/^(dịch giúp mình|dịch câu|dịch từ|dịch|cho mình hỏi|hỏi nhanh|câu này tiếng trung là gì|tiếng trung nói sao|tiếng trung là gì|nói thế nào)[:\s,]+/i, "").trim();
+  s = s.replace(/^(?:từ|chữ|câu)\s+["“'‘]([^"”'’]+)["”'’]/i, "$1").trim();
   s = s.replace(/\s*(trong tiếng trung là gì|trong tiếng trung nói thế nào|trong tiếng trung nói sao|bằng tiếng trung nói thế nào|bằng tiếng trung nói sao|nói tiếng trung thế nào|nói tiếng trung ra sao|tieng trung la gi|nghĩa là gì|la gi)\s*[?!.]*$/i, "").trim();
   if (/\s+(?:tiếng trung|tieng trung)\s+(?:nói thế nào|nói sao|noi the nao|noi sao|là gì)\s*[?!.]*$/i.test(s)) {
     const before = s.replace(/\s+(?:tiếng trung|tieng trung)\s+(?:nói thế nào|nói sao|noi the nao|noi sao|là gì)\s*[?!.]*$/i, "").trim();
@@ -699,10 +700,10 @@ module.exports = async function handler(req, res) {
           status = "warning";
           issue = "other";
           comment = "Âm lượng hơi nhỏ, hãy đọc to và rõ hơn một chút.";
-        } else if (!heardHasChar && idx === chars.length - 1 && chars.length > 2) {
+        } else if (transcriptHeard && !heardHasChar) {
           status = "warning";
           issue = "tone";
-          comment = `Chú ý giữ nguyên độ cao thanh ${expectedTone} ở âm tiết "${ch}".`;
+          comment = `Chú ý phát âm rõ âm "${ch}" (${py || "chuẩn"}, thanh ${expectedTone}).`;
         }
         return {
           hanzi: ch,

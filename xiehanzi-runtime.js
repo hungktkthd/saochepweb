@@ -432,6 +432,17 @@ button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-compan
 }
 @media (max-width: 1179px) {
   html body #htq-buddy-dock { bottom: 162px !important; }
+  html body:has([data-sticky-action="true"]) #htq-buddy-dock { bottom: 222px !important; }
+}
+@media (max-width: 639px) {
+  main div.overflow-x-auto:has(> button[aria-pressed]) {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    flex-wrap: wrap !important;
+    overflow-x: visible !important;
+  }
 }
 html.dark .bg-background { background-color: #0b0e1a !important; color: #f1f5f9 !important; }
 html.dark .bg-bg { background-color: #0b0e1a !important; color: #f1f5f9 !important; }
@@ -527,17 +538,23 @@ html.dark body:has(#xhz-dict-video-wrap) header[data-site-header="true"] {
 }
 .dark #xhz-dynamic-page-root [style*="background:#fafaf9"],
 .dark #xhz-dynamic-page-root [style*="background: #fafaf9"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(250, 250, 249)"],
+.dark #xhz-dynamic-page-root [style*="background:rgb(250, 250, 249)"],
 .dark #xhz-dynamic-page-root [style*="background:#faf8f4"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(250, 248, 244)"],
 .dark #xhz-dynamic-page-root [style*="background:#f5f5f4"],
 .dark #xhz-dynamic-page-root [style*="background: #f5f5f4"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(245, 245, 244)"],
 .dark #xhz-dynamic-page-root [style*="background:#f2fbfa"],
 .dark #xhz-dynamic-page-root [style*="background: #f2fbfa"],
 .dark #xhz-dynamic-page-root [style*="background:#dcf0ee"],
 .dark #xhz-dynamic-page-root [style*="background:#d9f2ef"],
 .dark #xhz-dynamic-page-root [style*="background:#edf6f5"],
-.dark #xhz-dynamic-page-root [style*="background:#d7ebe9"] {
+.dark #xhz-dynamic-page-root [style*="background:#d7ebe9"],
+.dark #xhz-dynamic-page-root .xhz-rev-quiz-row {
   background: #1a2138 !important; color: #e2e8f0 !important; border-color: rgba(148,163,184,.22) !important;
 }
+.dark #xhz-dynamic-page-root #xhz-srs-card,
 .dark #xhz-dynamic-page-root [style*="background:#f0fdfa"],
 .dark #xhz-dynamic-page-root [style*="background: rgb(240, 253, 250)"] {
   background: rgba(13,148,136,.16) !important; color: #ccfbf1 !important; border-color: rgba(45,212,191,.35) !important;
@@ -560,12 +577,15 @@ html.dark body:has(#xhz-dict-video-wrap) header[data-site-header="true"] {
 }
 .dark #xhz-dynamic-page-root [style*="background:#eef2ff"],
 .dark #xhz-dynamic-page-root [style*="background: #eef2ff"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(238, 242, 255)"],
 .dark #xhz-dynamic-page-root [style*="background:#ede9fe"] {
   background: rgba(79,70,229,.22) !important; color: #e0e7ff !important; border-color: rgba(129,140,248,.38) !important;
 }
 .dark #xhz-dynamic-page-root [style*="background:#fffbeb"],
 .dark #xhz-dynamic-page-root [style*="background:#fef3c7"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(254, 243, 199)"],
 .dark #xhz-dynamic-page-root [style*="background:#fff7ed"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(255, 247, 237)"],
 .dark #xhz-dynamic-page-root [style*="background:#ffedd5"] {
   background: rgba(217,119,6,.20) !important; color: #fde68a !important; border-color: rgba(251,191,36,.34) !important;
 }
@@ -3556,7 +3576,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
       await runCheck('stage-eager-corner-thumb-and-curriculum-icon', () => {
         const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
-        return Boolean(!stSrc.includes('learning-path.webp') && stSrc.includes('hsk_generator.webp') && stSrc.includes('class="htq-float" loading="eager"'));
+        return Boolean(!stSrc.includes('learning-path.webp') && stSrc.includes('tieu-man/splash/hero.webp') && stSrc.includes('capy/splash/hero.webp') && stSrc.includes('class="htq-float" loading="eager"'));
       });
       await runCheck('desktop-header-compact-and-capy-feedback-clearance', () => {
         const fx = document.getElementById('htq-v14-fx-css');
@@ -3581,6 +3601,34 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const dictSrc = typeof renderDictationDetailPage === 'function' ? renderDictationDetailPage.toString() : '';
         const rtSrc = await (await fetch('/xiehanzi-runtime.js')).text();
         return Boolean(dictSrc.includes('id="xhz-dict-full-input"') && dictSrc.includes('Nhập câu tiếng Trung nghe được') && rtSrc.includes('id="xhz-import-json-file" aria-label="Chọn tệp JSON sao lưu tiến độ"'));
+      });
+      await runCheck('dark-mode-rgb-inline-and-mistake-quiz-contrast', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        const rvSrc = typeof renderReviewSessionPage === 'function' ? renderReviewSessionPage.toString() : '';
+        return Boolean(txt.includes('rgb(250, 250, 249)') && txt.includes('.xhz-rev-quiz-row') && rvSrc.includes('xhz-rev-quiz-row'));
+      });
+      await runCheck('mobile-sticky-action-buddy-clearance-and-pill-wrap', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('body:has([data-sticky-action="true"]) #htq-buddy-dock { bottom: 222px !important; }') && txt.includes('main div.overflow-x-auto:has(> button[aria-pressed])'));
+      });
+      await runCheck('zero-unlabeled-controls-in-runtime-templates', async () => {
+        const rtSrc = await (await fetch('/xiehanzi-runtime.js')).text();
+        return Boolean(
+          rtSrc.includes('id="xhz-dict-chk-loop" aria-label=') &&
+          rtSrc.includes('id="xhz-dict-chk-mask" aria-label=') &&
+          rtSrc.includes('id="xhz-dict-chk-pinyin" aria-label=') &&
+          rtSrc.includes('name="xhz-exam-mode" value="exam" aria-label=')
+        );
+      });
+      await runCheck('speaking-assess-per-syllable-mismatch-detection', async () => {
+        const res = await (await fetch('/v1/speaking/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expectedText: '你好', recognizedText: '你' })
+        })).json();
+        return Boolean(res && Array.isArray(res.syllables) && res.syllables.length === 2 && res.syllables[0].status === 'good' && res.syllables[1].status === 'warning' && res.score < 92);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -8010,10 +8058,33 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (p.includes('/v1/speaking/grade') || p.includes('/v1/speaking/assess') || p.includes('/v1/speaking/evaluate')) {
       const body = await parseRequestBody(init);
       const expected = (body.expectedText || body.referenceText || body.hanzi || body.text || '你好').trim();
-      const recognized = (body.recognizedText || body.transcript || body.spokenText || expected).trim();
+      const hasRecProp = Object.prototype.hasOwnProperty.call(body, 'recognizedText') || Object.prototype.hasOwnProperty.call(body, 'transcript') || Object.prototype.hasOwnProperty.call(body, 'spokenText');
+      const recognized = hasRecProp ? String(body.recognizedText || body.transcript || body.spokenText || '').trim() : expected;
       const aiRes = await callAiEndpoint('speaking-assess', { expected, recognized });
       const cleanExp = Array.from(expected.replace(/[^\u4e00-\u9fff]/g, ''));
-      const overall = (aiRes && aiRes.score) || 92;
+      const baseChars = cleanExp.length > 0 ? cleanExp : ['你', '好'];
+      const hasAiSyllables = Boolean(aiRes && Array.isArray(aiRes.syllables) && aiRes.syllables.length === baseChars.length);
+      const syllables = hasAiSyllables
+        ? aiRes.syllables.map(s => ({
+            hanzi: s.hanzi,
+            pinyin: s.pinyin || '',
+            status: s.status || 'good',
+            score: s.status === 'good' ? 94 : 68,
+            comment: s.comment || 'Phát âm chuẩn'
+          }))
+        : baseChars.map(ch => {
+            const okChar = !hasRecProp || (recognized && recognized.includes(ch));
+            return {
+              hanzi: ch,
+              pinyin: '',
+              status: okChar ? 'good' : 'warning',
+              score: okChar ? 94 : 68,
+              comment: okChar ? 'Phát âm chuẩn xác' : `Chú ý phát âm rõ âm "${ch}"`
+            };
+          });
+      const goodCnt = syllables.filter(s => s.status === 'good').length;
+      const calcScore = Math.max(55, Math.min(98, Math.round((goodCnt / Math.max(1, syllables.length)) * 88 + 8)));
+      const overall = hasAiSyllables && Number.isFinite(Number(aiRes.score)) ? Number(aiRes.score) : calcScore;
       try {
         recordStudyProgress({
           voiceInc: 1,
@@ -8022,13 +8093,6 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           dailyStepDone: 'step-talk-1'
         });
       } catch (_) {}
-      const syllables = (cleanExp.length > 0 ? cleanExp : ['你', '好']).map(ch => ({
-        hanzi: ch,
-        pinyin: '',
-        status: 'good',
-        score: overall,
-        comment: 'Phát âm chuẩn'
-      }));
       return jsonResponse({
         ok: true,
         score: overall,
@@ -8038,7 +8102,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         pronunciationScore: overall,
         syllables,
         transcriptHeard: recognized || expected,
-        feedback: (aiRes && aiRes.feedback) || 'Phát âm rất chuẩn xác! Thanh điệu và âm tiết rõ ràng.',
+        feedback: (hasAiSyllables && aiRes && aiRes.feedback) || (overall >= 85 ? 'Phát âm rất chuẩn xác! Thanh điệu và âm tiết rõ ràng.' : 'Phát âm khá tốt, chú ý phát âm rõ các âm được đánh dấu vàng nhé.'),
         tip: 'Giữ nhịp độ nói tự nhiên và chú ý thanh 3 khi đi liền nhau.',
         gradingLimit: { limit: 1000, remaining: 995 }
       });
@@ -10968,11 +11032,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                     🔊 Đọc mẫu
                   </button>
                   <label style="display:inline-flex;align-items:center;gap:4px;color:#44403c;cursor:pointer;font-weight:600;">
-                    <input type="checkbox" id="xhz-dict-chk-loop" style="accent-color:#0d9488;" />
+                    <input type="checkbox" id="xhz-dict-chk-loop" aria-label="Lặp lại câu hiện tại" style="accent-color:#0d9488;" />
                     Lặp câu
                   </label>
                   <label style="display:inline-flex;align-items:center;gap:4px;color:#44403c;cursor:pointer;font-weight:600;">
-                    <input type="checkbox" id="xhz-dict-chk-mask" style="accent-color:#0d9488;" />
+                    <input type="checkbox" id="xhz-dict-chk-mask" aria-label="Ẩn phụ đề tiếng Trung" style="accent-color:#0d9488;" />
                     Ẩn phụ đề
                   </label>
                   ${ytId ? `<a href="https://www.youtube.com/watch?v=${encodeURIComponent(ytId)}" target="_blank" rel="noopener noreferrer" style="color:#0d9488;font-weight:700;text-decoration:none;font-size:11px;">↗ YouTube</a>` : ''}
@@ -11007,7 +11071,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                   <button type="button" class="xhz-dict-mode-btn" data-mode="listen" style="border-radius:8px;padding:6px 12px;font-weight:700;border:none;cursor:pointer;">Chỉ nghe</button>
                 </div>
                 <label id="xhz-dict-pinyin-wrap" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#44403c;cursor:pointer;font-weight:600;">
-                  <input type="checkbox" id="xhz-dict-chk-pinyin" style="accent-color:#0d9488;" />
+                  <input type="checkbox" id="xhz-dict-chk-pinyin" aria-label="Chuyển sang chế độ gõ Pinyin" style="accent-color:#0d9488;" />
                   Gõ pinyin
                 </label>
               </div>
@@ -11968,7 +12032,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       stopTimer(); stopPlayers();
       const inProgress = attempt && !attempt.submittedAt;
       root.innerHTML = shell(`<div class="exam-panel"><h2>Chọn chế độ</h2><p>${questions.length} câu · khoảng ${durationMinutes} phút</p>
-        <div class="exam-options"><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="exam" ${selectedMode === 'exam' ? 'checked' : ''}><span><strong>Thi thử</strong><p class="exam-muted">${durationMinutes} phút, không tạm dừng; mỗi đoạn nghe phát một lần.</p></span></label><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="practice" ${selectedMode === 'practice' ? 'checked' : ''}><span><strong>Luyện tập</strong><p class="exam-muted">Không giới hạn thời gian; được nghe lại các đoạn âm thanh.</p></span></label></div>
+        <div class="exam-options"><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="exam" aria-label="Chế độ thi thử giới hạn thời gian" ${selectedMode === 'exam' ? 'checked' : ''}><span><strong>Thi thử</strong><p class="exam-muted">${durationMinutes} phút, không tạm dừng; mỗi đoạn nghe phát một lần.</p></span></label><label class="exam-option"><input type="radio" name="xhz-exam-mode" value="practice" aria-label="Chế độ luyện tập tự do" ${selectedMode === 'practice' ? 'checked' : ''}><span><strong>Luyện tập</strong><p class="exam-muted">Không giới hạn thời gian; được nghe lại các đoạn âm thanh.</p></span></label></div>
         <p>Hãy đeo tai nghe. Bài làm tự lưu trên thiết bị này.</p>
         ${attempt ? `<p>${inProgress ? 'Bạn có một bài đang làm.' : 'Bạn đã lưu bài làm này.'} Đã trả lời ${Object.keys(attempt.answers).length}/${questions.length} câu.</p><button type="button" id="xhz-exam-resume" class="exam-primary">${inProgress ? 'Tiếp tục bài đang làm' : 'Xem bài đã lưu'}</button>` : ''}
         <button type="button" id="xhz-exam-start" ${attempt ? '' : 'class="exam-primary"'}>${attempt ? 'Bắt đầu bài mới' : 'Bắt đầu'}</button><p class="exam-muted" id="xhz-exam-save-status"></p></div>`);
@@ -12235,6 +12299,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const rotation = itemIndex % options.length;
         const choices = [...options.slice(rotation), ...options.slice(0, rotation)];
         const row = document.createElement('div');
+        row.className = 'xhz-rev-quiz-row';
         row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
         row.innerHTML = `<div style="display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px;">
           <div><strong style="font-size:24px;">${answer === item.hanzi ? 'Nghe rồi chọn đáp án đúng' : escape(item.hanzi)}</strong>
@@ -12266,7 +12331,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     }
     function populateTyping(container) {
       items.forEach(item => {
-        const row = document.createElement('div'); row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
+        const row = document.createElement('div'); row.className = 'xhz-rev-quiz-row'; row.style.cssText = 'padding:18px;border:1px solid #e7e5e4;border-radius:16px;background:#fafaf9;';
         row.innerHTML = `<div style="margin-bottom:12px;font-weight:700;">${escape(item.meaningVi || 'Nghe rồi gõ lại chữ/câu')}</div>
           <button class="xhz-type-audio" style="${buttonStyle}margin-bottom:12px;">🔊 Nghe gợi ý</button>
           <div style="display:flex;flex-wrap:wrap;gap:10px;"><input class="xhz-type-input" aria-label="Câu trả lời" placeholder="Nhập chữ Hán hoặc pinyin..." style="flex:1;min-width:180px;padding:10px 14px;border:1px solid #d6d3d1;border-radius:10px;color:#1c1917;background:#fff;" />
@@ -18741,10 +18806,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } else if (cfg.id === 'dictionary') {
       cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'search.webp';
     } else if (cfg.id === 'curriculum') {
-      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'hsk_generator.webp';
+      cornerImg = '/images/companion/tieu-man/splash/hero.webp';
     } else if (cfg.id === 'audio') {
-      const aKey = norm.includes('noi') ? 'speaking_practice' : (norm.includes('chep') ? 'dictation' : 'listening');
-      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + aKey + '.webp';
+      cornerImg = '/images/companion/capy/splash/hero.webp';
     } else if (cfg.id === 'typing') {
       cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'type.webp';
     } else if (cfg.id === 'exam') {
