@@ -8,6 +8,16 @@
   <meta name="robots" content="noindex, nofollow" />
   <meta name="description" content="Công cụ quản lý và sao lưu kho dữ liệu học tập cục bộ trên Học Tiếng Trung Quốc." />
   <link rel="canonical" href="https://hoctiengtrungquoc.vercel.app/kho-du-lieu/" />
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('theme') || 'system';
+        var isDark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.classList.toggle('dark', Boolean(isDark));
+        document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
+      } catch (_) {}
+    })();
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
     :root {
@@ -24,6 +34,21 @@
       --green-soft: #dcfce7;
       --border: #e5dec9;
       --badge: #f3ede2;
+    }
+    html.dark {
+      --bg: #0b0e1a;
+      --card: #13182b;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #818cf8;
+      --accent-dark: #6366f1;
+      --accent-soft: rgba(99, 102, 241, 0.2);
+      --gold: #fbbf24;
+      --gold-soft: rgba(245, 158, 11, 0.2);
+      --green: #34d399;
+      --green-soft: rgba(16, 185, 129, 0.2);
+      --border: rgba(129, 140, 248, 0.26);
+      --badge: #1e293b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -92,7 +117,7 @@
     .stat-card .num { font-size: 1.2rem; font-weight: 800; color: #fde68a; }
     .stat-card .lbl { font-size: 0.78rem; opacity: 0.92; }
     nav.tabs {
-      background: #fff;
+      background: var(--card);
       border-bottom: 1px solid var(--border);
       position: sticky;
       top: 0;
@@ -101,12 +126,38 @@
     }
     .tabs-inner {
       display: flex;
-      gap: 0.35rem;
-      overflow-x: auto;
-      padding: 0.55rem 1.25rem;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding: 0.6rem 1.25rem;
       max-width: 1280px;
       margin: 0 auto;
     }
+    @media (max-width: 768px) {
+      nav.tabs { position: static; }
+      .tabs-inner { padding: 0.5rem 0.75rem; gap: 0.35rem; }
+      .tab-btn {
+        flex: 1 1 calc(50% - 0.35rem);
+        min-width: 0;
+        padding: 0.42rem 0.55rem !important;
+        font-size: 0.78rem !important;
+        white-space: normal !important;
+        text-align: center;
+        line-height: 1.25;
+      }
+      input[type="search"] { min-width: 100% !important; }
+    }
+    html.dark header { background: linear-gradient(135deg, #161a36 0%, #26225a 55%, #3730a3 100%); border-bottom-color: #818cf8; }
+    html.dark .btn { background: #1e293b; color: #f1f5f9; border-color: var(--border); }
+    html.dark .btn.primary { background: #4f46e5; color: #fff; border-color: #4f46e5; }
+    html.dark .btn.gold { background: #f59e0b; color: #1c1917; border-color: #f59e0b; }
+    html.dark .btn.green { background: #0d9488; color: #fff; border-color: #0d9488; }
+    html.dark .toolbar, html.dark .modal, html.dark .flashcard-box { background: var(--card); color: var(--text); border-color: var(--border); }
+    html.dark input[type="search"], html.dark input[type="text"], html.dark input[type="email"], html.dark input[type="password"], html.dark select, html.dark textarea {
+      background: #0f1526 !important; color: #f8fafc !important; border-color: var(--border) !important;
+    }
+    html.dark .mizige-wrap { background: #151b31; border-color: #818cf8; }
+    html.dark .mizige-bg { color: rgba(165, 180, 252, 0.16); }
+    html.dark .quiz-option:hover { background: #1e293b; }
     .tab-btn {
       border: 1px solid var(--border);
       background: var(--bg);
@@ -291,9 +342,13 @@
           <h1>🏮 Học Tiếng Trung Quốc Toàn Diện</h1>
           <p>Từ điển Chiết tự 9.931 Chữ Hán • 11.534 Từ vựng • 5 Giáo trình • 489 Ngữ pháp • 66 Đề HSK • 91 Video Chính tả • Đồng bộ Supabase & AI</p>
         </div>
-        <div class="auth-box" id="auth-status-box">
-          <span id="user-label">Chưa đăng nhập (Lưu cục bộ)</span>
-          <button class="btn gold" id="auth-btn" onclick="openAuthModal()">Đăng nhập / Đăng ký</button>
+        <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;">
+          <a href="/" class="btn" style="text-decoration:none;">❖ Trang chủ</a>
+          <button type="button" class="btn" id="kdl-theme-toggle" aria-label="Chuyển sang giao diện tối" onclick="toggleKdlTheme()">🌙 Giao diện tối</button>
+          <div class="auth-box" id="auth-status-box">
+            <span id="user-label">Chưa đăng nhập (Lưu cục bộ)</span>
+            <button class="btn gold" id="auth-btn" onclick="openAuthModal()">Đăng nhập / Đăng ký</button>
+          </div>
         </div>
       </div>
       <div class="stats-bar">
@@ -323,8 +378,8 @@
     <!-- TAB 1: CHARACTERS & STROKE WRITING -->
     <section id="tab-chars" class="section-panel active">
       <div class="toolbar">
-        <input type="search" id="char-search" placeholder="Tìm chữ Hán, Pinyin, âm Hán Việt hoặc nghĩa (VD: 的, de, đích, yêu, học, tâm)..." />
-        <select id="char-hsk-filter">
+        <input type="search" id="char-search" aria-label="Tìm chữ Hán" placeholder="Tìm chữ Hán, Pinyin, Hán Việt, nghĩa..." />
+        <select id="char-hsk-filter" aria-label="Lọc cấp HSK chữ Hán">
           <option value="">Tất cả cấp HSK</option>
           <option value="1">HSK 1</option>
           <option value="2">HSK 2</option>
@@ -334,7 +389,7 @@
           <option value="6">HSK 6</option>
           <option value="mastered">✅ Chữ Hán tôi đã thuộc</option>
         </select>
-        <select id="char-chunk-select">
+        <select id="char-chunk-select" aria-label="Chọn phân đoạn chữ Hán">
           <option value="index">Toàn bộ 9,931 chữ Hán (Tất cả)</option>
         </select>
       </div>
@@ -345,8 +400,8 @@
     <!-- TAB 2: VOCABULARY & FLASHCARDS -->
     <section id="tab-vocab" class="section-panel">
       <div class="toolbar">
-        <input type="search" id="vocab-search" placeholder="Tìm từ vựng tiếng Trung, Pinyin, Hán Việt hoặc nghĩa (VD: 喜欢, xihuan, thích)..." />
-        <select id="vocab-chunk-select"></select>
+        <input type="search" id="vocab-search" aria-label="Tìm từ vựng tiếng Trung" placeholder="Tìm từ vựng, Pinyin, Hán Việt, nghĩa..." />
+        <select id="vocab-chunk-select" aria-label="Chọn phân đoạn từ vựng"></select>
         <button class="btn primary" onclick="toggleFlashcardMode()">🗂️ Bật/Tắt Flashcard Ôn Tập</button>
       </div>
       <div id="flashcard-area" style="display:none;margin-bottom:1.5rem;">
@@ -374,8 +429,8 @@
     <!-- TAB 3: HAN VIET -->
     <section id="tab-hanviet" class="section-panel">
       <div class="toolbar">
-        <input type="search" id="hv-search" placeholder="Tìm âm Hán Việt (VD: an, minh, tâm, học, đại, quốc)..." />
-        <select id="hv-chunk-select"></select>
+        <input type="search" id="hv-search" aria-label="Tìm âm Hán Việt" placeholder="Tìm âm Hán Việt (VD: an, minh, tâm, học)..." />
+        <select id="hv-chunk-select" aria-label="Chọn phân đoạn Hán Việt"></select>
       </div>
       <div id="hv-status" class="muted" style="margin-bottom:0.75rem;">Đang tải dữ liệu Hán Việt...</div>
       <div id="hv-grid" class="grid"></div>
@@ -384,7 +439,7 @@
     <!-- TAB 4: CURRICULUMS -->
     <section id="tab-curriculums" class="section-panel">
       <div class="toolbar">
-        <select id="curr-select">
+        <select id="curr-select" aria-label="Chọn giáo trình">
           <option value="hsk">Giáo trình HSK 2.0 (HSK 1 – HSK 6)</option>
           <option value="new-hsk">Giáo trình HSK 3.0 Mới (New HSK 1 – 9)</option>
           <option value="yct">Giáo trình YCT (YCT 1 – 6)</option>
@@ -400,7 +455,7 @@
     <!-- TAB 5: GRAMMAR & INTERACTIVE QUIZ -->
     <section id="tab-grammar" class="section-panel">
       <div class="toolbar">
-        <select id="grammar-level-select">
+        <select id="grammar-level-select" aria-label="Chọn cấp ngữ pháp">
           <option value="hsk-level-1.json" data-quiz="quiz-hsk1.json">HSK 1 (46 chủ điểm • 920 câu quiz)</option>
           <option value="hsk-level-2.json" data-quiz="quiz-hsk2.json">HSK 2 (44 chủ điểm • 880 câu quiz)</option>
           <option value="hsk-level-3.json" data-quiz="quiz-hsk3.json">HSK 3 (47 chủ điểm • 940 câu quiz)</option>
@@ -411,7 +466,7 @@
           <option value="new-hsk-level-2.json" data-quiz="quiz-new-hsk2.json">New HSK 2 (45 chủ điểm • 900 câu quiz)</option>
           <option value="new-hsk-level-3.json" data-quiz="quiz-new-hsk3.json">New HSK 3 (63 chủ điểm • 1,260 câu quiz)</option>
         </select>
-        <input type="search" id="grammar-search" placeholder="Lọc chủ điểm ngữ pháp..." />
+        <input type="search" id="grammar-search" aria-label="Lọc chủ điểm ngữ pháp" placeholder="Lọc chủ điểm ngữ pháp..." />
         <button class="btn primary" onclick="startGrammarQuiz()">📝 Làm Bài Thi Trắc Nghiệm Ngữ Pháp (15 Câu)</button>
       </div>
       <div id="grammar-quiz-box" style="display:none;margin-bottom:1.5rem;" class="card"></div>
@@ -421,7 +476,7 @@
     <!-- TAB 6: HSK MOCK EXAMS -->
     <section id="tab-tests" class="section-panel">
       <div class="toolbar">
-        <select id="test-level-filter" onchange="renderTestPapers()">
+        <select id="test-level-filter" aria-label="Lọc đề thi HSK theo cấp" onchange="renderTestPapers()">
           <option value="">Tất cả 66 Đề thi HSK 1 – HSK 6</option>
           <option value="1">Đề thi HSK 1 (11 đề)</option>
           <option value="2">Đề thi HSK 2 (11 đề)</option>
@@ -439,8 +494,8 @@
     <!-- TAB 7: DICTATION VIDEOS -->
     <section id="tab-dictation" class="section-panel">
       <div class="toolbar">
-        <input type="search" id="dict-search" placeholder="Tìm chủ đề video luyện nghe chép chính tả..." oninput="renderDictationVideos()" />
-        <select id="dict-hsk-filter" onchange="renderDictationVideos()">
+        <input type="search" id="dict-search" aria-label="Tìm chủ đề video chép chính tả" placeholder="Tìm chủ đề video chép chính tả..." oninput="renderDictationVideos()" />
+        <select id="dict-hsk-filter" aria-label="Lọc cấp HSK video chép chính tả" onchange="renderDictationVideos()">
           <option value="">Tất cả cấp HSK (91 Video)</option>
           <option value="1">HSK 1</option>
           <option value="2">HSK 2</option>
@@ -460,10 +515,10 @@
         <h2 style="color:var(--accent);margin-bottom:0.4rem;">🤖 Gia Sư AI Tiếng Trung (Chấm Viết, Sửa Ngữ Pháp & Giải Thích Chiết Tự)</h2>
         <p class="muted" style="margin-bottom:1rem;">Kết nối Gemini API / OpenAI API hoặc sử dụng bộ phân tích Hán tự & Ngữ pháp tích hợp sẵn trên 9.931 chữ Hán.</p>
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;margin-bottom:1rem;">
-          <input type="password" id="ai-api-key" placeholder="Nhập Gemini API Key (AIza...) nếu muốn gọi Gemini 2.5 Flash trực tiếp" style="flex:1;min-width:260px;" />
+          <input type="password" id="ai-api-key" aria-label="Nhập Gemini API Key tùy chọn" placeholder="Gemini API Key (AIza..., tùy chọn)" style="flex:1;min-width:220px;" />
           <button class="btn" onclick="saveAiKey()">Lưu API Key</button>
         </div>
-        <textarea id="ai-prompt" rows="4" style="width:100%;margin-bottom:0.75rem;" placeholder="Nhập câu tiếng Trung cần chấm ngữ pháp, hoặc chữ Hán / từ vựng cần phân tích (VD: 我很喜欢学习汉语)..."></textarea>
+        <textarea id="ai-prompt" rows="4" aria-label="Nhập câu tiếng Trung cần phân tích" style="width:100%;margin-bottom:0.75rem;" placeholder="Nhập câu tiếng Trung cần chấm ngữ pháp hoặc phân tích (VD: 我很喜欢学习汉语)..."></textarea>
         <div style="display:flex;gap:0.6rem;flex-wrap:wrap;">
           <button class="btn primary" onclick="runAiTutor()">✨ Phân Tích & Chấm Điểm Ngay</button>
           <button class="btn" onclick="document.getElementById('ai-prompt').value='请帮我批改这个句子：我昨天去商店买了很多水果。';runAiTutor();">Thử câu mẫu 1</button>
@@ -494,8 +549,8 @@
       </div>
       <p class="muted" style="margin-bottom:1rem;">Đăng nhập hoặc Đăng ký để đồng bộ Chữ Hán đã thuộc, Từ vựng đã lưu và Lịch sử thi HSK lên đám mây Supabase.</p>
       <div style="display:flex;flex-direction:column;gap:0.75rem;">
-        <input type="email" id="auth-email" placeholder="Email của bạn (VD: ban@gmail.com)" />
-        <input type="password" id="auth-password" placeholder="Mật khẩu (tối thiểu 6 ký tự)" />
+        <input type="email" id="auth-email" aria-label="Email đăng nhập" placeholder="Email của bạn (VD: ban@gmail.com)" />
+        <input type="password" id="auth-password" aria-label="Mật khẩu đăng nhập" placeholder="Mật khẩu (tối thiểu 6 ký tự)" />
         <div id="auth-msg" class="muted" style="color:var(--accent);"></div>
         <div style="display:flex;gap:0.6rem;">
           <button class="btn primary" style="flex:1;justify-content:center;" onclick="handleSignIn()">Đăng Nhập</button>
@@ -1488,7 +1543,7 @@
               <div style="padding:0.65rem;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:0.35rem;">
                 <div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">
                   <span class="badge">#${idx + 1}</span>
-                  <input type="text" placeholder="Gõ lại câu tiếng Trung bạn nghe được..." style="flex:1;" oninput="checkDictationInput(this, ${JSON.stringify(zh)})" />
+                  <input type="text" aria-label="Gõ lại câu tiếng Trung bạn nghe được" placeholder="Gõ lại câu tiếng Trung bạn nghe được..." style="flex:1;" oninput="checkDictationInput(this, ${JSON.stringify(zh)})" />
                   <button class="btn" onclick="this.parentElement.nextElementSibling.style.display='block'">👁️ Xem đáp án</button>
                 </div>
                 <div style="display:none;padding:0.4rem 0.6rem;background:var(--badge);border-radius:6px;">
@@ -1518,6 +1573,26 @@
     // =========================================================================
     // 11. AI TUTOR & SENTENCE ANALYZER
     // =========================================================================
+    function syncKdlThemeBtn() {
+      var isDark = document.documentElement.classList.contains('dark');
+      var btn = document.getElementById('kdl-theme-toggle');
+      if (btn) {
+        btn.textContent = isDark ? '☀️ Giao diện sáng' : '🌙 Giao diện tối';
+        btn.setAttribute('aria-label', isDark ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối');
+      }
+    }
+    function toggleKdlTheme() {
+      var nextDark = !document.documentElement.classList.contains('dark');
+      document.documentElement.classList.toggle('dark', nextDark);
+      document.documentElement.style.colorScheme = nextDark ? 'dark' : 'light';
+      try {
+        localStorage.setItem('theme', nextDark ? 'dark' : 'light');
+        if (typeof window.__xhzSyncStudioThemeUI === 'function') window.__xhzSyncStudioThemeUI();
+      } catch (_) {}
+      syncKdlThemeBtn();
+    }
+    syncKdlThemeBtn();
+
     const savedKey = localStorage.getItem('httq_gemini_key') || '';
     if (savedKey) document.getElementById('ai-api-key').value = savedKey;
 
@@ -1563,6 +1638,22 @@
           // Fallback to local breakdown
         }
       }
+
+      try {
+        const srvRes = await fetch('/api/ai', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'translate', text: prompt, targetLang: 'vi' })
+        });
+        if (srvRes && srvRes.ok) {
+          const srvData = await srvRes.json();
+          const trTxt = srvData && (srvData.translatedText || srvData.translation || srvData.reply);
+          if (trTxt) {
+            out.innerHTML = '<div style="margin-bottom:0.75rem;"><strong>🤖 Dịch nghĩa &amp; Gợi ý AI:</strong> ' + escapeHtml(trTxt) + (srvData.pinyin ? '<div class="muted" style="margin-top:0.25rem;">Pinyin: ' + escapeHtml(srvData.pinyin) + '</div>' : '') + '</div>' + (localBreakdown ? '<div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);"><strong>📚 Phân tích từng chữ Hán (' + hanziChars.length + ' chữ):</strong>' + localBreakdown + '</div>' : '');
+            return;
+          }
+        }
+      } catch (_) {}
 
       out.innerHTML = `
         <div style="margin-bottom:0.75rem;"><strong>📚 Phân tích Chiết tự & Từ điển tự động (${hanziChars.length} chữ Hán trong câu):</strong></div>

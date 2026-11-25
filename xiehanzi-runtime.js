@@ -369,6 +369,41 @@ button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-compan
   left: auto !important;
   right: 16px !important;
 }
+@media (min-width: 769px) {
+  button[data-testid="capy-bubble"][data-side="right"]:not(.capy-companion_dragging__awt_M),
+  button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
+    top: auto !important;
+    bottom: 76px !important;
+  }
+}
+@media (min-width: 1180px) and (max-width: 1440px) {
+  header[data-site-header="true"] > div {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    gap: 6px !important;
+  }
+  header[data-site-header="true"] > div > a[href="/"] {
+    padding: .32rem .72rem !important;
+    font-size: .8125rem !important;
+  }
+  header[data-site-header="true"] nav[aria-label="Main"] {
+    min-width: 0 !important;
+    flex-shrink: 1 !important;
+  }
+  header[data-site-header="true"] nav[aria-label="Main"] ul {
+    gap: 2px !important;
+  }
+  header[data-site-header="true"] nav[aria-label="Main"] ul > li {
+    margin-left: 0 !important;
+  }
+  header[data-site-header="true"] nav[aria-label="Main"] ul li > a,
+  header[data-site-header="true"] nav[aria-label="Main"] ul li > button {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+    font-size: 13px !important;
+    height: 34px !important;
+  }
+}
 @media (max-width: 1179px) {
   html body #htq-buddy-dock {
     top: auto !important;
@@ -423,6 +458,8 @@ select[aria-label="Cấp HSK"] {
   width: auto !important;
   height: 32px !important;
   overflow: hidden !important;
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
   padding-left: 12px !important;
   padding-right: 28px !important;
   line-height: normal !important;
@@ -3516,6 +3553,34 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const txt = fx ? fx.textContent : '';
         const dictSrc = typeof renderDictationDetailPage === 'function' ? renderDictationDetailPage.toString() : '';
         return Boolean(txt.includes('position: relative !important;') && txt.includes('::picker-icon') && txt.includes('display: inline-block !important;') && dictSrc.includes("pos !== 'sticky'"));
+      });
+      await runCheck('stage-eager-corner-thumb-and-curriculum-icon', () => {
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(!stSrc.includes('learning-path.webp') && stSrc.includes('hsk_generator.webp') && stSrc.includes('class="htq-float" loading="eager"'));
+      });
+      await runCheck('desktop-header-compact-and-capy-feedback-clearance', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('bottom: 76px !important;') && txt.includes('@media (min-width: 1180px) and (max-width: 1440px)') && txt.includes('padding-top: 0 !important;'));
+      });
+      await runCheck('grammar-quiz-semantic-h1-and-notebook-placeholders', () => {
+        const gqSrc = typeof renderGrammarQuizRunPage === 'function' ? renderGrammarQuizRunPage.toString() : '';
+        const nbSrc = typeof renderNotebookCollectionPage === 'function' ? renderNotebookCollectionPage.toString() : '';
+        return Boolean(gqSrc.includes("grammarPoint ? 'div' : 'h1'") && nbSrc.includes('Tìm chữ Hán, Pinyin, nghĩa...') && nbSrc.includes('Thêm chữ Hán (vd: 努力)...'));
+      });
+      await runCheck('en-alternate-routes-wired-in-spa-router', () => {
+        return Boolean(
+          isDynamicSpaRoute('/character/hao-%E5%A5%BD') &&
+          isDynamicSpaRoute('/word/%E4%BD%A0%E5%A5%BD') &&
+          isDynamicSpaRoute('/sino-vietnamese/hao') &&
+          window.__xhzResolvePageStageConfig('/lookup-hanzi') &&
+          window.__xhzResolvePageStageConfig('/lookup-hanzi').id === 'dictionary'
+        );
+      });
+      await runCheck('dictation-and-backup-inputs-wcag-aria-labels', async () => {
+        const dictSrc = typeof renderDictationDetailPage === 'function' ? renderDictationDetailPage.toString() : '';
+        const rtSrc = await (await fetch('/xiehanzi-runtime.js')).text();
+        return Boolean(dictSrc.includes('id="xhz-dict-full-input"') && dictSrc.includes('Nhập câu tiếng Trung nghe được') && rtSrc.includes('id="xhz-import-json-file" aria-label="Chọn tệp JSON sao lưu tiến độ"'));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -8442,9 +8507,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function isDynamicSpaRoute(pathname) {
     const p = (pathname || '/').replace(/\/+$/, '') || '/';
     const parts = p.split('/').filter(Boolean);
-    if ((parts[0] === 'han-tu' || parts[0] === 'hanzi-character') && parts.length >= 2) return true;
-    if ((parts[0] === 'tu-vung' || parts[0] === 'hanzi-word') && parts.length >= 2) return true;
-    if (parts[0] === 'han-viet' || (parts[0] === 'han-viet-lookup' && parts.length >= 2)) return true;
+    if ((parts[0] === 'han-tu' || parts[0] === 'hanzi-character' || parts[0] === 'character') && parts.length >= 2) return true;
+    if ((parts[0] === 'tu-vung' || parts[0] === 'hanzi-word' || parts[0] === 'word') && parts.length >= 2) return true;
+    if (parts[0] === 'han-viet' || ((parts[0] === 'han-viet-lookup' || parts[0] === 'sino-vietnamese') && parts.length >= 2)) return true;
     if (parts[0] === 'be-hoc') return true;
     if ((parts[0] === 'tao-vo-tap-viet' && parts[1] === 'mau') || (parts[0] === 'worksheet-generator' && parts[1] === 'templates')) return true;
     if (parts[0] === 'ngu-phap' && parts[1] === 'da-hoc') return true;
@@ -9617,7 +9682,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 <span style="font-size:16px;">‹</span> Thoát
               </a>
               <div>
-                <div style="font-size:15px;font-weight:800;color:#1c1917;line-height:1.2;">Kiểm tra ngữ pháp</div>
+                <${grammarPoint ? 'div' : 'h1'} style="margin:0;font-size:15px;font-weight:800;color:#1c1917;line-height:1.2;">Kiểm tra ngữ pháp</${grammarPoint ? 'div' : 'h1'}>
                 <div id="xhz-gq-answered-sub" style="font-size:12px;color:#78716c;margin-top:2px;">Đã trả lời 0/${questions.length}</div>
               </div>
             </div>
@@ -11459,7 +11524,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               </div>
             ` : ''}
             <div>
-              <textarea id="xhz-dict-full-input" rows="2" ${isSubmitted ? 'disabled' : ''} placeholder="${pinyinMode ? 'Gõ phiên âm Pinyin bạn nghe được (ví dụ: da jia hao)... (Enter để kiểm tra)' : 'Gõ câu tiếng Trung bạn nghe được... (Enter để kiểm tra)'}" style="width:100%;border-radius:12px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:16px;color:#1c1917;outline:none;resize:vertical;">${escapeHtml(curState.input || '')}</textarea>
+              <textarea id="xhz-dict-full-input" rows="2" ${isSubmitted ? 'disabled' : ''} aria-label="${pinyinMode ? 'Nhập phiên âm Pinyin nghe được' : 'Nhập câu tiếng Trung nghe được'}" placeholder="${pinyinMode ? 'Gõ phiên âm Pinyin bạn nghe được (ví dụ: da jia hao)... (Enter để kiểm tra)' : 'Gõ câu tiếng Trung bạn nghe được... (Enter để kiểm tra)'}" style="width:100%;border-radius:12px;border:1px solid #d6d3d1;background:#fff;padding:10px 14px;font-size:16px;color:#1c1917;outline:none;resize:vertical;">${escapeHtml(curState.input || '')}</textarea>
             </div>
             ${!isSubmitted ? `
               <div style="display:flex;flex-wrap:wrap;gap:8px;">
@@ -13547,9 +13612,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           </div>
 
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px;align-items:center;">
-            <input id="xhz-nb-search" type="search" aria-label="Tìm từ trong bộ sưu tập sổ tay" placeholder="Tìm theo chữ Hán, Pinyin, Hán Việt hoặc nghĩa..." style="flex:1;min-width:220px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:14px;" />
+            <input id="xhz-nb-search" type="search" aria-label="Tìm từ trong bộ sưu tập sổ tay" placeholder="Tìm chữ Hán, Pinyin, nghĩa..." style="flex:1;min-width:180px;padding:10px 14px;border-radius:12px;border:1px solid #d6d3d1;font-size:14px;" />
             <form id="xhz-nb-add-form" style="display:flex;gap:8px;flex-wrap:wrap;">
-              <input id="xhz-nb-add-input" type="text" maxlength="20" aria-label="Nhập chữ Hán để thêm nhanh vào sổ tay" placeholder="Thêm nhanh chữ Hán (vd: 努力)..." style="width:210px;padding:10px 12px;border-radius:12px;border:1px solid #d6d3d1;font-size:13.5px;" />
+              <input id="xhz-nb-add-input" type="text" maxlength="20" aria-label="Nhập chữ Hán để thêm nhanh vào sổ tay" placeholder="Thêm chữ Hán (vd: 努力)..." style="width:190px;max-width:100%;padding:10px 12px;border-radius:12px;border:1px solid #d6d3d1;font-size:13.5px;" />
               <button type="submit" style="padding:10px 16px;border-radius:12px;border:none;background:#4f46e5;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">+ Lưu vào sổ tay</button>
             </form>
           </div>
@@ -17023,17 +17088,17 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (fullKey === lastHandledFullUrl && document.getElementById('xhz-dynamic-page-root')) return;
 
     const parts = pathname.split('/').filter(Boolean);
-    if ((parts[0] === 'han-tu' || parts[0] === 'hanzi-character') && parts.length >= 2) {
+    if ((parts[0] === 'han-tu' || parts[0] === 'hanzi-character' || parts[0] === 'character') && parts.length >= 2) {
       lastHandledFullUrl = fullKey;
       await renderCharacterDetailPage(parts.slice(1).join('/'));
       return;
     }
-    if ((parts[0] === 'tu-vung' || parts[0] === 'hanzi-word') && parts.length >= 2) {
+    if ((parts[0] === 'tu-vung' || parts[0] === 'hanzi-word' || parts[0] === 'word') && parts.length >= 2) {
       lastHandledFullUrl = fullKey;
       await renderVocabularyDetailPage(parts.slice(1).join('/'));
       return;
     }
-    if (parts[0] === 'han-viet-lookup' && parts.length >= 2) {
+    if ((parts[0] === 'han-viet-lookup' || parts[0] === 'sino-vietnamese') && parts.length >= 2) {
       lastHandledFullUrl = fullKey;
       await renderHanVietDetailPage(parts[1]);
       return;
@@ -17372,7 +17437,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             `<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">` +
             `<button type="button" id="xhz-export-json-btn" class="htq-backup-export-btn">📥 Xuất sao lưu (.json)</button>` +
             `<button type="button" id="xhz-import-json-btn" style="padding:8px 14px;border-radius:10px;border:none;background:#ea580c;color:#fff;font-weight:700;font-size:13px;cursor:pointer;">📤 Khôi phục từ file (.json)</button>` +
-            `<input type="file" id="xhz-import-json-file" accept=".json,application/json" style="display:none;" />` +
+            `<input type="file" id="xhz-import-json-file" aria-label="Chọn tệp JSON sao lưu tiến độ" accept=".json,application/json" style="display:none;" />` +
             `</div>`;
           if (planCard && planCard.parentElement === hostEl) {
             hostEl.insertBefore(box, planCard.nextSibling);
@@ -18573,7 +18638,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     if (/^\/(on-tap|so-tay)/.test(norm)) {
       return { id: 'review', banner: '/images/studio/banner-review-srs.jpg', badge: 'Trí nhớ dài hạn SRS', title: 'Khởi Động Nhanh 1 Thẻ Nhớ 3D', sub: 'Lật thẻ, nghe phát âm và chấm nhanh để đánh thức trí nhớ ngay tại chỗ.' };
     }
-    if (/^\/(tra-chu|han-tu|tu-vung|han-viet)/.test(norm)) {
+    if (/^\/(tra-chu|lookup-hanzi|han-tu|character|tu-vung|word|han-viet|sino-vietnamese)/.test(norm)) {
       return { id: 'dictionary', banner: '/images/studio/cute-panda-dict.jpg', badge: 'Thư viện Gấu Trúc & Bộ thủ', title: 'Luyện Nghe 4 Thanh Điệu & Tra Nhanh Bộ Thủ', sub: 'Chạm từng thanh điệu để nghe phân biệt âm chuẩn Bắc Kinh thật sinh động.' };
     }
     if (/^\/thu-vien/.test(norm)) {
@@ -18676,7 +18741,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     } else if (cfg.id === 'dictionary') {
       cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'search.webp';
     } else if (cfg.id === 'curriculum') {
-      cornerImg = '/images/home/app/learning-path.webp';
+      cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + 'hsk_generator.webp';
     } else if (cfg.id === 'audio') {
       const aKey = norm.includes('noi') ? 'speaking_practice' : (norm.includes('chep') ? 'dictation' : 'listening');
       cornerImg = '/images/home/' + (isDark ? 'dark/' : '') + aKey + '.webp';
@@ -18715,7 +18780,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                 '<' + stageTitleTag + ' style="margin:0 0 4px;font-size:17px;font-weight:800;line-height:1.25;">' + escapeHtml(cfg.title) + '</' + stageTitleTag + '>' +
                 '<div style="font-size:12.5px;color:rgba(241,245,249,.88);line-height:1.4;">' + escapeHtml(cfg.sub) + '</div>' +
               '</div>' +
-              (cornerImg ? '<img src="' + cornerImg + '" alt="' + escapeHtml(cfg.badge) + '" loading="lazy" decoding="async" class="htq-float" style="width:66px;height:66px;border-radius:16px;object-fit:cover;flex-shrink:0;border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(15,23,42,.42);" />' : '') +
+              (cornerImg ? '<img src="' + cornerImg + '" alt="' + escapeHtml(cfg.badge) + '" class="htq-float" loading="eager" decoding="async" style="width:66px;height:66px;border-radius:16px;object-fit:cover;flex-shrink:0;background:' + (isDark ? '#1e293b' : '#ffffff') + ';border:2px solid rgba(255,255,255,.55);box-shadow:0 10px 24px rgba(15,23,42,.42);" />' : '') +
             '</div>' +
           '</div>' +
           '<div class="htq-stage-body" id="htq-stage-activity-host"></div>' +
