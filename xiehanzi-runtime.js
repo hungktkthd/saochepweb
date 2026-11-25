@@ -390,7 +390,7 @@ button[data-testid="capy-bubble-hint"] {
   }
   body:has([data-sticky-action="true"]) button[data-testid="capy-bubble"][data-side="right"]:not(.capy-companion_dragging__awt_M),
   body:has([data-sticky-action="true"]) button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
-    bottom: 92px !important;
+    bottom: 128px !important;
   }
 }
 @media (min-width: 1180px) and (max-width: 1440px) {
@@ -630,6 +630,15 @@ header.thay-do-landing_hero__Pqn_q h1,
   max-width: calc(100vw - 24px) !important;
   border-radius: 18px !important;
   box-sizing: border-box !important;
+}
+main a[href^="https://"],
+main a[href^="mailto:"] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.dark main a[href^="https://"].text-primary,
+.dark main a[href^="mailto:"].text-primary {
+  color: #a5b4fc !important;
 }
 .dark #xhz-dynamic-page-root [style*="color:#0d9488"]:not(button):not([style*="background:#0d9488"]):not([style*="background: #0d9488"]):not([style*="background:#0f766e"]),
 .dark #xhz-dynamic-page-root [style*="color: #0d9488"]:not(button):not([style*="background:#0d9488"]):not([style*="background: #0d9488"]):not([style*="background:#0f766e"]),
@@ -3750,7 +3759,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('capy-bubble-hint-hidden-and-smart-dock', () => {
         const fx = document.getElementById('htq-v14-fx-css');
         const txt = fx ? fx.textContent : '';
-        return Boolean(txt.includes('button[data-testid="capy-bubble-hint"]') && txt.includes('button[aria-label="Gửi góp ý"]') && txt.includes('bottom: 92px !important;'));
+        return Boolean(txt.includes('button[data-testid="capy-bubble-hint"]') && txt.includes('button[aria-label="Gửi góp ý"]') && txt.includes('bottom: 128px !important;'));
       });
       await runCheck('thay-do-hero-contrast-and-consent-gutter', () => {
         const fx = document.getElementById('htq-v14-fx-css');
@@ -3780,6 +3789,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           Array.isArray(m.icons) && m.icons.every(ic => ic && ic.purpose !== 'any maskable')
         );
         return validM(m1) && validM(m2);
+      });
+      await runCheck('external-url-wrap-and-dark-primary-link-contrast', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('main a[href^="https://"]') && txt.includes('overflow-wrap: anywhere;') && txt.includes('.dark main a[href^="https://"].text-primary'));
+      });
+      await runCheck('de-kiem-tra-sticky-action-desktop-capy-clearance', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('body:has([data-sticky-action="true"]) button[data-testid="capy-bubble"]') && txt.includes('bottom: 128px !important;'));
       });
     } finally {
       window.__xhzDiagRunning = false;
