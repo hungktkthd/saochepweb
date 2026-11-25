@@ -379,6 +379,20 @@ button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-compan
     height: 44px !important;
   }
 }
+button[data-testid="capy-bubble-hint"] {
+  display: none !important;
+  pointer-events: none !important;
+}
+@media (min-width: 769px) {
+  body:not(:has(button[aria-label="Gửi góp ý"]:not(.invisible))) button[data-testid="capy-bubble"][data-side="right"]:not(.capy-companion_dragging__awt_M),
+  body:not(:has(button[aria-label="Gửi góp ý"]:not(.invisible))) button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
+    right: 16px !important;
+  }
+  body:has([data-sticky-action="true"]) button[data-testid="capy-bubble"][data-side="right"]:not(.capy-companion_dragging__awt_M),
+  body:has([data-sticky-action="true"]) button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
+    bottom: 92px !important;
+  }
+}
 @media (min-width: 1180px) and (max-width: 1440px) {
   header[data-site-header="true"] > div {
     padding-left: 10px !important;
@@ -605,6 +619,28 @@ html.dark body:has(#xhz-dict-video-wrap) header[data-site-header="true"] {
 .dark #xhz-dynamic-page-root [style*="color:#57534e"],
 .dark #xhz-dynamic-page-root [style*="color: rgb(87, 83, 78)"],
 .dark #xhz-dynamic-page-root [style*="color:#78716c"] { color: #cbd5e1 !important; }
+header.thay-do-landing_hero__Pqn_q,
+header.thay-do-landing_hero__Pqn_q h1,
+.thay-do-landing_hook__ykd2f,
+.thay-do-landing_hook__ykd2f h1 {
+  color: #fdf8ed !important;
+}
+[data-testid="thay-do-consent-card"] {
+  width: min(512px, calc(100vw - 24px)) !important;
+  max-width: calc(100vw - 24px) !important;
+  border-radius: 18px !important;
+  box-sizing: border-box !important;
+}
+.dark #xhz-dynamic-page-root [style*="color:#0d9488"]:not(button):not([style*="background:#0d9488"]):not([style*="background: #0d9488"]):not([style*="background:#0f766e"]),
+.dark #xhz-dynamic-page-root [style*="color: #0d9488"]:not(button):not([style*="background:#0d9488"]):not([style*="background: #0d9488"]):not([style*="background:#0f766e"]),
+.dark #xhz-dynamic-page-root [style*="color:#0f766e"]:not(button):not([style*="background:#0d9488"]):not([style*="background: #0d9488"]):not([style*="background:#0f766e"]),
+.dark #xhz-dynamic-page-root [style*="color: #0f766e"]:not(button):not([style*="background:#0d9488"]):not([style*="background: #0d9488"]):not([style*="background:#0f766e"]) {
+  color: #2dd4bf !important;
+}
+.dark #xhz-dynamic-page-root [style*="color:#b45309"]:not(button),
+.dark #xhz-dynamic-page-root [style*="color: #b45309"]:not(button) {
+  color: #fbbf24 !important;
+}
 .dark #xhz-dynamic-page-root input,
 .dark #xhz-dynamic-page-root textarea,
 .dark #xhz-dynamic-page-root select {
@@ -2671,7 +2707,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('pwa-manifest-valid', async () => {
         const sm = await (await fetch('/site.webmanifest')).json();
         const mm = await (await fetch('/manifest.webmanifest')).json();
-        return Boolean(sm && sm.start_url === '/hoc/' && mm && mm.start_url === '/hoc/' && Array.isArray(sm.icons) && !JSON.stringify(sm.icons).includes('web-app-manifest-192'));
+        return Boolean(sm && sm.start_url === '/hoc' && mm && mm.start_url === '/hoc' && Array.isArray(sm.icons) && !JSON.stringify(sm.icons).includes('web-app-manifest-192'));
       });
       await runCheck('api-skill-map-real', async () => {
         const sm = await (await fetch('/v2/me/skill-map')).json();
@@ -3710,6 +3746,40 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const swTxt = await (await fetch('/sw.js')).text();
         const smTxt = await (await fetch('/sitemap.xml')).text();
         return Boolean(swTxt.includes("'/hoc'") && !swTxt.includes("'/hoc/'") && smTxt.includes('https://hoctiengtrungquoc.vercel.app/hoc</loc>') && !smTxt.includes('https://hoctiengtrungquoc.vercel.app/hoc/</loc>'));
+      });
+      await runCheck('capy-bubble-hint-hidden-and-smart-dock', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('button[data-testid="capy-bubble-hint"]') && txt.includes('button[aria-label="Gửi góp ý"]') && txt.includes('bottom: 92px !important;'));
+      });
+      await runCheck('thay-do-hero-contrast-and-consent-gutter', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('header.thay-do-landing_hero__Pqn_q h1') && txt.includes('#fdf8ed') && txt.includes('[data-testid="thay-do-consent-card"]'));
+      });
+      await runCheck('dark-mode-teal-and-amber-aaa-contrast', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('color: #2dd4bf !important;') && txt.includes('color: #fbbf24 !important;'));
+      });
+      await runCheck('hoc-dashboard-subroutes-stage-excluded-and-eager-companions', () => {
+        const stSrc = typeof buildPageExperienceStage === 'function' ? buildPageExperienceStage.toString() : '';
+        return Boolean(
+          window.__xhzResolvePageStageConfig('/hoc/tien-do') === null &&
+          window.__xhzResolvePageStageConfig('/hoc/thoi-quen') === null &&
+          stSrc.includes('/splash/hero.webp" alt="\' + escapeHtml(c.name) + \'" loading="eager"')
+        );
+      });
+      await runCheck('pwa-manifests-zero-redirect-and-split-purpose', async () => {
+        const m1 = await (await fetch('/manifest.webmanifest')).json();
+        const m2 = await (await fetch('/site.webmanifest')).json();
+        const validM = (m) => Boolean(
+          m &&
+          m.start_url === '/hoc' &&
+          Array.isArray(m.shortcuts) && m.shortcuts.every(s => s && typeof s.url === 'string' && !s.url.endsWith('/')) &&
+          Array.isArray(m.icons) && m.icons.every(ic => ic && ic.purpose !== 'any maskable')
+        );
+        return validM(m1) && validM(m2);
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -18838,7 +18908,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|bo-thu|tra-chu\/bo-thu|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/bo-thu|hoc\/tu-vung-hsk-[1-9]|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|on-tap\/(da-hoc|tu-da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|ngu-phap\/(da-hoc|luyen-tap\/.+|[^/]+\/.+)|luyen-noi\/shadowing|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|bo-thu|tra-chu\/bo-thu|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/bo-thu|hoc\/tu-vung-hsk-[1-9]|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tien-do|thoi-quen|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|on-tap\/(da-hoc|tu-da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|ngu-phap\/(da-hoc|luyen-tap\/.+|[^/]+\/.+)|luyen-noi\/shadowing|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
@@ -19015,7 +19085,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         host.innerHTML =
           '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;">' +
             '<div style="display:flex;align-items:center;gap:10px;min-width:0;">' +
-              '<img src="/images/companion/' + encodeURIComponent(cObj.id) + '/splash/hero.webp" alt="' + escapeHtml(cObj.name) + '" loading="lazy" decoding="async" style="width:48px;height:48px;border-radius:14px;object-fit:cover;border:2px solid #4f46e5;" />' +
+              '<img src="/images/companion/' + encodeURIComponent(cObj.id) + '/splash/hero.webp" alt="' + escapeHtml(cObj.name) + '" loading="eager" decoding="async" style="width:48px;height:48px;border-radius:14px;object-fit:cover;border:2px solid #4f46e5;" />' +
               '<div style="min-width:0;">' +
                 '<div style="font-size:14px;font-weight:800;">' + escapeHtml(cObj.name) + ' (' + escapeHtml(cObj.zh) + ') · <span style="color:#0d9488;font-size:12px;">' + escapeHtml(cObj.role) + '</span></div>' +
                 '<div style="font-size:12.5px;opacity:.82;margin-top:2px;">“' + escapeHtml(cObj.quote) + '”</div>' +
@@ -19029,7 +19099,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           '<div style="display:flex;flex-wrap:wrap;gap:6px;">' +
             HTQ_COMPANIONS_LIST.map(c =>
               '<button type="button" class="htq-stage-chip-btn' + (c.id === activeComp ? ' is-active' : '') + '" data-comp-id="' + c.id + '">' +
-                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" loading="lazy" decoding="async" style="width:18px;height:18px;border-radius:999px;object-fit:cover;" />' +
+                '<img src="/images/companion/' + encodeURIComponent(c.id) + '/splash/hero.webp" alt="' + escapeHtml(c.name) + '" loading="eager" decoding="async" style="width:18px;height:18px;border-radius:999px;object-fit:cover;" />' +
                 '<span>' + escapeHtml(c.name) + '</span>' +
               '</button>'
             ).join('') +

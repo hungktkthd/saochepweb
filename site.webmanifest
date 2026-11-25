@@ -3,7 +3,7 @@
   "short_name": "Hán Ngữ Studio",
   "description": "Nền tảng học tiếng Trung HSK 3.0, YCT, Boya, luyện 4 kỹ năng AI, tra chữ Hán chiết tự và ôn tập SRS thông minh.",
   "lang": "vi",
-  "start_url": "/hoc/",
+  "start_url": "/hoc",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f6f5f0",
@@ -12,24 +12,32 @@
     {
       "src": "/favicon-48x48.png",
       "sizes": "48x48",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/apple-touch-icon.png",
       "sizes": "180x180",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/favicon.svg",
       "sizes": "any",
-      "type": "image/svg+xml"
+      "type": "image/svg+xml",
+      "purpose": "any"
     }
   ],
   "shortcuts": [
-    { "name": "Bài học hôm nay", "short_name": "Học", "url": "/hoc/" },
-    { "name": "Ôn tập SRS", "short_name": "Ôn tập", "url": "/on-tap/" },
-    { "name": "Từ điển Chữ Hán", "short_name": "Tra chữ", "url": "/tra-chu/" },
-    { "name": "Thi thử HSK", "short_name": "Thi thử", "url": "/kiem-tra-hsk/" }
+    { "name": "Bài học hôm nay", "short_name": "Học", "url": "/hoc" },
+    { "name": "Ôn tập SRS", "short_name": "Ôn tập", "url": "/on-tap" },
+    { "name": "Từ điển Chữ Hán", "short_name": "Tra chữ", "url": "/tra-chu" },
+    { "name": "Thi thử HSK", "short_name": "Thi thử", "url": "/kiem-tra-hsk" }
   ]
 }
