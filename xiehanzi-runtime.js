@@ -421,6 +421,8 @@ button[aria-label*="Cấp HSK"] {
 select[aria-label="Cấp HSK"] {
   min-width: 82px !important;
   width: auto !important;
+  height: 32px !important;
+  overflow: hidden !important;
   padding-left: 12px !important;
   padding-right: 28px !important;
   line-height: normal !important;
@@ -431,8 +433,14 @@ select[aria-label="Cấp HSK"] {
   background-position: right 9px center !important;
   background-size: 12px 12px !important;
 }
+@media (min-width: 640px) {
+  select[aria-label="Cấp HSK"] { display: inline-block !important; }
+}
 #xhz-browse-sort {
+  display: inline-block !important;
   min-width: 148px !important;
+  height: 48px !important;
+  overflow: hidden !important;
   padding: 11px 32px 11px 12px !important;
   line-height: normal !important;
   white-space: nowrap !important;
@@ -443,6 +451,8 @@ select[aria-label="Cấp HSK"] {
   background-position: right 10px center !important;
   background-size: 14px 14px !important;
 }
+select[aria-label="Cấp HSK"]::picker-icon,
+#xhz-browse-sort::picker-icon { display: none !important; }
 header[data-site-header="true"] { z-index: 58 !important; }
 #xhz-dynamic-page-root { position: relative; z-index: 1; }
 @media (min-width: 1180px) {
@@ -453,10 +463,9 @@ header[data-site-header="true"] { z-index: 58 !important; }
 #xhz-dict-video-wrap { position: relative; isolation: isolate; z-index: 1; overflow: hidden; border-radius: 16px; background: #0f172a; }
 #xhz-dict-video-wrap iframe { position: absolute !important; inset: 0 !important; width: 100% !important; height: 100% !important; border: 0 !important; display: block !important; z-index: 1 !important; }
 body:has(#xhz-dict-video-wrap) header[data-site-header="true"] {
-  top: 0 !important;
-  margin-top: 0 !important;
-  border-top-left-radius: 0 !important;
-  border-top-right-radius: 0 !important;
+  position: relative !important;
+  top: auto !important;
+  margin-top: 10px !important;
   z-index: 95 !important;
   background: #ffffff !important;
   backdrop-filter: none !important;
@@ -3501,6 +3510,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const txt = fx ? fx.textContent : '';
         const sySrc = typeof syncStudioThemeUI === 'function' ? syncStudioThemeUI.toString() : '';
         return Boolean(txt.includes('svg path[stroke="#1c1917"]') && sySrc.includes("updateColor('strokeColor'"));
+      });
+      await runCheck('dictation-nonsticky-header-and-select-picker-fix', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        const dictSrc = typeof renderDictationDetailPage === 'function' ? renderDictationDetailPage.toString() : '';
+        return Boolean(txt.includes('position: relative !important;') && txt.includes('::picker-icon') && txt.includes('display: inline-block !important;') && dictSrc.includes("pos !== 'sticky'"));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -10982,6 +10997,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       const vw = document.getElementById('xhz-dict-video-wrap');
       const hdr = document.querySelector('header[data-site-header="true"]');
       if (!vw || !hdr) return;
+      const pos = window.getComputedStyle(hdr).position;
+      if (pos !== 'sticky' && pos !== 'fixed') {
+        vw.style.clipPath = '';
+        return;
+      }
       const hr = hdr.getBoundingClientRect();
       const vr = vw.getBoundingClientRect();
       const overlap = Math.ceil(hr.bottom - vr.top + 2);
@@ -14554,7 +14574,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.innerHTML = `<style>
       #xhz-character-browse { --browse-ink:#1c1917;--browse-card:#fafaf9;--browse-border:#d6d3d1;color:var(--browse-ink); }
       html.dark #xhz-character-browse { --browse-ink:#e2e8f0;--browse-card:#0f172a;--browse-border:#57534e; }
-      #xhz-character-browse input,#xhz-character-browse select,#xhz-character-browse button.xhz-nav-btn,#xhz-browse-grid .xhz-char-card { color:var(--browse-ink)!important;background:var(--browse-card)!important;border-color:var(--browse-border)!important; }
+      #xhz-character-browse input,#xhz-character-browse select,#xhz-character-browse button.xhz-nav-btn,#xhz-browse-grid .xhz-char-card { color:var(--browse-ink)!important;background-color:var(--browse-card)!important;border-color:var(--browse-border)!important; }
       #xhz-browse-grid .xhz-char-card:hover { border-color:#0d9488!important; }
     </style><section id="xhz-character-browse" style="max-width:1100px;margin:auto;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
@@ -14567,8 +14587,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         <label style="flex:1;min-width:220px;">Tìm trong danh sách
           <input id="xhz-char-browse-filter" type="search" aria-label="Lọc chữ Hán theo chữ, Pinyin, Hán Việt hoặc nghĩa" placeholder="Tìm chữ Hán, pinyin, nghĩa..." style="display:block;width:100%;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;" />
         </label>
-        <label>Sắp xếp
-          <select id="xhz-browse-sort" aria-label="Sắp xếp danh sách chữ Hán" style="display:block;padding:12px;border:1px solid #d6d3d1;border-radius:12px;background:#fff;color:#1c1917;">
+        <label style="display:flex;flex-direction:column;gap:4px;">Sắp xếp
+          <select id="xhz-browse-sort" aria-label="Sắp xếp danh sách chữ Hán" style="display:inline-block;padding:11px 32px 11px 12px;border:1px solid #d6d3d1;border-radius:12px;background-color:#fff;color:#1c1917;">
             <option value="strokes">Số nét</option><option value="hanviet">Hán Việt A → Z</option><option value="frequency">Tần suất</option>
           </select>
         </label>
