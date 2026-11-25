@@ -374,6 +374,8 @@ button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-compan
   button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
     top: auto !important;
     bottom: 76px !important;
+    width: 44px !important;
+    height: 44px !important;
   }
 }
 @media (min-width: 1180px) and (max-width: 1440px) {
@@ -503,6 +505,36 @@ select[aria-label="Cấp HSK"]::picker-icon,
 #xhz-browse-sort::picker-icon { display: none !important; }
 header[data-site-header="true"] { z-index: 58 !important; }
 #xhz-dynamic-page-root { position: relative; z-index: 1; }
+body:has(#xhz-dynamic-page-root) main#noi-dung-chinh,
+main[aria-hidden="true"] { display: none !important; }
+main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:not(#tra-cuu):not(#htq-studio-workspace):not(.bg-surface-2):not([aria-labelledby="home-thay-do-heading"]) {
+  display: none !important;
+}
+#xhz-dynamic-page-root [style*="background:#0d9488"],
+#xhz-dynamic-page-root [style*="background: #0d9488"],
+#xhz-dynamic-page-root [style*="background: rgb(13, 148, 136)"],
+#xhz-dynamic-page-root [style*="background:rgb(13, 148, 136)"] {
+  background-color: #0f766e !important;
+  border-color: #0f766e !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+.dark #xhz-dynamic-page-root [style*="background:#0d9488"],
+.dark #xhz-dynamic-page-root [style*="background: #0d9488"],
+.dark #xhz-dynamic-page-root [style*="background: rgb(13, 148, 136)"],
+.dark #xhz-dynamic-page-root [style*="background:rgb(13, 148, 136)"] {
+  background-color: #0f766e !important;
+  border-color: rgba(45, 212, 191, 0.55) !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+#xhz-dynamic-page-root [style*="background:#4f46e5"],
+#xhz-dynamic-page-root [style*="background: rgb(79, 70, 229)"],
+#xhz-dynamic-page-root [style*="background:#ea580c"],
+#xhz-dynamic-page-root [style*="background: rgb(234, 88, 12)"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
 @media (min-width: 1180px) {
   body:not([data-htq-immersive="1"]) > div:has(> header[data-site-header="true"]) { padding-left: 252px !important; }
   body:not([data-htq-immersive="1"]) > #xhz-dynamic-page-root { padding-left: 268px !important; }
@@ -3629,6 +3661,33 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           body: JSON.stringify({ expectedText: '你好', recognizedText: '你' })
         })).json();
         return Boolean(res && Array.isArray(res.syllables) && res.syllables.length === 2 && res.syllables[0].status === 'good' && res.syllables[1].status === 'warning' && res.score < 92);
+      });
+      await runCheck('home-legacy-due-section-hidden-and-mistake-pill', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        const hwSrc = typeof buildHomeWorkspace === 'function' ? buildHomeWorkspace.toString() : '';
+        return Boolean(txt.includes('section:not(#tra-cuu):not(#htq-studio-workspace)') && hwSrc.includes('htq-home-mistakes-cta'));
+      });
+      await runCheck('wcag-aa-teal-button-contrast-and-white-fill', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('background-color: #0f766e !important;') && txt.includes('-webkit-text-fill-color: #ffffff !important;'));
+      });
+      await runCheck('deep-subroutes-stage-exclusion-and-main-hydration-shield', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(
+          txt.includes('body:has(#xhz-dynamic-page-root) main#noi-dung-chinh') &&
+          window.__xhzResolvePageStageConfig('/ngu-phap/luyen-tap/hsk1_1') === null &&
+          window.__xhzResolvePageStageConfig('/luyen-noi/shadowing') === null &&
+          window.__xhzResolvePageStageConfig('/ngu-phap/da-hoc') === null &&
+          window.__xhzResolvePageStageConfig('/on-tap/so-loi') === null
+        );
+      });
+      await runCheck('desktop-capy-bubble-compact-44px', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('width: 44px !important;') && txt.includes('height: 44px !important;') && txt.includes('bottom: 76px !important;') && txt.includes('right: 16px !important;'));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -18537,7 +18596,12 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             '<div class="htq-stat-box"><div class="htq-stat-num" data-htq-count="' + Number(summary.stagesDone || 0) + '">' + Number(summary.stagesDone || 0) + '</div><div class="htq-stat-lbl">Chặng xong</div></div>' +
           '</div>' +
           '<a id="htq-home-cta" href="' + ctaHref + '" class="htq-cta-btn">' + ctaLabel + '</a>' +
-          (dueNowCount > 0 ? '<a id="htq-home-due-cta" href="/hoc/bai/on-tap-den-han" class="htq-pulse-soft" style="display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:9px 12px;border-radius:12px;font-weight:700;font-size:13px;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;text-decoration:none;margin-bottom:12px;">🔁 Ôn ' + dueNowCount + ' thẻ đến hạn ngay →</a>' : '') +
+          (dueNowCount > 0 || Number(summary.mistakesCount || 0) > 0
+            ? '<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">' +
+                (dueNowCount > 0 ? '<a id="htq-home-due-cta" href="/hoc/bai/on-tap-den-han" class="htq-pulse-soft" style="flex:1;min-width:150px;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;border-radius:12px;font-weight:700;font-size:13px;color:#0f766e;background:#f0fdfa;border:1px solid #99f6e4;text-decoration:none;">🔁 Ôn ' + dueNowCount + ' thẻ đến hạn →</a>' : '') +
+                (Number(summary.mistakesCount || 0) > 0 ? '<a id="htq-home-mistakes-cta" href="/hoc/so-loi" style="display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 12px;border-radius:12px;font-weight:700;font-size:13px;color:#be123c;background:#fff1f2;border:1px solid #fecdd3;text-decoration:none;">📓 Sửa ' + Number(summary.mistakesCount) + ' lỗi</a>' : '') +
+              '</div>'
+            : '') +
           '<div class="htq-quick-grid">' +
             '<a href="/tro-choi/ghep-chu/" class="htq-quick-item"><span>🧩</span><span>Ghép Chữ Hán</span></a>' +
             '<a href="/tro-choi/tim-chu-trong-chu/" class="htq-quick-item"><span>🔎</span><span>Tìm Chữ Trong Chữ</span></a>' +
@@ -18694,7 +18758,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   function resolvePageStageConfig(curPath) {
     const norm = (curPath || '/').replace(/\/+$/, '') || '/';
     if (norm === '/') return null;
-    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|bo-thu|tra-chu\/bo-thu|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/bo-thu|hoc\/tu-vung-hsk-[1-9]|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
+    if (/^\/(thay-do|truong-thay-do|kho-du-lieu|phu-huynh|bo-suu-tap|be-hoc|bo-thu|tra-chu\/bo-thu|tao-vo-tap-viet\/mau|worksheet-generator\/templates|tai-app|cac-goi|hoc\/on-tap|hoc\/bo-thu|hoc\/tu-vung-hsk-[1-9]|hoc\/(bai|chang|kiem-tra-cap|noi)\/|hoc\/(hom-nay|bao-cao|tu-da-hoc|da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|on-tap\/(da-hoc|tu-da-hoc|so-loi|loi-sai|ngu-phap-da-hoc)|ngu-phap\/(da-hoc|luyen-tap\/.+|[^/]+\/.+)|luyen-noi\/shadowing|bat-dau\/kiem-tra|hoc\/bat-dau\/kiem-tra|so-tay\/.+|luyen-chep-chinh-ta\/.+|kiem-tra-hsk\/.+\/(test\/|noi)|kiem-tra-yct\/.+|de-kiem-tra\/lam-bai|kiem-tra-ngu-phap\/lam-bai|xoa-tai-khoan|chinh-sach-bao-mat|dieu-khoan-su-dung|lien-he|nguon-am-thanh|404)/.test(norm)) {
       return null;
     }
     if (/^\/(hoc|lo-trinh|bat-dau)/.test(norm)) {
