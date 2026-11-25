@@ -1,10 +1,10 @@
-// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v46.0)
-const CACHE_NAME = 'htq-studio-v46';
+// Học Tiếng Trung — Hán Ngữ Studio Service Worker (v47.0)
+const CACHE_NAME = 'htq-studio-v47';
 const SHELL_PRECACHE = [
   '/',
-  '/hoc/',
-  '/on-tap/',
-  '/tra-chu/',
+  '/hoc',
+  '/on-tap',
+  '/tra-chu',
   '/xiehanzi-runtime.js?v=htq5',
   '/site.webmanifest',
   '/manifest.webmanifest'

@@ -373,7 +373,8 @@ button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-compan
   button[data-testid="capy-bubble"][data-side="right"]:not(.capy-companion_dragging__awt_M),
   button[data-testid="capy-bubble"][data-side="right"][data-peek]:not(.capy-companion_dragging__awt_M) {
     top: auto !important;
-    bottom: 76px !important;
+    bottom: 24px !important;
+    right: 124px !important;
     width: 44px !important;
     height: 44px !important;
   }
@@ -507,7 +508,9 @@ header[data-site-header="true"] { z-index: 58 !important; }
 #xhz-dynamic-page-root { position: relative; z-index: 1; }
 body:has(#xhz-dynamic-page-root) main#noi-dung-chinh,
 main[aria-hidden="true"] { display: none !important; }
-main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:not(#tra-cuu):not(#htq-studio-workspace):not(.bg-surface-2):not([aria-labelledby="home-thay-do-heading"]) {
+main#noi-dung-chinh > div.overflow-x-clip:has(> section#tra-cuu) > section:not(#tra-cuu):not(#htq-studio-workspace):not(.bg-surface-2):not([aria-labelledby="home-thay-do-heading"]),
+main#noi-dung-chinh:has(section#tra-cuu) div:has(> [data-testid="review-today-card"]),
+main#noi-dung-chinh:has(section#tra-cuu) [data-testid="review-today-card"] {
   display: none !important;
 }
 #xhz-dynamic-page-root [style*="background:#0d9488"],
@@ -3613,7 +3616,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('desktop-header-compact-and-capy-feedback-clearance', () => {
         const fx = document.getElementById('htq-v14-fx-css');
         const txt = fx ? fx.textContent : '';
-        return Boolean(txt.includes('bottom: 76px !important;') && txt.includes('@media (min-width: 1180px) and (max-width: 1440px)') && txt.includes('padding-top: 0 !important;'));
+        return Boolean(txt.includes('bottom: 24px !important;') && txt.includes('right: 124px !important;') && txt.includes('@media (min-width: 1180px) and (max-width: 1440px)') && txt.includes('padding-top: 0 !important;'));
       });
       await runCheck('grammar-quiz-semantic-h1-and-notebook-placeholders', () => {
         const gqSrc = typeof renderGrammarQuizRunPage === 'function' ? renderGrammarQuizRunPage.toString() : '';
@@ -3687,7 +3690,26 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       await runCheck('desktop-capy-bubble-compact-44px', () => {
         const fx = document.getElementById('htq-v14-fx-css');
         const txt = fx ? fx.textContent : '';
-        return Boolean(txt.includes('width: 44px !important;') && txt.includes('height: 44px !important;') && txt.includes('bottom: 76px !important;') && txt.includes('right: 16px !important;'));
+        return Boolean(txt.includes('width: 44px !important;') && txt.includes('height: 44px !important;') && txt.includes('bottom: 24px !important;') && txt.includes('right: 124px !important;') && txt.includes('right: 16px !important;'));
+      });
+      await runCheck('home-review-today-card-testid-hidden', () => {
+        const fx = document.getElementById('htq-v14-fx-css');
+        const txt = fx ? fx.textContent : '';
+        return Boolean(txt.includes('[data-testid="review-today-card"]'));
+      });
+      await runCheck('kids-yct-active-indigo-pill-contrast', () => {
+        const kdSrc = typeof renderKidsYctCornerPage === 'function' ? renderKidsYctCornerPage.toString() : '';
+        return Boolean(kdSrc.includes('#xhz-kids-yct-root [data-kids-topic].is-active') && kdSrc.includes('#4f46e5'));
+      });
+      await runCheck('lesson-runner-dark-toggle-and-tone-guide', () => {
+        const lrSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        const asSrc = typeof ensureLessonRunnerAssets === 'function' ? ensureLessonRunnerAssets.toString() : '';
+        return Boolean(lrSrc.includes('xhz-runner-theme-btn') && lrSrc.includes('intro-tone-guide') && asSrc.includes('html.dark #xhz-lesson-runner-root .lp.lp-runner'));
+      });
+      await runCheck('sw-precache-and-sitemap-canonical-no-redirect-slashes', async () => {
+        const swTxt = await (await fetch('/sw.js')).text();
+        const smTxt = await (await fetch('/sitemap.xml')).text();
+        return Boolean(swTxt.includes("'/hoc'") && !swTxt.includes("'/hoc/'") && smTxt.includes('https://hoctiengtrungquoc.vercel.app/hoc</loc>') && !smTxt.includes('https://hoctiengtrungquoc.vercel.app/hoc/</loc>'));
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -14218,7 +14240,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     let activeTopic = safeDecodeURIComponent(parts[1] || 'dong-vat').toLowerCase();
     const topics = {
       'dong-vat': {
-        title: '🐾 Động Vật Đáng Yêu (动物朋友)',
+        title: '🦊 Động Vật Đáng Yêu (动物朋友)',
         desc: 'Học tên các loài vật gần gũi quanh bé chuẩn từ vựng YCT Cấp 1–2.',
         items: [
           { ico: '🐱', hanzi: '猫', pinyin: 'māo', hv: 'MIÊU', meaning: 'con mèo' },
@@ -14270,6 +14292,16 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     document.title = 'Góc Bé Học Tiếng Trung YCT (Cấp 1–4) | Học Tiếng Trung';
 
     root.innerHTML = `
+      <style>
+        #xhz-kids-yct-root [data-kids-topic].is-active,
+        html.dark #xhz-kids-yct-root [data-kids-topic].is-active {
+          background: #4f46e5 !important;
+          border-color: #6366f1 !important;
+          color: #ffffff !important;
+          -webkit-text-fill-color: #ffffff !important;
+          box-shadow: 0 6px 16px -6px rgba(79, 70, 229, 0.55) !important;
+        }
+      </style>
       <div id="xhz-kids-yct-root" style="max-width:960px;margin:0 auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:18px;">
           <a href="/thu-vien-yct" style="color:#0d9488;font-weight:800;text-decoration:none;">← Xem toàn bộ Giáo trình YCT (/thu-vien-yct)</a>
@@ -14292,7 +14324,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
           <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;">
             ${Object.entries(topics).map(([id, t]) => `
-              <button type="button" data-kids-topic="${id}" style="padding:8px 16px;border-radius:999px;border:1px solid ${id === activeTopic ? '#0d9488' : '#d6d3d1'};background:${id === activeTopic ? '#0d9488' : '#fff'};color:${id === activeTopic ? '#fff' : '#1c1917'};font-weight:800;font-size:13.5px;cursor:pointer;">
+              <button type="button" data-kids-topic="${id}" class="${id === activeTopic ? 'is-active' : ''}" style="padding:8px 16px;border-radius:999px;border:1px solid ${id === activeTopic ? '#4f46e5' : '#d6d3d1'};background:${id === activeTopic ? '#4f46e5' : '#fff'};color:${id === activeTopic ? '#ffffff' : '#1c1917'};font-weight:800;font-size:13.5px;cursor:pointer;">
                 ${escapeHtml(t.title)}
               </button>
             `).join('')}
@@ -14347,9 +14379,10 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         activeTopic = btn.getAttribute('data-kids-topic') || 'dong-vat';
         root.querySelectorAll('[data-kids-topic]').forEach(sib => {
           const on = sib.getAttribute('data-kids-topic') === activeTopic;
-          sib.style.background = on ? '#0d9488' : '#fff';
-          sib.style.color = on ? '#fff' : '#1c1917';
-          sib.style.borderColor = on ? '#0d9488' : '#d6d3d1';
+          sib.classList.toggle('is-active', on);
+          sib.style.background = on ? '#4f46e5' : '#fff';
+          sib.style.color = on ? '#ffffff' : '#1c1917';
+          sib.style.borderColor = on ? '#4f46e5' : '#d6d3d1';
         });
         renderTopic();
       };
@@ -14913,6 +14946,32 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
             background: var(--lp-bg, #eef8f7) !important;
             z-index: 5 !important;
           }
+          html.dark .xhz-lp-split-right .lp-footer {
+            background: var(--lp-bg, #0b0e1a) !important;
+          }
+        }
+        html.dark #xhz-lesson-runner-root .lp.lp-runner {
+          background: #0b0e1a !important;
+          color: #f1f5f9 !important;
+          --lp-bg: #0b0e1a;
+          --lp-surface: #13182b;
+          --lp-surface-2: #1a2138;
+          --lp-border: rgba(129, 140, 248, 0.24);
+          --lp-border-strong: rgba(129, 140, 248, 0.38);
+          --lp-ink: #f8fafc;
+          --lp-ink-2: #cbd5e1;
+          --lp-ink-3: #94a3b8;
+        }
+        html.dark #xhz-lesson-runner-root .lp-intro-ov {
+          background: #0b0e1a !important;
+          color: #f8fafc !important;
+        }
+        html.dark #xhz-lesson-runner-root .lp-bubble,
+        html.dark #xhz-lesson-runner-root .lp-opt,
+        html.dark #xhz-lesson-runner-root .lp-card {
+          background: #13182b !important;
+          color: #f8fafc !important;
+          border-color: rgba(129, 140, 248, 0.28) !important;
         }
       `;
       document.head.appendChild(st);
@@ -15979,7 +16038,18 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         }
 
         if (!state.pretestRevealed) {
-          answerHtml = '';
+          answerHtml = `
+            <section data-testid="intro-tone-guide" style="display:flex;flex-direction:column;gap:10px;border-radius:18px;border:1.5px solid var(--lp-border);background:var(--lp-surface);padding:18px;">
+              <div style="font-size:13px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#4f46e5;">💡 Mẹo phân biệt nhanh 4 thanh điệu</div>
+              <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;font-size:13.5px;color:var(--lp-ink);">
+                <div style="padding:10px 12px;border-radius:12px;background:var(--lp-surface-2);border:1px solid var(--lp-border);"><b>Thanh 1 (ā)</b><div style="font-size:12.5px;color:var(--lp-ink-2);margin-top:2px;">Ngang cao, giữ đều hơi</div></div>
+                <div style="padding:10px 12px;border-radius:12px;background:var(--lp-surface-2);border:1px solid var(--lp-border);"><b>Thanh 2 (á)</b><div style="font-size:12.5px;color:var(--lp-ink-2);margin-top:2px;">Đi lên cao như câu hỏi</div></div>
+                <div style="padding:10px 12px;border-radius:12px;background:var(--lp-surface-2);border:1px solid var(--lp-border);"><b>Thanh 3 (ǎ)</b><div style="font-size:12.5px;color:var(--lp-ink-2);margin-top:2px;">Trầm xuống rồi uốn lên</div></div>
+                <div style="padding:10px 12px;border-radius:12px;background:var(--lp-surface-2);border:1px solid var(--lp-border);"><b>Thanh 4 (à)</b><div style="font-size:12.5px;color:var(--lp-ink-2);margin-top:2px;">Dứt khoát từ cao xuống</div></div>
+              </div>
+              <p style="margin:2px 0 0;font-size:12.5px;color:var(--lp-ink-2);">⌨️ Bấm phím <b>1–4</b> để chọn nhanh đáp án bên trái hoặc <b>Space</b> để nghe lại âm mẫu.</p>
+            </section>
+          `;
           footerBtnLabel = 'Tiếp tục';
           footerBtnDisabled = true;
         } else {
@@ -16793,6 +16863,9 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               <div class="lp-progress" role="progressbar" aria-label="Tiến độ bài học" aria-valuemin="0" aria-valuemax="${playableSteps.length}" aria-valuenow="${state.stepIdx}">
                 <i style="width:${progressPct}%;"></i>
               </div>
+              <button type="button" id="xhz-runner-theme-btn" aria-label="${document.documentElement.classList.contains('dark') ? 'Chuyển sang giao diện sáng' : 'Chuyển sang giao diện tối'}" class="lp-icon-btn" title="Đổi giao diện Sáng / Tối">
+                ${document.documentElement.classList.contains('dark') ? '☀️' : '🌙'}
+              </button>
               <button type="button" id="xhz-runner-audio-replay" aria-label="Cài đặt âm thanh" class="lp-icon-btn" title="Phát lại âm thanh (Space)">
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
               </button>
@@ -16836,6 +16909,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
       // Wire events
       const startBtn = runnerRoot.querySelector('#xhz-intro-start-btn');
+      const runnerThemeBtn = runnerRoot.querySelector('#xhz-runner-theme-btn');
+      if (runnerThemeBtn) {
+        runnerThemeBtn.onclick = () => {
+          toggleStudioTheme(true);
+          renderRunner();
+        };
+      }
       if (startBtn) {
         startBtn.onclick = () => {
           state.showIntro = false;
