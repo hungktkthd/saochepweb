@@ -1322,45 +1322,153 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         return origBeacon(url, data);
       };
     }
-    const createSyntheticAudioStream = () => {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      const ctx = new AudioCtx();
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      gain.gain.value = 0.0001;
-      const dest = ctx.createMediaStreamDestination();
-      osc.connect(gain);
-      gain.connect(dest);
-      osc.start();
-      const stream = dest.stream;
-      stream.getTracks().forEach(t => {
-        const origStop = t.stop.bind(t);
-        t.stop = function () {
-          try { osc.stop(); ctx.close(); } catch (_) {}
-          return origStop();
+    const attachLiveMicMonitor = stream => {
+      try {
+        if (!stream || window.__xhzManagedRecording) return stream;
+        const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const session = {
+          startedAt: Date.now(),
+          endedAt: 0,
+          rmsPeak: 0,
+          rmsSum: 0,
+          frameCount: 0,
+          activeSpeechMs: 0,
+          finalTranscript: '',
+          interimTranscript: '',
+          alternatives: [],
+          confidence: 0,
+          srSupported: Boolean(SR),
+          srError: null,
+          finalized: false
         };
-      });
+        let resolveFinal;
+        session.finalPromise = new Promise(r => { resolveFinal = r; });
+        const finishFinal = () => {
+          if (session.finalized) return;
+          session.finalized = true;
+          session.endedAt = Date.now();
+          session.durationMs = Math.max(0, session.endedAt - session.startedAt);
+          session.rmsAvg = session.frameCount ? session.rmsSum / session.frameCount : 0;
+          session.isSilent = session.rmsPeak < 0.015 || session.activeSpeechMs < 150 || session.durationMs < 220;
+          try { window.__xhzLastRecSession = session; } catch (_) {}
+          if (resolveFinal) resolveFinal(session);
+        };
+        window.__xhzActiveRecSession = session;
+
+        let ctx = null;
+        let timer = null;
+        try {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            ctx = new AudioCtx();
+            if (ctx.state === 'suspended' && ctx.resume) ctx.resume().catch(() => {});
+            const src = ctx.createMediaStreamSource(stream);
+            const analyser = ctx.createAnalyser();
+            analyser.fftSize = 1024;
+            src.connect(analyser);
+            const buf = typeof analyser.getFloatTimeDomainData === 'function' ? new Float32Array(analyser.fftSize) : new Uint8Array(analyser.fftSize);
+            timer = setInterval(() => {
+              try {
+                let sq = 0;
+                if (buf instanceof Float32Array) {
+                  analyser.getFloatTimeDomainData(buf);
+                  for (let i = 0; i < buf.length; i++) sq += buf[i] * buf[i];
+                } else {
+                  analyser.getByteTimeDomainData(buf);
+                  for (let i = 0; i < buf.length; i++) {
+                    const v = (buf[i] - 128) / 128;
+                    sq += v * v;
+                  }
+                }
+                const rms = Math.sqrt(sq / buf.length);
+                if (rms > session.rmsPeak) session.rmsPeak = rms;
+                session.rmsSum += rms;
+                session.frameCount += 1;
+                if (rms >= 0.015) session.activeSpeechMs += 60;
+              } catch (_) {}
+            }, 60);
+          }
+        } catch (_) {}
+
+        let rec = null;
+        if (SR) {
+          try {
+            rec = new SR();
+            rec.lang = 'zh-CN';
+            rec.continuous = true;
+            rec.interimResults = true;
+            rec.maxAlternatives = 3;
+            const altSet = new Set();
+            rec.onresult = ev => {
+              let finals = '';
+              let interims = '';
+              let confSum = 0;
+              let confCnt = 0;
+              for (let i = 0; i < ev.results.length; i++) {
+                const resItem = ev.results[i];
+                const top = resItem && resItem[0];
+                if (!top) continue;
+                if (resItem.isFinal) {
+                  finals += top.transcript || '';
+                  if (Number.isFinite(top.confidence) && top.confidence > 0) {
+                    confSum += top.confidence;
+                    confCnt += 1;
+                  }
+                  for (let k = 0; k < resItem.length; k++) {
+                    const altTxt = resItem[k] && resItem[k].transcript;
+                    if (altTxt) altSet.add(String(altTxt).trim());
+                  }
+                } else {
+                  interims += top.transcript || '';
+                }
+              }
+              if (finals) session.finalTranscript = finals.trim();
+              session.interimTranscript = interims.trim();
+              session.alternatives = Array.from(altSet);
+              if (confCnt > 0) session.confidence = confSum / confCnt;
+            };
+            rec.onerror = ev => {
+              session.srError = (ev && ev.error) || 'sr-error';
+            };
+            rec.onend = () => {
+              if (session._stopping) finishFinal();
+            };
+            rec.start();
+          } catch (srEx) {
+            session.srError = String((srEx && srEx.message) || 'sr-start-failed');
+          }
+        }
+
+        const tracks = typeof stream.getTracks === 'function' ? stream.getTracks() : [];
+        tracks.forEach(t => {
+          const origStop = t.stop.bind(t);
+          t.stop = function () {
+            if (!session._stopping) {
+              session._stopping = true;
+              if (timer) { try { clearInterval(timer); } catch (_) {} timer = null; }
+              if (ctx) { try { ctx.close(); } catch (_) {} ctx = null; }
+              if (rec) {
+                try { rec.stop(); } catch (_) {}
+                setTimeout(finishFinal, 280);
+              } else {
+                finishFinal();
+              }
+            }
+            return origStop();
+          };
+        });
+      } catch (_) {}
       return stream;
     };
     if (navigator && navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
       const origGetUserMedia = navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);
       navigator.mediaDevices.getUserMedia = async function (constraints) {
-        try {
-          return await origGetUserMedia(constraints);
-        } catch (_err) {
-          if (constraints && constraints.audio) {
-            return createSyntheticAudioStream();
-          }
-          throw _err;
+        const stream = await origGetUserMedia(constraints);
+        if (constraints && constraints.audio && !window.__xhzManagedRecording) {
+          return attachLiveMicMonitor(stream);
         }
+        return stream;
       };
-    } else if (navigator) {
-      try {
-        navigator.mediaDevices = navigator.mediaDevices || {};
-        navigator.mediaDevices.getUserMedia = async function () {
-          return createSyntheticAudioStream();
-        };
-      } catch (_) {}
     }
   } catch (_e) {}
 
@@ -2344,59 +2452,613 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
   };
   window.__xhzRecordProgress = recordStudyProgress;
 
-  async function recognizeChineseSpeech({ expectedHanzi = '', timeoutMs = 6000 } = {}) {
-    const cleanTarget = String(expectedHanzi || '').replace(/[^\u4e00-\u9fff]/g, '');
-    const scoreText = (spoken, target) => {
-      const sChars = Array.from(String(spoken || '').replace(/[^\u4e00-\u9fff]/g, ''));
-      const tChars = Array.from(String(target || '').replace(/[^\u4e00-\u9fff]/g, ''));
-      if (!tChars.length) return sChars.length ? 92 : 85;
-      if (!sChars.length) return 0;
-      const hitCount = tChars.filter(ch => sChars.includes(ch)).length;
-      return Math.min(100, Math.max(40, Math.round((hitCount / tChars.length) * 100)));
-    };
-    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) {
-      return { ok: true, supported: false, transcript: expectedHanzi || '', score: 90, source: 'fallback' };
-    }
-    return new Promise(resolve => {
-      let settled = false;
-      const done = res => {
-        if (settled) return;
-        settled = true;
-        resolve(res);
-      };
-      const timer = setTimeout(() => {
-        try { rec.abort(); } catch (_) {}
-        done({ ok: true, supported: true, transcript: expectedHanzi || '', score: 88, source: 'timeout-fallback' });
-      }, timeoutMs);
-      let rec;
+  let _charPinyinMapPromise = null;
+  function getCharPinyinMap() {
+    if (_charPinyinMapPromise) return _charPinyinMapPromise;
+    _charPinyinMapPromise = (async () => {
+      const map = new Map();
       try {
-        rec = new SR();
-        rec.lang = 'zh-CN';
-        rec.interimResults = false;
-        rec.maxAlternatives = 1;
-        rec.onresult = ev => {
-          clearTimeout(timer);
-          const transcript = (ev && ev.results && ev.results[0] && ev.results[0][0] && ev.results[0][0].transcript) || '';
-          const score = scoreText(transcript, cleanTarget) || 85;
-          done({ ok: true, supported: true, transcript, score, source: 'speech-recognition' });
-        };
-        rec.onerror = () => {
-          clearTimeout(timer);
-          done({ ok: true, supported: true, transcript: expectedHanzi || '', score: 88, source: 'mic-fallback' });
-        };
-        rec.onend = () => {
-          clearTimeout(timer);
-          done({ ok: true, supported: true, transcript: expectedHanzi || '', score: 88, source: 'ended-fallback' });
-        };
-        rec.start();
-      } catch (_) {
-        clearTimeout(timer);
-        done({ ok: true, supported: false, transcript: expectedHanzi || '', score: 90, source: 'fallback' });
-      }
-    });
+        const idx = await loadLocalJson('/data/characters/index.json');
+        if (Array.isArray(idx)) {
+          idx.forEach(item => {
+            const ch = item && (item.c || item.character);
+            const py = item && item.p;
+            if (ch && py) map.set(String(ch), String(py));
+          });
+        }
+      } catch (_) {}
+      return map;
+    })();
+    return _charPinyinMapPromise;
   }
+
+  function parsePinyinSyllable(rawPy) {
+    const py = String(rawPy || '').trim();
+    if (!py) return { py: '', base: '', initial: '', final: '', tone: 5 };
+    const toneChars = { 'ā':1,'á':2,'ǎ':3,'à':4,'ē':1,'é':2,'ě':3,'è':4,'ī':1,'í':2,'ǐ':3,'ì':4,'ō':1,'ó':2,'ǒ':3,'ò':4,'ū':1,'ú':2,'ǔ':3,'ù':4,'ǖ':1,'ǘ':2,'ǚ':3,'ǜ':4 };
+    let tone = 5;
+    for (const ch of py.toLowerCase()) {
+      if (toneChars[ch]) { tone = toneChars[ch]; break; }
+    }
+    if (tone === 5) {
+      const nm = py.match(/[1-5]/);
+      if (nm) tone = Number(nm[0]);
+    }
+    const base = py
+      .replace(/u:/gi, 'ü')
+      .normalize('NFD')
+      .replace(/u\u0308/gi, 'v')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/[1-5]/g, '')
+      .replace(/[^a-z]/g, '');
+    const m = base.match(/^(zh|ch|sh|b|p|m|f|d|t|n|l|g|k|h|j|q|x|z|c|s|r|y|w)(.*)$/);
+    const initial = m ? m[1] : '';
+    const final = m ? m[2] : base;
+    return { py, base, initial, final, tone };
+  }
+
+  function lcsAlignHanzi(expectedArr, spokenArr) {
+    const n = expectedArr.length;
+    const m = spokenArr.length;
+    const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+    for (let i = n - 1; i >= 0; i--) {
+      for (let j = m - 1; j >= 0; j--) {
+        dp[i][j] = expectedArr[i] === spokenArr[j]
+          ? 1 + dp[i + 1][j + 1]
+          : (dp[i + 1][j] >= dp[i][j + 1] ? dp[i + 1][j] : dp[i][j + 1]);
+      }
+    }
+    const matchedExpToSpk = new Array(n).fill(-1);
+    const matchedSpk = new Set();
+    let i = 0;
+    let j = 0;
+    while (i < n && j < m) {
+      if (expectedArr[i] === spokenArr[j]) {
+        matchedExpToSpk[i] = j;
+        matchedSpk.add(j);
+        i++;
+        j++;
+      } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+        i++;
+      } else {
+        j++;
+      }
+    }
+    return { matchedExpToSpk, matchedCount: matchedSpk.size, extraCount: Math.max(0, m - matchedSpk.size) };
+  }
+
+  async function analyzeAudioBase64(base64, mimeType) {
+    const clean = String(base64 || '').replace(/^data:[^;]+;base64,/, '').trim();
+    if (!clean) return null;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx || typeof atob !== 'function') return null;
+    let ctx = null;
+    try {
+      const bin = atob(clean);
+      const len = bin.length;
+      if (len < 64) return { durationMs: 0, rmsAvg: 0, rmsPeak: 0, activeSpeechMs: 0, isSilent: true };
+      const bytes = new Uint8Array(len);
+      for (let i = 0; i < len; i++) bytes[i] = bin.charCodeAt(i);
+      ctx = new AudioCtx();
+      const audioBuf = await ctx.decodeAudioData(bytes.buffer.slice(0));
+      const ch0 = audioBuf.getChannelData(0);
+      const sr = audioBuf.sampleRate || 16000;
+      const winSize = Math.max(128, Math.floor(sr * 0.05));
+      let rmsPeak = 0;
+      let rmsSum = 0;
+      let frames = 0;
+      let activeFrames = 0;
+      for (let pos = 0; pos < ch0.length; pos += winSize) {
+        const end = Math.min(ch0.length, pos + winSize);
+        let sq = 0;
+        for (let k = pos; k < end; k++) sq += ch0[k] * ch0[k];
+        const rms = Math.sqrt(sq / Math.max(1, end - pos));
+        if (rms > rmsPeak) rmsPeak = rms;
+        rmsSum += rms;
+        frames += 1;
+        if (rms >= 0.015) activeFrames += 1;
+      }
+      const durationMs = Math.round((audioBuf.duration || 0) * 1000);
+      const activeSpeechMs = Math.round((activeFrames * winSize * 1000) / sr);
+      const rmsAvg = frames ? rmsSum / frames : 0;
+      return {
+        durationMs,
+        rmsAvg,
+        rmsPeak,
+        activeSpeechMs,
+        isSilent: rmsPeak < 0.015 || activeSpeechMs < 150 || durationMs < 220
+      };
+    } catch (_) {
+      return null;
+    } finally {
+      if (ctx) { try { ctx.close(); } catch (_) {} }
+    }
+  }
+
+  function gradeChinesePronunciation({
+    expectedHanzi = '',
+    expectedPinyin = '',
+    transcriptHeard = '',
+    alternatives = [],
+    confidence = 0,
+    acoustic = null,
+    srSupported = true,
+    hasTranscriptField = true,
+    charPinyinMap = null
+  } = {}) {
+    const expChars = Array.from(String(expectedHanzi || '')).filter(ch => /[\u4e00-\u9fff]/.test(ch));
+    const targetChars = expChars.length ? expChars : ['你', '好'];
+    const expPyTokens = String(expectedPinyin || '').match(/[\p{Script=Latin}\p{M}üÜ]+[1-5]?/gu) || [];
+    const lookupCharPy = (ch, idx) => {
+      if (idx >= 0 && expPyTokens[idx]) return expPyTokens[idx];
+      if (charPinyinMap && charPinyinMap.get(ch)) return charPinyinMap.get(ch);
+      return '';
+    };
+
+    if (acoustic && acoustic.isSilent) {
+      return {
+        ok: false,
+        errorCode: 'NO_SPEECH',
+        isSilent: true,
+        unverified: false,
+        score: 0,
+        matchedCount: 0,
+        totalCount: targetChars.length,
+        transcriptHeard: '',
+        feedback: 'Không nghe thấy giọng đọc (bản ghi chỉ có khoảng lặng hoặc âm lượng quá nhỏ). Hãy đọc to và gần micro hơn.',
+        tip: 'Kiểm tra micro máy tính/trình duyệt, đọc hết câu rồi mới bấm dừng.',
+        syllables: targetChars.map((ch, idx) => {
+          const info = parsePinyinSyllable(lookupCharPy(ch, idx));
+          return { hanzi: ch, pinyin: info.py, expectedTone: info.tone, status: 'error', issue: 'missing', score: 0, comment: `Chưa nghe thấy âm "${ch}"${info.py ? ` (${info.py})` : ''}.` };
+        })
+      };
+    }
+
+    const candidates = [transcriptHeard, ...(Array.isArray(alternatives) ? alternatives : [])]
+      .map(s => String(s || '').trim())
+      .filter(Boolean);
+    let bestCand = String(transcriptHeard || '').trim();
+    let bestAlign = lcsAlignHanzi(targetChars, Array.from(bestCand).filter(ch => /[\u4e00-\u9fff]/.test(ch)));
+    for (const c of candidates) {
+      const sp = Array.from(c).filter(ch => /[\u4e00-\u9fff]/.test(ch));
+      const al = lcsAlignHanzi(targetChars, sp);
+      if (al.matchedCount > bestAlign.matchedCount || (al.matchedCount === bestAlign.matchedCount && al.extraCount < bestAlign.extraCount)) {
+        bestCand = c;
+        bestAlign = al;
+      }
+    }
+
+    const spokenChars = Array.from(bestCand).filter(ch => /[\u4e00-\u9fff]/.test(ch));
+    if (!spokenChars.length) {
+      if (!hasTranscriptField || !srSupported) {
+        return {
+          ok: true,
+          isSilent: false,
+          unverified: true,
+          score: 0,
+          matchedCount: 0,
+          totalCount: targetChars.length,
+          transcriptHeard: '',
+          feedback: 'Đã thu âm giọng nói để bạn tự nghe lại, nhưng trình duyệt hiện tại chưa hỗ trợ nhận dạng tiếng Trung (zh-CN) hoặc chưa có Gemini API key để chấm điểm tự động.',
+          tip: 'Hãy dùng Chrome hoặc Edge bản mới để chấm từng âm tiết, hoặc bấm nghe lại bản ghi của bạn.',
+          syllables: targetChars.map((ch, idx) => {
+            const info = parsePinyinSyllable(lookupCharPy(ch, idx));
+            return { hanzi: ch, pinyin: info.py, expectedTone: info.tone, status: 'warning', issue: 'other', score: 0, comment: `Chưa có dữ liệu nhận diện cho "${ch}".` };
+          })
+        };
+      }
+      return {
+        ok: false,
+        errorCode: 'NO_SPEECH',
+        isSilent: false,
+        unverified: false,
+        score: 0,
+        matchedCount: 0,
+        totalCount: targetChars.length,
+        transcriptHeard: bestCand,
+        feedback: bestCand
+          ? `Hệ thống nghe thấy "${bestCand}", không khớp câu mẫu "${targetChars.join('')}".`
+          : 'Không nhận diện được tiếng Trung trong bản ghi. Hãy thử nói chậm và rõ từng chữ hơn.',
+        tip: 'Nghe mẫu 0.7x trước khi đọc và giữ giọng rõ ràng.',
+        syllables: targetChars.map((ch, idx) => {
+          const info = parsePinyinSyllable(lookupCharPy(ch, idx));
+          return { hanzi: ch, pinyin: info.py, expectedTone: info.tone, status: 'error', issue: 'missing', score: 0, comment: `Chưa nghe thấy âm "${ch}"${info.py ? ` (${info.py})` : ''}.` };
+        })
+      };
+    }
+
+    const unmatchedSpoken = spokenChars.filter((_, sIdx) => !bestAlign.matchedExpToSpk.includes(sIdx));
+    const usedUnmatched = new Set();
+    let weightSum = 0;
+    let exactCount = 0;
+
+    const syllables = targetChars.map((ch, idx) => {
+      const expInfo = parsePinyinSyllable(lookupCharPy(ch, idx));
+      if (bestAlign.matchedExpToSpk[idx] !== -1) {
+        weightSum += 1.0;
+        exactCount += 1;
+        return {
+          hanzi: ch,
+          pinyin: expInfo.py,
+          expectedTone: expInfo.tone,
+          status: 'good',
+          issue: null,
+          score: 95,
+          comment: `Nhận diện chuẩn âm "${ch}"${expInfo.py ? ` (${expInfo.py})` : ''}.`
+        };
+      }
+      let matchedNeighbor = null;
+      let neighborKind = null;
+      if (expInfo.base && charPinyinMap) {
+        for (let ui = 0; ui < unmatchedSpoken.length; ui++) {
+          if (usedUnmatched.has(ui)) continue;
+          const spCh = unmatchedSpoken[ui];
+          const spInfo = parsePinyinSyllable(charPinyinMap.get(spCh) || '');
+          if (!spInfo.base) continue;
+          if (spInfo.base === expInfo.base) {
+            matchedNeighbor = { ui, spCh, spInfo };
+            neighborKind = 'tone';
+            break;
+          }
+          if (!matchedNeighbor && ((expInfo.initial && spInfo.initial === expInfo.initial && expInfo.final === spInfo.final) || (expInfo.final.length >= 2 && spInfo.final === expInfo.final))) {
+            matchedNeighbor = { ui, spCh, spInfo };
+            neighborKind = expInfo.final === spInfo.final ? 'initial' : 'final';
+          }
+        }
+      }
+      if (matchedNeighbor && neighborKind === 'tone') {
+        usedUnmatched.add(matchedNeighbor.ui);
+        weightSum += 0.62;
+        return {
+          hanzi: ch,
+          pinyin: expInfo.py,
+          expectedTone: expInfo.tone,
+          status: 'warning',
+          issue: 'tone',
+          score: 65,
+          comment: `Nghe thành "${matchedNeighbor.spCh}" (${matchedNeighbor.spInfo.py}) — gần đúng vần nhưng cần chú ý thanh ${expInfo.tone} (${expInfo.py}).`
+        };
+      }
+      if (matchedNeighbor) {
+        usedUnmatched.add(matchedNeighbor.ui);
+        weightSum += 0.35;
+        return {
+          hanzi: ch,
+          pinyin: expInfo.py,
+          expectedTone: expInfo.tone,
+          status: 'warning',
+          issue: neighborKind,
+          score: 45,
+          comment: `Nghe gần âm "${matchedNeighbor.spCh}" (${matchedNeighbor.spInfo.py}) — chú ý ${neighborKind === 'initial' ? 'phụ âm đầu' : 'vần'} của "${ch}" (${expInfo.py}).`
+        };
+      }
+      return {
+        hanzi: ch,
+        pinyin: expInfo.py,
+        expectedTone: expInfo.tone,
+        status: 'error',
+        issue: 'missing',
+        score: 0,
+        comment: `Chưa nghe thấy hoặc sai âm "${ch}"${expInfo.py ? ` (${expInfo.py}, thanh ${expInfo.tone})` : ''}.`
+      };
+    });
+
+    const extraAfterMatch = Math.max(0, bestAlign.extraCount - usedUnmatched.size);
+    let score;
+    if (exactCount === targetChars.length && extraAfterMatch === 0) {
+      const confBonus = Number.isFinite(confidence) && confidence > 0 ? Math.round(confidence * 8) : 5;
+      score = Math.min(98, 90 + confBonus);
+    } else if (weightSum <= 0) {
+      score = 0;
+    } else {
+      const extraPenalty = Math.min(25, Math.round((extraAfterMatch / Math.max(2, targetChars.length)) * 18));
+      score = Math.max(0, Math.min(94, Math.round((weightSum / targetChars.length) * 100 - extraPenalty)));
+    }
+
+    const feedback =
+      score >= 85
+        ? `Phát âm tốt! Nhận diện đúng ${exactCount}/${targetChars.length} âm tiết (${bestCand}).`
+        : score >= 60
+        ? `Khá ổn (${exactCount}/${targetChars.length} âm tiết khớp chuẩn) — chú ý sửa các âm đánh dấu vàng/đỏ.`
+        : score > 0
+        ? `Mới khớp ${exactCount}/${targetChars.length} âm tiết (nghe được "${bestCand}"). Hãy nghe mẫu 0.7x và đọc lại.`
+        : `Không khớp câu mẫu (nghe được "${bestCand}"). Hãy đọc đúng câu "${targetChars.join('')}".`;
+
+    return {
+      ok: true,
+      isSilent: false,
+      unverified: false,
+      score,
+      matchedCount: exactCount,
+      totalCount: targetChars.length,
+      transcriptHeard: bestCand,
+      feedback,
+      tip: 'Nghe lại bản ghi giọng bạn rồi đối chiếu từng âm tiết với giọng mẫu.',
+      syllables
+    };
+  }
+
+  function renderSyllableChipsHtml(syllables) {
+    if (!Array.isArray(syllables) || !syllables.length) return '';
+    return `<div style="display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:8px;">${syllables.map(s => {
+      const st = s.status || 'good';
+      const palette = st === 'good'
+        ? 'background:#dcfce7;border:1px solid #86efac;color:#15803d;'
+        : st === 'warning'
+        ? 'background:#fef3c7;border:1px solid #fcd34d;color:#92400e;'
+        : 'background:#fee2e2;border:1px solid #fca5a5;color:#b91c1c;';
+      return `<span title="${escapeHtml(s.comment || '')}" style="display:inline-flex;flex-direction:column;align-items:center;padding:4px 9px;border-radius:10px;${palette}">
+        <span style="font-size:18px;font-weight:800;line-height:1.2;">${escapeHtml(s.hanzi || '')}</span>
+        ${s.pinyin ? `<span style="font-size:11px;font-weight:700;">${escapeHtml(s.pinyin)}</span>` : ''}
+      </span>`;
+    }).join('')}</div>`;
+  }
+
+  function translateMicError(err) {
+    const name = String((err && err.name) || '');
+    if (name === 'NotAllowedError' || name === 'PermissionDeniedError' || name === 'SecurityError') {
+      return { errorCode: 'MIC_DENIED', errorMessage: 'Trình duyệt đang chặn quyền micro. Hãy bấm biểu tượng ổ khóa trên thanh địa chỉ → Cho phép Micro rồi thử lại.' };
+    }
+    if (name === 'NotFoundError' || name === 'DevicesNotFoundError' || name === 'OverconstrainedError') {
+      return { errorCode: 'NO_MIC', errorMessage: 'Không tìm thấy thiết bị micro trên máy. Hãy cắm micro hoặc kiểm tra cài đặt âm thanh.' };
+    }
+    if (name === 'NotReadableError' || name === 'TrackStartError' || name === 'AbortError') {
+      return { errorCode: 'MIC_BUSY', errorMessage: 'Micro đang được ứng dụng khác sử dụng hoặc không đọc được tín hiệu. Hãy tắt app đang dùng mic rồi thử lại.' };
+    }
+    return { errorCode: 'MIC_ERROR', errorMessage: 'Không khởi động được micro. Hãy kiểm tra quyền micro và thử lại.' };
+  }
+
+  function startSpeakingCapture({ expectedHanzi = '', expectedPinyin = '', timeoutMs = 0, onInterim = null } = {}) {
+    const cleanTarget = String(expectedHanzi || '').replace(/[^\u4e00-\u9fff]/g, '');
+    const autoTimeout = Math.max(Number(timeoutMs) || 6500, Math.min(25000, 5000 + cleanTarget.length * 480));
+    let settled = false;
+    let manualStopFn = null;
+    let audioUrlCreated = '';
+
+    const resultPromise = (async () => {
+      if (!navigator || !navigator.mediaDevices || typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        return { ok: false, errorCode: 'UNSUPPORTED', errorMessage: 'Trình duyệt này không hỗ trợ ghi âm micro (MediaDevices). Hãy dùng Chrome hoặc Edge.', score: null, transcript: '', syllables: [], audioUrl: '' };
+      }
+      let stream = null;
+      window.__xhzManagedRecording = true;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
+      } catch (err) {
+        window.__xhzManagedRecording = false;
+        const mErr = translateMicError(err);
+        return { ok: false, errorCode: mErr.errorCode, errorMessage: mErr.errorMessage, score: null, transcript: '', syllables: [], audioUrl: '' };
+      }
+      window.__xhzManagedRecording = false;
+
+      const startedAt = Date.now();
+      let rmsPeak = 0;
+      let rmsSum = 0;
+      let frames = 0;
+      let activeSpeechMs = 0;
+      let audioCtx = null;
+      let meterTimer = null;
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        if (AudioCtx) {
+          audioCtx = new AudioCtx();
+          if (audioCtx.state === 'suspended' && audioCtx.resume) audioCtx.resume().catch(() => {});
+          const src = audioCtx.createMediaStreamSource(stream);
+          const analyser = audioCtx.createAnalyser();
+          analyser.fftSize = 1024;
+          src.connect(analyser);
+          const buf = typeof analyser.getFloatTimeDomainData === 'function' ? new Float32Array(analyser.fftSize) : new Uint8Array(analyser.fftSize);
+          meterTimer = setInterval(() => {
+            try {
+              let sq = 0;
+              if (buf instanceof Float32Array) {
+                analyser.getFloatTimeDomainData(buf);
+                for (let i = 0; i < buf.length; i++) sq += buf[i] * buf[i];
+              } else {
+                analyser.getByteTimeDomainData(buf);
+                for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sq += v * v; }
+              }
+              const rms = Math.sqrt(sq / buf.length);
+              if (rms > rmsPeak) rmsPeak = rms;
+              rmsSum += rms;
+              frames += 1;
+              if (rms >= 0.015) activeSpeechMs += 60;
+            } catch (_) {}
+          }, 60);
+        }
+      } catch (_) {}
+
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      let rec = null;
+      let finalTranscript = '';
+      let interimTranscript = '';
+      const altSet = new Set();
+      let confidence = 0;
+      let srEnded = !SR;
+      let srError = null;
+      if (SR) {
+        try {
+          rec = new SR();
+          rec.lang = 'zh-CN';
+          rec.continuous = true;
+          rec.interimResults = true;
+          rec.maxAlternatives = 3;
+          rec.onresult = ev => {
+            let fTxt = '';
+            let iTxt = '';
+            let cSum = 0;
+            let cCnt = 0;
+            for (let i = 0; i < ev.results.length; i++) {
+              const rItem = ev.results[i];
+              const top = rItem && rItem[0];
+              if (!top) continue;
+              if (rItem.isFinal) {
+                fTxt += top.transcript || '';
+                if (Number.isFinite(top.confidence) && top.confidence > 0) { cSum += top.confidence; cCnt += 1; }
+                for (let k = 0; k < rItem.length; k++) {
+                  if (rItem[k] && rItem[k].transcript) altSet.add(String(rItem[k].transcript).trim());
+                }
+              } else {
+                iTxt += top.transcript || '';
+              }
+            }
+            if (fTxt) finalTranscript = fTxt.trim();
+            interimTranscript = iTxt.trim();
+            if (cCnt > 0) confidence = cSum / cCnt;
+            if (typeof onInterim === 'function') {
+              try { onInterim(finalTranscript || interimTranscript); } catch (_) {}
+            }
+          };
+          rec.onerror = ev => { srError = (ev && ev.error) || 'sr-error'; };
+          rec.onend = () => { srEnded = true; };
+          rec.start();
+        } catch (srEx) {
+          srEnded = true;
+          srError = String((srEx && srEx.message) || 'sr-failed');
+        }
+      }
+
+      let mediaRec = null;
+      const chunks = [];
+      let recMime = 'audio/webm';
+      let blobDone = Promise.resolve(null);
+      if (typeof window.MediaRecorder !== 'undefined') {
+        try {
+          const candidates = ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus'];
+          recMime = candidates.find(m => typeof window.MediaRecorder.isTypeSupported === 'function' && window.MediaRecorder.isTypeSupported(m)) || '';
+          mediaRec = recMime ? new window.MediaRecorder(stream, { mimeType: recMime }) : new window.MediaRecorder(stream);
+          recMime = mediaRec.mimeType || recMime || 'audio/webm';
+          blobDone = new Promise(res => {
+            mediaRec.ondataavailable = ev => { if (ev.data && ev.data.size > 0) chunks.push(ev.data); };
+            mediaRec.onstop = () => {
+              try { res(chunks.length ? new Blob(chunks, { type: recMime }) : null); } catch (_) { res(null); }
+            };
+          });
+          mediaRec.start(150);
+        } catch (_) {
+          mediaRec = null;
+        }
+      }
+
+      await new Promise(resolveWait => {
+        let timer = null;
+        const triggerStop = () => {
+          if (settled) return;
+          settled = true;
+          if (timer) { try { clearTimeout(timer); } catch (_) {} timer = null; }
+          if (meterTimer) { try { clearInterval(meterTimer); } catch (_) {} meterTimer = null; }
+          try { if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop(); } catch (_) {}
+          try { if (rec) rec.stop(); } catch (_) {}
+          try { stream.getTracks().forEach(t => t.stop()); } catch (_) {}
+          if (audioCtx) { try { audioCtx.close(); } catch (_) {} audioCtx = null; }
+          resolveWait();
+        };
+        manualStopFn = triggerStop;
+        timer = setTimeout(triggerStop, autoTimeout);
+      });
+
+      const waitSr = new Promise(res => {
+        if (srEnded) return res();
+        const t0 = Date.now();
+        const poll = setInterval(() => {
+          if (srEnded || Date.now() - t0 >= 400) {
+            clearInterval(poll);
+            res();
+          }
+        }, 40);
+      });
+      const [blob] = await Promise.all([blobDone, waitSr]);
+
+      let audioBase64 = '';
+      if (blob && blob.size > 0) {
+        try { audioUrlCreated = URL.createObjectURL(blob); } catch (_) {}
+        try {
+          audioBase64 = await new Promise(res => {
+            const fr = new FileReader();
+            fr.onload = () => res(String(fr.result || '').replace(/^data:[^;]+;base64,/, ''));
+            fr.onerror = () => res('');
+            fr.readAsDataURL(blob);
+          });
+        } catch (_) {}
+      }
+
+      const durationMs = Math.max(0, Date.now() - startedAt);
+      let acoustic = {
+        durationMs,
+        rmsPeak,
+        rmsAvg: frames ? rmsSum / frames : 0,
+        activeSpeechMs,
+        isSilent: rmsPeak < 0.015 || activeSpeechMs < 150 || durationMs < 220
+      };
+      if (frames === 0 && audioBase64) {
+        const decodedAcoustic = await analyzeAudioBase64(audioBase64, recMime);
+        if (decodedAcoustic) acoustic = decodedAcoustic;
+      }
+
+      const spokenText = (finalTranscript || interimTranscript || '').trim();
+      const alts = Array.from(altSet);
+      const charMap = await getCharPinyinMap();
+
+      const localGrade = gradeChinesePronunciation({
+        expectedHanzi,
+        expectedPinyin,
+        transcriptHeard: spokenText,
+        alternatives: alts,
+        confidence,
+        acoustic,
+        srSupported: Boolean(SR),
+        hasTranscriptField: Boolean(SR && !srError),
+        charPinyinMap: charMap
+      });
+
+      let finalResult = localGrade;
+      try {
+        const apiResp = await fetch('/v1/speaking/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            expected: { hanzi: expectedHanzi, pinyin: expectedPinyin },
+            audio: audioBase64 ? { data: audioBase64, mimeType: recMime } : undefined,
+            transcriptHeard: spokenText,
+            alternatives: alts,
+            confidence,
+            acoustic,
+            srSupported: Boolean(SR && !srError)
+          })
+        });
+        if (apiResp && apiResp.ok) {
+          const data = await apiResp.json();
+          if (data && Number.isFinite(Number(data.score)) && Array.isArray(data.syllables)) {
+            finalResult = {
+              ...localGrade,
+              ...data,
+              ok: !(data.noSpeech || (data.score === 0 && acoustic.isSilent)),
+              errorCode: data.noSpeech ? 'NO_SPEECH' : localGrade.errorCode,
+              errorMessage: data.noSpeech ? (data.feedback || localGrade.feedback) : localGrade.errorMessage
+            };
+          }
+        }
+      } catch (_) {}
+
+      return {
+        ...finalResult,
+        transcript: finalResult.transcriptHeard || spokenText,
+        audioUrl: audioUrlCreated
+      };
+    })();
+
+    return {
+      stop: () => { if (manualStopFn) manualStopFn(); },
+      promise: resultPromise
+    };
+  }
+
+  async function recognizeChineseSpeech({ expectedHanzi = '', expectedPinyin = '', timeoutMs = 6500, onInterim = null } = {}) {
+    return await startSpeakingCapture({ expectedHanzi, expectedPinyin, timeoutMs, onInterim }).promise;
+  }
+  window.__xhzStartSpeakingCapture = startSpeakingCapture;
   window.__xhzRecognizeSpeech = recognizeChineseSpeech;
+  window.__xhzGradePronunciation = gradeChinesePronunciation;
   window.__xhzExportProgressJson = function (downloadFile = true) {
     const prog = getRealProgress();
     const payload = {
@@ -3708,7 +4370,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ expectedText: '你好', recognizedText: '你' })
         })).json();
-        return Boolean(res && Array.isArray(res.syllables) && res.syllables.length === 2 && res.syllables[0].status === 'good' && res.syllables[1].status === 'warning' && res.score < 92);
+        return Boolean(res && Array.isArray(res.syllables) && res.syllables.length === 2 && res.syllables[0].status === 'good' && res.syllables[1].status === 'error' && res.syllables[1].issue === 'missing' && res.score <= 60);
       });
       await runCheck('home-legacy-due-section-hidden-and-mistake-pill', () => {
         const fx = document.getElementById('htq-v14-fx-css');
@@ -3799,6 +4461,62 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         const fx = document.getElementById('htq-v14-fx-css');
         const txt = fx ? fx.textContent : '';
         return Boolean(txt.includes('body:has([data-sticky-action="true"]) button[data-testid="capy-bubble"]') && txt.includes('bottom: 128px !important;'));
+      });
+      await runCheck('speaking-assess-parses-nested-expected-object', async () => {
+        const res = await (await fetch('/v1/speaking/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ mode: 'sentence', expected: { hanzi: '谢谢你', pinyin: 'xièxie nǐ' }, transcriptHeard: '谢谢你' })
+        })).json();
+        return Boolean(res && Array.isArray(res.syllables) && res.syllables.length === 3 && res.score >= 90 && res.syllables.every(s => s.status === 'good'));
+      });
+      await runCheck('speaking-assess-zero-score-on-wrong-speech', async () => {
+        const res = await (await fetch('/v1/speaking/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expected: { hanzi: '你好', pinyin: 'nǐ hǎo' }, transcriptHeard: '再见' })
+        })).json();
+        return Boolean(res && res.score === 0 && Array.isArray(res.syllables) && res.syllables.every(s => s.status === 'error'));
+      });
+      await runCheck('speaking-assess-zero-score-on-silence', async () => {
+        const res = await (await fetch('/v1/speaking/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expected: { hanzi: '你好', pinyin: 'nǐ hǎo' }, transcriptHeard: '', acoustic: { isSilent: true, rmsPeak: 0.001, activeSpeechMs: 0 } })
+        })).json();
+        return Boolean(res && res.score === 0 && res.noSpeech === true && Array.isArray(res.syllables) && res.syllables.every(s => s.issue === 'missing'));
+      });
+      await runCheck('speaking-assess-homophone-tone-warning', async () => {
+        const res = await (await fetch('/v1/speaking/assess', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ expected: { hanzi: '妈', pinyin: 'mā' }, transcriptHeard: '马' })
+        })).json();
+        return Boolean(res && Array.isArray(res.syllables) && res.syllables.length === 1 && res.syllables[0].status === 'warning' && res.syllables[0].issue === 'tone' && res.score > 40 && res.score < 85);
+      });
+      await runCheck('no-fake-synthetic-mic-and-xhr-preserves-status', async () => {
+        const rtSrc = await (await fetch('/xiehanzi-runtime.js')).text();
+        const forbidden = 'createSynthetic' + 'AudioStream';
+        return Boolean(!rtSrc.includes(forbidden) && rtSrc.includes('attachLiveMicMonitor') && rtSrc.includes("Object.defineProperty(this, 'status', { value: status"));
+      });
+      await runCheck('speaking-pages-no-fake-fallback-scores', () => {
+        const shSrc = typeof renderShadowingPracticePage === 'function' ? renderShadowingPracticePage.toString() : '';
+        const hskSrc = typeof renderHskSpeakingMockPage === 'function' ? renderHskSpeakingMockPage.toString() : '';
+        const lrSrc = typeof renderStudyStageOrRunPage === 'function' ? renderStudyStageOrRunPage.toString() : '';
+        return Boolean(
+          !shSrc.includes('|| 92') &&
+          !hskSrc.includes('|| 92') &&
+          !hskSrc.includes('count > 0 ? avg : 88') &&
+          !lrSrc.includes('|| 90') &&
+          !lrSrc.includes('readScore: 95')
+        );
+      });
+      await runCheck('grammar-quiz-grades-translations-and-matches-mcq-letter', () => {
+        const gqSrc = typeof renderGrammarQuizRunPage === 'function' ? renderGrammarQuizRunPage.toString() : '';
+        return Boolean(
+          typeof window.__xhzIsGrammarAnswerCorrect === 'function' ||
+          (gqSrc.includes('isGrammarAnswerCorrect') && gqSrc.includes('rightDisplayedLetter') && !gqSrc.includes('userAnswers[i]).trim().length > 0) {\n          c++'))
+        );
       });
     } finally {
       window.__xhzDiagRunning = false;
@@ -8227,54 +8945,109 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     if (p.includes('/v1/speaking/grade') || p.includes('/v1/speaking/assess') || p.includes('/v1/speaking/evaluate')) {
       const body = await parseRequestBody(init);
-      const expected = (body.expectedText || body.referenceText || body.hanzi || body.text || '你好').trim();
-      const hasRecProp = Object.prototype.hasOwnProperty.call(body, 'recognizedText') || Object.prototype.hasOwnProperty.call(body, 'transcript') || Object.prototype.hasOwnProperty.call(body, 'spokenText');
-      const recognized = hasRecProp ? String(body.recognizedText || body.transcript || body.spokenText || '').trim() : expected;
-      const aiRes = await callAiEndpoint('speaking-assess', { expected, recognized });
+      const expObj = body.expected && typeof body.expected === 'object' ? body.expected : null;
+      const expected = String((expObj && expObj.hanzi) || body.expectedText || body.referenceText || body.hanzi || body.text || (typeof body.expected === 'string' ? body.expected : '') || '你好').trim();
+      const expectedPinyin = String((expObj && expObj.pinyin) || body.pinyin || '').trim();
+      const audObj = body.audio && typeof body.audio === 'object' ? body.audio : null;
+      const audioBase64 = String((audObj && audObj.data) || body.audioBase64 || (typeof body.audio === 'string' ? body.audio : '') || '').trim();
+      const audioMimeType = String((audObj && audObj.mimeType) || body.audioMimeType || 'audio/webm').trim();
+
+      const hasRecProp =
+        body.transcriptHeard !== undefined ||
+        body.recognizedText !== undefined ||
+        body.recognized !== undefined ||
+        body.transcript !== undefined ||
+        body.spokenText !== undefined;
+      let recognized = hasRecProp ? String(body.transcriptHeard ?? body.recognizedText ?? body.recognized ?? body.transcript ?? body.spokenText ?? '').trim() : '';
+      let alternatives = Array.isArray(body.alternatives) ? body.alternatives : [];
+      let confidence = Number(body.confidence) || 0;
+      let srSupported = body.srSupported !== undefined ? Boolean(body.srSupported) : Boolean(window.SpeechRecognition || window.webkitSpeechRecognition);
+      let acoustic = body.acoustic && typeof body.acoustic === 'object' ? body.acoustic : null;
+      let hasTranscriptField = hasRecProp;
+
+      if (!hasRecProp) {
+        const recSess = window.__xhzLastRecSession || window.__xhzActiveRecSession;
+        if (recSess && (Date.now() - (recSess.endedAt || recSess.startedAt || 0) < 20000)) {
+          if (!recSess.finalized && recSess.finalPromise) {
+            await Promise.race([recSess.finalPromise, new Promise(r => setTimeout(r, 450))]);
+          }
+          recognized = (recSess.finalTranscript || recSess.interimTranscript || '').trim();
+          alternatives = Array.isArray(recSess.alternatives) ? recSess.alternatives : [];
+          confidence = Number(recSess.confidence) || 0;
+          srSupported = Boolean(recSess.srSupported);
+          hasTranscriptField = Boolean(recSess.srSupported && !recSess.srError);
+          if (!acoustic) {
+            acoustic = {
+              durationMs: recSess.durationMs || 0,
+              rmsPeak: recSess.rmsPeak || 0,
+              rmsAvg: recSess.rmsAvg || 0,
+              activeSpeechMs: recSess.activeSpeechMs || 0,
+              isSilent: Boolean(recSess.isSilent)
+            };
+          }
+        }
+      }
+      if (!acoustic && audioBase64) {
+        acoustic = await analyzeAudioBase64(audioBase64, audioMimeType);
+      }
+
+      const [charMap, aiRes] = await Promise.all([
+        getCharPinyinMap(),
+        callAiEndpoint('speaking-assess', {
+          expected: { hanzi: expected, pinyin: expectedPinyin },
+          audio: audioBase64 ? { data: audioBase64, mimeType: audioMimeType } : undefined,
+          ...(hasTranscriptField ? { transcriptHeard: recognized } : {}),
+          alternatives,
+          acoustic
+        })
+      ]);
+
+      const localResult = gradeChinesePronunciation({
+        expectedHanzi: expected,
+        expectedPinyin,
+        transcriptHeard: recognized,
+        alternatives,
+        confidence,
+        acoustic,
+        srSupported,
+        hasTranscriptField,
+        charPinyinMap: charMap
+      });
+
       const cleanExp = Array.from(expected.replace(/[^\u4e00-\u9fff]/g, ''));
       const baseChars = cleanExp.length > 0 ? cleanExp : ['你', '好'];
-      const hasAiSyllables = Boolean(aiRes && Array.isArray(aiRes.syllables) && aiRes.syllables.length === baseChars.length);
-      const syllables = hasAiSyllables
-        ? aiRes.syllables.map(s => ({
-            hanzi: s.hanzi,
-            pinyin: s.pinyin || '',
-            status: s.status || 'good',
-            score: s.status === 'good' ? 94 : 68,
-            comment: s.comment || 'Phát âm chuẩn'
-          }))
-        : baseChars.map(ch => {
-            const okChar = !hasRecProp || (recognized && recognized.includes(ch));
-            return {
-              hanzi: ch,
-              pinyin: '',
-              status: okChar ? 'good' : 'warning',
-              score: okChar ? 94 : 68,
-              comment: okChar ? 'Phát âm chuẩn xác' : `Chú ý phát âm rõ âm "${ch}"`
-            };
+      const useAi = Boolean(aiRes && aiRes.source === 'gemini-audio' && Array.isArray(aiRes.syllables) && aiRes.syllables.length === baseChars.length && Number.isFinite(Number(aiRes.score)));
+      const useLocal = !useAi;
+      const finalResult = useAi ? aiRes : localResult;
+      const overall = Math.max(0, Math.min(100, Math.round(Number(finalResult.score) || 0)));
+
+      if (overall > 0 && !finalResult.isSilent && !finalResult.unverified) {
+        try {
+          recordStudyProgress({
+            voiceInc: 1,
+            gradingInc: 1,
+            minutes: 1,
+            dailyStepDone: 'step-talk-1',
+            speakingItem: { key: expected, score: overall }
           });
-      const goodCnt = syllables.filter(s => s.status === 'good').length;
-      const calcScore = Math.max(55, Math.min(98, Math.round((goodCnt / Math.max(1, syllables.length)) * 88 + 8)));
-      const overall = hasAiSyllables && Number.isFinite(Number(aiRes.score)) ? Number(aiRes.score) : calcScore;
-      try {
-        recordStudyProgress({
-          voiceInc: 1,
-          gradingInc: 1,
-          minutes: 1,
-          dailyStepDone: 'step-talk-1'
-        });
-      } catch (_) {}
+        } catch (_) {}
+      }
       return jsonResponse({
         ok: true,
         score: overall,
         overallScore: overall,
         accuracyScore: overall,
-        fluencyScore: Math.min(100, overall + 4),
+        fluencyScore: overall > 0 ? Math.min(100, overall + 3) : 0,
         pronunciationScore: overall,
-        syllables,
-        transcriptHeard: recognized || expected,
-        feedback: (hasAiSyllables && aiRes && aiRes.feedback) || (overall >= 85 ? 'Phát âm rất chuẩn xác! Thanh điệu và âm tiết rõ ràng.' : 'Phát âm khá tốt, chú ý phát âm rõ các âm được đánh dấu vàng nhé.'),
-        tip: 'Giữ nhịp độ nói tự nhiên và chú ý thanh 3 khi đi liền nhau.',
-        gradingLimit: { limit: 1000, remaining: 995 }
+        syllables: finalResult.syllables,
+        transcriptHeard: finalResult.transcriptHeard || recognized || '',
+        feedback: finalResult.feedback,
+        tip: finalResult.tip || 'Nghe lại bản ghi giọng bạn và so sánh với phát âm mẫu 0.7x.',
+        noSpeech: Boolean(finalResult.noSpeech || finalResult.isSilent),
+        unverified: Boolean(useLocal && finalResult.unverified),
+        source: useAi ? 'gemini-audio' : (finalResult.isSilent ? 'acoustic-silence' : 'speech-align'),
+        grading: { limit: null, remaining: null },
+        gradingLimit: { limit: null, remaining: null }
       });
     }
 
@@ -8912,14 +9685,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         ? window.location.origin + this._xhzUrl
         : String(this._xhzUrl);
       handleApiRequest(fullUrl, { method: this._xhzMethod || 'GET', body })
-        .then(r => r.text())
-        .then(txt => {
+        .then(async r => ({ status: r.status || 200, statusText: r.statusText || ((r.status || 200) >= 400 ? 'Error' : 'OK'), txt: await r.text() }))
+        .then(({ status, statusText, txt }) => {
           let parsed = txt;
           if (this.responseType === 'json') {
             try { parsed = JSON.parse(txt); } catch (_) {}
           }
-          Object.defineProperty(this, 'status', { value: 200, configurable: true });
-          Object.defineProperty(this, 'statusText', { value: 'OK', configurable: true });
+          Object.defineProperty(this, 'status', { value: status, configurable: true });
+          Object.defineProperty(this, 'statusText', { value: statusText, configurable: true });
           Object.defineProperty(this, 'readyState', { value: 4, configurable: true });
           Object.defineProperty(this, 'responseText', { value: txt, configurable: true });
           Object.defineProperty(this, 'response', { value: parsed, configurable: true });
@@ -9984,15 +10757,55 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       });
     };
 
+    const normViTokens = str => String(str || '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[đĐ]/g, 'd')
+      .toLowerCase()
+      .replace(/[^\p{Script=Latin}0-9\s]/gu, ' ')
+      .split(/\s+/)
+      .filter(Boolean);
+    const normZhStr = str => Array.from(String(str || '')).filter(ch => /[\u4e00-\u9fffA-Za-z0-9]/.test(ch)).join('');
+    const normPyStr = str => parsePinyinSyllable(str).base;
+
+    function isGrammarAnswerCorrect(q, rawAnswer) {
+      const val = String(rawAnswer || '').trim();
+      if (!val || !q) return false;
+      if (q.type === 'mcq') {
+        const rightKey = q.answer !== undefined ? String(q.answer) : String.fromCharCode(65 + (q.correctIndex || 0));
+        return val === rightKey;
+      }
+      const refRaw = String(q.referenceAnswer || q.answer || '').trim();
+      if (q.type === 'translate_vi_zh') {
+        const expHz = Array.from(normZhStr(refRaw));
+        const gotHz = Array.from(normZhStr(val));
+        if (expHz.length && gotHz.length) {
+          if (expHz.join('') === gotHz.join('')) return true;
+          const al = lcsAlignHanzi(expHz, gotHz);
+          if (al.matchedCount / expHz.length >= 0.75 && al.extraCount <= Math.max(2, Math.floor(expHz.length * 0.35))) return true;
+        }
+        const refPy = normPyStr(q.pinyin || q.referencePinyin || '');
+        const gotPy = normPyStr(val);
+        if (refPy && gotPy && !gotHz.some(c => /[\u4e00-\u9fff]/.test(c))) {
+          if (refPy === gotPy) return true;
+        }
+        return false;
+      }
+      const refTokens = normViTokens(refRaw);
+      const gotTokens = normViTokens(val);
+      if (!refTokens.length || !gotTokens.length) return false;
+      if (refTokens.join(' ') === gotTokens.join(' ')) return true;
+      const gotSet = new Set(gotTokens);
+      const hits = refTokens.filter(t => gotSet.has(t)).length;
+      const needed = Math.min(2, refTokens.length);
+      return hits >= needed && (hits / refTokens.length) >= 0.55;
+    }
+    window.__xhzIsGrammarAnswerCorrect = isGrammarAnswerCorrect;
+
     const countCorrect = () => {
       let c = 0;
       questions.forEach((q, i) => {
-        if (q.type === 'mcq') {
-          const rightKey = q.answer !== undefined ? String(q.answer) : String.fromCharCode(65 + (q.correctIndex || 0));
-          if (userAnswers[i] === rightKey) c++;
-        } else if (userAnswers[i] && String(userAnswers[i]).trim().length > 0) {
-          c++;
-        }
+        if (isGrammarAnswerCorrect(q, userAnswers[i])) c++;
       });
       return c;
     };
@@ -10176,14 +10989,27 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               });
             }
             if (expEl) {
-              const rightObj = options.find((o, i) => (typeof o === 'object' ? String(o.id || o.key) === rightAnswerKey : i === q.correctIndex));
+              const rightIdx = options.findIndex((o, i) => (typeof o === 'object' ? String(o.id || o.key || String.fromCharCode(65 + i)) === rightAnswerKey : i === q.correctIndex));
+              const rightObj = rightIdx >= 0 ? options[rightIdx] : null;
+              const rightDisplayedLetter = rightIdx >= 0 ? String.fromCharCode(65 + rightIdx) : rightAnswerKey;
               const rightText = typeof rightObj === 'object' ? (rightObj.text || '') : (rightObj || '');
               expEl.style.display = 'block';
-              expEl.innerHTML = `<strong>Đáp án đúng: ${escapeHtml(rightAnswerKey)}. ${escapeHtml(rightText)}</strong>${q.explanation ? `<div style="margin-top:4px;">${escapeHtml(q.explanation)}</div>` : ''}`;
+              expEl.innerHTML = `<strong>Đáp án đúng: ${escapeHtml(rightDisplayedLetter)}. ${escapeHtml(rightText)}</strong>${q.explanation ? `<div style="margin-top:4px;">${escapeHtml(q.explanation)}</div>` : ''}`;
             }
           } else if (expEl) {
+            const trOk = isGrammarAnswerCorrect(q, userAnswers[idx]);
+            const inp = card.querySelector('.xhz-gq-input');
+            if (inp) {
+              inp.disabled = true;
+              inp.style.borderColor = trOk ? '#16a34a' : '#dc2626';
+              inp.style.background = trOk ? '#dcfce7' : '#fee2e2';
+              inp.style.color = trOk ? '#14532d' : '#7f1d1d';
+            }
             expEl.style.display = 'block';
-            expEl.innerHTML = `<strong>Đáp án tham khảo:</strong> ${escapeHtml(q.referenceAnswer || q.answer || '')}${q.referencePinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${escapeHtml(q.referencePinyin)}</span>` : ''}${q.explanation ? `<div style="margin-top:4px;">${escapeHtml(q.explanation)}</div>` : ''}`;
+            expEl.style.background = trOk ? '#ecfdf5' : '#fef2f2';
+            expEl.style.borderColor = trOk ? '#6ee7b7' : '#fca5a5';
+            expEl.style.color = trOk ? '#065f46' : '#7f1d1d';
+            expEl.innerHTML = `<strong>${trOk ? '✓ Chính xác!' : '✗ Chưa khớp đáp án.'} Đáp án tham khảo:</strong> ${escapeHtml(q.referenceAnswer || q.answer || '')}${q.referencePinyin || q.pinyin ? `<br/><span style="color:#0d9488;">Pinyin: ${escapeHtml(q.referencePinyin || q.pinyin)}</span>` : ''}${q.explanation ? `<div style="margin-top:4px;">${escapeHtml(q.explanation)}</div>` : ''}`;
           }
         });
 
@@ -11923,6 +12749,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
                   <button type="button" data-spk-exam-mic="${idx}" style="padding:8px 18px;border-radius:999px;border:none;background:#4f46e5;color:#fff;font-weight:800;cursor:pointer;font-size:13px;">🎙️ Thu âm trả lời</button>
                   <button type="button" data-spk-exam-hint="${idx}" style="padding:8px 14px;border-radius:999px;border:1px solid #d6d3d1;background:#fff;color:#44403c;font-weight:700;cursor:pointer;font-size:13px;">💡 Ẩn/Hiện Pinyin &amp; Gợi ý</button>
                 </div>
+                <div data-spk-exam-fb="${idx}" role="status" aria-live="polite" style="display:none;margin-top:8px;padding:10px 14px;border-radius:12px;border:1px solid #e7e5e4;background:#fff;font-size:13.5px;"></div>
               </section>
             `).join('')}
           </div>
@@ -11937,13 +12764,15 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
 
     const summaryEl = root.querySelector('#xhz-spk-exam-summary');
     const resultMsgEl = root.querySelector('#xhz-spk-exam-result-msg');
+    const activeCaptures = {};
     const updateSummary = () => {
-      const vals = Object.values(scores);
-      const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+      const vals = Object.values(scores).filter(v => typeof v === 'number' && Number.isFinite(v));
+      const avgAnswered = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+      const totalExamScore = Math.round(vals.reduce((a, b) => a + b, 0) / questions.length);
       if (summaryEl) {
-        summaryEl.innerHTML = `Đã thu âm: ${vals.length} / ${questions.length} câu<br/><span style="font-size:18px;color:#0d9488;">Điểm TB: ${vals.length ? avg : '—'} / 100</span>`;
+        summaryEl.innerHTML = `Đã thu âm: ${vals.length} / ${questions.length} câu<br/><span style="font-size:18px;color:#0d9488;">Điểm TB: ${vals.length ? avgAnswered : '—'} / 100</span>`;
       }
-      return { count: vals.length, avg };
+      return { count: vals.length, avgAnswered, totalExamScore };
     };
 
     root.querySelectorAll('[data-spk-exam-play]').forEach(b => {
@@ -11959,22 +12788,75 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     root.querySelectorAll('[data-spk-exam-mic]').forEach(b => {
       b.onclick = async () => {
         const idx = Number(b.getAttribute('data-spk-exam-mic')) || 0;
+        if (activeCaptures[idx]) {
+          activeCaptures[idx].stop();
+          return;
+        }
         const q = questions[idx];
         const scBadge = root.querySelector(`[data-spk-exam-score="${idx}"]`);
-        b.disabled = true;
-        b.textContent = '🎙️ Đang nghe...';
-        if (scBadge) scBadge.textContent = 'Đang chấm âm...';
-        const rec = await recognizeChineseSpeech({ expectedHanzi: q.hanzi, timeoutMs: 5500 });
-        const sc = (rec && Number(rec.score)) || 92;
-        scores[idx] = sc;
-        recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 1, speakingItem: { key: q.hanzi, score: sc } });
-        b.disabled = false;
-        b.textContent = '🎙️ Thu âm lại';
+        const fbBox = root.querySelector(`[data-spk-exam-fb="${idx}"]`);
+        b.textContent = '⏹ Dừng & Chấm điểm';
+        b.style.background = '#e11d48';
         if (scBadge) {
-          scBadge.textContent = `Đạt ${sc}/100 điểm`;
-          scBadge.style.background = '#dcfce7';
-          scBadge.style.color = '#15803d';
-          scBadge.style.borderColor = '#16a34a';
+          scBadge.textContent = 'Đang nghe...';
+          scBadge.style.background = '#fef2f2';
+          scBadge.style.color = '#b91c1c';
+          scBadge.style.borderColor = '#fca5a5';
+        }
+        if (fbBox) {
+          fbBox.style.display = 'block';
+          fbBox.innerHTML = '<div style="color:#4f46e5;font-weight:700;">🎙️ Đang nghe tiếng Trung (zh-CN)... Đọc to câu mẫu rồi bấm lại để dừng!</div>';
+        }
+        const cap = startSpeakingCapture({
+          expectedHanzi: q.hanzi,
+          expectedPinyin: q.pinyin,
+          timeoutMs: 9000,
+          onInterim: txt => {
+            if (fbBox && txt) fbBox.innerHTML = `<div style="color:#0d9488;font-weight:700;">🎙️ Đang nhận diện: “${escapeHtml(txt)}” — bấm lại nút đỏ để chấm ngay</div>`;
+          }
+        });
+        activeCaptures[idx] = cap;
+        const rec = await cap.promise;
+        delete activeCaptures[idx];
+        b.style.background = '#4f46e5';
+        b.textContent = '🎙️ Thu âm lại';
+
+        if (!rec || !rec.ok) {
+          const errSc = (rec && rec.errorCode === 'NO_SPEECH') ? 0 : null;
+          if (errSc === 0) scores[idx] = 0;
+          if (scBadge) {
+            scBadge.textContent = errSc === 0 ? '0/100 điểm' : 'Lỗi micro';
+            scBadge.style.background = '#fee2e2';
+            scBadge.style.color = '#b91c1c';
+            scBadge.style.borderColor = '#fca5a5';
+          }
+          if (fbBox) {
+            fbBox.style.display = 'block';
+            fbBox.innerHTML = `<div style="color:#b91c1c;font-weight:700;">⚠️ ${escapeHtml((rec && (rec.errorMessage || rec.feedback)) || 'Không thu được giọng nói. Hãy kiểm tra micro và thử lại.')}</div>${rec && rec.audioUrl ? `<div style="margin-top:8px;"><audio controls src="${rec.audioUrl}" style="height:34px;max-width:100%;"></audio></div>` : ''}`;
+          }
+          updateSummary();
+          return;
+        }
+
+        const sc = Math.max(0, Math.min(100, Math.round(Number(rec.score))));
+        scores[idx] = sc;
+        if (sc > 0) {
+          recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 1, speakingItem: { key: q.hanzi, score: sc } });
+        }
+        if (scBadge) {
+          scBadge.textContent = rec.unverified ? 'Đã ghi âm (chưa chấm AI)' : `Đạt ${sc}/100 điểm`;
+          scBadge.style.background = sc >= 75 ? '#dcfce7' : sc >= 50 ? '#fef3c7' : '#fee2e2';
+          scBadge.style.color = sc >= 75 ? '#15803d' : sc >= 50 ? '#92400e' : '#b91c1c';
+          scBadge.style.borderColor = sc >= 75 ? '#16a34a' : sc >= 50 ? '#d97706' : '#dc2626';
+        }
+        if (fbBox) {
+          fbBox.style.display = 'block';
+          fbBox.innerHTML = `
+            <div style="font-weight:700;color:${sc >= 75 ? '#15803d' : sc >= 50 ? '#92400e' : '#b91c1c'};">${escapeHtml(rec.feedback || '')}</div>
+            ${rec.transcript ? `<div style="margin-top:4px;font-size:13px;color:#57534e;">Mình nghe được: <strong>${escapeHtml(rec.transcript)}</strong></div>` : ''}
+            ${renderSyllableChipsHtml(rec.syllables)}
+            ${rec.audioUrl ? `<div style="margin-top:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;"><span style="font-size:12px;font-weight:700;color:#57534e;">Giọng bạn:</span><audio controls src="${rec.audioUrl}" style="height:34px;max-width:100%;"></audio></div>` : ''}
+          `;
         }
         updateSummary();
       };
@@ -11982,13 +12864,21 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
     const submitBtn = root.querySelector('#xhz-spk-exam-submit');
     if (submitBtn) {
       submitBtn.onclick = () => {
-        const { count, avg } = updateSummary();
-        const finalScore = count > 0 ? avg : 88;
+        const { count, avgAnswered, totalExamScore } = updateSummary();
+        if (count === 0) {
+          if (resultMsgEl) {
+            resultMsgEl.style.color = '#b91c1c';
+            resultMsgEl.textContent = '⚠️ Bạn chưa thu âm câu nào! Hãy bấm "🎙️ Thu âm trả lời" ở ít nhất 1 câu rồi mới nộp bài.';
+          }
+          try { HTQ_STUDIO_FX.toast('Chưa có câu thu âm nào để chấm điểm HSKK.', 'warn'); } catch (_) {}
+          return;
+        }
         recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 5 });
         if (resultMsgEl) {
-          resultMsgEl.innerHTML = `🎉 Đã nộp bài Khẩu ngữ HSK ${lvlNum}! Điểm tổng kết: <strong>${finalScore}/100 điểm</strong> (${finalScore >= 60 ? 'ĐẠT CHUẨN HSKK' : 'Cần luyện thêm'}).`;
+          resultMsgEl.style.color = '#0f766e';
+          resultMsgEl.innerHTML = `🎉 Đã nộp bài Khẩu ngữ HSK ${lvlNum} (${count}/${questions.length} câu)! Điểm TB câu đã đọc: <strong>${avgAnswered}/100</strong> · Điểm tổng đề HSKK: <strong>${totalExamScore}/100</strong> (${totalExamScore >= 60 ? 'ĐẠT CHUẨN HSKK' : 'Cần luyện thêm'}).`;
         }
-        try { HTQ_STUDIO_FX.toast(`🎤 Đã lưu kết quả Khẩu ngữ HSK ${lvlNum}: ${finalScore}/100 điểm!`, 'success'); } catch (_) {}
+        try { HTQ_STUDIO_FX.toast(`🎤 Đã lưu kết quả Khẩu ngữ HSK ${lvlNum}: ${totalExamScore}/100 điểm!`, 'success'); } catch (_) {}
       };
     }
   }
@@ -13088,18 +13978,53 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       stageEl.querySelector('#xhz-sh-copy').onclick = () => copyStudyText(`${cur.hanzi} (${cur.pinyin})`, cur.hanzi);
       stageEl.querySelector('#xhz-sh-prev').onclick = () => { curIdx = (curIdx - 1 + list.length) % list.length; renderShadowingUI(); };
       stageEl.querySelector('#xhz-sh-next').onclick = () => { curIdx = (curIdx + 1) % list.length; renderShadowingUI(); };
+      let activeShCap = null;
       stageEl.querySelector('#xhz-sh-mic').onclick = async () => {
         const fbEl = stageEl.querySelector('#xhz-sh-feedback');
         const micBtn = stageEl.querySelector('#xhz-sh-mic');
-        if (fbEl) fbEl.textContent = '🎙️ Đang nghe tiếng Trung (zh-CN)... Hãy đọc to câu trên!';
-        if (micBtn) micBtn.disabled = true;
-        const rec = await recognizeChineseSpeech({ expectedHanzi: cur.hanzi, timeoutMs: 5500 });
-        const score = (rec && Number(rec.score)) || 92;
+        if (activeShCap) {
+          activeShCap.stop();
+          return;
+        }
+        if (fbEl) fbEl.innerHTML = '🎙️ Đang nghe tiếng Trung (zh-CN)... Hãy đọc to câu trên rồi bấm lại để dừng &amp; chấm điểm!';
+        if (micBtn) {
+          micBtn.textContent = '⏹ Dừng & Chấm điểm';
+          micBtn.style.background = '#e11d48';
+        }
+        const cap = startSpeakingCapture({
+          expectedHanzi: cur.hanzi,
+          expectedPinyin: cur.pinyin,
+          timeoutMs: 9000,
+          onInterim: txt => {
+            if (fbEl && txt) fbEl.innerHTML = `🎙️ Đang nghe: <strong>“${escapeHtml(txt)}”</strong> — bấm nút đỏ để dừng &amp; chấm ngay`;
+          }
+        });
+        activeShCap = cap;
+        const rec = await cap.promise;
+        activeShCap = null;
+        if (micBtn) {
+          micBtn.textContent = '🎙️ Thu âm nhại lại';
+          micBtn.style.background = '#4f46e5';
+        }
+        if (!rec || !rec.ok) {
+          if (fbEl) {
+            fbEl.innerHTML = `<span style="color:#dc2626;">⚠️ ${escapeHtml((rec && (rec.errorMessage || rec.feedback)) || 'Không thu được âm thanh. Hãy kiểm tra micro và thử lại.')}</span>` +
+              (rec && rec.audioUrl ? `<div style="margin-top:8px;"><audio controls src="${rec.audioUrl}" style="height:34px;max-width:100%;"></audio></div>` : '');
+          }
+          return;
+        }
+        const score = Math.max(0, Math.min(100, Math.round(Number(rec.score))));
         spkScores[cur.hanzi] = { score, updatedAt: Date.now() };
-        recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 1, speakingItem: { key: cur.hanzi, score } });
-        if (micBtn) micBtn.disabled = false;
+        if (score > 0) {
+          recordStudyProgress({ voiceInc: 1, gradingInc: 1, minutes: 1, speakingItem: { key: cur.hanzi, score } });
+        }
         if (fbEl) {
-          fbEl.innerHTML = `✅ Đạt <strong>${score}%</strong> độ chính xác! ${score >= 90 ? 'Ngữ điệu và thanh điệu rất tự nhiên!' : 'Hãy nghe lại ở tốc độ 0.8× và nối liền hơi hơn nhé.'}`;
+          const colorHex = score >= 85 ? '#15803d' : score >= 60 ? '#b45309' : '#dc2626';
+          fbEl.innerHTML =
+            `<div style="color:${colorHex};">${rec.unverified ? '🎙️ Đã thu âm để bạn nghe lại' : `📊 Đạt <strong>${score}%</strong>`} — ${escapeHtml(rec.feedback || '')}</div>` +
+            (rec.transcript ? `<div style="margin-top:4px;font-size:13px;color:#57534e;">Nghe được: <strong>${escapeHtml(rec.transcript)}</strong></div>` : '') +
+            renderSyllableChipsHtml(rec.syllables) +
+            (rec.audioUrl ? `<div style="margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;"><span style="font-size:12px;color:#57534e;">Giọng bạn:</span><audio controls src="${rec.audioUrl}" style="height:34px;max-width:100%;"></audio></div>` : '');
         }
         renderPlaylist();
       };
@@ -15689,7 +16614,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       writePhaseIdx: 0, // 0: Xem (demo), 1: Tô theo (trace), 2: Tự viết (recall)
       writeQuizDone: false,
       readRecorded: false,
-      readScore: 95,
+      readScore: null,
+      readTranscript: '',
+      readError: '',
+      readFeedback: '',
+      readSyllables: [],
+      readAudioUrl: '',
+      readRecording: false,
       dlgQuestionIdx: 0,
       roleplayChoiceId: null,
       roleplaySpoken: false,
@@ -15711,7 +16642,13 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
       state.writePhaseIdx = 0;
       state.writeQuizDone = false;
       state.readRecorded = false;
-      state.readScore = 92 + (state.stepIdx % 7);
+      state.readScore = null;
+      state.readTranscript = '';
+      state.readError = '';
+      state.readFeedback = '';
+      state.readSyllables = [];
+      state.readAudioUrl = '';
+      state.readRecording = false;
       state.dlgQuestionIdx = 0;
       state.roleplayChoiceId =
         step && step.type === 'roleplay_turn' && step.payload && Array.isArray(step.payload.choices) && step.payload.choices[0]
@@ -16615,12 +17552,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         `;
         answerHtml = `
           <div style="display:flex;flex-direction:column;align-items:center;gap:12px;padding:16px 0;">
-            <button type="button" class="lp-mic ${state.readRecorded ? 'rec' : ''}" id="xhz-read-mic-btn" aria-label="Bắt đầu ghi âm">
+            <button type="button" class="lp-mic ${state.readRecorded || state.readRecording ? 'rec' : ''}" id="xhz-read-mic-btn" aria-label="${state.readRecording ? 'Dừng ghi âm và chấm điểm' : 'Bắt đầu ghi âm'}" style="${state.readRecording ? 'background:#e11d48;color:#fff;' : ''}">
               <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg>
             </button>
-            <p class="lp-status-line">
-              ${state.readRecorded ? `Đã chấm phát âm: <b>${state.readScore}%</b>${state.readTranscript ? ` (Nghe được: "${state.readTranscript}")` : ' (Chuẩn!)'}` : 'Chạm biểu tượng micro để đọc to câu trên'}
+            <p class="lp-status-line" role="status" aria-live="polite" style="${state.readError ? 'color:#dc2626;' : ''}">
+              ${state.readRecording ? '⏹ Đang nghe... Chạm lại micro để dừng &amp; chấm điểm' : state.readError ? `⚠️ ${escapeHtml(state.readError)}` : state.readRecorded ? `Đã chấm phát âm: <b>${state.readScore}%</b>${state.readTranscript ? ` (Nghe được: “${escapeHtml(state.readTranscript)}”)` : ''}` : 'Chạm biểu tượng micro để đọc to câu trên'}
             </p>
+            ${state.readRecorded && state.readSyllables && state.readSyllables.length ? renderSyllableChipsHtml(state.readSyllables) : ''}
+            ${state.readAudioUrl ? `<audio controls src="${state.readAudioUrl}" style="height:34px;max-width:100%;"></audio>` : ''}
             <button type="button" class="lp-btn-text" id="xhz-read-skip">Bỏ qua</button>
           </div>
         `;
@@ -16759,12 +17698,14 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
               }).join('')}
             </div>
             <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:12px 0;">
-              <button type="button" class="lp-mic ${state.roleplaySpoken ? 'rec' : ''}" id="xhz-rp-mic-btn" aria-label="Đọc to câu trả lời">
+              <button type="button" class="lp-mic ${state.roleplaySpoken || state.readRecording ? 'rec' : ''}" id="xhz-rp-mic-btn" aria-label="${state.readRecording ? 'Dừng ghi âm nhập vai' : 'Đọc to câu trả lời'}" style="${state.readRecording ? 'background:#e11d48;color:#fff;' : ''}">
                 <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v1a7 7 0 0 0 14 0v-1M12 18v4M8 22h8"/></svg>
               </button>
-              <p class="lp-status-line" id="xhz-rp-status">
-                ${state.roleplaySpoken ? `Đã chấm phát âm nhập vai: <b>${state.readScore}%</b>${state.readTranscript ? ` (Nghe được: "${state.readTranscript}")` : ' (Tốt!)'}` : 'Chạm micro để nói câu đã chọn'}
+              <p class="lp-status-line" id="xhz-rp-status" role="status" aria-live="polite" style="${state.readError ? 'color:#dc2626;' : ''}">
+                ${state.readRecording ? '⏹ Đang nghe... Chạm lại micro để dừng &amp; chấm điểm' : state.readError ? `⚠️ ${escapeHtml(state.readError)}` : state.roleplaySpoken ? `Đã chấm phát âm nhập vai: <b>${state.readScore}%</b>${state.readTranscript ? ` (Nghe được: “${escapeHtml(state.readTranscript)}”)` : ''}` : 'Chạm micro để nói câu đã chọn'}
               </p>
+              ${state.roleplaySpoken && state.readSyllables && state.readSyllables.length ? renderSyllableChipsHtml(state.readSyllables) : ''}
+              ${state.readAudioUrl ? `<audio controls src="${state.readAudioUrl}" style="height:34px;max-width:100%;"></audio>` : ''}
               ${p.allowSkip !== false ? `<button type="button" class="lp-btn-text" id="xhz-rp-skip">Bỏ qua lượt này</button>` : ''}
             </div>
           </div>
@@ -16772,7 +17713,8 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         footerBtnLabel = 'Tiếp tục';
         footerBtnDisabled = !state.roleplaySpoken && p.allowSkip === false;
         footerAction = () => {
-          submitGradedAnswer(true, pickedChoice.hanzi || '', {
+          const isOkRp = state.roleplaySpoken ? Number(state.readScore) >= 60 : true;
+          submitGradedAnswer(isOkRp, pickedChoice.hanzi || '', {
             hanzi: pickedChoice.hanzi || '',
             pinyin: pickedChoice.pinyin || '',
             vi: pickedChoice.vi || '',
@@ -17204,16 +18146,43 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
         };
       });
 
-      const handleSpeakingMic = async ({ expectedHanzi, audioUrl, statusEl, onDone }) => {
-        if (statusEl) statusEl.textContent = 'Đang nghe tiếng Trung (zh-CN)... Hãy đọc to!';
-        const res = await recognizeChineseSpeech({ expectedHanzi, timeoutMs: 5500 });
-        state.readScore = (res && res.score) || 90;
-        state.readTranscript = (res && res.transcript) || '';
-        playPronunciation(expectedHanzi || '', audioUrl || '', 1.0);
+      const handleSpeakingMic = async ({ expectedHanzi, expectedPinyin, statusEl, onDone }) => {
+        if (window.__xhzRunnerMicCapture) {
+          window.__xhzRunnerMicCapture.stop();
+          return;
+        }
+        state.readRecording = true;
+        state.readError = '';
+        renderRunner();
+        const cap = startSpeakingCapture({
+          expectedHanzi,
+          expectedPinyin: expectedPinyin || '',
+          timeoutMs: 8500,
+          onInterim: txt => {
+            const liveEl = runnerRoot.querySelector('.lp-status-line') || runnerRoot.querySelector('#xhz-rp-status');
+            if (liveEl && txt) liveEl.textContent = `🎙️ Đang nhận diện: "${txt}" — chạm lại micro để dừng`;
+          }
+        });
+        window.__xhzRunnerMicCapture = cap;
+        const res = await cap.promise;
+        window.__xhzRunnerMicCapture = null;
+        state.readRecording = false;
+        state.readAudioUrl = (res && res.audioUrl) || '';
+        state.readSyllables = (res && Array.isArray(res.syllables)) ? res.syllables : [];
+        if (!res || !res.ok) {
+          state.readScore = (res && res.errorCode === 'NO_SPEECH') ? 0 : null;
+          state.readTranscript = (res && res.transcript) || '';
+          state.readError = (res && (res.errorMessage || res.feedback)) || 'Không thu được giọng nói. Hãy kiểm tra micro và thử lại.';
+          renderRunner();
+          return;
+        }
+        state.readScore = Math.max(0, Math.min(100, Math.round(Number(res.score))));
+        state.readTranscript = res.transcript || '';
+        state.readFeedback = res.feedback || '';
         try {
-          if (expectedHanzi) {
+          if (expectedHanzi && state.readScore > 0) {
             recordStudyProgress({ voiceInc: 1, gradingInc: 1, speakingItem: { key: expectedHanzi, score: state.readScore } });
-          } else {
+          } else if (state.readScore > 0) {
             recordStudyProgress({ voiceInc: 1, gradingInc: 1 });
           }
         } catch (_) {}
@@ -17228,7 +18197,7 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           const sent = (step.payload && step.payload.sentence) || {};
           handleSpeakingMic({
             expectedHanzi: sent.hanzi || '',
-            audioUrl: (sent.audio && sent.audio.url) || '',
+            expectedPinyin: sent.pinyin || '',
             statusEl: runnerRoot.querySelector('.lp-status-line'),
             onDone: () => { state.readRecorded = true; }
           });
@@ -17256,11 +18225,11 @@ const SUPABASE_URL = 'https://skxgzzdunqloxxombtuc.supabase.co';
           const picked = choices.find(c => c.id === state.roleplayChoiceId) || choices[0] || {};
           handleSpeakingMic({
             expectedHanzi: picked.hanzi || '',
-            audioUrl: (picked.audio && picked.audio.url) || '',
+            expectedPinyin: picked.pinyin || '',
             statusEl: runnerRoot.querySelector('#xhz-rp-status'),
             onDone: () => {
               state.roleplaySpoken = true;
-              try { recordStudyProgress({ dailyStepDone: 'step-talk-1' }); } catch (_) {}
+              try { if (Number(state.readScore) >= 60) recordStudyProgress({ dailyStepDone: 'step-talk-1' }); } catch (_) {}
             }
           });
         };

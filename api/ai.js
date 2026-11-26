@@ -102,6 +102,228 @@ async function callLlmJson(systemPrompt, userPrompt, clientApiKey) {
   return null;
 }
 
+function cleanAudioMimeType(rawMime) {
+  const base = String(rawMime || "audio/webm").split(";")[0].trim().toLowerCase();
+  return /^audio\/[a-z0-9.+-]+$/.test(base) ? base : "audio/webm";
+}
+
+function cleanPinyinTokens(pinyin) {
+  return String(pinyin || "").match(/[\p{Script=Latin}\p{M}üÜ]+[1-5]?/gu) || [];
+}
+
+function lcsAlignIndices(expectedArr, spokenArr) {
+  const n = expectedArr.length;
+  const m = spokenArr.length;
+  const dp = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) {
+    for (let j = m - 1; j >= 0; j--) {
+      if (expectedArr[i] === spokenArr[j]) {
+        dp[i][j] = 1 + dp[i + 1][j + 1];
+      } else {
+        dp[i][j] = dp[i + 1][j] >= dp[i][j + 1] ? dp[i + 1][j] : dp[i][j + 1];
+      }
+    }
+  }
+  const matchedExpToSpk = new Array(n).fill(-1);
+  const matchedSpk = new Set();
+  let i = 0;
+  let j = 0;
+  while (i < n && j < m) {
+    if (expectedArr[i] === spokenArr[j]) {
+      matchedExpToSpk[i] = j;
+      matchedSpk.add(j);
+      i++;
+      j++;
+    } else if (dp[i + 1][j] >= dp[i][j + 1]) {
+      i++;
+    } else {
+      j++;
+    }
+  }
+  return { matchedExpToSpk, matchedCount: matchedSpk.size, extraCount: Math.max(0, m - matchedSpk.size) };
+}
+
+function gradePronunciationServer({ hanzi, pinyin, transcriptHeard, alternatives = [], acoustic = null, hasTranscriptField = false }) {
+  const chars = Array.from(String(hanzi || "")).filter((ch) => /\p{Script=Han}/u.test(ch));
+  const targetChars = chars.length ? chars : Array.from("你好");
+  const pyTokens = cleanPinyinTokens(pinyin);
+
+  if (acoustic && acoustic.isSilent) {
+    return {
+      score: 0,
+      noSpeech: true,
+      feedback: "Micro không thu được giọng nói (chỉ có khoảng lặng hoặc âm lượng quá nhỏ). Hãy đọc to và rõ vào micro.",
+      tip: "Giữ khoảng cách micro 10–15 cm, nói hết câu rồi mới dừng ghi âm.",
+      transcriptHeard: "",
+      syllables: targetChars.map((ch, idx) => {
+        const py = pyTokens[idx] || "";
+        return {
+          hanzi: ch,
+          pinyin: py,
+          expectedTone: detectToneFromPinyin(py),
+          status: "error",
+          issue: "missing",
+          comment: `Chưa nghe thấy âm "${ch}"${py ? ` (${py})` : ""} trong bản ghi.`
+        };
+      }),
+      source: "acoustic-silence",
+      grading: { limit: null, remaining: null }
+    };
+  }
+
+  const candidates = [transcriptHeard, ...(Array.isArray(alternatives) ? alternatives : [])]
+    .map((s) => String(s || "").trim())
+    .filter(Boolean);
+
+  let bestCandidate = String(transcriptHeard || "").trim();
+  let bestAlign = lcsAlignIndices(targetChars, Array.from(bestCandidate).filter((ch) => /\p{Script=Han}/u.test(ch)));
+  for (const cand of candidates) {
+    const spChars = Array.from(cand).filter((ch) => /\p{Script=Han}/u.test(ch));
+    const al = lcsAlignIndices(targetChars, spChars);
+    if (al.matchedCount > bestAlign.matchedCount || (al.matchedCount === bestAlign.matchedCount && al.extraCount < bestAlign.extraCount)) {
+      bestCandidate = cand;
+      bestAlign = al;
+    }
+  }
+
+  const spokenHanziChars = Array.from(bestCandidate).filter((ch) => /\p{Script=Han}/u.test(ch));
+  if (!spokenHanziChars.length) {
+    if (hasTranscriptField) {
+      return {
+        score: 0,
+        noSpeech: true,
+        feedback: bestCandidate
+          ? `Hệ thống nghe thấy "${bestCandidate}", không khớp câu tiếng Trung mẫu "${targetChars.join("")}".`
+          : "Không nhận diện được âm tiết tiếng Trung nào trong bản ghi. Hãy thử nói chậm, rõ hơn gần micro.",
+        tip: "Bấm Nghe mẫu 0.7x trước, sau đó đọc to rõ từng âm tiết bằng tiếng Trung.",
+        transcriptHeard: bestCandidate,
+        syllables: targetChars.map((ch, idx) => {
+          const py = pyTokens[idx] || "";
+          return {
+            hanzi: ch,
+            pinyin: py,
+            expectedTone: detectToneFromPinyin(py),
+            status: "error",
+            issue: "missing",
+            comment: `Chưa nhận diện được âm "${ch}"${py ? ` (${py})` : ""}.`
+          };
+        }),
+        source: "speech-mismatch",
+        grading: { limit: null, remaining: null }
+      };
+    }
+    return {
+      score: 0,
+      unverified: true,
+      feedback: "Đã thu âm giọng của bạn để nghe lại, nhưng trình duyệt hiện tại chưa trả về nhận diện zh-CN và máy chủ chưa cấu hình GEMINI_API_KEY để chấm âm thanh trực tiếp.",
+      tip: "Dùng Chrome/Edge bản mới để bật nhận diện giọng nói zh-CN hoặc cấu hình GEMINI_API_KEY trên Vercel.",
+      transcriptHeard: "",
+      syllables: targetChars.map((ch, idx) => {
+        const py = pyTokens[idx] || "";
+        return {
+          hanzi: ch,
+          pinyin: py,
+          expectedTone: detectToneFromPinyin(py),
+          status: "warning",
+          issue: "other",
+          comment: `Chưa đủ dữ liệu nhận diện để chấm "${ch}"${py ? ` (${py})` : ""}.`
+        };
+      }),
+      source: "unverified",
+      grading: { limit: null, remaining: null }
+    };
+  }
+
+  const syllables = targetChars.map((ch, idx) => {
+    const py = pyTokens[idx] || "";
+    const expectedTone = detectToneFromPinyin(py);
+    const matched = bestAlign.matchedExpToSpk[idx] !== -1;
+    return {
+      hanzi: ch,
+      pinyin: py,
+      expectedTone,
+      status: matched ? "good" : "error",
+      issue: matched ? null : "missing",
+      comment: matched
+        ? `Nhận diện đúng âm "${ch}"${py ? ` (${py})` : ""}.`
+        : `Chưa nghe rõ âm "${ch}"${py ? ` (${py}, thanh ${expectedTone})` : ""}.`
+    };
+  });
+
+  let score;
+  if (bestAlign.matchedCount === targetChars.length && bestAlign.extraCount === 0) {
+    score = 95;
+  } else if (bestAlign.matchedCount === 0) {
+    score = 0;
+  } else {
+    const extraPenalty = Math.min(25, Math.round((bestAlign.extraCount / Math.max(2, targetChars.length)) * 18));
+    score = Math.max(0, Math.min(94, Math.round((bestAlign.matchedCount / targetChars.length) * 100 - extraPenalty)));
+  }
+
+  const feedback =
+    score >= 85
+      ? `Phát âm tốt (${bestAlign.matchedCount}/${targetChars.length} âm tiết khớp chuẩn).`
+      : score >= 60
+      ? `Khá ổn (${bestAlign.matchedCount}/${targetChars.length} âm tiết khớp) — chú ý đọc rõ các âm đánh dấu đỏ.`
+      : score > 0
+      ? `Chỉ khớp ${bestAlign.matchedCount}/${targetChars.length} âm tiết (nghe được "${bestCandidate}"). Hãy nghe mẫu 0.7x và đọc lại từng từ.`
+      : `Không khớp câu mẫu (nghe được "${bestCandidate}"). Hãy đọc đúng câu "${targetChars.join("")}".`;
+
+  return {
+    score,
+    feedback,
+    tip: "Nghe lại bản ghi giọng của bạn rồi so sánh thanh điệu với câu mẫu ở tốc độ 0.7x.",
+    transcriptHeard: bestCandidate,
+    syllables,
+    source: "speech-align",
+    grading: { limit: null, remaining: null }
+  };
+}
+
+async function callGeminiAudioJson(systemPrompt, userPrompt, audioBase64, audioMimeType, clientApiKey) {
+  const geminiKey = clientApiKey || process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!geminiKey || !audioBase64) return null;
+  const cleanB64 = String(audioBase64).replace(/^data:[^;]+;base64,/, "").trim();
+  if (!cleanB64) return null;
+  const mimeType = cleanAudioMimeType(audioMimeType);
+  const models = [...new Set([process.env.GEMINI_MODEL, "gemini-2.5-flash", "gemini-2.0-flash"].filter(Boolean))];
+  for (const model of models) {
+    try {
+      const resp = await fetchWithTimeout(
+        `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": geminiKey
+          },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+            contents: [{
+              role: "user",
+              parts: [
+                { inlineData: { mimeType, data: cleanB64 } },
+                { text: String(userPrompt || "").slice(0, 3000) }
+              ]
+            }],
+            generationConfig: { responseMimeType: "application/json", temperature: 0.15 }
+          })
+        },
+        15000
+      );
+      if (resp.ok) {
+        const data = await resp.json();
+        const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (raw) {
+          const cleaned = raw.replace(/^```json\s*/i, "").replace(/```\s*$/, "").trim();
+          return JSON.parse(cleaned);
+        }
+      }
+    } catch (_) {}
+  }
+  return null;
+}
+
 const CORE_PHRASE_DICT = [
   { zh: "你好", py: "nǐ hǎo", hv: "nhĩ hảo", vi: "xin chào" },
   { zh: "您好", py: "nín hǎo", hv: "nâm hảo", vi: "xin chào (kính ngữ)" },
@@ -678,60 +900,95 @@ module.exports = async function handler(req, res) {
     // 3. SPEAKING ASSESS (/v1/speaking/assess)
     // ------------------------------------------------------------------------
     if (action === "speaking-assess") {
-      const hanzi = String(body.hanzi || body.text || body.expectedText || body.expected || "").trim();
-      const pinyin = String(body.pinyin || "").trim();
-      const transcriptHeard = String(body.transcriptHeard || body.recognizedText || body.recognized || hanzi).trim();
-      const audioBase64 = body.audioBase64 || body.audio || "";
+      const expObj = body.expected && typeof body.expected === "object" ? body.expected : null;
+      const hanzi = String((expObj && expObj.hanzi) || body.hanzi || body.expectedText || body.referenceText || body.text || (typeof body.expected === "string" ? body.expected : "") || "").trim();
+      const pinyin = String((expObj && expObj.pinyin) || body.pinyin || "").trim();
+      const audObj = body.audio && typeof body.audio === "object" ? body.audio : null;
+      const audioBase64 = String((audObj && audObj.data) || body.audioBase64 || (typeof body.audio === "string" ? body.audio : "") || "").trim();
+      const audioMimeType = String((audObj && audObj.mimeType) || body.audioMimeType || "audio/webm").trim();
+      const hasTranscriptField =
+        body.transcriptHeard !== undefined ||
+        body.recognizedText !== undefined ||
+        body.recognized !== undefined ||
+        body.transcript !== undefined ||
+        body.spokenText !== undefined;
+      const transcriptHeard = hasTranscriptField
+        ? String(body.transcriptHeard ?? body.recognizedText ?? body.recognized ?? body.transcript ?? body.spokenText ?? "").trim()
+        : "";
+      const alternatives = Array.isArray(body.alternatives) ? body.alternatives : [];
+      const acoustic = body.acoustic && typeof body.acoustic === "object" ? body.acoustic : null;
 
       const chars = Array.from(hanzi).filter((ch) => /\p{Script=Han}/u.test(ch));
-      const pyTokens = pinyin ? pinyin.split(/\s+/).filter(Boolean) : [];
+      const pyTokens = cleanPinyinTokens(pinyin);
+      const cleanB64 = audioBase64.replace(/^data:[^;]+;base64,/, "");
+      const audioByteLen = cleanB64 ? Math.floor((cleanB64.length * 3) / 4) : 0;
 
-      const audioByteLen = audioBase64 ? Math.floor((audioBase64.length * 3) / 4) : 12000;
-      const hasEnoughAudio = audioByteLen > 1200;
-
-      const syllables = (chars.length ? chars : Array.from(hanzi || "好")).map((ch, idx) => {
-        const py = pyTokens[idx] || "";
-        const expectedTone = detectToneFromPinyin(py);
-        const heardHasChar = !transcriptHeard || transcriptHeard.includes(ch);
-        let status = "good";
-        let issue = null;
-        let comment = `Phát âm âm "${ch}" (${py || "chuẩn"}) rõ ràng, đúng thanh điệu.`;
-        if (!hasEnoughAudio) {
-          status = "warning";
-          issue = "other";
-          comment = "Âm lượng hơi nhỏ, hãy đọc to và rõ hơn một chút.";
-        } else if (transcriptHeard && !heardHasChar) {
-          status = "warning";
-          issue = "tone";
-          comment = `Chú ý phát âm rõ âm "${ch}" (${py || "chuẩn"}, thanh ${expectedTone}).`;
+      if (audioByteLen >= 800 && !(acoustic && acoustic.isSilent)) {
+        const gem = await callGeminiAudioJson(
+          "Bạn là giám khảo chấm phát âm tiếng Trung phổ thông nghiêm túc. Nghe kỹ file âm thanh người học đọc so với câu mẫu (hanzi + pinyin). Nếu là im lặng, tạp âm, sai ngôn ngữ hoặc đọc khác hẳn câu mẫu, trả về score=0 và status='error', issue='missing'. KHÔNG bao giờ cho điểm cao khi người học không đọc đúng. Chỉ trả về JSON hợp lệ.",
+          JSON.stringify({
+            expectedHanzi: hanzi,
+            expectedPinyin: pinyin,
+            expectedSyllables: chars.map((ch, idx) => ({ hanzi: ch, pinyin: pyTokens[idx] || "", expectedTone: detectToneFromPinyin(pyTokens[idx] || "") })),
+            instruction: 'Trả về JSON: { "score": 0..100, "transcriptHeard": "...", "feedback": "tiếng Việt ngắn gọn", "tip": "mẹo sửa ngắn gọn", "syllables": [{ "hanzi": "...", "pinyin": "...", "expectedTone": 1..5, "status": "good|warning|error", "issue": null|"tone"|"initial"|"final"|"missing"|"other", "comment": "tiếng Việt" }] }'
+          }),
+          cleanB64,
+          audioMimeType,
+          clientApiKey
+        );
+        if (gem && Number.isFinite(Number(gem.score)) && Array.isArray(gem.syllables) && gem.syllables.length === chars.length) {
+          const score = Math.max(0, Math.min(100, Math.round(Number(gem.score))));
+          const validStatus = new Set(["good", "warning", "error"]);
+          const validIssue = new Set(["tone", "initial", "final", "missing", "other"]);
+          const normSyllables = chars.map((ch, idx) => {
+            const g = gem.syllables[idx] || {};
+            const py = String(g.pinyin || pyTokens[idx] || "");
+            const status = validStatus.has(g.status) ? g.status : (score >= 85 ? "good" : "warning");
+            const issue = status === "good" ? null : (validIssue.has(g.issue) ? g.issue : "other");
+            return {
+              hanzi: ch,
+              pinyin: py,
+              expectedTone: Number(g.expectedTone) || detectToneFromPinyin(py),
+              status,
+              issue,
+              comment: String(g.comment || (status === "good" ? "Phát âm chuẩn." : "Chú ý thanh điệu và âm tiết này."))
+            };
+          });
+          return res.status(200).json({
+            score,
+            feedback: String(gem.feedback || "Đã chấm phát âm trực tiếp từ giọng đọc của bạn."),
+            tip: String(gem.tip || "Nghe lại bản ghi giọng bạn và so sánh với phát âm mẫu 0.7x."),
+            transcriptHeard: String(gem.transcriptHeard || transcriptHeard || ""),
+            syllables: normSyllables,
+            source: "gemini-audio",
+            grading: { limit: null, remaining: null }
+          });
         }
-        return {
-          hanzi: ch,
-          pinyin: py,
-          expectedTone,
-          status,
-          issue,
-          comment
-        };
-      });
+      }
 
-      const goodCount = syllables.filter((s) => s.status === "good").length;
-      const rawScore = syllables.length
-        ? Math.round((goodCount / syllables.length) * 88 + (hasEnoughAudio ? 8 : -12))
-        : 88;
-      const score = Math.max(55, Math.min(98, rawScore));
+      if (audioBase64 && audioByteLen > 0 && audioByteLen < 800 && !transcriptHeard) {
+        return res.status(200).json(
+          gradePronunciationServer({
+            hanzi,
+            pinyin,
+            transcriptHeard: "",
+            alternatives,
+            acoustic: { isSilent: true },
+            hasTranscriptField: true
+          })
+        );
+      }
 
-      return res.status(200).json({
-        score,
-        feedback:
-          score >= 85
-            ? "Phát âm rất chuẩn và tự nhiên! Nhịp điệu và thanh điệu rõ ràng."
-            : "Phát âm khá tốt, chú ý giữ đúng thanh điệu ở các âm được đánh dấu vàng nhé.",
-        tip: "Mẹo: Nghe mẫu ở tốc độ 0.75x rồi đọc nối liền hơi để câu mượt tự nhiên hơn.",
-        transcriptHeard: transcriptHeard || hanzi,
-        syllables,
-        grading: { limit: null, remaining: null }
-      });
+      return res.status(200).json(
+        gradePronunciationServer({
+          hanzi,
+          pinyin,
+          transcriptHeard,
+          alternatives,
+          acoustic,
+          hasTranscriptField
+        })
+      );
     }
 
     // ------------------------------------------------------------------------
